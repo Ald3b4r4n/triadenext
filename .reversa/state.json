@@ -9,13 +9,11 @@
   "output_folder": "_reversa_sdd",
   "forward_folder": "_reversa_forward",
   "phase": null,
-  "completed": [],
+  "completed": [
+    "reextracao_pos_fase_3"
+  ],
   "pending": [
-    "reconhecimento",
-    "escavacao",
-    "interpretacao",
-    "geracao",
-    "revisao"
+    "fase_4_requisitos_auth_policies"
   ],
   "checkpoints": {
     "context_refresh_2026_06_08": {
@@ -45,6 +43,48 @@
         "latest_commit": "f10386c8e0526236b43da2fb17847e4532cb895f",
         "phase_2_commit_pushed": true,
         "note": "O prompt informava ahead 1, mas git status -sb confirmou branch sincronizada com origin/main."
+      }
+    },
+    "reextraction_after_phase_3_2026_06_08": {
+      "completed_at": "2026-06-08T12:35:00-03:00",
+      "purpose": "Re-extracao Reversa apos Fase 3 concluida, commitada e enviada ao GitHub, sem alterar codigo funcional.",
+      "files": [
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        ".reversa/context/current-state.json",
+        ".reversa/state.json",
+        "_reversa_forward/001-fase-3-neon-drizzle/regression-watch.md"
+      ],
+      "implemented_phases": [
+        "fundacao",
+        "fase_1_catalogo_produtos_imagens",
+        "fase_2_admin_produtos",
+        "fase_3_neon_drizzle_migrations_locais_seed_controlado_persistencia_real"
+      ],
+      "phase3_commit": "3774c49b930b8edc0af004517749d287d2259a1a",
+      "phase3_commit_pushed": true,
+      "next_phase": "fase_4_autenticacao_policies_reais_admin_customer",
+      "next_command": "/reversa-requirements",
+      "guardrails": [
+        "Nao executar migrations contra banco real sem validacao humana.",
+        "Nao conectar banco real nesta re-extracao.",
+        "Nao ler, copiar ou expor .env.",
+        "Nao expor DATABASE_URL.",
+        "Upload real continua bloqueado sem BLOB_READ_WRITE_TOKEN.",
+        "Nao fazer deploy.",
+        "Nao fazer push nesta execucao.",
+        "Nao modificar o Laravel legado."
+      ],
+      "git": {
+        "branch": "main",
+        "status": "main...origin/main",
+        "latest_commit": "3774c49b930b8edc0af004517749d287d2259a1a",
+        "worktree_before_reextraction": "clean"
       }
     }
   },

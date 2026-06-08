@@ -10,7 +10,9 @@ modificada ou removida.
 
 ## Histórico de re-extrações
 
-Vazio.
+| Data | Re-extracao | Veredito |
+|---|---|---|
+| 2026-06-08 | `_reversa_sdd/` atualizado apos commit `3774c49` da Fase 3. | 🟢 Sem watch principal; regras preservadas seguem documentadas em `_reversa_sdd/domain.md`. |
 
 ## Arquivadas
 

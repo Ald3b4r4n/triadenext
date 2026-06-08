@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-08T10:59:45-03:00",
+  "updatedAt": "2026-06-08T12:35:00-03:00",
   "project": "triade-essenza-next",
   "workspace": "D:\\Projetos\\triade-essenza-next",
   "legacyWorkspace": "D:\\Projetos\\triadeessenzaparfum.com.br",
@@ -7,11 +7,10 @@
   "git": {
     "branch": "main",
     "status": "main...origin/main",
-    "latestCommit": "f10386c8e0526236b43da2fb17847e4532cb895f",
-    "latestCommitMessage": "feat: implement admin product management foundation",
-    "baseCommit": "1fed8bf742411a0308d605e6bedf489445667680",
-    "phase2CommitPushed": true,
-    "note": "O prompt informava ahead 1, mas git status -sb confirmou main...origin/main."
+    "latestCommit": "3774c49b930b8edc0af004517749d287d2259a1a",
+    "latestCommitMessage": "feat: prepare neon drizzle persistence for products",
+    "phase3CommitPushed": true,
+    "worktreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
     {
@@ -22,37 +21,58 @@
     {
       "name": "Fase 1 — catalogo, produto e imagens",
       "status": "done",
-      "summary": "Storefront de produtos por fixtures/dev fallback, regras de produto publico, slug, preco, capa por isCover e metadata de imagem."
+      "summary": "Storefront de produtos, regras de produto publico, slug, preco, capa por isCover e metadata de imagem."
     },
     {
       "name": "Fase 2 — admin de produtos",
       "status": "done",
       "summary": "Listagem admin, novo/edicao, formulario validado, actions, repository preparado, upload controlado e testes."
+    },
+    {
+      "name": "Fase 3 — Neon/Drizzle e persistencia de catalogo",
+      "status": "done",
+      "summary": "Runtime seguro, Drizzle/Neon revisado, migration local gerada sem aplicar, seed ficticio, repository real/fallback, admin/storefront/upload integrados, testes e docs verdes."
     }
   ],
-  "nextPhase": {
-    "name": "Fase 3",
-    "summary": "Conexao real com Neon/Drizzle, migrations locais, seed controlado e persistencia real de produtos/categorias/imagens.",
-    "guardrails": [
-      "Nao rodar migrations contra banco real sem validacao humana.",
-      "Nao expor ou versionar credenciais reais.",
-      "Nao fazer upload real sem BLOB_READ_WRITE_TOKEN.",
-      "Manter fallback seguro sem DATABASE_URL."
-    ]
+  "currentPersistence": {
+    "databaseMode": "DATABASE_URL ausente resulta em db null e fallback explicito; DATABASE_URL presente ativa Drizzle/Neon.",
+    "migration": "drizzle/0000_shallow_shinko_yamashiro.sql gerada e nao aplicada.",
+    "seed": "scripts/db/seed.mjs usa dados ficticios e falha sem DATABASE_URL.",
+    "upload": "Upload real bloqueado sem BLOB_READ_WRITE_TOKEN; metadata so persiste apos upload real e guardrail permitido.",
+    "adminGuardrail": "Mutacao real sem auth/policies fica restrita a development/test; preview/producao bloqueiam ate Fase 4."
   },
+  "validations": {
+    "pnpm lint": "passed",
+    "pnpm typecheck": "passed",
+    "pnpm test": "passed",
+    "pnpm build": "passed",
+    "pnpm test:e2e": "passed"
+  },
+  "nextPhase": {
+    "name": "Fase 4",
+    "summary": "Autenticacao e policies reais de admin/customer.",
+    "recommendedCommand": "/reversa-requirements",
+    "featurePrompt": "Fase 4: autenticacao e policies reais de admin/customer."
+  },
+  "guardrails": [
+    "Nao ler, copiar ou expor .env.",
+    "Nao expor DATABASE_URL.",
+    "Nao rodar migrations sem validacao humana.",
+    "Nao conectar banco real durante re-extracao.",
+    "Nao fazer deploy.",
+    "Nao fazer push nesta etapa.",
+    "Nao modificar o Laravel legado."
+  ],
   "references": {
-    "localDocs": [
-      "docs/features/catalog-products-images.md",
-      "docs/features/admin-products.md",
-      "docs/architecture/database.md",
-      "docs/architecture/uploads.md",
-      "docs/migration/handoff-summary.md"
+    "reversaSdd": [
+      "_reversa_sdd/inventory.md",
+      "_reversa_sdd/architecture.md",
+      "_reversa_sdd/domain.md",
+      "_reversa_sdd/dependencies.md",
+      "_reversa_sdd/data-dictionary.md",
+      "_reversa_sdd/state-machines.md",
+      "_reversa_sdd/permissions.md"
     ],
-    "legacyMigrationDocs": [
-      "D:\\Projetos\\triadeessenzaparfum.com.br\\_reversa_sdd\\migration\\handoff.md",
-      "D:\\Projetos\\triadeessenzaparfum.com.br\\_reversa_sdd\\migration\\database-plan.md",
-      "D:\\Projetos\\triadeessenzaparfum.com.br\\_reversa_sdd\\migration\\uploads-plan.md",
-      "D:\\Projetos\\triadeessenzaparfum.com.br\\_reversa_sdd\\migration\\implementation-roadmap.md"
-    ]
+    "forwardFeature": "_reversa_forward/001-fase-3-neon-drizzle"
   }
 }

@@ -1,11 +1,14 @@
 # Inventario Reversa — triade-essenza-next
 
-Atualizado em: 2026-06-08T10:59:45-03:00
+Atualizado em: 2026-06-08T12:35:00-03:00
 
-## Escopo desta atualizacao
+## Escopo desta re-extracao
 
-Esta atualizacao registra o estado do novo projeto Next.js antes da Fase 3. Nao executa Scout,
-Archaeologist, migrations, deploy, conexao real com banco, upload real, push ou commit.
+Esta re-extracao registra o estado do projeto Next.js apos a Fase 3
+`001-fase-3-neon-drizzle`, concluida, validada, commitada e enviada ao GitHub.
+
+Nao foram executados migrations, conexoes com banco real, upload real, deploy, push ou alteracoes em
+codigo funcional nesta etapa. O Laravel legado permaneceu fora do diretorio de trabalho.
 
 ## Diretorio
 
@@ -16,97 +19,96 @@ Archaeologist, migrations, deploy, conexao real com banco, upload real, push ou 
 ## Git
 
 - Branch: `main`
-- Estado observado: `main...origin/main`
-- Ultimo commit observado: `f10386c feat: implement admin product management foundation`
-- Commit base da fundacao/Fase 1: `1fed8bf742411a0308d605e6bedf489445667680`
-- Commit da Fase 2: `f10386c8e0526236b43da2fb17847e4532cb895f`
-- Observacao: o prompt informava `ahead 1`, mas o Git local confirmou que `main` esta sincronizada com `origin/main`.
+- Estado observado antes da re-extracao: `main...origin/main`
+- Worktree observado antes da re-extracao: limpo
+- Commit da Fase 3: `3774c49b930b8edc0af004517749d287d2259a1a`
+- Mensagem: `feat: prepare neon drizzle persistence for products`
+- Commits recentes:
+  - `3774c49 feat: prepare neon drizzle persistence for products`
+  - `f10386c feat: implement admin product management foundation`
+  - `1fed8bf chore: bootstrap triade next foundation and catalog phase 1`
 
-## Fundacao
+## Fases implementadas
 
-- Next.js com App Router, TypeScript, Tailwind, ESLint, Vitest e Playwright.
-- Drizzle/Neon preparado em schema e client sem exigir `DATABASE_URL` para build/test local.
-- Health check e placeholders iniciais de storefront/admin/customer.
-- `.env.example` versionado sem segredos reais.
+### Fundacao
 
-## Fase 1 — Catalogo, Produto e Imagens
+- Next.js App Router, React, TypeScript, Tailwind, ESLint, Vitest e Playwright.
+- Drizzle/Neon configurados sem exigir `DATABASE_URL` para build/test local.
+- Health check, superficies iniciais de storefront/admin/customer e `.env.example` sem segredos.
+
+### Fase 1 — Catalogo, produtos e imagens
 
 - Dominio de produtos em `src/features/products`.
-- Regras publicas implementadas:
-  - `published`;
+- Storefront em `/produtos` e `/produto/[slug]`.
+- Regras publicas preservadas:
+  - `status = published`;
   - `publishedAt <= now`;
   - `stockQuantity > 0`.
-- `draft`, produto futuro, produto sem estoque e `inactive` nao ficam publicos.
-- `inactive` segue tratado como inativo/arquivado provisorio, pendente validacao humana.
-- Storefront:
-  - `/produtos`;
-  - `/produto/[slug]`.
-- Imagens:
-  - capa por `isCover`;
-  - fallback tecnico por `sortOrder`;
-  - metadata preparada para `product_images`;
-  - binario nao deve ser salvo no banco.
-- Fixtures/dev fallback em `src/features/products/dev/fixtures.ts`.
+- `draft`, futuro, sem estoque e `inactive` nao ficam publicos.
+- Imagens usam `isCover`, `sortOrder` e metadata; binario nao entra no banco.
 
-## Fase 2 — Admin de Produtos
+### Fase 2 — Admin de produtos
 
-- Admin:
-  - `/admin/produtos`;
-  - `/admin/produtos/novo`;
-  - `/admin/produtos/[id]/editar`;
-  - `/admin/categorias` como suporte inicial de selecao.
-- Componentes:
-  - `product-form`;
-  - `product-admin-table`;
-  - `product-image-manager`;
-  - `product-status-select`;
-  - `price-input`.
-- Server/domain:
-  - `productFormSchema`;
-  - server actions de criar/editar;
-  - repository preparado para Drizzle/Neon;
-  - fallback `dev_fallback` sem `DATABASE_URL`.
-- Upload controlado:
-  - aceita `image/jpeg`, `image/png`, `image/webp`;
-  - limite atual: 5 MB;
-  - sem `BLOB_READ_WRITE_TOKEN`, retorna bloqueio controlado;
-  - sem upload real durante testes sem token.
+- Admin em `/admin/produtos`, `/admin/produtos/novo` e `/admin/produtos/[id]/editar`.
+- Formulario validado com Zod, server actions e repository.
+- Upload controlado aceita JPEG, PNG e WebP ate 5 MB.
+- Sem `BLOB_READ_WRITE_TOKEN`, upload retorna bloqueio controlado.
 
-## Artefatos locais usados como fonte
+### Fase 3 — Neon/Drizzle, migrations locais e seed
 
-- `docs/features/catalog-products-images.md`
-- `docs/features/admin-products.md`
-- `docs/architecture/database.md`
-- `docs/architecture/uploads.md`
-- `docs/migration/handoff-summary.md`
+- Runtime seguro em `src/lib/runtime-mode.ts`.
+- `src/db/client.ts` exporta `db = null` sem `DATABASE_URL`.
+- `src/db/schema.ts` expressa uniques/indices de catalogo, N:N e capa unica parcial.
+- Migration local gerada: `drizzle/0000_shallow_shinko_yamashiro.sql`.
+- Migration nao aplicada contra banco real.
+- Scripts de banco:
+  - `pnpm db:generate`;
+  - `pnpm db:migrate`;
+  - `pnpm db:studio`;
+  - `pnpm db:seed`.
+- Seed ficticio em `scripts/db/seed.mjs`, bloqueado sem `DATABASE_URL`.
+- Repository Drizzle/fallback implementado para:
+  - listar produtos admin;
+  - buscar por id;
+  - buscar por slug;
+  - listar categorias;
+  - listar imagens;
+  - criar produto com categorias;
+  - editar produto com substituicao de categorias;
+  - persistir metadata de imagem.
+- Admin exibe aviso de modo sem banco e de painel sem auth real.
+- Storefront continua via service/repository.
+- Preview/producao bloqueiam mutacao real sem Fase 4 de auth/policies.
 
-## Artefatos legado usados como referencia
+## Validacoes registradas da Fase 3
 
-O caminho solicitado `D:\Projetos\triadeessenzaparfum.com.br_reversa_sdd` nao existe nesta maquina.
-Os artefatos foram lidos como referencia em:
+- `pnpm lint`: passou.
+- `pnpm typecheck`: passou.
+- `pnpm test`: passou.
+- `pnpm build`: passou.
+- `pnpm test:e2e`: passou.
 
-- `D:\Projetos\triadeessenzaparfum.com.br\_reversa_sdd\migration\handoff.md`
-- `D:\Projetos\triadeessenzaparfum.com.br\_reversa_sdd\migration\database-plan.md`
-- `D:\Projetos\triadeessenzaparfum.com.br\_reversa_sdd\migration\uploads-plan.md`
-- `D:\Projetos\triadeessenzaparfum.com.br\_reversa_sdd\migration\implementation-roadmap.md`
+## Artefatos Reversa da Fase 3
 
-## Proxima fase planejada
+- `_reversa_forward/001-fase-3-neon-drizzle/actions.md`
+- `_reversa_forward/001-fase-3-neon-drizzle/progress.jsonl`
+- `_reversa_forward/001-fase-3-neon-drizzle/legacy-impact.md`
+- `_reversa_forward/001-fase-3-neon-drizzle/regression-watch.md`
 
-Fase 3: conexao real com Neon/Drizzle, migrations locais, seed controlado e persistencia real de
-produtos/categorias/imagens.
+## Guardrails atuais
 
-## Guardrails da Fase 3
-
-- Nao rodar migrations contra banco real sem validacao humana.
-- Nao usar credenciais reais no chat ou em arquivos versionados.
+- Nao ler, copiar ou expor `.env`.
+- Nao expor `DATABASE_URL`.
+- Nao rodar migrations sem validacao humana.
+- Nao conectar banco real nesta re-extracao.
 - Nao fazer upload real sem `BLOB_READ_WRITE_TOKEN`.
-- Nao ativar checkout, pagamento, frete ou cupom nesta fase de catalogo/persistencia.
-- Manter fallback local seguro quando `DATABASE_URL` estiver ausente.
+- Nao fazer deploy.
+- Nao fazer push nesta etapa.
+- Nao implementar checkout, pagamento, frete, cupom ou pedidos nesta fase.
+- Nao modificar o Laravel legado.
 
-## Lacunas pendentes
+## Proxima fase recomendada
 
-- Autenticacao/policy real para admin.
-- Decisao final sobre semantica de `inactive`.
-- Estrategia de migracao das imagens reais existentes.
-- Definicao final de Blob publico versus privado/signed URLs.
-- Seeds controlados e migrations revisadas antes de qualquer aplicacao em banco.
+Fase 4: autenticacao e policies reais de admin/customer.
+
+Comando recomendado para abrir o ciclo: `/reversa-requirements`.
