@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-08T12:35:00-03:00",
+  "updatedAt": "2026-06-08T17:41:00-03:00",
   "project": "triade-essenza-next",
   "workspace": "D:\\Projetos\\triade-essenza-next",
   "legacyWorkspace": "D:\\Projetos\\triadeessenzaparfum.com.br",
@@ -7,9 +7,9 @@
   "git": {
     "branch": "main",
     "status": "main...origin/main",
-    "latestCommit": "3774c49b930b8edc0af004517749d287d2259a1a",
-    "latestCommitMessage": "feat: prepare neon drizzle persistence for products",
-    "phase3CommitPushed": true,
+    "latestCommit": "fcdb929843dccbcc0cd2a3049bc5d012f0e2150b",
+    "latestCommitMessage": "feat: add auth and policy foundation",
+    "phase4CommitPushed": true,
     "worktreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
@@ -32,14 +32,47 @@
       "name": "Fase 3 — Neon/Drizzle e persistencia de catalogo",
       "status": "done",
       "summary": "Runtime seguro, Drizzle/Neon revisado, migration local gerada sem aplicar, seed ficticio, repository real/fallback, admin/storefront/upload integrados, testes e docs verdes."
+    },
+    {
+      "name": "Fase 4 — Better Auth, sessao e policies",
+      "status": "done",
+      "summary": "Better Auth integrado, login/cadastro/logout por e-mail/senha, sessao server-side, roles customer/admin/manager, policies reais, rotas admin/customer protegidas, server actions protegidas e seed admin dev controlado."
     }
   ],
+  "currentAuth": {
+    "provider": "Better Auth",
+    "loginMethods": ["email_password"],
+    "outOfScope": ["google_oauth", "magic_link", "fine_grained_permissions"],
+    "roles": ["customer", "admin", "manager"],
+    "adminLikeRoles": ["admin", "manager"],
+    "publicSignupRole": "customer",
+    "session": "Server-side session normalized by src/features/auth/server/session.ts.",
+    "policies": [
+      "requireAuthenticated",
+      "requireAdminLike",
+      "requireCustomer",
+      "requireOwner"
+    ],
+    "protectedSurfaces": [
+      "/admin/**",
+      "/minha-conta",
+      "/enderecos",
+      "/pedidos",
+      "product create/update server actions",
+      "product image upload/metadata"
+    ],
+    "adminDevSeed": "scripts/db/seed-admin-dev.ts, development-only, explicit envs, no hardcoded password."
+  },
   "currentPersistence": {
-    "databaseMode": "DATABASE_URL ausente resulta em db null e fallback explicito; DATABASE_URL presente ativa Drizzle/Neon.",
-    "migration": "drizzle/0000_shallow_shinko_yamashiro.sql gerada e nao aplicada.",
+    "databaseMode": "DATABASE_URL ausente resulta em db null e fallback/bloqueio explicito; DATABASE_URL presente ativa Drizzle/Neon quando usado.",
+    "migrations": [
+      "drizzle/0000_shallow_shinko_yamashiro.sql gerada e nao aplicada.",
+      "drizzle/0001_curvy_blink.sql gerada para auth e nao aplicada."
+    ],
     "seed": "scripts/db/seed.mjs usa dados ficticios e falha sem DATABASE_URL.",
-    "upload": "Upload real bloqueado sem BLOB_READ_WRITE_TOKEN; metadata so persiste apos upload real e guardrail permitido.",
-    "adminGuardrail": "Mutacao real sem auth/policies fica restrita a development/test; preview/producao bloqueiam ate Fase 4."
+    "adminDevSeed": "scripts/db/seed-admin-dev.ts exige DATABASE_URL, DEV_ADMIN_EMAIL e DEV_ADMIN_PASSWORD e bloqueia fora de development.",
+    "upload": "Upload real bloqueado sem BLOB_READ_WRITE_TOKEN e sem policy admin-like allowed.",
+    "adminGuardrail": "Mutacoes admin reais exigem sessao admin ou manager por requireAdminLike."
   },
   "validations": {
     "pnpm lint": "passed",
@@ -49,10 +82,10 @@
     "pnpm test:e2e": "passed"
   },
   "nextPhase": {
-    "name": "Fase 4",
-    "summary": "Autenticacao e policies reais de admin/customer.",
+    "name": "Proxima feature a definir",
+    "summary": "Abrir novo ciclo de requirements usando auth/policies como base confirmada. Sugestoes naturais: conta customer/enderecos ou carrinho/checkout, conforme decisao de produto.",
     "recommendedCommand": "/reversa-requirements",
-    "featurePrompt": "Fase 4: autenticacao e policies reais de admin/customer."
+    "featurePrompt": "Definir a proxima feature apos Fase 4 concluida."
   },
   "guardrails": [
     "Nao ler, copiar ou expor .env.",
@@ -73,6 +106,6 @@
       "_reversa_sdd/state-machines.md",
       "_reversa_sdd/permissions.md"
     ],
-    "forwardFeature": "_reversa_forward/001-fase-3-neon-drizzle"
+    "forwardFeature": "_reversa_forward/002-fase-4-auth-policies"
   }
 }

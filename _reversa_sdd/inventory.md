@@ -1,11 +1,11 @@
 # Inventario Reversa — triade-essenza-next
 
-Atualizado em: 2026-06-08T12:35:00-03:00
+Atualizado em: 2026-06-08T17:41:00-03:00
 
 ## Escopo desta re-extracao
 
-Esta re-extracao registra o estado do projeto Next.js apos a Fase 3
-`001-fase-3-neon-drizzle`, concluida, validada, commitada e enviada ao GitHub.
+Esta re-extracao registra o estado do projeto Next.js apos a Fase 4
+`002-fase-4-auth-policies`, concluida, validada, commitada e enviada ao GitHub.
 
 Nao foram executados migrations, conexoes com banco real, upload real, deploy, push ou alteracoes em
 codigo funcional nesta etapa. O Laravel legado permaneceu fora do diretorio de trabalho.
@@ -21,9 +21,11 @@ codigo funcional nesta etapa. O Laravel legado permaneceu fora do diretorio de t
 - Branch: `main`
 - Estado observado antes da re-extracao: `main...origin/main`
 - Worktree observado antes da re-extracao: limpo
-- Commit da Fase 3: `3774c49b930b8edc0af004517749d287d2259a1a`
-- Mensagem: `feat: prepare neon drizzle persistence for products`
+- Commit da Fase 4: `fcdb929843dccbcc0cd2a3049bc5d012f0e2150b`
+- Mensagem: `feat: add auth and policy foundation`
 - Commits recentes:
+  - `fcdb929 feat: add auth and policy foundation`
+  - `ea1241f docs: update reversa state after phase 3`
   - `3774c49 feat: prepare neon drizzle persistence for products`
   - `f10386c feat: implement admin product management foundation`
   - `1fed8bf chore: bootstrap triade next foundation and catalog phase 1`
@@ -61,26 +63,31 @@ codigo funcional nesta etapa. O Laravel legado permaneceu fora do diretorio de t
 - `src/db/schema.ts` expressa uniques/indices de catalogo, N:N e capa unica parcial.
 - Migration local gerada: `drizzle/0000_shallow_shinko_yamashiro.sql`.
 - Migration nao aplicada contra banco real.
-- Scripts de banco:
-  - `pnpm db:generate`;
-  - `pnpm db:migrate`;
-  - `pnpm db:studio`;
-  - `pnpm db:seed`.
-- Seed ficticio em `scripts/db/seed.mjs`, bloqueado sem `DATABASE_URL`.
-- Repository Drizzle/fallback implementado para:
-  - listar produtos admin;
-  - buscar por id;
-  - buscar por slug;
-  - listar categorias;
-  - listar imagens;
-  - criar produto com categorias;
-  - editar produto com substituicao de categorias;
-  - persistir metadata de imagem.
-- Admin exibe aviso de modo sem banco e de painel sem auth real.
-- Storefront continua via service/repository.
-- Preview/producao bloqueiam mutacao real sem Fase 4 de auth/policies.
+- Repository Drizzle/fallback implementado para catalogo, admin de produtos e metadata de imagens.
 
-## Validacoes registradas da Fase 3
+### Fase 4 — Auth real, sessao e policies
+
+- Better Auth integrado em `src/features/auth/server/auth.ts` com adapter Drizzle quando `db` existe.
+- Route handler do provider em `src/app/api/auth/[...all]/route.ts`.
+- Login, cadastro e logout por e-mail/senha via server actions em `src/features/auth/server/actions.ts`.
+- Cadastro publico customer-only; role enviada pelo cliente nao e usada para criar admin/manager.
+- Sessao server-side normalizada em `src/features/auth/server/session.ts` com `userId`, `email` e `role`.
+- Roles reais: `customer`, `admin`, `manager`.
+- `admin` e `manager` sao equivalentes no MVP para acesso administrativo.
+- Policies reais em `src/features/auth/server/policies.ts`:
+  - `requireAuthenticated`;
+  - `requireAdminLike`;
+  - `requireCustomer`;
+  - `requireOwner`.
+- `/admin/**` protegido por `src/app/admin/layout.tsx`.
+- Area customer protegida por `src/app/(customer)/layout.tsx`.
+- Server actions administrativas de produto e upload exigem `requireAdminLike`.
+- Seed admin dev controlado em `scripts/db/seed-admin-dev.ts`.
+- Migration local de auth gerada: `drizzle/0001_curvy_blink.sql`.
+- Migration de auth nao aplicada contra banco real.
+- Google OAuth, magic link e granularidade fina de permissoes ficaram fora do escopo atual.
+
+## Validacoes registradas da Fase 4
 
 - `pnpm lint`: passou.
 - `pnpm typecheck`: passou.
@@ -88,12 +95,14 @@ codigo funcional nesta etapa. O Laravel legado permaneceu fora do diretorio de t
 - `pnpm build`: passou.
 - `pnpm test:e2e`: passou.
 
-## Artefatos Reversa da Fase 3
+## Artefatos Reversa da Fase 4
 
-- `_reversa_forward/001-fase-3-neon-drizzle/actions.md`
-- `_reversa_forward/001-fase-3-neon-drizzle/progress.jsonl`
-- `_reversa_forward/001-fase-3-neon-drizzle/legacy-impact.md`
-- `_reversa_forward/001-fase-3-neon-drizzle/regression-watch.md`
+- `_reversa_forward/002-fase-4-auth-policies/requirements.md`
+- `_reversa_forward/002-fase-4-auth-policies/roadmap.md`
+- `_reversa_forward/002-fase-4-auth-policies/actions.md`
+- `_reversa_forward/002-fase-4-auth-policies/progress.jsonl`
+- `_reversa_forward/002-fase-4-auth-policies/legacy-impact.md`
+- `_reversa_forward/002-fase-4-auth-policies/regression-watch.md`
 
 ## Guardrails atuais
 
@@ -109,6 +118,8 @@ codigo funcional nesta etapa. O Laravel legado permaneceu fora do diretorio de t
 
 ## Proxima fase recomendada
 
-Fase 4: autenticacao e policies reais de admin/customer.
+Fase 5 recomendada: abrir a proxima feature com requisitos novos, mantendo auth/policies como base
+ja implementada. Sugestao natural: conta customer/enderecos ou carrinho/checkout, conforme decisao
+de produto.
 
 Comando recomendado para abrir o ciclo: `/reversa-requirements`.

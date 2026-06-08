@@ -1,19 +1,19 @@
 # Domain — triade-essenza-next
 
-> Projeto analisado: `D:\Projetos\triade-essenza-next`  
-> Data: `2026-06-08`  
-> Escopo: re-extracao pos-Fase 3  
-> Confirmacao: este documento descreve o dominio implementado/preparado no projeto Next.js atual.  
+> Projeto analisado: `D:\Projetos\triade-essenza-next`
+> Data: `2026-06-08`
+> Escopo: re-extracao pos-Fase 4
+> Confirmacao: este documento descreve o dominio implementado/preparado no projeto Next.js atual.
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## 1. Visao geral do dominio
 
 O dominio funcional atual cobre catalogo de produtos, categorias, imagens de produto, storefront
-publico, admin de produtos e persistencia preparada com Neon/Drizzle. 🟢
+publico, admin de produtos, persistencia preparada com Neon/Drizzle e autenticacao/policies reais
+para admin e customer. 🟢
 
 Dominios modelados no schema, mas ainda fora do fluxo funcional principal:
 
-- usuarios/perfis/enderecos;
 - carrinho;
 - cupons;
 - frete;
@@ -22,7 +22,33 @@ Dominios modelados no schema, mas ainda fora do fluxo funcional principal:
 - documentos fiscais;
 - notificacoes admin.
 
-## 2. Produto
+## 2. Identidade, roles e sessao
+
+Usuario autenticado e representado por `AppSession` em `src/features/auth/server/session.ts`. 🟢
+
+Roles confirmadas:
+
+| Role | Papel | Permissao MVP | Confianca |
+|---|---|---|---|
+| `customer` | Cliente publico cadastrado | Area customer e recursos proprios. | 🟢 |
+| `admin` | Administrador | Area admin e mutacoes administrativas. | 🟢 |
+| `manager` | Gestor operacional | Equivalente a `admin` no MVP. | 🟢 |
+
+O cadastro publico cria apenas `customer`; `admin` e `manager` nao podem ser criados publicamente
+por payload de formulario. 🟢
+
+## 3. Login, cadastro e logout
+
+Fluxos confirmados:
+
+- Login por e-mail/senha em `/login`.
+- Cadastro por e-mail/senha em `/cadastro`.
+- Logout server-side via `auth.api.signOut`.
+- `returnTo` e validado para aceitar apenas rotas internas seguras.
+- Credenciais invalidas retornam erro generico/controlado.
+- Google OAuth e magic link ficam fora do escopo atual.
+
+## 4. Produto
 
 Tipo principal: `Product` em `src/features/products/types.ts`. 🟢
 
@@ -45,7 +71,7 @@ Campos relevantes:
 `price` decimal existe no schema para compatibilidade operacional, mas o dominio preserva centavos
 como fonte de calculo. 🟢
 
-## 3. Produto publico
+## 5. Produto publico
 
 Regra implementada em `isProductPublic(product, now)`. 🟢
 
@@ -63,38 +89,18 @@ Consequencias:
 - sem estoque nao e publico/disponivel;
 - `inactive` nao e publico.
 
-## 4. `inactive`
+## 6. Categorias e imagens
 
-Decisao humana validada: `inactive` e tratado como inativo/arquivado inicial, nao publico e nao
-compravel. 🟢
+Categorias continuam com `slug` unico, ordenacao por `sortOrder`/nome e uso principal no admin e
+catalogo. 🟢
 
-Ele permanece acessivel apenas em contexto administrativo. A nomenclatura final pode ser revisada
-futuramente, mas a regra funcional atual esta confirmada. 🟢
-
-## 5. Categorias
-
-Tipo principal: `Category`. 🟢
-
-Campos: `id`, `name`, `slug`, `description`, `parentId`, `sortOrder`, `isActive`, `createdAt`,
-`updatedAt`.
-
-Regras:
-
-- `slug` e unico no schema;
-- categorias sao ordenadas por `sortOrder` e nome;
-- categorias inativas aparecem como contexto admin, mas nao sao selecionaveis no formulario atual.
-
-## 6. Imagens de produto
-
-Tipo principal: `ProductImage`. 🟢
-
-Regras:
+Imagens de produto continuam como metadata:
 
 - banco salva metadata, nunca binario;
 - capa usa `isCover`;
-- fallback de capa usa a primeira imagem ordenada por `sortOrder` e `createdAt`;
+- fallback de capa usa primeira imagem ordenada por `sortOrder` e `createdAt`;
 - schema tem unique parcial para uma capa por produto;
-- metadata inclui `blobUrl`, `pathname`, `altText`, ordenacao, dimensoes, tamanho e content type.
+- upload real exige token Blob e policy admin-like.
 
 ## 7. Persistencia e fallback
 
@@ -102,52 +108,45 @@ Sem `DATABASE_URL`:
 
 - `db = null`;
 - produtos/categorias/imagens usam fixtures;
-- mutacoes retornam `dev_fallback`;
+- mutacoes retornam `dev_fallback` ou bloqueio controlado;
 - mensagens nao prometem persistencia real;
 - build/test continuam funcionando.
 
-Com `DATABASE_URL`:
+Com `DATABASE_URL` e auth pronta:
 
 - repository usa Drizzle/Neon;
 - leituras reais substituem fixtures;
 - produtos sao hidratados com categorias e imagens;
 - criacao/edicao de produto e categorias ocorre em transacao;
-- erro real nao vira fixture.
+- erro real nao vira fixture;
+- mutations admin exigem `admin` ou `manager`.
 
-## 8. Admin sem auth real
-
-Auth/policies reais ainda nao existem. 🟢
-
-Ate a Fase 4:
-
-- mutacao real so e permitida em `development` ou `test`;
-- preview/producao bloqueiam mutacao real;
-- admin mostra aviso de painel sem autenticacao real;
-- actions retornam `error` quando o repository responde `blocked`.
-
-## 9. Upload
+## 8. Policies reais
 
 Regras confirmadas:
 
-- tipos aceitos: `image/jpeg`, `image/png`, `image/webp`;
-- limite: 5 MB;
-- sem `BLOB_READ_WRITE_TOKEN`, upload real fica bloqueado;
-- sem token, metadata tambem nao e persistida;
-- apos upload real bem-sucedido, metadata e salva via repository quando permitido.
+| Regra | Fonte | Confianca |
+|---|---|---|
+| Qualquer usuario autenticado passa em `requireAuthenticated`. | `policies.ts` | 🟢 |
+| `admin` e `manager` passam em `requireAdminLike`. | `policies.ts` | 🟢 |
+| `customer` nao passa em `requireAdminLike`. | `policies.ts` | 🟢 |
+| Area customer exige sessao autenticada via `requireCustomer`. | `policies.ts`, `(customer)/layout.tsx` | 🟢 |
+| Ownership compara `session.userId` com `resourceUserId`. | `policies.ts` | 🟢 |
+| Auth/banco indisponivel bloqueia operacao admin real. | `runtime-mode.ts`, `policies.ts` | 🟢 |
 
-## 10. Seed
+## 9. Seed admin dev
 
-Seed de desenvolvimento:
+Seed de admin dev:
 
-- arquivo `scripts/db/seed.mjs`;
-- falha sem `DATABASE_URL`;
-- usa IDs/slugs estaveis;
-- cria categorias ficticias e produtos ficticios cobrindo publicado, draft, futuro, sem estoque e
-  inactive;
-- usa imagem placeholder segura;
-- nao copia Laravel legado.
+- arquivo `scripts/db/seed-admin-dev.ts`;
+- apenas development/local-dev;
+- exige `DATABASE_URL`, `DEV_ADMIN_EMAIL` e `DEV_ADMIN_PASSWORD`;
+- valida senha minima;
+- cria usuario via Better Auth quando ausente e promove role para `admin`;
+- nao contem senha hardcoded;
+- falha com mensagens controladas quando pre-requisitos faltam.
 
-## 11. Regras preservadas para regressao
+## 10. Regras preservadas para regressao
 
 | ID | Regra | Fonte | Confianca |
 |---|---|---|---|
@@ -157,19 +156,20 @@ Seed de desenvolvimento:
 | RN-PUB-004 | Produto `draft` nao e publico. | `src/features/products/domain.ts` | 🟢 |
 | RN-PUB-005 | Produto futuro nao e publico. | `src/features/products/domain.ts` | 🟢 |
 | RN-PUB-006 | Produto sem estoque nao e publico/disponivel. | `src/features/products/domain.ts` | 🟢 |
-| RN-PUB-007 | Produto `inactive` e inativo/arquivado inicial e nao publico. | `src/features/products/domain.ts` + Fase 3 | 🟢 |
+| RN-PUB-007 | Produto `inactive` e inativo/arquivado inicial e nao publico. | `src/features/products/domain.ts` | 🟢 |
 | RN-IMG-001 | Imagem de capa usa `isCover`. | `src/features/products/domain.ts`, `src/db/schema.ts` | 🟢 |
 | RN-IMG-002 | Banco salva metadata de imagem, nao binario. | `src/features/uploads/*`, `src/db/schema.ts` | 🟢 |
 | RN-PRICE-001 | Precos do dominio ficam em centavos. | `types.ts`, `schemas.ts`, `product-repository.ts` | 🟢 |
 | RN-SLUG-001 | Slug de produto e normalizado. | `domain.ts`, `schemas.ts`, `src/lib/slug.ts` | 🟢 |
 | RN-FALLBACK-001 | Sem `DATABASE_URL`, fallback e explicito e nao finge persistencia. | `runtime-mode.ts`, `product-repository.ts` | 🟢 |
 | RN-UPLOAD-001 | Sem `BLOB_READ_WRITE_TOKEN`, upload real fica bloqueado. | `product-image-upload.ts` | 🟢 |
-| RN-ADMIN-001 | Sem auth/policies, mutacao real admin fica restrita a dev/test. | `runtime-mode.ts`, `product-repository.ts` | 🟢 |
+| RN-AUTH-001 | Cadastro publico cria somente `customer`. | `auth.ts`, `actions.ts`, `schemas.ts` | 🟢 |
+| RN-AUTH-002 | `admin` e `manager` sao equivalentes no MVP. | `policies.ts` | 🟢 |
+| RN-AUTH-003 | Mutacao admin real exige policy admin-like. | `product-actions.ts`, `product-image-upload.ts` | 🟢 |
 
-## 12. Lacunas para Fase 4
+## 11. Lacunas para proxima fase
 
-- Auth real de admin/customer. 🟢
-- Policies reais por papel/ambiente. 🟢
-- Protecao definitiva de rotas admin. 🟢
-- Estrategia de sessao/login/customer. 🟢
-- Politica final para mutacoes em preview/producao. 🟢
+- Implementar dados reais de conta customer, enderecos e pedidos quando a proxima feature decidir. 🟡
+- Definir granularidade fina futura para permissoes administrativas. 🟡
+- Ativar Google OAuth ou magic link somente em fase propria. 🟢
+- Aplicar migrations em banco real somente com validacao humana explicita. 🟢

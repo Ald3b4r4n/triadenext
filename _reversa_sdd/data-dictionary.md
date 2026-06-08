@@ -1,8 +1,95 @@
 # Data Dictionary — triade-essenza-next
 
-> Data: 2026-06-08  
-> Escopo: catalogo e persistencia da Fase 3  
+> Data: 2026-06-08
+> Escopo: catalogo, persistencia e auth da Fase 4
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
+
+## Enums relevantes
+
+| Enum | Valores | Regra |
+|---|---|---|
+| `user_role` | `customer`, `admin`, `manager` | `admin` e `manager` sao equivalentes no MVP; cadastro publico cria `customer`. |
+| `product_status` | `draft`, `published`, `inactive` | Apenas `published` com data valida e estoque positivo e publico. |
+
+## `users`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `name` | text | Obrigatorio para Better Auth/cadastro. |
+| `email` | text | Obrigatorio e unico. |
+| `email_verified` | boolean | Campo Better Auth; default `false`. |
+| `image` | text nullable | Campo Better Auth para avatar/futuro OAuth. |
+| `phone` | text nullable | Dado customer/admin futuro. |
+| `password_hash` | text nullable | Campo legado/preparado; Better Auth usa `accounts.password`. |
+| `role` | enum `user_role` | Default `customer`; valores `customer`, `admin`, `manager`. |
+| `must_change_password` | boolean | Controle operacional futuro. |
+| `last_login_at` | timestamp nullable | Auditoria futura. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
+
+Indices: email unico e indice por role.
+
+## `sessions`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `expires_at` | timestamp tz | Expiracao da sessao. |
+| `token` | text | Token unico. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
+| `ip_address` | text nullable | Metadata de sessao. |
+| `user_agent` | text nullable | Metadata de sessao. |
+| `user_id` | uuid | FK para `users`; cascade delete. |
+
+Indices: token unico e indice por `user_id`.
+
+## `accounts`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `account_id` | text | Identificador do provedor/conta. |
+| `provider_id` | text | Provider Better Auth; e-mail/senha nesta fase. |
+| `user_id` | uuid | FK para `users`; cascade delete. |
+| `access_token`, `refresh_token`, `id_token` | text nullable | Preparados para providers futuros; nao ativam OAuth nesta fase. |
+| `access_token_expires_at`, `refresh_token_expires_at` | timestamp nullable | Expiracao de tokens futuros. |
+| `scope` | text nullable | Escopo de provider futuro. |
+| `password` | text nullable | Hash/credencial gerenciada pelo provider. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
+
+Invariante: par `provider_id` + `account_id` e unico.
+
+## `verifications`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `identifier` | text | Identificador do fluxo de verificacao. |
+| `value` | text | Valor/token gerenciado pelo provider. |
+| `expires_at` | timestamp tz | Expiracao. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
+
+Indice por `identifier`. Magic link nao esta ativado nesta fase.
+
+## `customer_profiles`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `user_id` | uuid | FK para `users`; cascade delete; base de ownership customer. |
+| `cpf`, `document_type`, `birth_date` | dados nullable | Preparados para conta customer futura. |
+| `privacy_policy_accepted_at`, `marketing_opt_in_at` | timestamp nullable | Consentimentos futuros. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
+
+## `addresses`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `user_id` | uuid | FK para `users`; base de `requireOwner` em feature futura. |
+| `recipient`, `postal_code`, `street`, `number`, `city`, `state`, `country` | endereco | Estrutura preparada; CRUD real fora da Fase 4. |
+| `is_default_shipping` | boolean | Endereco padrao futuro. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
 
 ## `categories`
 
@@ -42,7 +129,7 @@
 | `is_featured` | boolean | Destaque. |
 | `published_at` | timestamp nullable | Deve existir e ser <= agora para produto publico. |
 | `seo_title`, `seo_description` | text nullable | SEO. |
-| `bling_*` | text/timestamp nullable | Campos preparados; fiscal/comercial fora da Fase 3. |
+| `bling_*` | text/timestamp nullable | Campos preparados; fiscal/comercial fora da Fase 4. |
 | `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
 
 ## `product_categories`
@@ -76,7 +163,7 @@ Invariante: no maximo uma imagem de capa por produto via unique parcial.
 
 ## Tabelas fora do foco funcional atual
 
-O schema tambem modela `users`, `customer_profiles`, `addresses`, `carts`, `cart_items`, `coupons`,
-`shipping_rules`, `orders`, `order_items`, `order_events`, `payment_intents`, `payment_events`,
-`fiscal_documents` e `admin_notifications`. Essas tabelas estao preparadas, mas Fase 3 nao ativou
-checkout, pagamento, frete, cupom, pedido, fiscal ou auth real.
+O schema tambem modela `carts`, `cart_items`, `coupons`, `shipping_rules`, `orders`,
+`order_items`, `order_events`, `payment_intents`, `payment_events`, `fiscal_documents` e
+`admin_notifications`. Essas tabelas estao preparadas, mas Fase 4 nao ativou checkout, pagamento,
+frete, cupom, pedido ou fiscal real.

@@ -1,17 +1,17 @@
 # Architecture — triade-essenza-next
 
-> Projeto analisado: `D:\Projetos\triade-essenza-next`  
-> Data: `2026-06-08`  
-> Escopo: re-extracao pos-Fase 3  
-> Confirmacao: este documento descreve o projeto Next.js atual, nao o Laravel legado.  
+> Projeto analisado: `D:\Projetos\triade-essenza-next`
+> Data: `2026-06-08`
+> Escopo: re-extracao pos-Fase 4
+> Confirmacao: este documento descreve o projeto Next.js atual, nao o Laravel legado.
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## 1. Visao geral
 
 O projeto `triade-essenza-next` e uma reconstrucao em Next.js App Router da Tríade Essenza Parfum.
 A arquitetura separa superficies de storefront, admin, customer/auth e APIs em `src/app`, dominio de
-catalogo em `src/features/products`, upload em `src/features/uploads`, banco em `src/db` e runtime/env
-em `src/lib`. 🟢
+catalogo em `src/features/products`, upload em `src/features/uploads`, auth em `src/features/auth`,
+banco em `src/db` e runtime/env em `src/lib`. 🟢
 
 Fases registradas:
 
@@ -19,6 +19,7 @@ Fases registradas:
 - Fase 1 de catalogo/produtos/imagens concluida. 🟢
 - Fase 2 de admin de produtos concluida. 🟢
 - Fase 3 de persistencia Neon/Drizzle preparada concluida no commit `3774c49`. 🟢
+- Fase 4 de Better Auth, sessao server-side e policies concluida no commit `fcdb929`. 🟢
 
 ## 2. Stack
 
@@ -27,10 +28,12 @@ Fases registradas:
 | App web | Next.js App Router + React | Presente em `src/app`. | 🟢 |
 | Linguagem | TypeScript | Presente em codigo e config. | 🟢 |
 | Estilo | Tailwind CSS | Presente em config/global CSS. | 🟢 |
-| Validacao | Zod | Usado em env, produtos e upload. | 🟢 |
+| Auth | Better Auth + `nextCookies` | Integrado em `src/features/auth/server/auth.ts`. | 🟢 |
+| Sessao | Better Auth server-side via headers | Normalizada em `session.ts`. | 🟢 |
+| Validacao | Zod | Usado em env, produtos, upload e auth. | 🟢 |
 | Banco alvo | Neon Postgres | Preparado via Drizzle/Neon. | 🟢 |
-| ORM | Drizzle ORM + Drizzle Kit | Schema, client, config, migration e scripts existem. | 🟢 |
-| Upload | Vercel Blob | Integrado com bloqueio sem token. | 🟢 |
+| ORM | Drizzle ORM + Drizzle Kit | Schema, client, migrations e scripts existem. | 🟢 |
+| Upload | Vercel Blob | Integrado com bloqueio sem token e policy admin-like. | 🟢 |
 | Testes | Vitest + Playwright | Suites unit/e2e passam sem banco real. | 🟢 |
 
 ## 3. Runtime e guardrails
@@ -39,141 +42,137 @@ Arquivo central: `src/lib/runtime-mode.ts`. 🟢
 
 Responsabilidades:
 
-- expor flags seguras de banco e Blob sem expor valores;
+- expor flags seguras de banco, Blob e auth sem expor valores;
 - detectar `development`, `test`, `preview` e `production`;
-- permitir mutacao real apenas em `development` ou `test` ate a Fase 4;
-- bloquear preview/producao sem auth/policies reais;
-- centralizar mensagens de fallback e bloqueio.
+- declarar `isAuthReady` quando banco e secret de auth estao configurados;
+- manter fallback sem banco para build/test;
+- centralizar mensagens de fallback, bloqueio, auth indisponivel e acesso negado.
 
-`src/lib/env.ts` continua validando variaveis opcionais e expondo apenas indicadores booleanos
-seguros em `sensitiveRuntimeEnv`. 🟢
+`src/lib/env.ts` valida variaveis opcionais e expõe indicadores booleanos seguros em
+`sensitiveRuntimeEnv`; a re-extracao nao leu nem expôs `.env`. 🟢
 
-## 4. Banco e Drizzle
+## 4. Auth e sessao
 
-### Client
+### Provider
 
-`src/db/client.ts` le `env.DATABASE_URL`. 🟢
+`src/features/auth/server/auth.ts` configura Better Auth server-only. 🟢
 
-- Sem `DATABASE_URL`: `db = null`, `hasDatabaseConnection = false`.
-- Com `DATABASE_URL`: cria Neon HTTP e Drizzle com schema.
-- Build/test nao exigem banco real.
-- Erro real com `db !== null` nao e mascarado por fixtures.
+- Usa `drizzleAdapter(db, { provider: "pg" })` quando `db` existe.
+- Mapeia modelos para `users`, `sessions`, `accounts` e `verifications`.
+- Habilita `emailAndPassword`.
+- Define campo adicional `role` com valores `customer`, `admin`, `manager` e default `customer`.
+- Usa `nextCookies()`.
+- Google OAuth e magic link nao estao ativados nesta fase. 🟢
 
-### Schema
+### Endpoint
 
-`src/db/schema.ts` modela ecommerce completo, mas a Fase 3 operacionalmente atua no catalogo.
+`src/app/api/auth/[...all]/route.ts` delega `GET` e `POST` para o handler Better Auth. 🟢
 
-Tabelas de catalogo relevantes:
+### Sessao normalizada
 
-- `categories`;
-- `products`;
-- `product_images`;
-- `product_categories`.
+`src/features/auth/server/session.ts` le sessao por `auth.api.getSession({ headers })`, com timeout de
+5 segundos e falha segura. 🟢
 
-Invariantes adicionadas/confirmadas na Fase 3:
+Contrato:
 
-- unique `categories.slug`;
-- unique `products.slug`;
-- unique `products.sku`;
-- indice publico por `status`, `publishedAt`, `stockQuantity`;
-- unique N:N `product_categories(productId, categoryId)`;
-- indice de ordenacao de imagens por produto;
-- unique parcial para uma capa por produto em `product_images`.
+- `authenticated`: `userId`, `email`, `role`;
+- `unauthenticated`: `missing`, `expired`, `invalid`, `timeout` ou `unavailable`.
 
-### Migration
+`validateReturnTo` aceita somente caminhos internos e bloqueia retorno para `/api/auth` ou URL externa. 🟢
 
-Migration local gerada: `drizzle/0000_shallow_shinko_yamashiro.sql`. 🟢
+## 5. Policies
 
-Ela cria enums, tabelas, FKs e indices iniciais. Nao foi aplicada contra banco real. 🟢
+Arquivo central: `src/features/auth/server/policies.ts`. 🟢
 
-### Scripts
+Policies confirmadas:
 
-- `db:generate`: `drizzle-kit generate`;
-- `db:migrate`: exige `scripts/db/require-database-url.mjs` antes de `drizzle-kit migrate`;
-- `db:studio`: `drizzle-kit studio`;
-- `db:seed`: `node scripts/db/seed.mjs`.
+- `requireAuthenticated`: exige qualquer sessao autenticada.
+- `requireAdminLike`: exige banco, auth pronto e role `admin` ou `manager`.
+- `requireCustomer`: exige sessao autenticada para area customer.
+- `requireOwner`: exige que `session.userId` corresponda ao dono do recurso.
 
-## 5. Seed
+Decisions retornam `allowed`, `unauthenticated`, `forbidden` ou `blocked`, com mensagens seguras por
+`policyMessage`. 🟢
 
-Arquivo: `scripts/db/seed.mjs`. 🟢
+## 6. Rotas protegidas
 
-Comportamento:
+### Admin
 
-- falha com mensagem segura se `DATABASE_URL` estiver ausente;
-- usa apenas dados ficticios de desenvolvimento;
-- cobre produto publicado, draft, futuro, sem estoque e inactive;
-- usa placeholder `placehold.co`;
-- nao copia dados ou imagens do Laravel legado.
+`src/app/admin/layout.tsx` chama `requireAdminLike`. 🟢
 
-## 6. Catalogo e repository
+- Usuario anonimo recebe redirect para `/login?returnTo=/admin`.
+- Auth/banco indisponivel ou role insuficiente renderiza bloqueio seguro.
+- `admin` e `manager` sao equivalentes no MVP.
 
-Arquivo central: `src/features/products/server/product-repository.ts`. 🟢
+### Customer
 
-Sem `db`, o repository usa `devProducts` e `devCategories` e retorna `dev_fallback` em mutacoes. 🟢
+`src/app/(customer)/layout.tsx` chama `requireCustomer`. 🟢
 
-Com `db`, o repository Drizzle implementa:
+- `/minha-conta`, `/enderecos` e `/pedidos` ficam sob layout protegido.
+- Usuario sem sessao e redirecionado para `/login?returnTo=/minha-conta`.
+- Pedidos reais continuam fora do escopo atual.
 
-- `listProducts`;
-- `listCategories`;
-- `findProductById`;
-- `findProductBySlug`;
-- `listProductImages`;
-- `createProduct`;
-- `updateProduct`;
-- `saveProductImageMetadata`.
+### Login/cadastro
 
-Produtos reais sao hidratados com categorias e imagens ordenadas. Criacao/edicao de produto e
-metadata de imagem usam transacoes quando aplicavel. 🟢
+`/login` e `/cadastro` redirecionam usuario ja autenticado e usam `AuthForm` com server actions. 🟢
 
-## 7. Storefront
+## 7. Server actions protegidas
 
-Rotas:
+`src/features/products/server/product-actions.ts` chama `requireAdminLike` antes de validar e persistir
+criacao/edicao de produto. 🟢
 
-- `src/app/(storefront)/produtos/page.tsx`;
-- `src/app/(storefront)/produto/[slug]/page.tsx`.
+`src/features/uploads/product-image-upload.ts` chama `requireAdminLike` antes de validar arquivo, chamar
+Blob ou persistir metadata. 🟢
 
-As paginas consomem `product-service`, que por sua vez usa o repository. A regra publica permanece
-no dominio: `published`, `publishedAt <= now` e estoque positivo. 🟢
+## 8. Banco e Drizzle
 
-## 8. Admin
+`src/db/schema.ts` modela ecommerce completo e agora inclui suporte de auth:
 
-Rotas:
+- enum `user_role`: `customer`, `admin`, `manager`;
+- `users` com `emailVerified`, `image`, `passwordHash`, `role`, `mustChangePassword` e `lastLoginAt`;
+- `sessions` com token unico, expiracao, IP, user-agent e FK cascade para `users`;
+- `accounts` para credenciais/provider e preparo futuro de OAuth;
+- `verifications` para fluxos de verificacao/tokens do provider.
 
-- `src/app/admin/produtos/page.tsx`;
-- `src/app/admin/produtos/novo/page.tsx`;
-- `src/app/admin/produtos/[id]/editar/page.tsx`.
+Migrations locais:
 
-O admin exibe:
+- `drizzle/0000_shallow_shinko_yamashiro.sql`: schema inicial.
+- `drizzle/0001_curvy_blink.sql`: delta local de Better Auth (`accounts`, `sessions`,
+  `verifications`, `email_verified`, `image`).
 
-- aviso de modo sem banco quando `DATABASE_URL` esta ausente;
-- aviso de painel sem auth real quando ha banco real em desenvolvimento;
-- mensagens distintas para `persisted`, `dev_fallback` e `blocked`.
+Nenhuma migration foi aplicada contra banco real nesta re-extracao. 🟢
 
-Auth/policies reais permanecem lacuna da Fase 4. 🟢
+## 9. Seed admin dev
 
-## 9. Upload de imagens
+`scripts/db/seed-admin-dev.ts` cria/promove usuario admin apenas em development. 🟢
 
-Arquivos:
+Guardrails:
 
-- `src/features/uploads/schemas.ts`;
-- `src/features/uploads/product-image-upload.ts`.
+- bloqueia fora de development/local-dev;
+- exige `DATABASE_URL`, `DEV_ADMIN_EMAIL` e `DEV_ADMIN_PASSWORD`;
+- valida senha minima;
+- nao contem senha hardcoded;
+- nao roda automaticamente;
+- nao foi executado nesta re-extracao.
 
-Regras:
+## 10. Catalogo, repository e upload
 
-- tipos aceitos: JPEG, PNG e WebP;
-- limite: 5 MB;
-- sem `BLOB_READ_WRITE_TOKEN`, resultado `blocked/missing_blob_token`;
-- apos upload real bem-sucedido, metadata e encaminhada para o repository;
-- sem banco, metadata retorna fallback explicito;
-- fora de ambiente permitido, metadata real e bloqueada.
+As regras de catalogo e persistencia da Fase 3 permanecem preservadas. 🟢
 
-## 10. APIs e dominios fora de escopo
+- Sem `DATABASE_URL`, repository usa fixtures e `dev_fallback`.
+- Com `DATABASE_URL`, Drizzle/Neon substitui fixtures.
+- Produto publico segue exigindo `published`, `publishedAt <= now` e `stockQuantity > 0`.
+- Upload real continua bloqueado sem `BLOB_READ_WRITE_TOKEN`.
+- Metadata de upload agora tambem exige policy admin-like.
 
-Existem superficies/placeholder para customer/auth, carrinho, checkout, pedidos, cupons, fretes,
-documentos fiscais e Stripe. A Fase 3 nao implementou checkout, pagamento, frete, cupom, pedidos,
-deploy, dominio ou auth/policies reais. 🟢
+## 11. Fora de escopo atual
 
-## 11. Proxima fase
+- Google OAuth.
+- Magic link.
+- Granularidade fina de permissoes alem de `customer`, `admin`, `manager` e ownership.
+- Checkout, pagamento, frete, cupom, pedidos reais e documentos fiscais reais.
+- Deploy, push ou migrations reais.
 
-Fase 4 recomendada: autenticacao e policies reais de admin/customer, iniciada por
-`/reversa-requirements`. 🟢
+## 12. Proxima fase
+
+Abrir a proxima feature com `/reversa-requirements`, usando auth/policies como base ja confirmada. 🟢

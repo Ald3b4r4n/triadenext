@@ -10,10 +10,11 @@
   "forward_folder": "_reversa_forward",
   "phase": null,
   "completed": [
-    "reextracao_pos_fase_3"
+    "reextracao_pos_fase_3",
+    "reextracao_pos_fase_4"
   ],
   "pending": [
-    "fase_4_requisitos_auth_policies"
+    "proxima_feature_a_definir_via_reversa_requirements"
   ],
   "checkpoints": {
     "context_refresh_2026_06_08": {
@@ -84,6 +85,73 @@
         "branch": "main",
         "status": "main...origin/main",
         "latest_commit": "3774c49b930b8edc0af004517749d287d2259a1a",
+        "worktree_before_reextraction": "clean"
+      }
+    },
+    "reextraction_after_phase_4_2026_06_08": {
+      "completed_at": "2026-06-08T17:41:00-03:00",
+      "purpose": "Re-extracao Reversa apos Fase 4 concluida, commitada e enviada ao GitHub, sem alterar codigo funcional.",
+      "files": [
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        ".reversa/context/current-state.json",
+        ".reversa/state.json"
+      ],
+      "implemented_phases": [
+        "fundacao",
+        "fase_1_catalogo_produtos_imagens",
+        "fase_2_admin_produtos",
+        "fase_3_neon_drizzle_migrations_locais_seed_controlado_persistencia_real",
+        "fase_4_better_auth_sessao_policies_admin_customer"
+      ],
+      "phase4_commit": "fcdb929843dccbcc0cd2a3049bc5d012f0e2150b",
+      "phase4_commit_pushed": true,
+      "next_phase": "proxima_feature_a_definir",
+      "next_command": "/reversa-requirements",
+      "auth_summary": {
+        "provider": "Better Auth",
+        "login_methods": [
+          "email_password"
+        ],
+        "roles": [
+          "customer",
+          "admin",
+          "manager"
+        ],
+        "admin_like_roles": [
+          "admin",
+          "manager"
+        ],
+        "policies": [
+          "requireAuthenticated",
+          "requireAdminLike",
+          "requireCustomer",
+          "requireOwner"
+        ],
+        "out_of_scope": [
+          "google_oauth",
+          "magic_link",
+          "fine_grained_permissions"
+        ]
+      },
+      "guardrails": [
+        "Nao executar migrations contra banco real sem validacao humana.",
+        "Nao conectar banco real nesta re-extracao.",
+        "Nao ler, copiar ou expor .env.",
+        "Nao expor DATABASE_URL.",
+        "Nao fazer deploy.",
+        "Nao fazer push nesta execucao.",
+        "Nao modificar o Laravel legado."
+      ],
+      "git": {
+        "branch": "main",
+        "status": "main...origin/main",
+        "latest_commit": "fcdb929843dccbcc0cd2a3049bc5d012f0e2150b",
         "worktree_before_reextraction": "clean"
       }
     }
