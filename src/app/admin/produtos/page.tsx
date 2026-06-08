@@ -1,5 +1,5 @@
-import { ProductStatusBadge } from "@/features/products/components/product-status-badge";
-import { formatProductPrice } from "@/features/products/utils";
+import Link from "next/link";
+import { ProductAdminTable } from "@/features/products/components/product-admin-table";
 import { listAdminProducts } from "@/features/products/server/product-service";
 
 export default async function AdminProdutosPage() {
@@ -11,31 +11,14 @@ export default async function AdminProdutosPage() {
         <p className="muted">Admin</p>
         <h1>Produtos</h1>
         <p>
-          Estrutura inicial de leitura para catalogo. Criacao, edicao, persistencia Neon e upload
-          real entram na proxima fase.
+          Listagem administrativa com base de criacao, edicao e persistencia preparada para
+          Neon/Drizzle.
         </p>
+        <Link className="primary-action" href="/admin/produtos/novo">
+          Novo produto
+        </Link>
       </section>
-      <div className="admin-table" role="table" aria-label="Produtos administrativos">
-        <div className="admin-table__row admin-table__row--head" role="row">
-          <span role="columnheader">Produto</span>
-          <span role="columnheader">Status</span>
-          <span role="columnheader">Estoque</span>
-          <span role="columnheader">Preco</span>
-        </div>
-        {products.map((product) => (
-          <div className="admin-table__row" role="row" key={product.id}>
-            <span role="cell">
-              <strong>{product.name}</strong>
-              <small>{product.sku}</small>
-            </span>
-            <span role="cell">
-              <ProductStatusBadge product={product} />
-            </span>
-            <span role="cell">{product.stockQuantity}</span>
-            <span role="cell">{formatProductPrice(product.priceCents)}</span>
-          </div>
-        ))}
-      </div>
+      <ProductAdminTable products={products} />
     </main>
   );
 }

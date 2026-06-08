@@ -1,4 +1,5 @@
 export type ProductStatus = "draft" | "published" | "inactive";
+export type ProductAdminVisualStatus = ProductStatus | "archived";
 
 export type ProductGender = "feminino" | "masculino" | "unissex" | "nao_informado";
 
@@ -59,4 +60,28 @@ export type Product = {
 
 export type PublicProduct = Product & {
   coverImage: ProductImage | null;
+};
+
+export type ProductMutationInput = {
+  name: string;
+  slug: string;
+  shortDescription?: string | null;
+  description?: string | null;
+  brand?: string | null;
+  inspirationName?: string | null;
+  gender?: ProductGender | null;
+  concentration?: string | null;
+  volumeMl?: number | null;
+  sku: string;
+  priceCents: number;
+  compareAtPriceCents?: number | null;
+  costPriceCents?: number | null;
+  stockQuantity: number;
+  lowStockThreshold: number;
+  status: ProductStatus;
+  isFeatured: boolean;
+  publishedAt?: Date | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  categoryIds: string[];
 };

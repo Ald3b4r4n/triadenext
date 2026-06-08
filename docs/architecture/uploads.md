@@ -32,3 +32,17 @@ Lacunas:
 - Definir limites finais de tamanho e tipos aceitos.
 - Definir se imagens de produto serao sempre publicas ou se havera Blob privado/signed URLs.
 - Inventariar arquivos existentes antes de qualquer migracao de assets.
+
+## Fase 2 — Upload Controlado
+
+`src/features/uploads/product-image-upload.ts` valida imagens de produto antes de qualquer upload:
+
+- tipos aceitos: `image/jpeg`, `image/png`, `image/webp`;
+- limite tecnico atual: 5 MB;
+- metadata preparada: `productId`, `blobUrl`, `pathname`, `altText`, `sortOrder`, `isCover`,
+  `width`, `height`, `sizeBytes`, `contentType`;
+- sem `BLOB_READ_WRITE_TOKEN`, retorna bloqueio controlado `missing_blob_token`;
+- arquivo binario nunca e salvo no banco.
+
+O input visual de upload no admin fica desabilitado ate autenticacao, Blob e persistencia real serem
+ligados.

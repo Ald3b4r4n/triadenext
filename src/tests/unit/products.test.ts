@@ -3,9 +3,11 @@ import { formatProductPrice } from "@/features/products/utils";
 import {
   isProductAvailableForPurchase,
   isProductPublic,
-  normalizeProductSlug
+  normalizeProductSlug,
+  parsePriceToCents
 } from "@/features/products/domain";
 import { devProducts } from "@/features/products/dev/fixtures";
+import { productFormSchema } from "@/features/products/schemas";
 
 const now = new Date("2026-06-08T12:00:00.000Z");
 
@@ -57,5 +59,68 @@ describe("products domain", () => {
 
   it("formats cents as BRL", () => {
     expect(formatProductPrice(15990)).toBe("R$ 159,90");
+  });
+
+  it("converts BRL text prices to cents", () => {
+    expect(parsePriceToCents("159,90")).toBe(15990);
+    expect(parsePriceToCents("R$ 1.234,56")).toBe(123456);
+  });
+
+  it("validates product form and normalizes slug", () => {
+    const parsed = productFormSchema.safeParse({
+      name: "Produto Âmbar de Teste",
+      slug: "",
+      shortDescription: "",
+      description: "",
+      brand: "",
+      inspirationName: "",
+      gender: "unissex",
+      concentration: "",
+      volumeMl: "100",
+      sku: "TEST-001",
+      price: "199,90",
+      compareAtPrice: "",
+      costPrice: "",
+      stockQuantity: "3",
+      lowStockThreshold: "1",
+      status: "draft",
+      isFeatured: "false",
+      publishedAt: "",
+      seoTitle: "",
+      seoDescription: "",
+      categoryIds: ["cat-example-active"]
+    });
+
+    expect(parsed.success).toBe(true);
+    expect(parsed.success && parsed.data.slug).toBe("produto-ambar-de-teste");
+    expect(parsed.success && parsed.data.priceCents).toBe(19990);
+  });
+
+  it("rejects invalid published admin data", () => {
+    const parsed = productFormSchema.safeParse({
+      name: "Produto publicado invalido",
+      slug: "produto-publicado-invalido",
+      shortDescription: "",
+      description: "",
+      brand: "",
+      inspirationName: "",
+      gender: "unissex",
+      concentration: "",
+      volumeMl: "",
+      sku: "TEST-002",
+      price: "199,90",
+      compareAtPrice: "",
+      costPrice: "",
+      stockQuantity: "0",
+      lowStockThreshold: "1",
+      status: "published",
+      isFeatured: "false",
+      publishedAt: "2099-01-10T12:00",
+      seoTitle: "",
+      seoDescription: "",
+      categoryIds: []
+    });
+
+    expect(parsed.success).toBe(false);
   });
 });

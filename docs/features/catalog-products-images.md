@@ -54,7 +54,11 @@
 
 ## Pendencias para a proxima fase
 
-- Admin de produtos com criacao e edicao.
-- Upload controlado com validacao de tipo/tamanho e persistencia de metadata.
 - Persistencia real com Neon/Drizzle.
 - Migracao segura de dados e imagens do legado apos inventario.
+
+## Fase 2 — Admin de produtos
+
+A Fase 2 adicionou listagem administrativa, telas de novo/edicao, formulario validado com Zod,
+actions server-side e upload controlado para imagens. Sem `DATABASE_URL`, as actions validam e
+retornam fallback de desenvolvimento sem gravar em banco real.

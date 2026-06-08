@@ -32,3 +32,20 @@ Decisoes:
 - Nenhuma migration foi aplicada contra banco real.
 - Repository Drizzle real ainda nao consulta o banco; sem `DATABASE_URL`, os services usam fixtures
   temporarias em `src/features/products/dev/fixtures.ts`.
+
+## Fase 2 — Persistencia Preparada
+
+`src/features/products/server/product-repository.ts` contem os contratos para:
+
+- listar produtos;
+- listar categorias;
+- buscar produto por `id` ou `slug`;
+- criar produto;
+- atualizar produto;
+- preparar relacao `product_categories`.
+
+Quando `DATABASE_URL` existe, o repository possui caminho Drizzle para `products` e
+`product_categories`. Quando `DATABASE_URL` nao existe, o repository usa fixtures e retorna
+`dev_fallback` nas mutacoes, deixando claro que nao houve gravacao real.
+
+Nenhuma migration foi executada contra banco real nesta fase.

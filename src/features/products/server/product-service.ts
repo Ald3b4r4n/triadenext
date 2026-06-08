@@ -21,3 +21,22 @@ export async function getPublicProductBySlug(slug: string, now = new Date()) {
 export async function listAdminProducts() {
   return repository.listProducts();
 }
+
+export async function listProductCategories() {
+  return repository.listCategories();
+}
+
+export async function getAdminProductById(id: string) {
+  return repository.findProductById(id);
+}
+
+export async function createAdminProduct(input: Parameters<typeof repository.createProduct>[0]) {
+  return repository.createProduct(input);
+}
+
+export async function updateAdminProduct(
+  id: string,
+  input: Parameters<typeof repository.updateProduct>[1]
+) {
+  return repository.updateProduct(id, input);
+}
