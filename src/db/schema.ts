@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   date,
@@ -120,53 +121,73 @@ export const addresses = pgTable("addresses", {
   updatedAt: updatedAtColumn()
 });
 
-export const categories = pgTable("categories", {
-  id: idColumn(),
-  name: text("name").notNull(),
-  slug: text("slug").notNull(),
-  description: text("description"),
-  parentId: uuid("parent_id"),
-  type: text("type"),
-  isActive: boolean("is_active").notNull().default(true),
-  isProtected: boolean("is_protected").notNull().default(false),
-  sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: createdAtColumn(),
-  updatedAt: updatedAtColumn()
-});
+export const categories = pgTable(
+  "categories",
+  {
+    id: idColumn(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    description: text("description"),
+    parentId: uuid("parent_id"),
+    type: text("type"),
+    isActive: boolean("is_active").notNull().default(true),
+    isProtected: boolean("is_protected").notNull().default(false),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    slugUnique: uniqueIndex("categories_slug_unique").on(table.slug),
+    activeSortIdx: index("categories_active_sort_idx").on(table.isActive, table.sortOrder)
+  })
+);
 
-export const products = pgTable("products", {
-  id: idColumn(),
-  categoryId: uuid("category_id").references(() => categories.id, { onDelete: "set null" }),
-  name: text("name").notNull(),
-  slug: text("slug").notNull(),
-  sku: text("sku").notNull(),
-  shortDescription: text("short_description"),
-  description: text("description"),
-  brand: text("brand"),
-  inspirationName: text("inspiration_name"),
-  gender: text("gender"),
-  concentration: text("concentration"),
-  volumeMl: integer("volume_ml"),
-  dimensions: jsonb("dimensions"),
-  price: numeric("price", { precision: 12, scale: 2 }).notNull(),
-  compareAtPrice: numeric("compare_at_price", { precision: 12, scale: 2 }),
-  priceCents: integer("price_cents").notNull().default(0),
-  compareAtPriceCents: integer("compare_at_price_cents"),
-  costPriceCents: integer("cost_price_cents"),
-  status: productStatus("status").notNull().default("draft"),
-  availabilityType: text("availability_type").notNull().default("ready_stock"),
-  stockQuantity: integer("stock_quantity").notNull().default(0),
-  lowStockThreshold: integer("low_stock_threshold").notNull().default(0),
-  isFeatured: boolean("is_featured").notNull().default(false),
-  publishedAt: timestamp("published_at", { withTimezone: true }),
-  seoTitle: text("seo_title"),
-  seoDescription: text("seo_description"),
-  blingId: text("bling_id"),
-  blingSyncStatus: text("bling_sync_status"),
-  blingSyncedAt: timestamp("bling_synced_at", { withTimezone: true }),
-  createdAt: createdAtColumn(),
-  updatedAt: updatedAtColumn()
-});
+export const products = pgTable(
+  "products",
+  {
+    id: idColumn(),
+    categoryId: uuid("category_id").references(() => categories.id, { onDelete: "set null" }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    sku: text("sku").notNull(),
+    shortDescription: text("short_description"),
+    description: text("description"),
+    brand: text("brand"),
+    inspirationName: text("inspiration_name"),
+    gender: text("gender"),
+    concentration: text("concentration"),
+    volumeMl: integer("volume_ml"),
+    dimensions: jsonb("dimensions"),
+    price: numeric("price", { precision: 12, scale: 2 }).notNull(),
+    compareAtPrice: numeric("compare_at_price", { precision: 12, scale: 2 }),
+    priceCents: integer("price_cents").notNull().default(0),
+    compareAtPriceCents: integer("compare_at_price_cents"),
+    costPriceCents: integer("cost_price_cents"),
+    status: productStatus("status").notNull().default("draft"),
+    availabilityType: text("availability_type").notNull().default("ready_stock"),
+    stockQuantity: integer("stock_quantity").notNull().default(0),
+    lowStockThreshold: integer("low_stock_threshold").notNull().default(0),
+    isFeatured: boolean("is_featured").notNull().default(false),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
+    blingId: text("bling_id"),
+    blingSyncStatus: text("bling_sync_status"),
+    blingSyncedAt: timestamp("bling_synced_at", { withTimezone: true }),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    slugUnique: uniqueIndex("products_slug_unique").on(table.slug),
+    skuUnique: uniqueIndex("products_sku_unique").on(table.sku),
+    publicCatalogIdx: index("products_public_catalog_idx").on(
+      table.status,
+      table.publishedAt,
+      table.stockQuantity
+    ),
+    featuredIdx: index("products_featured_idx").on(table.isFeatured)
+  })
+);
 
 export const productImages = pgTable(
   "product_images",
@@ -187,7 +208,10 @@ export const productImages = pgTable(
     createdAt: createdAtColumn()
   },
   (table) => ({
-    productCoverIdx: index("product_images_product_cover_idx").on(table.productId, table.isCover)
+    productSortIdx: index("product_images_product_sort_idx").on(table.productId, table.sortOrder),
+    productCoverUnique: uniqueIndex("product_images_one_cover_unique")
+      .on(table.productId)
+      .where(sql`${table.isCover}`)
   })
 );
 

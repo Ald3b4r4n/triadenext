@@ -1,9 +1,15 @@
 import { ProductForm } from "@/features/products/components/product-form";
 import { createProductAction } from "@/features/products/server/product-actions";
-import { listProductCategories } from "@/features/products/server/product-service";
+import {
+  getProductRuntimeMode,
+  listProductCategories
+} from "@/features/products/server/product-service";
 
 export default async function NovoProdutoPage() {
-  const categories = await listProductCategories();
+  const [categories, runtimeMode] = await Promise.all([
+    listProductCategories(),
+    getProductRuntimeMode()
+  ]);
 
   return (
     <main className="page-shell">
@@ -15,6 +21,12 @@ export default async function NovoProdutoPage() {
           banco real.
         </p>
       </section>
+      {runtimeMode.databaseNotice ? (
+        <p className="form-message form-message--error">{runtimeMode.databaseNotice}</p>
+      ) : null}
+      {runtimeMode.adminAuthNotice ? (
+        <p className="form-message form-message--success">{runtimeMode.adminAuthNotice}</p>
+      ) : null}
       <ProductForm categories={categories} action={createProductAction} submitLabel="Criar produto" />
     </main>
   );

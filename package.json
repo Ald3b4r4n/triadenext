@@ -12,8 +12,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:migrate": "node scripts/db/require-database-url.mjs && drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "node scripts/db/seed.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "latest",

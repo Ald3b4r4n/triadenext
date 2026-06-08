@@ -49,3 +49,22 @@ Quando `DATABASE_URL` existe, o repository possui caminho Drizzle para `products
 `dev_fallback` nas mutacoes, deixando claro que nao houve gravacao real.
 
 Nenhuma migration foi executada contra banco real nesta fase.
+
+## Fase 3 — Neon/Drizzle real
+
+Fase 3 conecta o caminho real de catalogo a Neon/Drizzle quando `DATABASE_URL` existe, mantendo
+fallback explicito quando ela esta ausente.
+
+Atualizacoes:
+
+- `categories.slug`, `products.slug` e `products.sku` possuem unique indexes.
+- `products_public_catalog_idx` cobre `status`, `publishedAt` e `stockQuantity` para a regra
+  publica: `published`, `publishedAt <= now` e estoque positivo.
+- `product_categories` preserva unique N:N por produto/categoria.
+- `product_images` possui ordenacao por produto e unique parcial para uma capa por produto.
+- O dominio continua usando centavos (`priceCents`, `compareAtPriceCents`, `costPriceCents`);
+  `price` decimal existe para compatibilidade operacional e relatorios, mas nao e a fonte de
+  calculo da aplicacao.
+
+Sem `DATABASE_URL`, `src/db/client.ts` exporta `db = null` e os services usam fixtures com aviso de
+`dev_fallback`. Com `DATABASE_URL`, erros Drizzle nao viram fixtures.

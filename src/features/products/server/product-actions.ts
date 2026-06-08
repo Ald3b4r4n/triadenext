@@ -21,11 +21,12 @@ export async function createProductAction(
   }
 
   const result = await createAdminProduct(parsed.data);
+  const status = result.status === "blocked" ? "error" : "success";
   revalidatePath("/admin/produtos");
   revalidatePath("/produtos");
 
   return {
-    status: "success",
+    status,
     message: result.message
   };
 }
@@ -42,12 +43,13 @@ export async function updateProductAction(
   }
 
   const result = await updateAdminProduct(id, parsed.data);
+  const status = result.status === "blocked" ? "error" : "success";
   revalidatePath("/admin/produtos");
   revalidatePath(`/admin/produtos/${id}/editar`);
   revalidatePath("/produtos");
 
   return {
-    status: "success",
+    status,
     message: result.message
   };
 }

@@ -4,8 +4,6 @@ import { env } from "@/lib/env";
 import * as schema from "./schema";
 
 const connectionString = env.DATABASE_URL;
+export const hasDatabaseConnection = connectionString.length > 0;
 
-export const db =
-  connectionString.length > 0
-    ? drizzle(neon(connectionString), { schema })
-    : null;
+export const db = hasDatabaseConnection ? drizzle(neon(connectionString), { schema }) : null;

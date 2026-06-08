@@ -1,5 +1,6 @@
 import { filterPublicProducts, normalizeProductSlug, toPublicProduct } from "../domain";
 import { createProductRepository } from "./product-repository";
+import { getRuntimeMode } from "@/lib/runtime-mode";
 
 const repository = createProductRepository();
 
@@ -39,4 +40,8 @@ export async function updateAdminProduct(
   input: Parameters<typeof repository.updateProduct>[1]
 ) {
   return repository.updateProduct(id, input);
+}
+
+export async function getProductRuntimeMode() {
+  return getRuntimeMode();
 }

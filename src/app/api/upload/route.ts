@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sensitiveRuntimeEnv } from "@/lib/env";
+import { runtimeMessages } from "@/lib/runtime-mode";
 
 export async function POST() {
   // Placeholder seguro: a implementacao real usara Vercel Blob somente com token configurado.
@@ -7,7 +8,7 @@ export async function POST() {
     return NextResponse.json(
       {
         status: "missing_blob_token",
-        message: "Upload real desativado ate configurar BLOB_READ_WRITE_TOKEN."
+        message: runtimeMessages.blobMissing
       },
       { status: 501 }
     );

@@ -46,3 +46,18 @@ Lacunas:
 
 O input visual de upload no admin fica desabilitado ate autenticacao, Blob e persistencia real serem
 ligados.
+
+## Fase 3 — Metadata com banco
+
+`uploadProductImage` so chama Vercel Blob quando `BLOB_READ_WRITE_TOKEN` existe. Depois de um upload
+real bem-sucedido, o resultado `uploaded` e enviado ao repository para persistir metadata em
+`product_images`.
+
+Guardrails:
+
+- sem token Blob, retorna `blocked/missing_blob_token` e nao tenta salvar metadata;
+- sem `DATABASE_URL`, o upload pode completar apenas se o token existir, mas a metadata retorna
+  `dev_fallback` explicito;
+- fora de desenvolvimento/local-dev, mutacao real de metadata e bloqueada ate auth/policies reais;
+- tipos aceitos continuam `image/jpeg`, `image/png`, `image/webp`;
+- limite continua 5 MB.

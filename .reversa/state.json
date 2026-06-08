@@ -17,7 +17,37 @@
     "geracao",
     "revisao"
   ],
-  "checkpoints": {},
+  "checkpoints": {
+    "context_refresh_2026_06_08": {
+      "completed_at": "2026-06-08T10:59:45-03:00",
+      "purpose": "Atualizar contexto Reversa do novo projeto Next.js antes da Fase 3, sem executar agentes pesados ou alterar codigo funcional.",
+      "files": [
+        "_reversa_sdd/inventory.md",
+        ".reversa/context/current-state.json",
+        ".reversa/state.json"
+      ],
+      "implemented_phases": [
+        "fundacao",
+        "fase_1_catalogo_produtos_imagens",
+        "fase_2_admin_produtos"
+      ],
+      "next_phase": "fase_3_neon_drizzle_migrations_locais_seed_controlado_persistencia_real",
+      "guardrails": [
+        "Nao executar migrations contra banco real sem validacao humana.",
+        "Upload real continua bloqueado sem BLOB_READ_WRITE_TOKEN.",
+        "Nao usar credenciais reais.",
+        "Nao fazer deploy.",
+        "Nao fazer push ou commit nesta execucao."
+      ],
+      "git": {
+        "branch": "main",
+        "status": "main...origin/main",
+        "latest_commit": "f10386c8e0526236b43da2fb17847e4532cb895f",
+        "phase_2_commit_pushed": true,
+        "note": "O prompt informava ahead 1, mas git status -sb confirmou branch sincronizada com origin/main."
+      }
+    }
+  },
   "engines": [
     "claude-code",
     "codex",
@@ -252,6 +282,8 @@
     ".reversa\\config.user.toml",
     ".reversa\\plan.md",
     ".reversa\\version",
-    ".reversa\\_config\\manifest.yaml"
+    ".reversa\\_config\\manifest.yaml",
+    "_reversa_sdd\\inventory.md",
+    ".reversa\\context\\current-state.json"
   ]
 }

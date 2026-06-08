@@ -62,3 +62,20 @@
 A Fase 2 adicionou listagem administrativa, telas de novo/edicao, formulario validado com Zod,
 actions server-side e upload controlado para imagens. Sem `DATABASE_URL`, as actions validam e
 retornam fallback de desenvolvimento sem gravar em banco real.
+
+## Fase 3 — Persistencia real
+
+Quando `DATABASE_URL` existe, o storefront consome produtos via service/repository Drizzle. Quando
+nao existe, continua usando fixtures explicitas.
+
+Regra publica preservada:
+
+- `status = published`;
+- `publishedAt <= now`;
+- `stockQuantity > 0`.
+
+Metadata de imagem e persistida em `product_images` somente depois de upload real bem-sucedido no
+Blob. Sem `BLOB_READ_WRITE_TOKEN`, nao ha upload nem metadata nova.
+
+Migracao real de imagens do legado segue fora desta fase. A etapa futura deve inventariar assets,
+validar origem e gravar somente metadata segura no novo banco.

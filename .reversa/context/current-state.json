@@ -1,0 +1,58 @@
+{
+  "updatedAt": "2026-06-08T10:59:45-03:00",
+  "project": "triade-essenza-next",
+  "workspace": "D:\\Projetos\\triade-essenza-next",
+  "legacyWorkspace": "D:\\Projetos\\triadeessenzaparfum.com.br",
+  "isLegacyWorkspace": false,
+  "git": {
+    "branch": "main",
+    "status": "main...origin/main",
+    "latestCommit": "f10386c8e0526236b43da2fb17847e4532cb895f",
+    "latestCommitMessage": "feat: implement admin product management foundation",
+    "baseCommit": "1fed8bf742411a0308d605e6bedf489445667680",
+    "phase2CommitPushed": true,
+    "note": "O prompt informava ahead 1, mas git status -sb confirmou main...origin/main."
+  },
+  "implementedPhases": [
+    {
+      "name": "Fundacao Next.js",
+      "status": "done",
+      "summary": "Next.js App Router, TypeScript, Tailwind, ESLint, Vitest, Playwright, Drizzle/Neon preparado, health check e env example sem segredos."
+    },
+    {
+      "name": "Fase 1 — catalogo, produto e imagens",
+      "status": "done",
+      "summary": "Storefront de produtos por fixtures/dev fallback, regras de produto publico, slug, preco, capa por isCover e metadata de imagem."
+    },
+    {
+      "name": "Fase 2 — admin de produtos",
+      "status": "done",
+      "summary": "Listagem admin, novo/edicao, formulario validado, actions, repository preparado, upload controlado e testes."
+    }
+  ],
+  "nextPhase": {
+    "name": "Fase 3",
+    "summary": "Conexao real com Neon/Drizzle, migrations locais, seed controlado e persistencia real de produtos/categorias/imagens.",
+    "guardrails": [
+      "Nao rodar migrations contra banco real sem validacao humana.",
+      "Nao expor ou versionar credenciais reais.",
+      "Nao fazer upload real sem BLOB_READ_WRITE_TOKEN.",
+      "Manter fallback seguro sem DATABASE_URL."
+    ]
+  },
+  "references": {
+    "localDocs": [
+      "docs/features/catalog-products-images.md",
+      "docs/features/admin-products.md",
+      "docs/architecture/database.md",
+      "docs/architecture/uploads.md",
+      "docs/migration/handoff-summary.md"
+    ],
+    "legacyMigrationDocs": [
+      "D:\\Projetos\\triadeessenzaparfum.com.br\\_reversa_sdd\\migration\\handoff.md",
+      "D:\\Projetos\\triadeessenzaparfum.com.br\\_reversa_sdd\\migration\\database-plan.md",
+      "D:\\Projetos\\triadeessenzaparfum.com.br\\_reversa_sdd\\migration\\uploads-plan.md",
+      "D:\\Projetos\\triadeessenzaparfum.com.br\\_reversa_sdd\\migration\\implementation-roadmap.md"
+    ]
+  }
+}

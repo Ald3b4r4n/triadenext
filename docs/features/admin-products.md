@@ -1,4 +1,4 @@
-# Admin de Produtos — Fase 2
+# Admin de Produtos
 
 ## Escopo
 
@@ -39,11 +39,15 @@ As actions:
 Autenticacao real ainda nao existe. A protecao de admin fica documentada como pendencia; esta fase
 nao cria falsa seguranca.
 
-## Persistencia preparada
+## Persistencia preparada e real
 
 `product-repository.ts` contem caminho Drizzle para criar/atualizar `products` e
-`product_categories`. Sem `DATABASE_URL`, usa fixtures e retorna `dev_fallback`, indicando que a
-mutacao foi validada mas nao gravada em banco real.
+`product_categories`. Na Fase 3, o mesmo repository tambem lista produtos/categorias reais, busca
+por `id`/`slug`, hidrata categorias/imagens e salva metadata em `product_images`.
+
+Sem `DATABASE_URL`, usa fixtures e retorna `dev_fallback`, indicando que a mutacao foi validada mas
+nao gravada em banco real. Com `DATABASE_URL`, excecoes Drizzle propagam; nao ha fallback silencioso
+de erro real.
 
 Nenhuma migration foi aplicada contra banco real.
 
@@ -59,11 +63,17 @@ Nenhuma migration foi aplicada contra banco real.
 Sem `BLOB_READ_WRITE_TOKEN`, o resultado e `blocked/missing_blob_token`. A metadata esta pronta para
 persistencia em `product_images`, mas o binario nunca entra no banco.
 
+## Avisos no admin
+
+As paginas `/admin/produtos`, `/admin/produtos/novo` e `/admin/produtos/[id]/editar` exibem aviso
+quando estao em modo sem banco. Quando ha banco real em desenvolvimento, exibem tambem aviso de que
+auth/policies reais ainda pertencem a Fase 4.
+
 ## Limitacoes sem Neon
 
 - Criacao e edicao nao persistem em banco real.
 - Listas usam fixtures temporarias.
-- Relacionamento de categorias e imagens fica preparado, mas nao transacional.
+- Relacionamento de categorias e imagens usa fixtures.
 
 ## Limitacoes sem Blob token
 
@@ -82,10 +92,6 @@ persistencia em `product_images`, mas o binario nunca entra no banco.
 - Upload rejeita arquivo acima de 5 MB.
 - Playwright valida listagem admin, novo produto e edicao com fixture.
 
-## Pendencias para Fase 3
+## Pendencias para Fase 4
 
-- Conexao real com Neon/Drizzle.
-- Migrations locais geradas e revisadas sem aplicar em producao.
-- Seed controlado de categorias/produtos/imagens.
-- Persistencia real de produtos, categorias e imagens.
 - Autenticacao/policy real para admin.
