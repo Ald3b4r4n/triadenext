@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { policyMessage, requireAdminLike } from "@/features/auth/server/policies";
 import { productFormDataToObject, productFormSchema } from "../schemas";
 import { createAdminProduct, updateAdminProduct } from "./product-service";
 
@@ -14,6 +15,15 @@ export async function createProductAction(
   _previousState: ProductActionState,
   formData: FormData
 ): Promise<ProductActionState> {
+  const policy = await requireAdminLike();
+
+  if (policy.status !== "allowed") {
+    return {
+      status: "error",
+      message: policyMessage(policy)
+    };
+  }
+
   const parsed = productFormSchema.safeParse(productFormDataToObject(formData));
 
   if (!parsed.success) {
@@ -36,6 +46,15 @@ export async function updateProductAction(
   _previousState: ProductActionState,
   formData: FormData
 ): Promise<ProductActionState> {
+  const policy = await requireAdminLike();
+
+  if (policy.status !== "allowed") {
+    return {
+      status: "error",
+      message: policyMessage(policy)
+    };
+  }
+
   const parsed = productFormSchema.safeParse(productFormDataToObject(formData));
 
   if (!parsed.success) {

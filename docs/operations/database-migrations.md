@@ -25,3 +25,16 @@ Revisao:
 
 Pendencia segura: aplicar essa migration exige banco Neon de desenvolvimento validado por humano.
 Preview/producao ficam fora desta fase.
+
+## Fase 4
+
+A Fase 4 adiciona migration local para `users`, `sessions`, `accounts` e `verifications`, preservando
+compatibilidade com o schema anterior. A regra continua a mesma:
+
+- gerar localmente;
+- revisar SQL;
+- nao aplicar em banco real sem validacao humana;
+- nao conectar banco de producao;
+- nao expor credenciais.
+
+Migration local gerada: `drizzle/0001_curvy_blink.sql`.

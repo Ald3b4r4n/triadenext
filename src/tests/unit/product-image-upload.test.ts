@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { uploadProductImage } from "@/features/uploads/product-image-upload";
 import { maxProductImageSizeBytes } from "@/features/uploads/schemas";
+
+vi.mock("@/features/auth/server/policies", () => ({
+  requireAdminLike: vi.fn(async () => ({
+    status: "allowed",
+    userId: "user-1",
+    role: "admin"
+  })),
+  policyMessage: vi.fn(() => "Autorizado.")
+}));
 
 describe("product image upload", () => {
   it("blocks real upload when BLOB_READ_WRITE_TOKEN is missing", async () => {

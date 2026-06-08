@@ -5,6 +5,10 @@
 Variaveis minimas:
 
 - `DATABASE_URL`
+- `BETTER_AUTH_SECRET`
+- `BETTER_AUTH_URL`
+- `DEV_ADMIN_EMAIL`
+- `DEV_ADMIN_PASSWORD`
 - `BLOB_READ_WRITE_TOKEN`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
@@ -20,6 +24,7 @@ Variaveis minimas:
 `src/lib/runtime-mode.ts` expoe somente flags seguras:
 
 - banco presente ou ausente;
+- auth real pronta ou nao;
 - token Blob presente ou ausente;
 - ambiente `development`, `test`, `preview` ou `production`;
 - permissao temporaria para mutacao real.
@@ -27,4 +32,5 @@ Variaveis minimas:
 Valores sensiveis nao sao exibidos em logs, mensagens, docs ou testes.
 
 Sem `DATABASE_URL`, o catalogo entra em fallback explicito e nao promete gravacao real. Sem
-`BLOB_READ_WRITE_TOKEN`, upload real fica bloqueado antes de chamar Vercel Blob.
+`BETTER_AUTH_SECRET` e `DATABASE_URL`, auth real nao fica ativa e mutacoes admin seguem bloqueadas.
+Sem `BLOB_READ_WRITE_TOKEN`, upload real fica bloqueado antes de chamar Vercel Blob.

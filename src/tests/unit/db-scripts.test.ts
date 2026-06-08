@@ -15,6 +15,7 @@ describe("database scripts", () => {
     expect(packageJson.scripts["db:migrate"]).toContain("require-database-url.mjs");
     expect(packageJson.scripts["db:studio"]).toBe("drizzle-kit studio");
     expect(packageJson.scripts["db:seed"]).toBe("node scripts/db/seed.mjs");
+    expect(packageJson.scripts["db:seed:admin-dev"]).toBe("tsx scripts/db/seed-admin-dev.ts");
   });
 
   it("fails seed safely without DATABASE_URL", () => {
@@ -25,5 +26,25 @@ describe("database scripts", () => {
         stdio: "pipe"
       })
     ).toThrow(/DATABASE_URL ausente/);
+  });
+
+  it("fails admin dev seed safely without required envs", () => {
+    expect(() =>
+      execFileSync(
+        process.execPath,
+        ["node_modules/tsx/dist/cli.mjs", "scripts/db/seed-admin-dev.ts"],
+        {
+          cwd: root,
+          env: {
+            ...process.env,
+            NODE_ENV: "development",
+            DATABASE_URL: "",
+            DEV_ADMIN_EMAIL: "",
+            DEV_ADMIN_PASSWORD: ""
+          },
+          stdio: "pipe"
+        }
+      )
+    ).toThrow(/variaveis ausentes/);
   });
 });

@@ -4,7 +4,7 @@ O schema inicial esta em `src/db/schema.ts` e foi modelado a partir do `database
 
 Tabelas iniciais:
 
-- `users`, `customer_profiles`, `addresses`
+- `users`, `sessions`, `accounts`, `verifications`, `customer_profiles`, `addresses`
 - `categories`, `products`, `product_images`, `product_categories`
 - `carts`, `cart_items`
 - `coupons`, `shipping_rules`
@@ -68,3 +68,20 @@ Atualizacoes:
 
 Sem `DATABASE_URL`, `src/db/client.ts` exporta `db = null` e os services usam fixtures com aviso de
 `dev_fallback`. Com `DATABASE_URL`, erros Drizzle nao viram fixtures.
+
+## Fase 4 — Auth e policies
+
+Tabela/contratos de auth adicionados ao schema:
+
+- `users`: ganhou `email_verified` e `image`, preservando `role` da aplicacao.
+- `sessions`: token, expiracao e referencia ao usuario.
+- `accounts`: contas ligadas ao usuario para e-mail/senha e preparo futuro de OAuth.
+- `verifications`: fluxo interno do provider.
+
+Regras:
+
+- `users.email` continua unico.
+- `sessions.token` e unico.
+- `sessions.user_id` tem indice para leitura por usuario/logout.
+- `customer_profiles.user_id` e `addresses.user_id` continuam apontando para o usuario autenticado.
+- Migrations para auth sao geradas localmente, mas nao aplicadas contra banco real sem validacao humana.

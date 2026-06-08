@@ -72,6 +72,8 @@ export const users = pgTable(
     id: idColumn(),
     name: text("name").notNull(),
     email: text("email").notNull(),
+    emailVerified: boolean("email_verified").notNull().default(false),
+    image: text("image"),
     phone: text("phone"),
     passwordHash: text("password_hash"),
     role: userRole("role").notNull().default("customer"),
@@ -83,6 +85,69 @@ export const users = pgTable(
   (table) => ({
     emailUnique: uniqueIndex("users_email_unique").on(table.email),
     roleIdx: index("users_role_idx").on(table.role)
+  })
+);
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: idColumn(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    token: text("token").notNull(),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" })
+  },
+  (table) => ({
+    tokenUnique: uniqueIndex("sessions_token_unique").on(table.token),
+    userIdx: index("sessions_user_id_idx").on(table.userId)
+  })
+);
+
+export const accounts = pgTable(
+  "accounts",
+  {
+    id: idColumn(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    userIdx: index("accounts_user_id_idx").on(table.userId),
+    providerAccountUnique: uniqueIndex("accounts_provider_account_unique").on(
+      table.providerId,
+      table.accountId
+    )
+  })
+);
+
+export const verifications = pgTable(
+  "verifications",
+  {
+    id: idColumn(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    identifierIdx: index("verifications_identifier_idx").on(table.identifier)
   })
 );
 

@@ -9,6 +9,7 @@
 - Validacao com Zod e server actions.
 - Repository preparado para Drizzle/Neon.
 - Upload de imagens preparado e validado, sem binario no banco.
+- Acesso administrativo protegido por auth/policies server-side.
 
 ## Regras herdadas do legado
 
@@ -32,12 +33,13 @@ As actions:
 2. validam com `productFormSchema`;
 3. normalizam slug;
 4. convertem precos reais para centavos;
-5. bloqueiam `published` sem dados essenciais;
-6. chamam o repository;
-7. revalidam rotas administrativas e publicas.
+5. validam policy admin/manager antes de persistir;
+6. bloqueiam mutacao sem sessao valida ou sem auth real ativa em preview/producao;
+7. chamam o repository;
+8. revalidam rotas administrativas e publicas.
 
-Autenticacao real ainda nao existe. A protecao de admin fica documentada como pendencia; esta fase
-nao cria falsa seguranca.
+Sem auth/policies reais ativas, mutacoes admin retornam bloqueio seguro e nao prometem
+persistencia.
 
 ## Persistencia preparada e real
 
@@ -66,8 +68,8 @@ persistencia em `product_images`, mas o binario nunca entra no banco.
 ## Avisos no admin
 
 As paginas `/admin/produtos`, `/admin/produtos/novo` e `/admin/produtos/[id]/editar` exibem aviso
-quando estao em modo sem banco. Quando ha banco real em desenvolvimento, exibem tambem aviso de que
-auth/policies reais ainda pertencem a Fase 4.
+quando estao em modo sem banco. Quando ha banco real em desenvolvimento, as rotas continuam
+exigindo sessao admin/manager valida.
 
 ## Limitacoes sem Neon
 
@@ -92,6 +94,8 @@ auth/policies reais ainda pertencem a Fase 4.
 - Upload rejeita arquivo acima de 5 MB.
 - Playwright valida listagem admin, novo produto e edicao com fixture.
 
-## Pendencias para Fase 4
+## Pendencias futuras
 
-- Autenticacao/policy real para admin.
+- Google OAuth futuro.
+- Magic link futuro.
+- Granularidade fina de permissões alem do MVP.
