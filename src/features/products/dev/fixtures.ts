@@ -1,0 +1,162 @@
+import type { Category, Product, ProductImage } from "../types";
+
+const pastDate = new Date("2026-01-10T12:00:00.000Z");
+const futureDate = new Date("2099-01-10T12:00:00.000Z");
+
+export const devCategories: Category[] = [
+  {
+    id: "cat-example-active",
+    name: "Categoria de exemplo",
+    slug: "categoria-de-exemplo",
+    description: "Fixture temporaria ate a conexao real com Neon.",
+    parentId: null,
+    sortOrder: 10,
+    isActive: true,
+    createdAt: pastDate,
+    updatedAt: pastDate
+  },
+  {
+    id: "cat-example-inactive",
+    name: "Categoria inativa de exemplo",
+    slug: "categoria-inativa-de-exemplo",
+    description: "Fixture temporaria para validar estados administrativos.",
+    parentId: null,
+    sortOrder: 20,
+    isActive: false,
+    createdAt: pastDate,
+    updatedAt: pastDate
+  }
+];
+
+function imageFor(productId: string, id: string, sortOrder: number, isCover = false): ProductImage {
+  return {
+    id,
+    productId,
+    blobUrl: `https://placehold.co/900x1100/f7f1e7/2a2620/png?text=${encodeURIComponent("Produto exemplo")}`,
+    pathname: `dev-fixtures/products/${productId}/${id}.png`,
+    altText: "Imagem temporaria de produto de exemplo",
+    sortOrder,
+    isCover,
+    width: 900,
+    height: 1100,
+    sizeBytes: 120000,
+    contentType: "image/png",
+    createdAt: pastDate
+  };
+}
+
+export const devProducts: Product[] = [
+  {
+    id: "prod-example-published",
+    name: "Produto publicado de exemplo",
+    slug: "produto-publicado-de-exemplo",
+    shortDescription: "Fixture publica temporaria para a vitrine sem banco real.",
+    description:
+      "Produto generico usado somente durante a reconstrucao para validar listagem, slug, preco e capa.",
+    brand: "Marca de exemplo",
+    inspirationName: "Referencia de exemplo",
+    gender: "unissex",
+    concentration: "Eau de Parfum",
+    volumeMl: 100,
+    sku: "DEV-PUBLISHED-001",
+    priceCents: 15990,
+    compareAtPriceCents: 18990,
+    costPriceCents: null,
+    stockQuantity: 8,
+    lowStockThreshold: 2,
+    status: "published",
+    isFeatured: true,
+    publishedAt: pastDate,
+    seoTitle: "Produto publicado de exemplo",
+    seoDescription: "Fixture publica temporaria.",
+    categories: [devCategories[0]],
+    images: [
+      imageFor("prod-example-published", "img-published-gallery", 20),
+      imageFor("prod-example-published", "img-published-cover", 10, true)
+    ],
+    createdAt: pastDate,
+    updatedAt: pastDate
+  },
+  {
+    id: "prod-example-out-of-stock",
+    name: "Produto sem estoque de exemplo",
+    slug: "produto-sem-estoque-de-exemplo",
+    shortDescription: "Fixture sem estoque.",
+    description: "Nao deve aparecer como disponivel para compra.",
+    brand: "Marca de exemplo",
+    inspirationName: null,
+    gender: "nao_informado",
+    concentration: null,
+    volumeMl: 50,
+    sku: "DEV-OOS-001",
+    priceCents: 12990,
+    compareAtPriceCents: null,
+    costPriceCents: null,
+    stockQuantity: 0,
+    lowStockThreshold: 2,
+    status: "published",
+    isFeatured: false,
+    publishedAt: pastDate,
+    seoTitle: null,
+    seoDescription: null,
+    categories: [devCategories[0]],
+    images: [imageFor("prod-example-out-of-stock", "img-oos", 10, true)],
+    createdAt: pastDate,
+    updatedAt: pastDate
+  },
+  {
+    id: "prod-example-future",
+    name: "Produto futuro de exemplo",
+    slug: "produto-futuro-de-exemplo",
+    shortDescription: "Fixture com publicacao futura.",
+    description: "Nao deve ser tratado como publico antes de publishedAt.",
+    brand: null,
+    inspirationName: null,
+    gender: "nao_informado",
+    concentration: null,
+    volumeMl: null,
+    sku: "DEV-FUTURE-001",
+    priceCents: 9900,
+    compareAtPriceCents: null,
+    costPriceCents: null,
+    stockQuantity: 5,
+    lowStockThreshold: 1,
+    status: "published",
+    isFeatured: false,
+    publishedAt: futureDate,
+    seoTitle: null,
+    seoDescription: null,
+    categories: [devCategories[0]],
+    images: [],
+    createdAt: pastDate,
+    updatedAt: pastDate
+  },
+  {
+    id: "prod-example-inactive",
+    name: "Produto inativo de exemplo",
+    slug: "produto-inativo-de-exemplo",
+    shortDescription: "Fixture inativa.",
+    description:
+      "Inactive e tratado como inativo/arquivado nesta fase, pendente validacao humana.",
+    brand: null,
+    inspirationName: null,
+    gender: "nao_informado",
+    concentration: null,
+    volumeMl: null,
+    sku: "DEV-INACTIVE-001",
+    priceCents: 9900,
+    compareAtPriceCents: null,
+    costPriceCents: null,
+    stockQuantity: 3,
+    lowStockThreshold: 1,
+    status: "inactive",
+    isFeatured: false,
+    publishedAt: pastDate,
+    seoTitle: null,
+    seoDescription: null,
+    categories: [devCategories[1]],
+    images: [],
+    createdAt: pastDate,
+    updatedAt: pastDate
+  }
+];
