@@ -1,7 +1,7 @@
 # Permissions — triade-essenza-next
 
 > Data: 2026-06-08
-> Escopo: auth, roles e policies reais da Fase 4
+> Escopo: auth, roles, policies reais e carrinho da Fase 5
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## Estado atual
@@ -38,6 +38,8 @@ provider. 🟢
 | `/cadastro` | Permitido | Redirect se ja autenticado | Redirect se ja autenticado | Redirect se ja autenticado | Cadastro publico cria customer. |
 | `/admin/**` | Redirect/bloqueio | Forbidden | Permitido | Permitido | `requireAdminLike`. |
 | `/minha-conta`, `/enderecos`, `/pedidos` | Redirect para login | Permitido | Permitido como autenticado | Permitido como autenticado | `requireCustomer`. |
+| `/carrinho` | Permitido | Permitido | Permitido sem bypass | Permitido sem bypass | Carrinho por guest token ou `session.userId`. |
+| Cart actions | Permitido para carrinho anonimo | Permitido para proprio carrinho | Permitido como autenticado normal | Permitido como autenticado normal | Owner resolvido server-side; sem bypass de estoque. |
 | Product create/update actions | Erro controlado | Erro controlado | Permitido se runtime permitir | Permitido se runtime permitir | `requireAdminLike` antes da persistencia. |
 | Upload produto | Erro controlado | Erro controlado | Permitido se token/runtime permitirem | Permitido se token/runtime permitirem | `requireAdminLike` antes do Blob. |
 
@@ -69,6 +71,17 @@ provider. 🟢
 | Senha fraca | Bloqueado. |
 | Preconditions validas | Cria usuario se necessario e promove para `admin`. |
 
+## Carrinho
+
+| Regra | Comportamento |
+|---|---|
+| Carrinho anonimo | Resolvido por cookie opaco `guestCartToken`; cookie nao contem itens/precos/dados sensiveis. |
+| Carrinho autenticado | Resolvido por `session.userId`; cliente nao envia owner confiavel. |
+| Acesso cruzado | Item/carrinho de outro usuario ou outro token nao deve ser lido/modificado. |
+| Admin/manager | Podem usar carrinho como usuarios autenticados normais; nao ignoram estoque/disponibilidade. |
+| Merge no login | Usa `session.userId` e guest token resolvido no servidor; marca anonimo convertido. |
+| Fallback sem banco | Dev/test explicito; preview/producao sem banco falham seguro para mutacoes reais. |
+
 ## Fora de escopo
 
 - Google OAuth.
@@ -76,3 +89,4 @@ provider. 🟢
 - Permissoes granulares alem de `admin`/`manager`, `customer` e ownership.
 - Criacao publica de admin/manager.
 - Politicas reais de pedidos, pagamentos, cupons, fretes e documentos fiscais.
+- Checkout, pagamento, frete, cupom, pedido, reserva e baixa de estoque.

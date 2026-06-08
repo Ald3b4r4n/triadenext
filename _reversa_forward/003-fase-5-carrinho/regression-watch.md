@@ -18,7 +18,9 @@
 
 ## Histórico de re-extrações
 
-Vazio.
+| Data | Re-extração | Resultado |
+|---|---|---|
+| 2026-06-08 | Re-extração pós-Fase 5 | 🟢 Sem regressão semântica detectada: carrinho segue sem checkout/pagamento/frete/cupom/pedido/reserva/baixa de estoque; `guestCartToken` segue opaco; fallback sem banco segue explícito; admin/manager seguem sem bypass documentado. |
 
 ## Arquivadas
 

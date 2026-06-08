@@ -2,7 +2,7 @@
 
 > Projeto analisado: `D:\Projetos\triade-essenza-next`
 > Data: `2026-06-08`
-> Escopo: re-extracao pos-Fase 4
+> Escopo: re-extracao pos-Fase 5
 > Confirmacao: este documento descreve o projeto Next.js atual, nao o Laravel legado.
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
@@ -11,7 +11,7 @@
 O projeto `triade-essenza-next` e uma reconstrucao em Next.js App Router da Tríade Essenza Parfum.
 A arquitetura separa superficies de storefront, admin, customer/auth e APIs em `src/app`, dominio de
 catalogo em `src/features/products`, upload em `src/features/uploads`, auth em `src/features/auth`,
-banco em `src/db` e runtime/env em `src/lib`. 🟢
+carrinho em `src/features/cart`, banco em `src/db` e runtime/env em `src/lib`. 🟢
 
 Fases registradas:
 
@@ -20,6 +20,7 @@ Fases registradas:
 - Fase 2 de admin de produtos concluida. 🟢
 - Fase 3 de persistencia Neon/Drizzle preparada concluida no commit `3774c49`. 🟢
 - Fase 4 de Better Auth, sessao server-side e policies concluida no commit `fcdb929`. 🟢
+- Fase 5 de carrinho e sessao de compra concluida no commit `7215cf1`. 🟢
 
 ## 2. Stack
 
@@ -34,6 +35,7 @@ Fases registradas:
 | Banco alvo | Neon Postgres | Preparado via Drizzle/Neon. | 🟢 |
 | ORM | Drizzle ORM + Drizzle Kit | Schema, client, migrations e scripts existem. | 🟢 |
 | Upload | Vercel Blob | Integrado com bloqueio sem token e policy admin-like. | 🟢 |
+| Carrinho | Server actions + Drizzle/fallback | Implementado em `src/features/cart`. | 🟢 |
 | Testes | Vitest + Playwright | Suites unit/e2e passam sem banco real. | 🟢 |
 
 ## 3. Runtime e guardrails
@@ -46,7 +48,7 @@ Responsabilidades:
 - detectar `development`, `test`, `preview` e `production`;
 - declarar `isAuthReady` quando banco e secret de auth estao configurados;
 - manter fallback sem banco para build/test;
-- centralizar mensagens de fallback, bloqueio, auth indisponivel e acesso negado.
+- centralizar mensagens de fallback, bloqueio, auth indisponivel, carrinho indisponivel e acesso negado.
 
 `src/lib/env.ts` valida variaveis opcionais e expõe indicadores booleanos seguros em
 `sensitiveRuntimeEnv`; a re-extracao nao leu nem expôs `.env`. 🟢
@@ -139,10 +141,38 @@ Migrations locais:
 - `drizzle/0000_shallow_shinko_yamashiro.sql`: schema inicial.
 - `drizzle/0001_curvy_blink.sql`: delta local de Better Auth (`accounts`, `sessions`,
   `verifications`, `email_verified`, `image`).
+- `drizzle/0002_tiny_enchantress.sql`: delta local de carrinho (`session_id`, `expires_at`,
+  `converted_at`, `unit_price_snapshot_cents`, indices e unique por produto no carrinho).
 
 Nenhuma migration foi aplicada contra banco real nesta re-extracao. 🟢
 
-## 9. Seed admin dev
+## 9. Carrinho e sessao de compra
+
+Modulo central: `src/features/cart`. 🟢
+
+Arquitetura interna:
+
+- `domain.ts`: subtotal em centavos, validacao de quantidade e produto compravel.
+- `schemas.ts`: validacao de inputs de server actions.
+- `server/cart-session.ts`: resolucao de ator por sessao Better Auth ou cookie opaco
+  `guestCartToken`.
+- `server/cart-repository.ts`: repository Drizzle quando `db` existe e fallback dev/test quando
+  `db = null`.
+- `server/cart-service.ts`: regras de negocio, estoque, ownership, fallback e merge.
+- `server/cart-actions.ts`: actions de obter, adicionar, atualizar, remover e limpar carrinho.
+- `components/*`: UI de adicionar ao carrinho e renderizacao de itens/subtotal.
+
+Regras arquiteturais confirmadas:
+
+- Cookie anonimo armazena apenas identificador opaco, sem itens/precos/dados sensiveis.
+- Carrinho autenticado e resolvido por `session.userId`.
+- Actions nao aceitam `cartId`, `userId`, role ou owner como fonte confiavel.
+- Sem banco em dev/test, fallback e explicito e nao promete persistencia real.
+- Em preview/producao sem banco, carrinho real fica indisponivel de forma segura.
+- Login chama merge quando existe `guestCartToken`.
+- Checkout/pagamento/frete/cupom/pedido/reserva/baixa de estoque nao foram implementados.
+
+## 10. Seed admin dev
 
 `scripts/db/seed-admin-dev.ts` cria/promove usuario admin apenas em development. 🟢
 
@@ -155,7 +185,7 @@ Guardrails:
 - nao roda automaticamente;
 - nao foi executado nesta re-extracao.
 
-## 10. Catalogo, repository e upload
+## 11. Catalogo, repository e upload
 
 As regras de catalogo e persistencia da Fase 3 permanecem preservadas. 🟢
 
@@ -164,15 +194,17 @@ As regras de catalogo e persistencia da Fase 3 permanecem preservadas. 🟢
 - Produto publico segue exigindo `published`, `publishedAt <= now` e `stockQuantity > 0`.
 - Upload real continua bloqueado sem `BLOB_READ_WRITE_TOKEN`.
 - Metadata de upload agora tambem exige policy admin-like.
+- Pagina publica de produto expõe formulario de adicionar ao carrinho apenas para produto publico.
 
-## 11. Fora de escopo atual
+## 12. Fora de escopo atual
 
 - Google OAuth.
 - Magic link.
 - Granularidade fina de permissoes alem de `customer`, `admin`, `manager` e ownership.
-- Checkout, pagamento, frete, cupom, pedidos reais e documentos fiscais reais.
+- Checkout, pagamento, frete, cupom, pedidos reais, reserva/baixa de estoque e documentos fiscais reais.
 - Deploy, push ou migrations reais.
 
-## 12. Proxima fase
+## 13. Proxima fase
 
-Abrir a proxima feature com `/reversa-requirements`, usando auth/policies como base ja confirmada. 🟢
+Abrir a proxima feature com `/reversa-requirements`, usando catalogo, persistencia, auth/policies e
+carrinho como base ja confirmada. 🟢

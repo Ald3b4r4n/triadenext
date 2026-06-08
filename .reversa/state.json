@@ -11,7 +11,8 @@
   "phase": null,
   "completed": [
     "reextracao_pos_fase_3",
-    "reextracao_pos_fase_4"
+    "reextracao_pos_fase_4",
+    "reextracao_pos_fase_5"
   ],
   "pending": [
     "proxima_feature_a_definir_via_reversa_requirements"
@@ -152,6 +153,74 @@
         "branch": "main",
         "status": "main...origin/main",
         "latest_commit": "fcdb929843dccbcc0cd2a3049bc5d012f0e2150b",
+        "worktree_before_reextraction": "clean"
+      }
+    },
+    "reextraction_after_phase_5_2026_06_08": {
+      "completed_at": "2026-06-08T20:45:00-03:00",
+      "purpose": "Re-extracao Reversa apos Fase 5 concluida, commitada e enviada ao GitHub, sem alterar codigo funcional.",
+      "files": [
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        ".reversa/context/current-state.json",
+        ".reversa/state.json",
+        "_reversa_forward/003-fase-5-carrinho/regression-watch.md"
+      ],
+      "implemented_phases": [
+        "fundacao",
+        "fase_1_catalogo_produtos_imagens",
+        "fase_2_admin_produtos",
+        "fase_3_neon_drizzle_migrations_locais_seed_controlado_persistencia_real",
+        "fase_4_better_auth_sessao_policies_admin_customer",
+        "fase_5_carrinho_sessao_compra"
+      ],
+      "phase5_commit": "7215cf1fccf1229c05ccd4d2e93c5b278f388656",
+      "phase5_commit_pushed": true,
+      "next_phase": "proxima_feature_a_definir",
+      "next_command": "/reversa-requirements",
+      "cart_summary": {
+        "anonymous_cart": "guestCartToken opaco em cookie seguro, sem itens/precos/dados sensiveis.",
+        "authenticated_cart": "vinculado a userId/session.userId.",
+        "ownership": "server-side.",
+        "merge_on_login": "soma quantidades, limita por estoque e marca anonimo converted.",
+        "validations": [
+          "draft bloqueado",
+          "inactive bloqueado",
+          "futuro bloqueado",
+          "sem estoque bloqueado",
+          "quantidade acima de stockQuantity bloqueada"
+        ],
+        "fallback": "dev/test explicito sem persistencia real; preview/producao falham seguro sem banco.",
+        "migration_local": "drizzle/0002_tiny_enchantress.sql",
+        "out_of_scope": [
+          "checkout",
+          "pagamento",
+          "frete",
+          "cupom",
+          "pedido",
+          "reserva_estoque",
+          "baixa_estoque"
+        ]
+      },
+      "guardrails": [
+        "Nao executar migrations contra banco real sem validacao humana.",
+        "Nao conectar banco real nesta re-extracao.",
+        "Nao ler, copiar ou expor .env.",
+        "Nao expor DATABASE_URL.",
+        "Nao expor cookies, tokens, senhas ou secrets.",
+        "Nao fazer deploy.",
+        "Nao fazer push nesta execucao.",
+        "Nao modificar o Laravel legado."
+      ],
+      "git": {
+        "branch": "main",
+        "status": "main...origin/main",
+        "latest_commit": "7215cf1fccf1229c05ccd4d2e93c5b278f388656",
         "worktree_before_reextraction": "clean"
       }
     }

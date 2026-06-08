@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-08T17:41:00-03:00",
+  "updatedAt": "2026-06-08T20:45:00-03:00",
   "project": "triade-essenza-next",
   "workspace": "D:\\Projetos\\triade-essenza-next",
   "legacyWorkspace": "D:\\Projetos\\triadeessenzaparfum.com.br",
@@ -7,9 +7,10 @@
   "git": {
     "branch": "main",
     "status": "main...origin/main",
-    "latestCommit": "fcdb929843dccbcc0cd2a3049bc5d012f0e2150b",
-    "latestCommitMessage": "feat: add auth and policy foundation",
+    "latestCommit": "7215cf1fccf1229c05ccd4d2e93c5b278f388656",
+    "latestCommitMessage": "feat: implement cart and purchase session foundation",
     "phase4CommitPushed": true,
+    "phase5CommitPushed": true,
     "worktreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
@@ -37,6 +38,11 @@
       "name": "Fase 4 — Better Auth, sessao e policies",
       "status": "done",
       "summary": "Better Auth integrado, login/cadastro/logout por e-mail/senha, sessao server-side, roles customer/admin/manager, policies reais, rotas admin/customer protegidas, server actions protegidas e seed admin dev controlado."
+    },
+    {
+      "name": "Fase 5 — Carrinho e sessao de compra",
+      "status": "done",
+      "summary": "Carrinho anonimo por guestCartToken opaco, carrinho autenticado por userId, ownership server-side, validacao de produto/estoque, merge ao login, UI minima de carrinho e fallback dev/test explicito."
     }
   ],
   "currentAuth": {
@@ -67,25 +73,48 @@
     "databaseMode": "DATABASE_URL ausente resulta em db null e fallback/bloqueio explicito; DATABASE_URL presente ativa Drizzle/Neon quando usado.",
     "migrations": [
       "drizzle/0000_shallow_shinko_yamashiro.sql gerada e nao aplicada.",
-      "drizzle/0001_curvy_blink.sql gerada para auth e nao aplicada."
+      "drizzle/0001_curvy_blink.sql gerada para auth e nao aplicada.",
+      "drizzle/0002_tiny_enchantress.sql gerada para carrinho e nao aplicada."
     ],
     "seed": "scripts/db/seed.mjs usa dados ficticios e falha sem DATABASE_URL.",
     "adminDevSeed": "scripts/db/seed-admin-dev.ts exige DATABASE_URL, DEV_ADMIN_EMAIL e DEV_ADMIN_PASSWORD e bloqueia fora de development.",
     "upload": "Upload real bloqueado sem BLOB_READ_WRITE_TOKEN e sem policy admin-like allowed.",
     "adminGuardrail": "Mutacoes admin reais exigem sessao admin ou manager por requireAdminLike."
   },
+  "currentCart": {
+    "anonymousCart": "Cookie seguro/opaco guestCartToken; cookie nao armazena itens, precos ou dados sensiveis.",
+    "authenticatedCart": "Carrinho vinculado a session.userId quando ha banco real.",
+    "ownership": "Server-side; actions nao aceitam owner/cartId/userId do cliente como fonte confiavel.",
+    "mergeOnLogin": "Soma quantidades por produto, limita por estoque, remove/bloqueia indisponiveis e marca anonimo converted.",
+    "availabilityRules": [
+      "Produto precisa estar published.",
+      "publishedAt precisa existir e ser <= now.",
+      "stockQuantity precisa ser > 0.",
+      "Quantidade minima 1 e maxima stockQuantity."
+    ],
+    "fallback": "Sem DATABASE_URL em dev/test, interacoes sao fallback explicito sem persistencia real; preview/producao sem banco falham seguro.",
+    "outOfScope": [
+      "checkout",
+      "pagamento",
+      "frete",
+      "cupom",
+      "pedido",
+      "reserva de estoque",
+      "baixa de estoque"
+    ]
+  },
   "validations": {
     "pnpm lint": "passed",
     "pnpm typecheck": "passed",
-    "pnpm test": "passed",
+    "pnpm test": "passed, 15 files / 45 tests",
     "pnpm build": "passed",
-    "pnpm test:e2e": "passed"
+    "pnpm test:e2e": "passed, 11 tests"
   },
   "nextPhase": {
     "name": "Proxima feature a definir",
-    "summary": "Abrir novo ciclo de requirements usando auth/policies como base confirmada. Sugestoes naturais: conta customer/enderecos ou carrinho/checkout, conforme decisao de produto.",
+    "summary": "Abrir novo ciclo de requirements usando catalogo, persistencia, auth/policies e carrinho como base confirmada. Sugestoes naturais: enderecos customer, pre-checkout/checkout sem pagamento real, frete/cupom ou pedidos, conforme decisao de produto.",
     "recommendedCommand": "/reversa-requirements",
-    "featurePrompt": "Definir a proxima feature apos Fase 4 concluida."
+    "featurePrompt": "Definir a proxima feature apos Fase 5 concluida."
   },
   "guardrails": [
     "Nao ler, copiar ou expor .env.",
@@ -106,6 +135,6 @@
       "_reversa_sdd/state-machines.md",
       "_reversa_sdd/permissions.md"
     ],
-    "forwardFeature": "_reversa_forward/002-fase-4-auth-policies"
+    "forwardFeature": "_reversa_forward/003-fase-5-carrinho"
   }
 }

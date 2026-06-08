@@ -1,7 +1,7 @@
 # State Machines — triade-essenza-next
 
 > Data: 2026-06-08
-> Escopo: estados confirmados ate Fase 4
+> Escopo: estados confirmados ate Fase 5
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## Auth/session
@@ -38,6 +38,7 @@
 | Fluxo | Entrada | Saida esperada |
 |---|---|---|
 | Login valido | E-mail/senha validos e auth pronto | Sessao criada pelo Better Auth e redirect para `returnTo` seguro. |
+| Login valido com carrinho anonimo | E-mail/senha validos, auth pronto e `guestCartToken` presente | Merge soma quantidades, limita por estoque, marca anonimo `converted` e segue redirect seguro. |
 | Login invalido | Credenciais invalidas ou provider indisponivel | Erro generico/controlado. |
 | Cadastro valido | Nome, e-mail e senha forte | Usuario criado como `customer` e redirect para `/minha-conta`. |
 | Cadastro invalido | Payload invalido, senha fraca ou duplicidade | Erro controlado sem criar admin/manager publico. |
@@ -69,6 +70,26 @@ Transicoes administraveis atuais:
 | `db_real_auth_pronto_dev` | `DATABASE_URL` e auth secret presentes em development/test | Drizzle real; mutations admin exigem admin/manager. |
 | `db_real_preview_producao` | Ambiente preview/production | Operacoes reais dependem de auth/policies prontas e validacao operacional. |
 
+## Carrinho
+
+| Estado | Condicao | Comportamento |
+|---|---|---|
+| `empty` | Nenhum item no carrinho resolvido | `/carrinho` mostra estado vazio e subtotal 0. |
+| `active/guest` | Visitante com `guestCartToken` valido | Carrinho anonimo resolvido no servidor por token opaco. |
+| `active/user` | Usuario autenticado com `session.userId` | Carrinho autenticado resolvido por userId e ownership server-side. |
+| `dev_fallback` | Sem `DATABASE_URL` em dev/test | Interacoes controladas sem promessa de persistencia real. |
+| `unavailable` | Sem banco em preview/producao | Mutacoes reais de carrinho falham de forma segura. |
+| `converted` | Carrinho anonimo mesclado no login | Carrinho anonimo deixa de ser ativo para evitar duplicidade. |
+
+## Item de carrinho
+
+| Estado | Condicao | Comportamento |
+|---|---|---|
+| `valid` | Produto published, vigente, com estoque e quantidade entre 1 e estoque | Pode ser adicionado/atualizado. |
+| `product_unavailable` | Produto `draft`, `inactive`, futuro, sem `publishedAt` ou sem estoque | Action retorna erro controlado e nao adiciona item. |
+| `insufficient_stock` | Quantidade total acima de `stockQuantity` | Action retorna erro controlado e preserva estado anterior. |
+| `removed` | Remocao ou limpeza do carrinho | Item sai da view e subtotal e recalculado. |
+
 ## Upload de imagem
 
 | Estado | Condicao | Comportamento |
@@ -83,4 +104,4 @@ Transicoes administraveis atuais:
 ## Proxima fase esperada
 
 A proxima feature deve ser aberta com `/reversa-requirements`, escolhendo novo escopo sobre a base de
-auth/policies ja confirmada.
+catalogo, persistencia, auth/policies e carrinho ja confirmada.

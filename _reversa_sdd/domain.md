@@ -2,19 +2,18 @@
 
 > Projeto analisado: `D:\Projetos\triade-essenza-next`
 > Data: `2026-06-08`
-> Escopo: re-extracao pos-Fase 4
+> Escopo: re-extracao pos-Fase 5
 > Confirmacao: este documento descreve o dominio implementado/preparado no projeto Next.js atual.
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## 1. Visao geral do dominio
 
 O dominio funcional atual cobre catalogo de produtos, categorias, imagens de produto, storefront
-publico, admin de produtos, persistencia preparada com Neon/Drizzle e autenticacao/policies reais
-para admin e customer. 🟢
+publico, admin de produtos, persistencia preparada com Neon/Drizzle, autenticacao/policies reais
+para admin/customer e carrinho/sessao de compra. 🟢
 
 Dominios modelados no schema, mas ainda fora do fluxo funcional principal:
 
-- carrinho;
 - cupons;
 - frete;
 - pedidos;
@@ -121,7 +120,65 @@ Com `DATABASE_URL` e auth pronta:
 - erro real nao vira fixture;
 - mutations admin exigem `admin` ou `manager`.
 
-## 8. Policies reais
+## 8. Carrinho
+
+Tipo principal: `CartView` em `src/features/cart/types.ts`. 🟢
+
+Regras confirmadas:
+
+- Carrinho anonimo usa cookie opaco `guestCartToken`.
+- O cookie nao armazena itens, precos, subtotal, `userId`, role ou dados sensiveis.
+- Carrinho autenticado e vinculado a `session.userId`.
+- Owner do carrinho e resolvido no servidor; cliente nao envia owner confiavel.
+- Item de carrinho guarda `productId`, snapshot de nome, snapshot de preco em centavos e quantidade.
+- Subtotal do item e `unitPriceSnapshotCents * quantity`.
+- Subtotal do carrinho e soma dos subtotais dos itens.
+- Quantidade minima e 1.
+- Quantidade maxima e `stockQuantity` no momento da validacao.
+
+Produto compravel no carrinho reutiliza a regra publica:
+
+1. `status = published`;
+2. `publishedAt <= now`;
+3. `stockQuantity > 0`.
+
+Consequencias:
+
+- `draft` nao entra no carrinho;
+- `inactive` nao entra no carrinho;
+- produto futuro nao entra no carrinho;
+- produto sem estoque nao entra no carrinho;
+- quantidade acima de estoque retorna erro controlado;
+- admin/manager nao possuem bypass de estoque ou disponibilidade no carrinho.
+
+## 9. Merge de carrinho no login
+
+Ao login bem-sucedido, se houver `guestCartToken`, o service de carrinho tenta mesclar o carrinho
+anonimo ao carrinho autenticado. 🟢
+
+Regras:
+
+- itens iguais somam quantidades;
+- soma e limitada por estoque disponivel;
+- indisponiveis sao ignorados/removidos com aviso controlado;
+- carrinho anonimo e marcado como `converted`;
+- retentativas nao devem duplicar item nem repetir soma.
+
+## 10. Checkout fora de escopo
+
+Checkout aparece apenas desabilitado/placeholder na UI de `/carrinho`. 🟢
+
+Continuam fora do dominio funcional implementado:
+
+- checkout real;
+- pagamento/Stripe;
+- frete;
+- cupom/desconto;
+- criacao de pedido;
+- reserva definitiva de estoque;
+- baixa de estoque.
+
+## 11. Policies reais
 
 Regras confirmadas:
 
@@ -166,10 +223,16 @@ Seed de admin dev:
 | RN-AUTH-001 | Cadastro publico cria somente `customer`. | `auth.ts`, `actions.ts`, `schemas.ts` | 🟢 |
 | RN-AUTH-002 | `admin` e `manager` sao equivalentes no MVP. | `policies.ts` | 🟢 |
 | RN-AUTH-003 | Mutacao admin real exige policy admin-like. | `product-actions.ts`, `product-image-upload.ts` | 🟢 |
+| RN-CART-001 | Carrinho anonimo usa token opaco sem itens/precos no cookie. | `cart-session.ts` | 🟢 |
+| RN-CART-002 | Carrinho autenticado usa `session.userId`. | `cart-service.ts`, `cart-repository.ts` | 🟢 |
+| RN-CART-003 | Carrinho bloqueia produto indisponivel e quantidade acima do estoque. | `cart-service.ts` | 🟢 |
+| RN-CART-004 | Merge no login soma quantidades e limita por estoque. | `cart-service.ts`, `auth/actions.ts` | 🟢 |
+| RN-CART-005 | Carrinho nao implementa checkout, pedido, frete, cupom, pagamento ou reserva/baixa de estoque. | `cart-view.tsx`, `cart-actions.ts` | 🟢 |
 
-## 11. Lacunas para proxima fase
+## 12. Lacunas para proxima fase
 
 - Implementar dados reais de conta customer, enderecos e pedidos quando a proxima feature decidir. 🟡
 - Definir granularidade fina futura para permissoes administrativas. 🟡
 - Ativar Google OAuth ou magic link somente em fase propria. 🟢
 - Aplicar migrations em banco real somente com validacao humana explicita. 🟢
+- Definir proxima etapa de compra: enderecos, frete/cupom, pre-checkout, pedidos ou pagamento. 🟡

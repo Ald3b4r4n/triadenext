@@ -1,7 +1,7 @@
 # Data Dictionary — triade-essenza-next
 
 > Data: 2026-06-08
-> Escopo: catalogo, persistencia e auth da Fase 4
+> Escopo: catalogo, persistencia, auth e carrinho da Fase 5
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## Enums relevantes
@@ -10,6 +10,7 @@
 |---|---|---|
 | `user_role` | `customer`, `admin`, `manager` | `admin` e `manager` sao equivalentes no MVP; cadastro publico cria `customer`. |
 | `product_status` | `draft`, `published`, `inactive` | Apenas `published` com data valida e estoque positivo e publico. |
+| `cart_status` | `active`, `converted`, `abandoned`, `expired` | `active` e carrinho atual; `converted` usado no merge. |
 
 ## `users`
 
@@ -161,9 +162,40 @@ Invariante: par produto/categoria e unico.
 
 Invariante: no maximo uma imagem de capa por produto via unique parcial.
 
+## `carts`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `user_id` | uuid nullable | Dono do carrinho autenticado; FK para `users`. |
+| `guest_token` | text nullable | Identificador opaco do carrinho anonimo, associado ao cookie `guestCartToken`. |
+| `session_id` | text nullable | Apoio ao identificador anonimo de sessao/carrinho. |
+| `status` | enum `cart_status` | `active`, `converted`, `abandoned`, `expired`. |
+| `currency` | text | Default `BRL`. |
+| `expires_at` | timestamp tz nullable | Preparo para expiracao de carrinho anonimo. |
+| `converted_at` | timestamp tz nullable | Marca conversao/merge do carrinho anonimo. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
+
+Indices: `user_id/status`, `guest_token/status`, `session_id/status`.
+
+## `cart_items`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `cart_id` | uuid | FK para `carts`; cascade delete. |
+| `product_id` | uuid | FK para `products`; restrict delete. |
+| `product_name_snapshot` | text | Nome no momento da adicao/atualizacao validada. |
+| `unit_price_snapshot` | numeric | Decimal operacional do snapshot. |
+| `unit_price_snapshot_cents` | integer | Fonte de subtotal em centavos. |
+| `quantity` | integer | Minimo 1; maximo `stockQuantity` validado no service. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
+
+Invariante: unique por `cart_id/product_id`, evitando duas linhas equivalentes do mesmo produto.
+
 ## Tabelas fora do foco funcional atual
 
-O schema tambem modela `carts`, `cart_items`, `coupons`, `shipping_rules`, `orders`,
-`order_items`, `order_events`, `payment_intents`, `payment_events`, `fiscal_documents` e
-`admin_notifications`. Essas tabelas estao preparadas, mas Fase 4 nao ativou checkout, pagamento,
-frete, cupom, pedido ou fiscal real.
+O schema tambem modela `coupons`, `shipping_rules`, `orders`, `order_items`, `order_events`,
+`payment_intents`, `payment_events`, `fiscal_documents` e `admin_notifications`. Essas tabelas
+estao preparadas, mas Fase 5 nao ativou checkout, pagamento, frete, cupom, pedido, reserva/baixa de
+estoque ou fiscal real.
