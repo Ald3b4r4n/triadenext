@@ -79,3 +79,15 @@ Blob. Sem `BLOB_READ_WRITE_TOKEN`, nao ha upload nem metadata nova.
 
 Migracao real de imagens do legado segue fora desta fase. A etapa futura deve inventariar assets,
 validar origem e gravar somente metadata segura no novo banco.
+
+## Fase 5 — Impacto do carrinho
+
+O carrinho reutiliza a regra publica do catalogo como regra de produto compravel:
+
+- `status = published`;
+- `publishedAt <= now`;
+- `stockQuantity > 0`.
+
+Produtos `draft`, `inactive`, futuros, sem `publishedAt` ou sem estoque seguem fora da compra. A
+pagina publica de produto ganhou action de adicionar ao carrinho apenas para produtos ja expostos
+pelo storefront publico.

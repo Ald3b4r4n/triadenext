@@ -224,6 +224,7 @@ a {
 .primary-action,
 .form-actions button {
   display: inline-flex;
+  gap: 8px;
   width: fit-content;
   align-items: center;
   justify-content: center;
@@ -242,8 +243,116 @@ a {
 }
 
 .text-action {
+  border: 0;
+  background: transparent;
   color: #7a2836;
+  font: inherit;
   font-weight: 700;
+}
+
+.add-to-cart-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+  margin: 22px 0;
+}
+
+.quantity-field {
+  display: grid;
+  gap: 6px;
+}
+
+.quantity-field span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.quantity-field input {
+  width: 96px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  padding: 10px;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.cart-main,
+.cart-items {
+  display: grid;
+  gap: 14px;
+}
+
+.cart-item,
+.cart-summary {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.cart-item h2,
+.cart-summary h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.cart-quantity-form {
+  display: flex;
+  gap: 10px;
+  align-items: end;
+}
+
+.cart-quantity-form button,
+.icon-action {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--foreground);
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
+.icon-action {
+  display: inline-grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: #8b2735;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 16px 0;
+  font-size: 18px;
+}
+
+.cart-summary .primary-action {
+  width: 100%;
+  opacity: 0.65;
+}
+
+.cart-clear {
+  margin-top: 14px;
+  padding: 0;
 }
 
 .product-form {
@@ -367,6 +476,8 @@ a {
   }
 
   .product-facts,
+  .cart-layout,
+  .cart-item,
   .admin-table__row,
   .admin-table__row--products,
   .admin-table__row--categories,

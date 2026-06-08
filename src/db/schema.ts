@@ -301,30 +301,52 @@ export const productCategories = pgTable(
   })
 );
 
-export const carts = pgTable("carts", {
-  id: idColumn(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
-  guestToken: text("guest_token"),
-  status: cartStatus("status").notNull().default("active"),
-  currency: text("currency").notNull().default("BRL"),
-  createdAt: createdAtColumn(),
-  updatedAt: updatedAtColumn()
-});
+export const carts = pgTable(
+  "carts",
+  {
+    id: idColumn(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    guestToken: text("guest_token"),
+    sessionId: text("session_id"),
+    status: cartStatus("status").notNull().default("active"),
+    currency: text("currency").notNull().default("BRL"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    convertedAt: timestamp("converted_at", { withTimezone: true }),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    userStatusIdx: index("carts_user_status_idx").on(table.userId, table.status),
+    guestStatusIdx: index("carts_guest_status_idx").on(table.guestToken, table.status),
+    sessionStatusIdx: index("carts_session_status_idx").on(table.sessionId, table.status)
+  })
+);
 
-export const cartItems = pgTable("cart_items", {
-  id: idColumn(),
-  cartId: uuid("cart_id")
-    .notNull()
-    .references(() => carts.id, { onDelete: "cascade" }),
-  productId: uuid("product_id")
-    .notNull()
-    .references(() => products.id, { onDelete: "restrict" }),
-  productNameSnapshot: text("product_name_snapshot").notNull(),
-  unitPriceSnapshot: numeric("unit_price_snapshot", { precision: 12, scale: 2 }).notNull(),
-  quantity: integer("quantity").notNull(),
-  createdAt: createdAtColumn(),
-  updatedAt: updatedAtColumn()
-});
+export const cartItems = pgTable(
+  "cart_items",
+  {
+    id: idColumn(),
+    cartId: uuid("cart_id")
+      .notNull()
+      .references(() => carts.id, { onDelete: "cascade" }),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "restrict" }),
+    productNameSnapshot: text("product_name_snapshot").notNull(),
+    unitPriceSnapshot: numeric("unit_price_snapshot", { precision: 12, scale: 2 }).notNull(),
+    unitPriceSnapshotCents: integer("unit_price_snapshot_cents").notNull().default(0),
+    quantity: integer("quantity").notNull(),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    cartProductUnique: uniqueIndex("cart_items_cart_product_unique").on(
+      table.cartId,
+      table.productId
+    ),
+    cartIdx: index("cart_items_cart_id_idx").on(table.cartId)
+  })
+);
 
 export const coupons = pgTable("coupons", {
   id: idColumn(),

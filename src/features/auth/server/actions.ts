@@ -4,8 +4,10 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "./auth";
 import { loginSchema, signupSchema } from "./schemas";
-import { validateReturnTo } from "./session";
+import { getCurrentSession, validateReturnTo } from "./session";
 import { getRuntimeMode } from "@/lib/runtime-mode";
+import { expireGuestCartToken, getGuestCartTokenForMerge } from "@/features/cart/server/cart-session";
+import { mergeGuestCartIntoUser } from "@/features/cart/server/cart-service";
 
 export type AuthActionState = {
   status: "idle" | "error";
@@ -32,6 +34,7 @@ export async function loginAction(
   }
 
   try {
+    const guestToken = await getGuestCartTokenForMerge();
     await auth.api.signInEmail({
       body: {
         email: parsed.data.email,
@@ -39,6 +42,11 @@ export async function loginAction(
       },
       headers: await headers()
     });
+    const session = await getCurrentSession();
+    if (session.status === "authenticated" && guestToken) {
+      await mergeGuestCartIntoUser({ userId: session.userId, guestToken });
+      await expireGuestCartToken();
+    }
   } catch {
     return {
       status: "error",

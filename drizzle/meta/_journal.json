@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1780930938997,
+      "tag": "0000_shallow_shinko_yamashiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780947005433,
+      "tag": "0001_curvy_blink",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780960936396,
+      "tag": "0002_tiny_enchantress",
+      "breakpoints": true
+    }
+  ]
+}

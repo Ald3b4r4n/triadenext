@@ -1,10 +1,18 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/002-fase-4-auth-policies",
-  "feature-id": "002",
-  "short-name": "fase-4-auth-policies",
-  "started-at": "2026-06-08T00:00:00-03:00",
-  "current-stage": "requirements",
-  "stages-completed": [],
+  "feature-dir": "_reversa_forward/003-fase-5-carrinho",
+  "feature-id": "003",
+  "short-name": "fase-5-carrinho",
+  "started-at": "2026-06-08T18:09:02-03:00",
+  "current-stage": "coding",
+  "stages-completed": [
+    "requirements",
+    "clarify",
+    "quality",
+    "plan",
+    "to-do",
+    "audit",
+    "coding"
+  ],
   "paused-features": []
 }

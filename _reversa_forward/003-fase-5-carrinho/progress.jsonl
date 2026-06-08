@@ -1,0 +1,90 @@
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-001","status":"done","files":["git status","D:/Projetos/triade-essenza-next"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-002","status":"done","files":["_reversa_forward/003-fase-5-carrinho/progress.jsonl"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-003","status":"done","files":["src/app/(storefront)/carrinho/page.tsx","src/app/(storefront)/produto/[slug]/page.tsx","src/features/auth/server/actions.ts","src/db/schema.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-004","status":"done","files":["_reversa_forward/003-fase-5-carrinho/requirements.md","_reversa_forward/003-fase-5-carrinho/roadmap.md","_reversa_forward/003-fase-5-carrinho/interfaces/*.md"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-005","status":"done","files":["src/lib/runtime-mode.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-006","status":"done","files":["src/db/schema.ts","_reversa_forward/003-fase-5-carrinho/data-delta.md"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-007","status":"done","files":["src/db/schema.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-008","status":"done","files":["src/db/schema.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-009","status":"done","files":["src/db/schema.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-010","status":"done","files":["src/db/schema.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-011","status":"done","files":["src/db/schema.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-012","status":"done","files":["drizzle/0002_tiny_enchantress.sql","drizzle/meta/0002_snapshot.json","drizzle/meta/_journal.json"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-013","status":"done","files":["drizzle/0002_tiny_enchantress.sql"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-014","status":"done","files":["src/features/cart/types.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-015","status":"done","files":["src/features/cart/schemas.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-016","status":"done","files":["src/features/cart/server/cart-session.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-017","status":"done","files":["src/features/cart/server/cart-session.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-018","status":"done","files":["src/features/cart/server/cart-session.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-019","status":"done","files":["src/features/cart/server/cart-session.ts","src/lib/runtime-mode.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-020","status":"done","files":["src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-021","status":"done","files":["src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-022","status":"done","files":["src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-023","status":"done","files":["src/features/cart/server/cart-repository.ts","src/features/cart/domain.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-024","status":"done","files":["src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-025","status":"done","files":["src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-026","status":"done","files":["src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-027","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-028","status":"done","files":["src/features/cart/server/cart-service.ts","src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-029","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-030","status":"done","files":["src/features/products/domain.ts","src/features/cart/domain.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-031","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-032","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-033","status":"done","files":["src/features/cart/server/cart-service.ts","src/features/cart/domain.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-034","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-035","status":"done","files":["src/features/cart/server/cart-service.ts","src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-036","status":"done","files":["src/features/cart/server/cart-service.ts","src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-037","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-038","status":"done","files":["src/features/cart/server/cart-repository.ts","src/db/schema.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-039","status":"done","files":["src/features/cart/server/cart-service.ts","src/lib/runtime-mode.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-040","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-041","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-042","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-043","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-044","status":"done","files":["src/features/cart/server/cart-service.ts","src/features/cart/server/cart-repository.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-045","status":"done","files":["src/features/cart/server/cart-service.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-046","status":"done","files":["src/features/auth/server/actions.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-047","status":"done","files":["src/features/cart/server/cart-actions.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-048","status":"done","files":["src/features/cart/server/cart-actions.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-049","status":"done","files":["src/features/cart/server/cart-actions.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-050","status":"done","files":["src/features/cart/server/cart-actions.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-051","status":"done","files":["src/features/cart/server/cart-actions.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-052","status":"done","files":["src/features/cart/server/cart-actions.ts","src/features/cart/types.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-053","status":"done","files":["src/features/cart/components/add-to-cart-form.tsx","src/features/cart/components/cart-view.tsx"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-054","status":"done","files":["src/app/(storefront)/carrinho/page.tsx"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-055","status":"done","files":["src/features/cart/components/cart-view.tsx"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-056","status":"done","files":["src/features/cart/components/cart-view.tsx"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-057","status":"done","files":["src/features/cart/components/cart-view.tsx","src/app/globals.css"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-058","status":"done","files":["src/features/cart/components/cart-view.tsx"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-059","status":"done","files":["src/app/(storefront)/produto/[slug]/page.tsx","src/features/cart/components/add-to-cart-form.tsx"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-060","status":"done","files":["src/app/(storefront)/produtos/page.tsx","src/app/(storefront)/produto/[slug]/page.tsx"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-061","status":"done","files":["src/tests/unit/cart-domain.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-062","status":"done","files":["src/tests/unit/cart-domain.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-063","status":"done","files":["src/tests/unit/cart-session.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-064","status":"done","files":["src/tests/unit/cart-service.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-065","status":"done","files":["src/tests/unit/cart-service.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-066","status":"done","files":["src/tests/unit/cart-service.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-067","status":"done","files":["src/tests/unit/cart-service.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-068","status":"done","files":["src/tests/unit/cart-service.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-069","status":"done","files":["src/tests/unit/cart-service.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-070","status":"done","files":["src/tests/unit/cart-service.test.ts","src/tests/e2e/cart.spec.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-071","status":"done","files":["src/tests/e2e/cart.spec.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-072","status":"done","files":["src/tests/e2e/cart.spec.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-073","status":"done","files":["src/tests/e2e/cart.spec.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-074","status":"done","files":["src/tests/e2e/cart.spec.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-075","status":"done","files":["src/tests/e2e/auth-customer.spec.ts","src/tests/e2e/cart.spec.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-076","status":"done","files":["src/tests/unit/cart-service.test.ts","src/tests/e2e/auth-admin.spec.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-077","status":"done","files":["src/tests/unit/cart-service.test.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-078","status":"done","files":["src/tests/e2e/cart.spec.ts"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-079","status":"done","files":["docs/features/cart.md"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-080","status":"done","files":["docs/architecture/cart.md"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-081","status":"done","files":["docs/architecture/database.md"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-082","status":"done","files":["docs/features/catalog-products-images.md"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-083","status":"done","files":["docs/features/auth-policies.md"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-084","status":"done","files":["pnpm lint"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-085","status":"done","files":["pnpm typecheck"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-086","status":"done","files":["pnpm test"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-087","status":"done","files":["pnpm build"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-088","status":"done","files":["pnpm test:e2e"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-089","status":"done","files":["git diff","git status"]}
+{"ts":"2026-06-08T23:30:00.000Z","action":"F5-090","status":"done","files":["git commit"]}

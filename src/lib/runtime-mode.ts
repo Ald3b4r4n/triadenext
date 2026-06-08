@@ -19,6 +19,15 @@ export const runtimeMessages = {
   persistedCreate: "Produto criado em Neon/Drizzle.",
   persistedUpdate: "Produto atualizado em Neon/Drizzle.",
   imageMetadataPersisted: "Metadata de imagem persistida em Neon/Drizzle."
+  ,
+  cartFallbackNotPersisted:
+    "Carrinho em modo dev/fixture: DATABASE_URL ausente. As interacoes nao representam persistencia real.",
+  cartUnavailable:
+    "Carrinho indisponivel neste ambiente sem banco configurado.",
+  cartProductUnavailable: "Produto indisponivel para compra.",
+  cartInsufficientStock: "Quantidade solicitada acima do estoque disponivel.",
+  cartForbidden: "Acesso negado ao carrinho solicitado.",
+  cartUpdated: "Carrinho atualizado."
 } as const;
 
 export type RuntimeMode = {

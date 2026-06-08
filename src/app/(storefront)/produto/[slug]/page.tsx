@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { AddToCartForm } from "@/features/cart/components/add-to-cart-form";
 import { ProductImage } from "@/features/products/components/product-image";
 import { ProductPrice } from "@/features/products/components/product-price";
 import { getPublicProductBySlug } from "@/features/products/server/product-service";
@@ -41,6 +42,7 @@ export default async function ProdutoPage({ params }: ProductPageProps) {
               <dd>Disponivel</dd>
             </div>
           </dl>
+          <AddToCartForm productId={product.id} />
           {product.description ? <p>{product.description}</p> : null}
         </div>
       </section>

@@ -28,3 +28,13 @@
 - Signup publico ignora ou rejeita role administrativa e cria apenas `customer`.
 - Logout invalida a sessao no servidor.
 - Ownership customer sempre depende de `session.user.id`.
+
+## Fase 5 — Carrinho
+
+O login passa a tentar merge do carrinho anonimo quando existe cookie `guestCartToken`. O merge usa
+`session.userId`, soma quantidades por produto, limita pelo estoque e marca o carrinho anonimo como
+convertido.
+
+Admin e manager podem usar carrinho como usuarios autenticados normais, mas nao recebem bypass de
+estoque, disponibilidade, checkout, frete, cupom ou pedido. O ownership do carrinho autenticado e
+sempre resolvido no servidor.

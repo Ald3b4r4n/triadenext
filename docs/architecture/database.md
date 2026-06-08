@@ -85,3 +85,20 @@ Regras:
 - `sessions.user_id` tem indice para leitura por usuario/logout.
 - `customer_profiles.user_id` e `addresses.user_id` continuam apontando para o usuario autenticado.
 - Migrations para auth sao geradas localmente, mas nao aplicadas contra banco real sem validacao humana.
+
+## Fase 5 — Carrinho
+
+`carts` e `cart_items` passam a ser operacionais para carrinho de visitante e carrinho autenticado.
+
+Delta local gerado:
+
+- `carts.session_id`: apoio ao identificador anonimo de sessao/carrinho.
+- `carts.expires_at`: preparo para expiracao de carrinho anonimo.
+- `carts.converted_at`: marca conversao/merge do carrinho anonimo.
+- `cart_items.unit_price_snapshot_cents`: snapshot inteiro em centavos para subtotal sem float.
+- indices por `user_id/status`, `guest_token/status`, `session_id/status` e `cart_id`.
+- unique por `cart_id/product_id` para impedir linhas duplicadas do mesmo produto.
+
+Migration local: `drizzle/0002_tiny_enchantress.sql`.
+
+Essa migration foi gerada localmente. Nao foi aplicada contra banco real nesta etapa.
