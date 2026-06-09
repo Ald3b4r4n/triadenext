@@ -1,7 +1,7 @@
 # Dependencies — triade-essenza-next
 
 > Data: 2026-06-08
-> Escopo: re-extracao pos-Fase 5
+> Escopo: re-extracao pos-Fase 6
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## Dependencias de runtime
@@ -13,13 +13,13 @@
 | `lucide-react` | Icones UI | UI de carrinho e demais componentes. |
 | `better-auth` | Auth provider, e-mail/senha, sessao e route handler | `src/features/auth/server/auth.ts`, `src/app/api/auth/[...all]/route.ts` |
 | `@better-auth/drizzle-adapter` | Adapter Better Auth para Drizzle/Postgres | `src/features/auth/server/auth.ts` |
-| `server-only` | Restringir modulos sensiveis ao servidor | `src/features/auth/server/*`, `src/features/cart/server/*` |
+| `server-only` | Restringir modulos sensiveis ao servidor | `src/features/auth/server/*`, `src/features/cart/server/*`, `src/features/coupons/server/*` |
 | `drizzle-orm` | ORM | `src/db/client.ts`, `src/db/schema.ts`, repositories, seed admin dev |
 | `@neondatabase/serverless` | Client Neon HTTP | `src/db/client.ts`, `scripts/db/seed*.mjs/ts` |
-| `zod` | Validacao | env, produtos, upload e auth |
+| `zod` | Validacao | env, produtos, upload, auth, carrinho e cupons |
 | `@vercel/blob` | Upload Blob | `src/features/uploads/product-image-upload.ts` |
 | `react-hook-form`, `@hookform/resolvers` | Formularios | dependencia instalada; auth atual usa `useActionState` e server actions |
-| `stripe` | Pagamentos futuros | webhook placeholder; checkout real fora da Fase 5 |
+| `stripe` | Pagamentos futuros | webhook placeholder; checkout real fora da Fase 6 |
 
 ## Dependencias de desenvolvimento
 
@@ -37,11 +37,11 @@
 
 | Script | Comando | Observacao |
 |---|---|---|
-| `lint` | `eslint . --max-warnings=0` | Validacao final Fase 5 passou. |
-| `typecheck` | `tsc --noEmit` | Validacao final Fase 5 passou. |
-| `test` | `vitest run` | Validacao final Fase 5 passou, 15 files / 45 tests. |
-| `build` | `next build` | Validacao final Fase 5 passou. |
-| `test:e2e` | `playwright test` | Validacao final Fase 5 passou, 11 tests. |
+| `lint` | `eslint . --max-warnings=0` | Validacao final Fase 6 passou. |
+| `typecheck` | `tsc --noEmit` | Validacao final Fase 6 passou. |
+| `test` | `vitest run` | Validacao final Fase 6 passou, 16 files / 54 tests. |
+| `build` | `next build` | Validacao final Fase 6 passou. |
+| `test:e2e` | `playwright test` | Validacao final Fase 6 passou, 16 tests. |
 | `db:generate` | `drizzle-kit generate` | Gera migration local; nao aplica banco. |
 | `db:migrate` | `node scripts/db/require-database-url.mjs && drizzle-kit migrate` | Bloqueia sem alvo; exige validacao humana antes de uso real. |
 | `db:studio` | `drizzle-kit studio` | Inspecao. |
@@ -63,4 +63,5 @@
 - Google OAuth provider.
 - Magic link/e-mail transacional de login.
 - Provedor de permissoes granulares por recurso.
-- Checkout/pagamento/frete/cupom/pedido/reserva de estoque permanecem fora do escopo implementado.
+- Checkout/pagamento/frete real/pedido/reserva de estoque permanecem fora do escopo implementado.
+- `free_shipping` de cupom permanece modelado, mas sem integracao real de frete.

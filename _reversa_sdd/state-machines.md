@@ -1,7 +1,7 @@
 # State Machines — triade-essenza-next
 
 > Data: 2026-06-08
-> Escopo: estados confirmados ate Fase 5
+> Escopo: estados confirmados ate Fase 6
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## Auth/session
@@ -90,6 +90,30 @@ Transicoes administraveis atuais:
 | `insufficient_stock` | Quantidade total acima de `stockQuantity` | Action retorna erro controlado e preserva estado anterior. |
 | `removed` | Remocao ou limpeza do carrinho | Item sai da view e subtotal e recalculado. |
 
+## Cupom no carrinho
+
+| Estado | Condicao | Comportamento |
+|---|---|---|
+| `none` | Carrinho sem `appliedCouponId` | `discountCents = 0` e `partialTotalCents = subtotalCents`. |
+| `applied/valid` | Cupom ativo, vigente, nao esgotado, tipo aplicavel e subtotal suficiente | Carrinho mostra cupom, desconto e total parcial. |
+| `invalid/inactive` | `isActive = false` | Aplicacao recusada ou cupom removido/sinalizado. |
+| `invalid/scheduled` | `startsAt > now` | Aplicacao recusada com erro controlado. |
+| `invalid/expired` | `endsAt < now` | Aplicacao recusada ou cupom removido/sinalizado. |
+| `invalid/exhausted` | `usedCount >= maxUses` | Aplicacao recusada; `usedCount` nao e consumido no carrinho. |
+| `invalid/minimum_subtotal` | Subtotal abaixo de `minimumSubtotalCents` | Cupom nao aplica ou deixa de valer ao recalcular carrinho. |
+| `prepared/free_shipping` | Tipo `free_shipping` | Retorna mensagem controlada; nao calcula nem zera frete real. |
+| `removed` | Usuario remove cupom ou carrinho e limpo | `appliedCouponId = null`, desconto volta a 0. |
+
+## Admin de cupons
+
+| Estado | Condicao | Comportamento |
+|---|---|---|
+| `blocked/missing_database` | `requireAdminLike` sem banco | Admin de cupons renderiza bloqueio seguro. |
+| `blocked/auth_not_ready` | Auth/policies indisponiveis | Listar/criar/editar cupom bloqueado. |
+| `forbidden/customer` | Sessao customer tenta admin | Acesso negado. |
+| `allowed/admin_like` | Role `admin` ou `manager` com auth pronto | Pode listar, criar e editar cupons basicos. |
+| `dev_fallback` | Sem banco em dev/test no repository/service | Fixture explicita sem promessa de persistencia real. |
+
 ## Upload de imagem
 
 | Estado | Condicao | Comportamento |
@@ -104,4 +128,4 @@ Transicoes administraveis atuais:
 ## Proxima fase esperada
 
 A proxima feature deve ser aberta com `/reversa-requirements`, escolhendo novo escopo sobre a base de
-catalogo, persistencia, auth/policies e carrinho ja confirmada.
+catalogo, persistencia, auth/policies, carrinho e cupons ja confirmada.

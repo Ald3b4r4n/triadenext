@@ -1,7 +1,7 @@
 # Data Dictionary — triade-essenza-next
 
 > Data: 2026-06-08
-> Escopo: catalogo, persistencia, auth e carrinho da Fase 5
+> Escopo: catalogo, persistencia, auth, carrinho e cupons da Fase 6
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
 ## Enums relevantes
@@ -11,6 +11,7 @@
 | `user_role` | `customer`, `admin`, `manager` | `admin` e `manager` sao equivalentes no MVP; cadastro publico cria `customer`. |
 | `product_status` | `draft`, `published`, `inactive` | Apenas `published` com data valida e estoque positivo e publico. |
 | `cart_status` | `active`, `converted`, `abandoned`, `expired` | `active` e carrinho atual; `converted` usado no merge. |
+| `coupon_type` | `percentage`, `fixed_amount`, `free_shipping` | `free_shipping` e preparado/modelado e nao aplica frete real nesta fase. |
 
 ## `users`
 
@@ -170,13 +171,14 @@ Invariante: no maximo uma imagem de capa por produto via unique parcial.
 | `user_id` | uuid nullable | Dono do carrinho autenticado; FK para `users`. |
 | `guest_token` | text nullable | Identificador opaco do carrinho anonimo, associado ao cookie `guestCartToken`. |
 | `session_id` | text nullable | Apoio ao identificador anonimo de sessao/carrinho. |
+| `applied_coupon_id` | uuid nullable | FK para `coupons.id`; no maximo um cupom aplicado por carrinho. |
 | `status` | enum `cart_status` | `active`, `converted`, `abandoned`, `expired`. |
 | `currency` | text | Default `BRL`. |
 | `expires_at` | timestamp tz nullable | Preparo para expiracao de carrinho anonimo. |
 | `converted_at` | timestamp tz nullable | Marca conversao/merge do carrinho anonimo. |
 | `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
 
-Indices: `user_id/status`, `guest_token/status`, `session_id/status`.
+Indices: `user_id/status`, `guest_token/status`, `session_id/status`, `applied_coupon_id`.
 
 ## `cart_items`
 
@@ -193,9 +195,41 @@ Indices: `user_id/status`, `guest_token/status`, `session_id/status`.
 
 Invariante: unique por `cart_id/product_id`, evitando duas linhas equivalentes do mesmo produto.
 
+## `coupons`
+
+| Campo | Tipo conceitual | Regra |
+|---|---|---|
+| `id` | uuid | PK. |
+| `code` | text | Codigo normalizado com trim/uppercase; unico. |
+| `type` | enum `coupon_type` | `percentage`, `fixed_amount`, `free_shipping`. |
+| `value` | numeric | Percentual para `percentage`; centavos para `fixed_amount`; 0/preparado para `free_shipping`. |
+| `starts_at` | timestamp nullable | Cupom futuro nao aplica antes desta data. |
+| `ends_at` | timestamp nullable | Cupom expirado nao aplica apos esta data. |
+| `max_uses` | integer nullable | Limite global opcional. |
+| `used_count` | integer | Consultado para esgotamento; nao incrementado no carrinho. |
+| `minimum_subtotal_cents` | integer nullable | Subtotal minimo opcional para aplicar/manter cupom. |
+| `is_active` | boolean | Cupom inativo nao aplica. |
+| `created_at`, `updated_at` | timestamp tz | Auditoria tecnica. |
+
+Indices: unique por `code`; indice por `is_active`, `starts_at`, `ends_at`.
+
+Mapeamento legado documentado:
+
+- `percent` -> `percentage`;
+- `fixed` -> `fixed_amount`.
+
+## Relacao carrinho/cupom
+
+O legado Laravel mantinha cupom aplicado na sessao (`cart_coupon_code`). O Next persiste
+`carts.applied_coupon_id` quando existe banco real. Essa divergencia e intencional para preservar o
+carrinho autenticado entre sessoes/dispositivos.
+
+Aplicar/remover cupom nao cria pedido, nao consome `used_count`, nao calcula frete real e nao
+reserva/baixa estoque.
+
 ## Tabelas fora do foco funcional atual
 
-O schema tambem modela `coupons`, `shipping_rules`, `orders`, `order_items`, `order_events`,
+O schema tambem modela `shipping_rules`, `orders`, `order_items`, `order_events`,
 `payment_intents`, `payment_events`, `fiscal_documents` e `admin_notifications`. Essas tabelas
-estao preparadas, mas Fase 5 nao ativou checkout, pagamento, frete, cupom, pedido, reserva/baixa de
+estao preparadas, mas Fase 6 nao ativou checkout, pagamento, frete real, pedido, reserva/baixa de
 estoque ou fiscal real.

@@ -1,16 +1,17 @@
 {
-  "updatedAt": "2026-06-08T20:45:00-03:00",
+  "updatedAt": "2026-06-08T22:45:00-03:00",
   "project": "triade-essenza-next",
   "workspace": "D:\\Projetos\\triade-essenza-next",
   "legacyWorkspace": "D:\\Projetos\\triadeessenzaparfum.com.br",
   "isLegacyWorkspace": false,
   "git": {
     "branch": "main",
-    "status": "main...origin/main",
-    "latestCommit": "7215cf1fccf1229c05ccd4d2e93c5b278f388656",
-    "latestCommitMessage": "feat: implement cart and purchase session foundation",
+    "status": "main...origin/main [ahead 1]",
+    "latestCommit": "399953c4dd8046550b2823f476880e5b15f84a02",
+    "latestCommitMessage": "feat: implement coupons and cart discounts",
     "phase4CommitPushed": true,
     "phase5CommitPushed": true,
+    "phase6CommitPushed": false,
     "worktreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
@@ -43,6 +44,11 @@
       "name": "Fase 5 — Carrinho e sessao de compra",
       "status": "done",
       "summary": "Carrinho anonimo por guestCartToken opaco, carrinho autenticado por userId, ownership server-side, validacao de produto/estoque, merge ao login, UI minima de carrinho e fallback dev/test explicito."
+    },
+    {
+      "name": "Fase 6 — Cupons e descontos no carrinho",
+      "status": "done",
+      "summary": "Cupons percentuais e de valor fixo aplicados ao carrinho, mapeamento legado percent/fixed, subtotal minimo, limite global consultado, free_shipping preparado, admin minimo protegido, desconto/total parcial server-side e fallback dev/test explicito."
     }
   ],
   "currentAuth": {
@@ -96,23 +102,58 @@
     "outOfScope": [
       "checkout",
       "pagamento",
-      "frete",
-      "cupom",
+      "frete real",
       "pedido",
       "reserva de estoque",
       "baixa de estoque"
     ]
   },
+  "currentCoupons": {
+    "module": "src/features/coupons",
+    "legacyTypeMapping": {
+      "percent": "percentage",
+      "fixed": "fixed_amount"
+    },
+    "types": [
+      "percentage",
+      "fixed_amount",
+      "free_shipping"
+    ],
+    "freeShipping": "Preparado/modelado; nao aplica frete real nesta fase.",
+    "cartPersistence": "Next persiste carts.appliedCouponId quando ha banco real; legado usava sessao cart_coupon_code.",
+    "cartCalculation": "subtotalCents, discountCents e partialTotalCents recalculados server-side.",
+    "validations": [
+      "codigo normalizado trim/uppercase",
+      "inativo bloqueado",
+      "futuro bloqueado",
+      "expirado bloqueado",
+      "esgotado bloqueado por usedCount >= maxUses",
+      "subtotal minimo bloqueado",
+      "desconto limitado ao subtotal"
+    ],
+    "admin": "Admin minimo em /admin/cupons protegido por requireAdminLike; nao e paridade administrativa completa.",
+    "outOfScope": [
+      "cupom acumulativo",
+      "limite por usuario",
+      "restricao por produto/categoria",
+      "campanhas avancadas",
+      "relatorios",
+      "frete real",
+      "checkout",
+      "pedido",
+      "consumo de usedCount no carrinho"
+    ]
+  },
   "validations": {
     "pnpm lint": "passed",
     "pnpm typecheck": "passed",
-    "pnpm test": "passed, 15 files / 45 tests",
+    "pnpm test": "passed, 16 files / 54 tests",
     "pnpm build": "passed",
-    "pnpm test:e2e": "passed, 11 tests"
+    "pnpm test:e2e": "passed, 16 tests"
   },
   "nextPhase": {
     "name": "Proxima feature a definir",
-    "summary": "Abrir novo ciclo de requirements usando catalogo, persistencia, auth/policies e carrinho como base confirmada. Sugestoes naturais: enderecos customer, pre-checkout/checkout sem pagamento real, frete/cupom ou pedidos, conforme decisao de produto.",
+    "summary": "Abrir novo ciclo de requirements usando catalogo, persistencia, auth/policies, carrinho e cupons/descontos como base confirmada. Sugestoes naturais: enderecos customer, frete real, pre-checkout/checkout sem pagamento real ou pedidos, conforme decisao de produto.",
     "recommendedCommand": "/reversa-requirements",
     "featurePrompt": "Definir a proxima feature apos Fase 5 concluida."
   },
@@ -135,6 +176,6 @@
       "_reversa_sdd/state-machines.md",
       "_reversa_sdd/permissions.md"
     ],
-    "forwardFeature": "_reversa_forward/003-fase-5-carrinho"
+    "forwardFeature": "_reversa_forward/004-fase-6-cupons-descontos"
   }
 }

@@ -2,7 +2,7 @@
 
 > Projeto analisado: `D:\Projetos\triade-essenza-next`
 > Data: `2026-06-08`
-> Escopo: re-extracao pos-Fase 5
+> Escopo: re-extracao pos-Fase 6
 > Confirmacao: este documento descreve o dominio implementado/preparado no projeto Next.js atual.
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
@@ -10,11 +10,10 @@
 
 O dominio funcional atual cobre catalogo de produtos, categorias, imagens de produto, storefront
 publico, admin de produtos, persistencia preparada com Neon/Drizzle, autenticacao/policies reais
-para admin/customer e carrinho/sessao de compra. 🟢
+para admin/customer, carrinho/sessao de compra e cupons/descontos no carrinho. 🟢
 
 Dominios modelados no schema, mas ainda fora do fluxo funcional principal:
 
-- cupons;
 - frete;
 - pedidos;
 - pagamentos;
@@ -164,7 +163,59 @@ Regras:
 - carrinho anonimo e marcado como `converted`;
 - retentativas nao devem duplicar item nem repetir soma.
 
-## 10. Checkout fora de escopo
+## 10. Cupons e descontos
+
+Tipo principal: `Coupon` em `src/features/coupons/types.ts`. 🟢
+
+Campos relevantes:
+
+| Campo | Regra/Papel | Confianca |
+|---|---|---|
+| `code` | Codigo normalizado com trim/uppercase e unico no schema. | 🟢 |
+| `type` | `percentage`, `fixed_amount` ou `free_shipping`. | 🟢 |
+| `value` | Percentual ou valor fixo em centavos, conforme tipo. | 🟢 |
+| `isActive` | Cupom inativo nao aplica. | 🟢 |
+| `startsAt` | Cupom futuro nao aplica antes da data inicial. | 🟢 |
+| `endsAt` | Cupom expirado nao aplica apos data final. | 🟢 |
+| `maxUses` | Limite global opcional. | 🟢 |
+| `usedCount` | Consultado para bloquear esgotado; nao consumido no carrinho. | 🟢 |
+| `minimumSubtotalCents` | Subtotal minimo opcional em centavos. | 🟢 |
+
+Mapeamento legado confirmado:
+
+- `percent` -> `percentage`;
+- `fixed` -> `fixed_amount`.
+
+Status operacional de cupom:
+
+- `active`;
+- `inactive`;
+- `scheduled`;
+- `expired`;
+- `exhausted`.
+
+Regras de aplicacao:
+
+- apenas um cupom por carrinho;
+- cupom e aplicado/removido no carrinho resolvido server-side;
+- payload cliente nao define desconto, subtotal, total, owner, role, cartId ou couponId;
+- desconto percentual e arredondado de forma deterministica em centavos;
+- desconto fixo e valor inteiro em centavos;
+- desconto nunca excede subtotal;
+- `partialTotalCents = subtotalCents - discountCents`;
+- carrinho revalida cupom ao listar/recalcular e ao alterar itens;
+- se subtotal cair abaixo do minimo, cupom e removido/sinalizado de forma controlada;
+- `free_shipping` e tipo preparado e nao aplica frete real.
+
+Admin de cupons:
+
+- `/admin/cupons` lista cupons;
+- `/admin/cupons/novo` cria cupom basico;
+- `/admin/cupons/[id]/editar` edita cupom basico;
+- todas as superficies exigem `requireAdminLike`;
+- admin e recorte minimo, nao paridade administrativa completa do legado.
+
+## 11. Checkout fora de escopo
 
 Checkout aparece apenas desabilitado/placeholder na UI de `/carrinho`. 🟢
 
@@ -172,13 +223,12 @@ Continuam fora do dominio funcional implementado:
 
 - checkout real;
 - pagamento/Stripe;
-- frete;
-- cupom/desconto;
+- frete real;
 - criacao de pedido;
 - reserva definitiva de estoque;
 - baixa de estoque.
 
-## 11. Policies reais
+## 12. Policies reais
 
 Regras confirmadas:
 
@@ -191,7 +241,7 @@ Regras confirmadas:
 | Ownership compara `session.userId` com `resourceUserId`. | `policies.ts` | 🟢 |
 | Auth/banco indisponivel bloqueia operacao admin real. | `runtime-mode.ts`, `policies.ts` | 🟢 |
 
-## 9. Seed admin dev
+## 13. Seed admin dev
 
 Seed de admin dev:
 
@@ -203,7 +253,7 @@ Seed de admin dev:
 - nao contem senha hardcoded;
 - falha com mensagens controladas quando pre-requisitos faltam.
 
-## 10. Regras preservadas para regressao
+## 14. Regras preservadas para regressao
 
 | ID | Regra | Fonte | Confianca |
 |---|---|---|---|
@@ -227,12 +277,19 @@ Seed de admin dev:
 | RN-CART-002 | Carrinho autenticado usa `session.userId`. | `cart-service.ts`, `cart-repository.ts` | 🟢 |
 | RN-CART-003 | Carrinho bloqueia produto indisponivel e quantidade acima do estoque. | `cart-service.ts` | 🟢 |
 | RN-CART-004 | Merge no login soma quantidades e limita por estoque. | `cart-service.ts`, `auth/actions.ts` | 🟢 |
-| RN-CART-005 | Carrinho nao implementa checkout, pedido, frete, cupom, pagamento ou reserva/baixa de estoque. | `cart-view.tsx`, `cart-actions.ts` | 🟢 |
+| RN-CART-005 | Carrinho nao implementa checkout, pedido, frete real, pagamento ou reserva/baixa de estoque. | `cart-view.tsx`, `cart-actions.ts` | 🟢 |
+| RN-COUPON-001 | Codigo de cupom e normalizado com trim/uppercase. | `src/features/coupons/domain.ts` | 🟢 |
+| RN-COUPON-002 | Tipo legado `percent` mapeia para `percentage`; `fixed` mapeia para `fixed_amount`. | `src/features/coupons/domain.ts` | 🟢 |
+| RN-COUPON-003 | Cupom inativo, futuro, expirado ou esgotado nao aplica. | `src/features/coupons/domain.ts` | 🟢 |
+| RN-COUPON-004 | Desconto em cupom nunca excede subtotal. | `src/features/coupons/domain.ts` | 🟢 |
+| RN-COUPON-005 | Aplicar/remover cupom no carrinho nao incrementa `usedCount`. | `src/features/cart/server/cart-service.ts` | 🟢 |
+| RN-COUPON-006 | `free_shipping` nao aplica frete real na Fase 6. | `src/features/coupons/domain.ts` | 🟢 |
 
-## 12. Lacunas para proxima fase
+## 15. Lacunas para proxima fase
 
 - Implementar dados reais de conta customer, enderecos e pedidos quando a proxima feature decidir. 🟡
 - Definir granularidade fina futura para permissoes administrativas. 🟡
 - Ativar Google OAuth ou magic link somente em fase propria. 🟢
 - Aplicar migrations em banco real somente com validacao humana explicita. 🟢
-- Definir proxima etapa de compra: enderecos, frete/cupom, pre-checkout, pedidos ou pagamento. 🟡
+- Definir proxima etapa de compra: enderecos, frete real, pre-checkout, pedidos ou pagamento. 🟡
+- Definir quando `usedCount` sera consumido em pedido/checkout futuro. 🟡

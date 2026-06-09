@@ -2,7 +2,7 @@
 
 > Projeto analisado: `D:\Projetos\triade-essenza-next`
 > Data: `2026-06-08`
-> Escopo: re-extracao pos-Fase 5
+> Escopo: re-extracao pos-Fase 6
 > Confirmacao: este documento descreve o projeto Next.js atual, nao o Laravel legado.
 > Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
 
@@ -11,7 +11,7 @@
 O projeto `triade-essenza-next` e uma reconstrucao em Next.js App Router da Tríade Essenza Parfum.
 A arquitetura separa superficies de storefront, admin, customer/auth e APIs em `src/app`, dominio de
 catalogo em `src/features/products`, upload em `src/features/uploads`, auth em `src/features/auth`,
-carrinho em `src/features/cart`, banco em `src/db` e runtime/env em `src/lib`. 🟢
+carrinho em `src/features/cart`, cupons em `src/features/coupons`, banco em `src/db` e runtime/env em `src/lib`. 🟢
 
 Fases registradas:
 
@@ -21,6 +21,7 @@ Fases registradas:
 - Fase 3 de persistencia Neon/Drizzle preparada concluida no commit `3774c49`. 🟢
 - Fase 4 de Better Auth, sessao server-side e policies concluida no commit `fcdb929`. 🟢
 - Fase 5 de carrinho e sessao de compra concluida no commit `7215cf1`. 🟢
+- Fase 6 de cupons e descontos no carrinho concluida no commit `399953c`. 🟢
 
 ## 2. Stack
 
@@ -36,6 +37,7 @@ Fases registradas:
 | ORM | Drizzle ORM + Drizzle Kit | Schema, client, migrations e scripts existem. | 🟢 |
 | Upload | Vercel Blob | Integrado com bloqueio sem token e policy admin-like. | 🟢 |
 | Carrinho | Server actions + Drizzle/fallback | Implementado em `src/features/cart`. | 🟢 |
+| Cupons | Dominio server-only + Drizzle/fallback + admin minimo | Implementado em `src/features/coupons`. | 🟢 |
 | Testes | Vitest + Playwright | Suites unit/e2e passam sem banco real. | 🟢 |
 
 ## 3. Runtime e guardrails
@@ -143,6 +145,8 @@ Migrations locais:
   `verifications`, `email_verified`, `image`).
 - `drizzle/0002_tiny_enchantress.sql`: delta local de carrinho (`session_id`, `expires_at`,
   `converted_at`, `unit_price_snapshot_cents`, indices e unique por produto no carrinho).
+- `drizzle/0003_elite_titanium_man.sql`: delta local de cupons no carrinho
+  (`carts.applied_coupon_id`, `coupons.minimum_subtotal_cents`, unique por codigo e indices).
 
 Nenhuma migration foi aplicada contra banco real nesta re-extracao. 🟢
 
@@ -172,7 +176,39 @@ Regras arquiteturais confirmadas:
 - Login chama merge quando existe `guestCartToken`.
 - Checkout/pagamento/frete/cupom/pedido/reserva/baixa de estoque nao foram implementados.
 
-## 10. Seed admin dev
+## 10. Cupons e descontos no carrinho
+
+Modulo central: `src/features/coupons`. 🟢
+
+Arquitetura interna:
+
+- `domain.ts`: normalizacao de codigo, mapeamento legado, status, validacao e calculo.
+- `schemas.ts`: validacao de inputs de carrinho e admin.
+- `server/coupon-fixtures.ts`: cupons dev/test explicitos para fallback.
+- `server/coupon-repository.ts`: repository Drizzle/fallback.
+- `server/coupon-service.ts`: service server-only para validacao, calculo e listagem admin.
+- `server/admin-coupon-actions.ts`: server actions administrativas protegidas por `requireAdminLike`.
+- `components/*`: tabela e formulario admin minimo.
+
+Integracao com carrinho:
+
+- `CartView` inclui `appliedCouponId`, `coupon`, `discountCents` e `partialTotalCents`.
+- `cart-service.ts` aplica/remove cupom, recalcula desconto e invalida cupom inelegivel.
+- `cart-actions.ts` expõe actions de aplicar/remover cupom sem aceitar `cartId`, owner, subtotal,
+  desconto, total ou `couponId` do cliente.
+- `/carrinho` exibe campo de cupom, cupom aplicado, desconto e total parcial.
+
+Regras arquiteturais confirmadas:
+
+- O legado Laravel usava `cart_coupon_code` em sessao; o Next persiste `appliedCouponId` em `carts`.
+  Essa divergencia e intencional para carrinho autenticado persistente.
+- Tipos legados sao mapeados explicitamente: `percent` -> `percentage`, `fixed` -> `fixed_amount`.
+- `free_shipping` e apenas preparado/modelado e nao aplica frete real nesta fase.
+- `usedCount` e consultado para limite global, mas nao e consumido ao aplicar/remover cupom.
+- Admin de cupons e recorte minimo e nao implementa campanhas avancadas, relatorios, limite por
+  usuario ou restricao por produto/categoria.
+
+## 11. Seed admin dev
 
 `scripts/db/seed-admin-dev.ts` cria/promove usuario admin apenas em development. 🟢
 
@@ -185,7 +221,7 @@ Guardrails:
 - nao roda automaticamente;
 - nao foi executado nesta re-extracao.
 
-## 11. Catalogo, repository e upload
+## 12. Catalogo, repository e upload
 
 As regras de catalogo e persistencia da Fase 3 permanecem preservadas. 🟢
 
@@ -196,15 +232,17 @@ As regras de catalogo e persistencia da Fase 3 permanecem preservadas. 🟢
 - Metadata de upload agora tambem exige policy admin-like.
 - Pagina publica de produto expõe formulario de adicionar ao carrinho apenas para produto publico.
 
-## 12. Fora de escopo atual
+## 13. Fora de escopo atual
 
 - Google OAuth.
 - Magic link.
 - Granularidade fina de permissoes alem de `customer`, `admin`, `manager` e ownership.
-- Checkout, pagamento, frete, cupom, pedidos reais, reserva/baixa de estoque e documentos fiscais reais.
+- Checkout, pagamento, frete real, pedidos reais, reserva/baixa de estoque e documentos fiscais reais.
+- Cupom acumulativo, limite por usuario, restricao por produto/categoria, campanhas avancadas e
+  relatorios de cupom.
 - Deploy, push ou migrations reais.
 
-## 13. Proxima fase
+## 14. Proxima fase
 
 Abrir a proxima feature com `/reversa-requirements`, usando catalogo, persistencia, auth/policies e
-carrinho como base ja confirmada. 🟢
+carrinho/cupons como base ja confirmada. 🟢

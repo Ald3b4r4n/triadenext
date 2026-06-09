@@ -16,7 +16,9 @@ Feature: `004-fase-6-cupons-descontos`
 
 ## Histórico de re-extrações
 
-Vazio até a próxima execução de `/reversa`.
+| Data | Re-extração | Veredito | Observações |
+|------|-------------|----------|-------------|
+| 2026-06-08T22:45:00-03:00 | Pós-Fase 6 | 🟢 | SDD atualizado com `appliedCouponId`, calculo server-side de desconto/total parcial, admin protegido, `minimumSubtotalCents`, `usedCount` nao consumido e `free_shipping` sem frete real. |
 
 ## Arquivadas
 
