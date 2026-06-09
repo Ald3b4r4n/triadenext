@@ -1,131 +1,95 @@
-# State Machines — triade-essenza-next
+# Maquinas de estado Reversa - Triade Essenza Next
 
-> Data: 2026-06-08
-> Escopo: estados confirmados ate Fase 6
-> Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
-
-## Auth/session
-
-| Estado | Condicao | Comportamento |
-|---|---|---|
-| `unauthenticated/missing` | Provider nao retorna usuario na sessao | Rotas protegidas redirecionam/bloqueiam; actions recusam. |
-| `unauthenticated/unavailable` | Auth real nao esta pronto no runtime | Admin/action retorna bloqueio seguro. |
-| `unauthenticated/invalid` | Role ausente/invalida ou erro do provider | Acesso negado por falha segura. |
-| `unauthenticated/timeout` | Leitura de sessao excede timeout | Acesso negado por falha segura. |
-| `authenticated` | Sessao valida com `userId`, `email`, `role` | Policies decidem acesso por role/ownership. |
-
-## Roles
-
-| Role | Admin | Customer area | Observacao |
-|---|---|---|---|
-| `customer` | Nao | Sim | Cadastro publico cria este papel por default. |
-| `admin` | Sim | Sim, como autenticado | Papel administrativo. |
-| `manager` | Sim | Sim, como autenticado | Equivalente a admin no MVP. |
-
-## Policy decision
-
-| Estado | Origem | Comportamento |
-|---|---|---|
-| `allowed` | Sessao valida e regra satisfeita | Rota/action prossegue. |
-| `unauthenticated` | Sessao ausente, invalida, expirada, timeout ou indisponivel | Redirect ou erro controlado. |
-| `forbidden/insufficient_role` | Usuario autenticado sem role exigida | Bloqueio seguro. |
-| `forbidden/not_owner` | Usuario autenticado tenta recurso de outro dono | Bloqueio seguro sem expor dados. |
-| `blocked/missing_database` | Policy admin-like sem banco | Operacao admin real bloqueada. |
-| `blocked/auth_not_ready` | Banco/secret auth insuficiente | Operacao admin real bloqueada. |
-
-## Login/cadastro/logout
-
-| Fluxo | Entrada | Saida esperada |
-|---|---|---|
-| Login valido | E-mail/senha validos e auth pronto | Sessao criada pelo Better Auth e redirect para `returnTo` seguro. |
-| Login valido com carrinho anonimo | E-mail/senha validos, auth pronto e `guestCartToken` presente | Merge soma quantidades, limita por estoque, marca anonimo `converted` e segue redirect seguro. |
-| Login invalido | Credenciais invalidas ou provider indisponivel | Erro generico/controlado. |
-| Cadastro valido | Nome, e-mail e senha forte | Usuario criado como `customer` e redirect para `/minha-conta`. |
-| Cadastro invalido | Payload invalido, senha fraca ou duplicidade | Erro controlado sem criar admin/manager publico. |
-| Logout | Sessao atual | `signOut` server-side e redirect para `/login`. |
-
-## Produto
-
-Estados confirmados:
-
-| Estado | Publico | Compravel | Observacao |
-|---|---|---|---|
-| `draft` | Nao | Nao | Rascunho/admin. |
-| `published` | Sim, se `publishedAt <= now` e estoque > 0 | Sim, nesta fase | Depende de data e estoque. |
-| `inactive` | Nao | Nao | Inativo/arquivado inicial. |
-
-Transicoes administraveis atuais:
-
-- criar produto como `draft`, `published` ou `inactive`;
-- editar produto e substituir categorias;
-- publicar so passa na validacao se nome, slug, SKU, preco, estoque positivo e data valida existirem;
-- todas as mutations administrativas exigem `requireAdminLike`.
-
-## Runtime de persistencia
-
-| Estado | Condicao | Comportamento |
-|---|---|---|
-| `fallback_sem_banco` | `DATABASE_URL` ausente | Fixtures + fallback/bloqueio explicito; nenhuma promessa de persistencia real. |
-| `auth_indisponivel` | Banco ou secret de auth ausente | Auth real indisponivel; admin/action bloqueiam quando exigem policy. |
-| `db_real_auth_pronto_dev` | `DATABASE_URL` e auth secret presentes em development/test | Drizzle real; mutations admin exigem admin/manager. |
-| `db_real_preview_producao` | Ambiente preview/production | Operacoes reais dependem de auth/policies prontas e validacao operacional. |
+Data: 2026-06-09
+Escopo: estados apos Fase 7.
 
 ## Carrinho
 
-| Estado | Condicao | Comportamento |
-|---|---|---|
-| `empty` | Nenhum item no carrinho resolvido | `/carrinho` mostra estado vazio e subtotal 0. |
-| `active/guest` | Visitante com `guestCartToken` valido | Carrinho anonimo resolvido no servidor por token opaco. |
-| `active/user` | Usuario autenticado com `session.userId` | Carrinho autenticado resolvido por userId e ownership server-side. |
-| `dev_fallback` | Sem `DATABASE_URL` em dev/test | Interacoes controladas sem promessa de persistencia real. |
-| `unavailable` | Sem banco em preview/producao | Mutacoes reais de carrinho falham de forma segura. |
-| `converted` | Carrinho anonimo mesclado no login | Carrinho anonimo deixa de ser ativo para evitar duplicidade. |
+```mermaid
+stateDiagram-v2
+  [*] --> empty
+  empty --> active: adicionar item
+  active --> active: alterar quantidade
+  active --> coupon_applied: aplicar cupom valido
+  coupon_applied --> active: remover cupom
+  active --> shipping_quoted: cotar frete por CEP
+  coupon_applied --> shipping_quoted: cotar frete por CEP
+  shipping_quoted --> shipping_selected: selecionar opcao
+  shipping_selected --> shipping_invalidated: alterar itens
+  shipping_selected --> shipping_removed: remover frete
+  shipping_invalidated --> shipping_quoted: recotar CEP
+  shipping_removed --> shipping_quoted: recotar CEP
+```
 
-## Item de carrinho
+Estados relevantes:
 
-| Estado | Condicao | Comportamento |
-|---|---|---|
-| `valid` | Produto published, vigente, com estoque e quantidade entre 1 e estoque | Pode ser adicionado/atualizado. |
-| `product_unavailable` | Produto `draft`, `inactive`, futuro, sem `publishedAt` ou sem estoque | Action retorna erro controlado e nao adiciona item. |
-| `insufficient_stock` | Quantidade total acima de `stockQuantity` | Action retorna erro controlado e preserva estado anterior. |
-| `removed` | Remocao ou limpeza do carrinho | Item sai da view e subtotal e recalculado. |
+- `empty`: sem itens.
+- `active`: com itens e sem checkout.
+- `coupon_applied`: cupom valido aplicado.
+- `shipping_quoted`: quote gerada para CEP.
+- `shipping_selected`: opcao de frete persistida.
+- `shipping_invalidated`: frete descartado apos mudanca de itens.
+- `shipping_removed`: usuario removeu a selecao de frete.
 
-## Cupom no carrinho
+## Cotacao de frete
 
-| Estado | Condicao | Comportamento |
-|---|---|---|
-| `none` | Carrinho sem `appliedCouponId` | `discountCents = 0` e `partialTotalCents = subtotalCents`. |
-| `applied/valid` | Cupom ativo, vigente, nao esgotado, tipo aplicavel e subtotal suficiente | Carrinho mostra cupom, desconto e total parcial. |
-| `invalid/inactive` | `isActive = false` | Aplicacao recusada ou cupom removido/sinalizado. |
-| `invalid/scheduled` | `startsAt > now` | Aplicacao recusada com erro controlado. |
-| `invalid/expired` | `endsAt < now` | Aplicacao recusada ou cupom removido/sinalizado. |
-| `invalid/exhausted` | `usedCount >= maxUses` | Aplicacao recusada; `usedCount` nao e consumido no carrinho. |
-| `invalid/minimum_subtotal` | Subtotal abaixo de `minimumSubtotalCents` | Cupom nao aplica ou deixa de valer ao recalcular carrinho. |
-| `prepared/free_shipping` | Tipo `free_shipping` | Retorna mensagem controlada; nao calcula nem zera frete real. |
-| `removed` | Usuario remove cupom ou carrinho e limpo | `appliedCouponId = null`, desconto volta a 0. |
+```mermaid
+stateDiagram-v2
+  [*] --> requested
+  requested --> invalid_postal_code: CEP invalido
+  requested --> no_coverage: nenhuma regra aplicavel
+  requested --> valid_quote: regras manuais encontradas
+  valid_quote --> option_selected: selecionar opcao
+  valid_quote --> expired: validade encerrada
+  option_selected --> forbidden: quote nao pertence ao carrinho ativo
+  option_selected --> persisted: quote pertence ao carrinho ativo
+```
 
-## Admin de cupons
+Regras:
 
-| Estado | Condicao | Comportamento |
-|---|---|---|
-| `blocked/missing_database` | `requireAdminLike` sem banco | Admin de cupons renderiza bloqueio seguro. |
-| `blocked/auth_not_ready` | Auth/policies indisponiveis | Listar/criar/editar cupom bloqueado. |
-| `forbidden/customer` | Sessao customer tenta admin | Acesso negado. |
-| `allowed/admin_like` | Role `admin` ou `manager` com auth pronto | Pode listar, criar e editar cupons basicos. |
-| `dev_fallback` | Sem banco em dev/test no repository/service | Fixture explicita sem promessa de persistencia real. |
+- CEP deve ter 8 digitos numericos.
+- Apenas regras manuais ativas sao usadas.
+- Providers externos nao participam do fluxo atual.
+- Selecao exige ownership da quote pelo carrinho ativo.
 
-## Upload de imagem
+## Cupom `free_shipping`
 
-| Estado | Condicao | Comportamento |
-|---|---|---|
-| `blocked/policy` | Sem policy admin-like allowed | Nao valida/chama Blob; retorna mensagem segura. |
-| `rejected` | Tipo/tamanho invalido | Nao chama Blob; nao persiste metadata. |
-| `blocked/missing_blob_token` | `BLOB_READ_WRITE_TOKEN` ausente | Nao chama Blob; nao persiste metadata. |
-| `uploaded + metadata persisted` | Policy allowed, token Blob, banco e ambiente permitido | Upload real e metadata salva em `product_images`. |
-| `uploaded + metadata dev_fallback` | Policy allowed e token Blob, sem banco | Upload pode ocorrer, mas metadata nao e persistida em banco real. |
-| `uploaded + metadata blocked` | Policy allowed e token Blob, ambiente bloqueado | Metadata real bloqueada. |
+```mermaid
+stateDiagram-v2
+  [*] --> applied
+  applied --> waiting_shipping: sem frete cotado
+  applied --> manual_freight_zeroed: frete manual elegivel cotado
+  applied --> no_effect: frete inexistente ou nao elegivel
+```
 
-## Proxima fase esperada
+Regras:
 
-A proxima feature deve ser aberta com `/reversa-requirements`, escolhendo novo escopo sobre a base de
-catalogo, persistencia, auth/policies, carrinho e cupons ja confirmada.
+- O cupom nao cria frete.
+- O cupom nao altera desconto monetario de produtos.
+- O cupom zera somente frete manual calculado e elegivel.
+
+## Admin de frete
+
+```mermaid
+stateDiagram-v2
+  [*] --> access_requested
+  access_requested --> blocked: sem sessao admin-like
+  access_requested --> allowed: admin ou manager
+  allowed --> rule_created: criar regra valida
+  allowed --> rule_updated: editar regra valida
+  allowed --> validation_error: payload invalido
+```
+
+Permissao:
+
+- `admin` e `manager` podem listar, criar e editar regras.
+- Outros atores devem ser bloqueados.
+
+## Fluxos ainda inexistentes
+
+- Checkout.
+- Pagamento.
+- Stripe.
+- Pedido.
+- Reserva de estoque.
+- Baixa de estoque.

@@ -1,67 +1,67 @@
-# Dependencies — triade-essenza-next
+# Dependencias Reversa - Triade Essenza Next
 
-> Data: 2026-06-08
-> Escopo: re-extracao pos-Fase 6
-> Confianca: 🟢 CONFIRMADO, 🟡 INFERIDO, 🔴 LACUNA
+Data: 2026-06-09
+Escopo: dependencias apos Fase 7.
 
-## Dependencias de runtime
+## Dependencias de runtime observadas
 
-| Pacote | Papel | Uso confirmado |
-|---|---|---|
-| `next` | App Router, rotas, server actions e build | `src/app/**` |
-| `react`, `react-dom` | UI | componentes e paginas |
-| `lucide-react` | Icones UI | UI de carrinho e demais componentes. |
-| `better-auth` | Auth provider, e-mail/senha, sessao e route handler | `src/features/auth/server/auth.ts`, `src/app/api/auth/[...all]/route.ts` |
-| `@better-auth/drizzle-adapter` | Adapter Better Auth para Drizzle/Postgres | `src/features/auth/server/auth.ts` |
-| `server-only` | Restringir modulos sensiveis ao servidor | `src/features/auth/server/*`, `src/features/cart/server/*`, `src/features/coupons/server/*` |
-| `drizzle-orm` | ORM | `src/db/client.ts`, `src/db/schema.ts`, repositories, seed admin dev |
-| `@neondatabase/serverless` | Client Neon HTTP | `src/db/client.ts`, `scripts/db/seed*.mjs/ts` |
-| `zod` | Validacao | env, produtos, upload, auth, carrinho e cupons |
-| `@vercel/blob` | Upload Blob | `src/features/uploads/product-image-upload.ts` |
-| `react-hook-form`, `@hookform/resolvers` | Formularios | dependencia instalada; auth atual usa `useActionState` e server actions |
-| `stripe` | Pagamentos futuros | webhook placeholder; checkout real fora da Fase 6 |
+| Area | Uso |
+| --- | --- |
+| Next.js App Router | Rotas, server components e server actions |
+| React | Componentes de UI |
+| Drizzle | Schema, queries e migrations locais |
+| Zod | Validacao de formularios, cupons, carrinho e frete |
+| server-only | Isolamento de modulos server-side |
+| Stripe | Dependencia existente/futura; checkout fora do escopo atual |
 
-## Dependencias de desenvolvimento
+## Modulos internos
 
-| Pacote | Papel |
-|---|---|
-| `typescript` | Typecheck |
-| `eslint`, `eslint-config-next` | Lint |
-| `vitest`, `jsdom`, `@testing-library/*` | Testes unitarios |
-| `@playwright/test` | E2E |
-| `drizzle-kit` | Generate/migrate/studio |
-| `tsx` | Executar seed admin dev TypeScript |
-| `tailwindcss`, `@tailwindcss/postcss`, `postcss`, `autoprefixer` | CSS |
+| Modulo | Dependencias internas principais |
+| --- | --- |
+| `catalog` | Schema de produtos/categorias, componentes publicos |
+| `auth` | Sessao, papeis, protecao admin |
+| `cart` | Catalogo, cupons, frete, repositorio de carrinho |
+| `coupons` | Carrinho e regras de desconto |
+| `shipping` | Carrinho, auth admin, Drizzle/fallback local |
 
-## Scripts relevantes
+## Frete
 
-| Script | Comando | Observacao |
-|---|---|---|
-| `lint` | `eslint . --max-warnings=0` | Validacao final Fase 6 passou. |
-| `typecheck` | `tsc --noEmit` | Validacao final Fase 6 passou. |
-| `test` | `vitest run` | Validacao final Fase 6 passou, 16 files / 54 tests. |
-| `build` | `next build` | Validacao final Fase 6 passou. |
-| `test:e2e` | `playwright test` | Validacao final Fase 6 passou, 16 tests. |
-| `db:generate` | `drizzle-kit generate` | Gera migration local; nao aplica banco. |
-| `db:migrate` | `node scripts/db/require-database-url.mjs && drizzle-kit migrate` | Bloqueia sem alvo; exige validacao humana antes de uso real. |
-| `db:studio` | `drizzle-kit studio` | Inspecao. |
-| `db:seed` | `node scripts/db/seed.mjs` | Seed ficticio; falha sem `DATABASE_URL`. |
-| `db:seed:admin-dev` | `tsx scripts/db/seed-admin-dev.ts` | Seed admin dev controlado; nao roda automaticamente. |
+O modulo `src/features/shipping` nao adiciona dependencia externa de provider. Ele usa:
 
-## Integracoes externas
+- Tipos e dominio locais.
+- Zod para formularios e actions.
+- Drizzle/fallback para regras e cotacoes.
+- `requireAdminLike` para admin de frete.
+- Integracao com carrinho por servicos server-side.
 
-| Integracao | Estado | Guardrail |
-|---|---|---|
-| Better Auth | Ativo para e-mail/senha, sessao e cookies | Sem Google OAuth/magic link nesta fase. |
-| Neon Postgres | Preparado, nao conectado nesta re-extracao | Nao rodar migrations sem validacao humana. |
-| Vercel Blob | Preparado, bloqueado sem token | Upload exige `BLOB_READ_WRITE_TOKEN` e policy admin-like. |
-| Stripe | Placeholder/dependencia | Checkout/pagamento fora do escopo atual; carrinho nao chama Stripe. |
-| Vercel Hosting | Planejado | Deploy fora do escopo atual. |
+Providers externos mapeados:
 
-## Dependencias fora do escopo atual
+| Provider | Estado | Dependencia externa |
+| --- | --- | --- |
+| Correios | Futuro inativo | Nenhuma |
+| Jadlog | Futuro inativo | Nenhuma |
+| Melhor Envio | Futuro inativo | Nenhuma |
 
-- Google OAuth provider.
-- Magic link/e-mail transacional de login.
-- Provedor de permissoes granulares por recurso.
-- Checkout/pagamento/frete real/pedido/reserva de estoque permanecem fora do escopo implementado.
-- `free_shipping` de cupom permanece modelado, mas sem integracao real de frete.
+Nao ha chamada real a API de frete, nem leitura de credenciais de frete na Fase 7.
+
+## Persistencia
+
+- Schema Drizzle atualizado para campos de frete em `carts`.
+- Tabela `shipping_rules` para regras manuais.
+- Tabela `shipping_quotes` para cotacoes.
+- Migration local gerada: `drizzle/0004_mute_ghost_rider.sql`.
+- Nenhuma migration foi aplicada em banco real nesta etapa.
+
+## Scripts validados na Fase 7
+
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test` - 23 arquivos / 67 testes
+- `pnpm build`
+- `pnpm test:e2e` - 21 testes
+
+## Riscos de dependencia
+
+- Ativar provider externo de frete exigira nova camada de credenciais, retries, erros de API e testes dedicados.
+- Ativar checkout/pagamento exigira contrato novo entre carrinho, frete, cupom, pedido e pagamento.
+- Aplicar migrations em banco real deve ser tratado em etapa operacional separada.

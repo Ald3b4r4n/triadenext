@@ -1,173 +1,136 @@
 {
-  "updatedAt": "2026-06-08T22:45:00-03:00",
-  "project": "triade-essenza-next",
-  "workspace": "D:\\Projetos\\triade-essenza-next",
-  "legacyWorkspace": "D:\\Projetos\\triadeessenzaparfum.com.br",
-  "isLegacyWorkspace": false,
+  "project": {
+    "name": "triade-essenza-next",
+    "path": "D:\\Projetos\\triade-essenza-next",
+    "isLegacyLaravel": false,
+    "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
+  },
+  "updatedAt": "2026-06-09T16:15:00-03:00",
+  "scope": "Re-extracao Reversa pos-Fase 7 concluida",
   "git": {
     "branch": "main",
-    "status": "main...origin/main [ahead 1]",
-    "latestCommit": "399953c4dd8046550b2823f476880e5b15f84a02",
-    "latestCommitMessage": "feat: implement coupons and cart discounts",
-    "phase4CommitPushed": true,
-    "phase5CommitPushed": true,
-    "phase6CommitPushed": false,
-    "worktreeBeforeReextraction": "clean"
+    "status": "main...origin/main",
+    "latestCommit": {
+      "short": "5d103b7",
+      "hash": "5d103b7882e121fe4929537e50c0b4a0e40a615e",
+      "message": "feat: implement manual shipping quotes"
+    },
+    "phase7CommitPushed": true,
+    "workingTreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
     {
-      "name": "Fundacao Next.js",
-      "status": "done",
-      "summary": "Next.js App Router, TypeScript, Tailwind, ESLint, Vitest, Playwright, Drizzle/Neon preparado, health check e env example sem segredos."
+      "phase": 1,
+      "status": "completed",
+      "summary": "Fundacao Next.js App Router e UI base"
     },
     {
-      "name": "Fase 1 — catalogo, produto e imagens",
-      "status": "done",
-      "summary": "Storefront de produtos, regras de produto publico, slug, preco, capa por isCover e metadata de imagem."
+      "phase": 2,
+      "status": "completed",
+      "summary": "Persistencia inicial de catalogo e clientes"
     },
     {
-      "name": "Fase 2 — admin de produtos",
-      "status": "done",
-      "summary": "Listagem admin, novo/edicao, formulario validado, actions, repository preparado, upload controlado e testes."
+      "phase": 3,
+      "status": "completed",
+      "summary": "Catalogo publico com filtros e seed local"
     },
     {
-      "name": "Fase 3 — Neon/Drizzle e persistencia de catalogo",
-      "status": "done",
-      "summary": "Runtime seguro, Drizzle/Neon revisado, migration local gerada sem aplicar, seed ficticio, repository real/fallback, admin/storefront/upload integrados, testes e docs verdes."
+      "phase": 4,
+      "status": "completed",
+      "summary": "Autenticacao, papeis e admin base"
     },
     {
-      "name": "Fase 4 — Better Auth, sessao e policies",
-      "status": "done",
-      "summary": "Better Auth integrado, login/cadastro/logout por e-mail/senha, sessao server-side, roles customer/admin/manager, policies reais, rotas admin/customer protegidas, server actions protegidas e seed admin dev controlado."
+      "phase": 5,
+      "status": "completed",
+      "summary": "Carrinho e sessao de compra sem checkout real"
     },
     {
-      "name": "Fase 5 — Carrinho e sessao de compra",
-      "status": "done",
-      "summary": "Carrinho anonimo por guestCartToken opaco, carrinho autenticado por userId, ownership server-side, validacao de produto/estoque, merge ao login, UI minima de carrinho e fallback dev/test explicito."
+      "phase": 6,
+      "status": "completed",
+      "summary": "Cupons e descontos no carrinho"
     },
     {
-      "name": "Fase 6 — Cupons e descontos no carrinho",
-      "status": "done",
-      "summary": "Cupons percentuais e de valor fixo aplicados ao carrinho, mapeamento legado percent/fixed, subtotal minimo, limite global consultado, free_shipping preparado, admin minimo protegido, desconto/total parcial server-side e fallback dev/test explicito."
+      "phase": 7,
+      "status": "completed",
+      "summary": "Frete manual, cotacao por CEP e selecao persistida no carrinho",
+      "commit": "5d103b7882e121fe4929537e50c0b4a0e40a615e"
     }
   ],
-  "currentAuth": {
-    "provider": "Better Auth",
-    "loginMethods": ["email_password"],
-    "outOfScope": ["google_oauth", "magic_link", "fine_grained_permissions"],
-    "roles": ["customer", "admin", "manager"],
-    "adminLikeRoles": ["admin", "manager"],
-    "publicSignupRole": "customer",
-    "session": "Server-side session normalized by src/features/auth/server/session.ts.",
-    "policies": [
-      "requireAuthenticated",
-      "requireAdminLike",
-      "requireCustomer",
-      "requireOwner"
-    ],
-    "protectedSurfaces": [
-      "/admin/**",
-      "/minha-conta",
-      "/enderecos",
-      "/pedidos",
-      "product create/update server actions",
-      "product image upload/metadata"
-    ],
-    "adminDevSeed": "scripts/db/seed-admin-dev.ts, development-only, explicit envs, no hardcoded password."
-  },
-  "currentPersistence": {
-    "databaseMode": "DATABASE_URL ausente resulta em db null e fallback/bloqueio explicito; DATABASE_URL presente ativa Drizzle/Neon quando usado.",
-    "migrations": [
-      "drizzle/0000_shallow_shinko_yamashiro.sql gerada e nao aplicada.",
-      "drizzle/0001_curvy_blink.sql gerada para auth e nao aplicada.",
-      "drizzle/0002_tiny_enchantress.sql gerada para carrinho e nao aplicada."
-    ],
-    "seed": "scripts/db/seed.mjs usa dados ficticios e falha sem DATABASE_URL.",
-    "adminDevSeed": "scripts/db/seed-admin-dev.ts exige DATABASE_URL, DEV_ADMIN_EMAIL e DEV_ADMIN_PASSWORD e bloqueia fora de development.",
-    "upload": "Upload real bloqueado sem BLOB_READ_WRITE_TOKEN e sem policy admin-like allowed.",
-    "adminGuardrail": "Mutacoes admin reais exigem sessao admin ou manager por requireAdminLike."
+  "currentCapabilities": {
+    "catalog": "Catalogo publico com produtos e filtros",
+    "auth": "Autenticacao administrativa com papeis",
+    "cart": "Carrinho de visitante/usuario com itens, cupom e frete manual",
+    "coupons": "Cupons percentuais, valor fixo e free_shipping",
+    "shipping": "Frete manual por regras internas, cotacao por CEP, prazo estimado e admin basico"
   },
   "currentCart": {
-    "anonymousCart": "Cookie seguro/opaco guestCartToken; cookie nao armazena itens, precos ou dados sensiveis.",
-    "authenticatedCart": "Carrinho vinculado a session.userId quando ha banco real.",
-    "ownership": "Server-side; actions nao aceitam owner/cartId/userId do cliente como fonte confiavel.",
-    "mergeOnLogin": "Soma quantidades por produto, limita por estoque, remove/bloqueia indisponiveis e marca anonimo converted.",
-    "availabilityRules": [
-      "Produto precisa estar published.",
-      "publishedAt precisa existir e ser <= now.",
-      "stockQuantity precisa ser > 0.",
-      "Quantidade minima 1 e maxima stockQuantity."
-    ],
-    "fallback": "Sem DATABASE_URL em dev/test, interacoes sao fallback explicito sem persistencia real; preview/producao sem banco falham seguro.",
-    "outOfScope": [
-      "checkout",
-      "pagamento",
-      "frete real",
-      "pedido",
-      "reserva de estoque",
-      "baixa de estoque"
-    ]
+    "shippingPostalCode": "CEP cotado e persistido no carrinho",
+    "shippingQuoteId": "Quote selecionada persistida",
+    "shippingQuote": "Cotacao hidratada a partir do repositorio",
+    "shippingOptions": "Opcoes manuais geradas por regras aplicaveis",
+    "shippingAmountCents": "Valor de frete em centavos",
+    "partialTotalWithShippingCents": "Total parcial incluindo frete efetivo",
+    "invalidationRule": "Alteracoes de itens invalidam frete selecionado"
   },
   "currentCoupons": {
-    "module": "src/features/coupons",
-    "legacyTypeMapping": {
-      "percent": "percentage",
-      "fixed": "fixed_amount"
+    "percentage": "Desconto percentual sobre itens elegiveis",
+    "fixedAmount": "Desconto fixo em centavos",
+    "freeShipping": "Zera somente frete manual calculado e elegivel; nao cria frete e nao gera discountCents de produto"
+  },
+  "currentShipping": {
+    "mode": "manual",
+    "quoteInput": "CEP com 8 digitos numericos",
+    "ruleTypes": [
+      "uf",
+      "postal_range"
+    ],
+    "priceUnit": "cents",
+    "estimatedDays": "manual",
+    "admin": "Rotas /admin/frete protegidas por admin/manager",
+    "externalProviders": {
+      "correios": "future_adapter_inactive",
+      "jadlog": "future_adapter_inactive",
+      "melhor_envio": "future_adapter_inactive"
     },
-    "types": [
-      "percentage",
-      "fixed_amount",
-      "free_shipping"
+    "externalApiCalls": false,
+    "externalCredentialsRequired": false
+  },
+  "currentPersistence": {
+    "migrations": [
+      "drizzle/0000_initial_schema.sql",
+      "drizzle/0001_phase_4_auth.sql",
+      "drizzle/0002_cart_purchase_session.sql",
+      "drizzle/0003_*",
+      "drizzle/0004_mute_ghost_rider.sql"
     ],
-    "freeShipping": "Preparado/modelado; nao aplica frete real nesta fase.",
-    "cartPersistence": "Next persiste carts.appliedCouponId quando ha banco real; legado usava sessao cart_coupon_code.",
-    "cartCalculation": "subtotalCents, discountCents e partialTotalCents recalculados server-side.",
-    "validations": [
-      "codigo normalizado trim/uppercase",
-      "inativo bloqueado",
-      "futuro bloqueado",
-      "expirado bloqueado",
-      "esgotado bloqueado por usedCount >= maxUses",
-      "subtotal minimo bloqueado",
-      "desconto limitado ao subtotal"
-    ],
-    "admin": "Admin minimo em /admin/cupons protegido por requireAdminLike; nao e paridade administrativa completa.",
-    "outOfScope": [
-      "cupom acumulativo",
-      "limite por usuario",
-      "restricao por produto/categoria",
-      "campanhas avancadas",
-      "relatorios",
-      "frete real",
-      "checkout",
-      "pedido",
-      "consumo de usedCount no carrinho"
-    ]
+    "phase7Migration": {
+      "file": "drizzle/0004_mute_ghost_rider.sql",
+      "status": "generated_not_applied_to_real_database",
+      "summary": "Campos de frete no carrinho, regras manuais e cotacoes"
+    }
   },
   "validations": {
-    "pnpm lint": "passed",
-    "pnpm typecheck": "passed",
-    "pnpm test": "passed, 16 files / 54 tests",
-    "pnpm build": "passed",
-    "pnpm test:e2e": "passed, 16 tests"
+    "phase7": {
+      "pnpm lint": "passed",
+      "pnpm typecheck": "passed",
+      "pnpm test": "passed - 23 files / 67 tests",
+      "pnpm build": "passed",
+      "pnpm test:e2e": "passed - 21 tests"
+    }
   },
-  "nextPhase": {
-    "name": "Proxima feature a definir",
-    "summary": "Abrir novo ciclo de requirements usando catalogo, persistencia, auth/policies, carrinho e cupons/descontos como base confirmada. Sugestoes naturais: enderecos customer, frete real, pre-checkout/checkout sem pagamento real ou pedidos, conforme decisao de produto.",
-    "recommendedCommand": "/reversa-requirements",
-    "featurePrompt": "Definir a proxima feature apos Fase 5 concluida."
-  },
-  "guardrails": [
-    "Nao ler, copiar ou expor .env.",
-    "Nao expor DATABASE_URL.",
-    "Nao rodar migrations sem validacao humana.",
-    "Nao conectar banco real durante re-extracao.",
-    "Nao fazer deploy.",
-    "Nao fazer push nesta etapa.",
-    "Nao modificar o Laravel legado."
+  "outOfScope": [
+    "checkout",
+    "payment",
+    "stripe",
+    "order",
+    "stock_reservation",
+    "stock_decrement",
+    "real_shipping_provider_api",
+    "real_database_migration_application",
+    "deploy"
   ],
-  "references": {
-    "reversaSdd": [
+  "reversaArtifacts": {
+    "sdd": [
       "_reversa_sdd/inventory.md",
       "_reversa_sdd/architecture.md",
       "_reversa_sdd/domain.md",
@@ -176,6 +139,10 @@
       "_reversa_sdd/state-machines.md",
       "_reversa_sdd/permissions.md"
     ],
-    "forwardFeature": "_reversa_forward/004-fase-6-cupons-descontos"
+    "forwardFeature": "_reversa_forward/005-fase-7-frete-cotacoes"
+  },
+  "nextStep": {
+    "recommendedCommand": "/reversa-requirements",
+    "reason": "Abrir a proxima feature com requisitos antes de planejar ou implementar"
   }
 }

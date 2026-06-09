@@ -1,190 +1,116 @@
-# Inventario Reversa — triade-essenza-next
+# Inventario tecnico Reversa - Triade Essenza Next
 
-Atualizado em: 2026-06-08T22:45:00-03:00
+Data da re-extracao: 2026-06-09
+Escopo: estado do projeto Next.js apos Fase 7 concluida e enviada.
 
-## Escopo desta re-extracao
-
-Esta re-extracao registra o estado do projeto Next.js apos a Fase 6
-`004-fase-6-cupons-descontos`, concluida, validada e commitada localmente.
-
-Nao foram executados migrations, conexoes com banco real, upload real, deploy, push ou alteracoes em
-codigo funcional nesta etapa. O Laravel legado permaneceu fora do diretorio de trabalho.
-
-## Diretorio
+## Confirmacao de contexto
 
 - Projeto atual: `D:\Projetos\triade-essenza-next`
-- Projeto Laravel legado: `D:\Projetos\triadeessenzaparfum.com.br`
-- Confirmacao: este inventario pertence ao projeto Next.js, nao ao legado Laravel.
-
-## Git
-
+- Nao e o legado Laravel: `D:\Projetos\triadeessenzaparfum.com.br`
 - Branch: `main`
-- Estado observado antes da re-extracao: `main...origin/main [ahead 1]`
-- Worktree observado antes da re-extracao: limpo
-- Commit da Fase 6: `399953c4dd8046550b2823f476880e5b15f84a02`
-- Mensagem: `feat: implement coupons and cart discounts`
-- Commits recentes:
-  - `399953c feat: implement coupons and cart discounts`
-  - `df28aa1 docs: update reversa state after phase 5`
-  - `7215cf1 feat: implement cart and purchase session foundation`
-  - `79025c3 docs: update reversa state after phase 4`
-  - `fcdb929 feat: add auth and policy foundation`
+- Sincronia Git: `main...origin/main`
+- Ultimo commit funcional confirmado: `5d103b7882e121fe4929537e50c0b4a0e40a615e feat: implement manual shipping quotes`
 
 ## Fases implementadas
 
-### Fundacao
+| Fase | Commit | Estado | Observacoes |
+| --- | --- | --- | --- |
+| Fase 1 | `3f2e35e` | Concluida | Fundacao App Router, UI base e rotas iniciais |
+| Fase 2 | `6c33c88` | Concluida | Persistencia inicial de catalogo e clientes |
+| Fase 3 | `5635ccb` | Concluida | Catalogo publico com filtros e seed local |
+| Fase 4 | `7ddf703` | Concluida | Autenticacao, papeis e admin base |
+| Fase 5 | `7215cf1` | Concluida | Carrinho e sessao de compra sem checkout real |
+| Fase 6 | `399953c` | Concluida | Cupons e descontos no carrinho |
+| Fase 7 | `5d103b7` | Concluida | Frete manual, cotacao por CEP e admin basico de frete |
 
-- Next.js App Router, React, TypeScript, Tailwind, ESLint, Vitest e Playwright.
-- Drizzle/Neon configurados sem exigir `DATABASE_URL` para build/test local.
-- Health check, superficies iniciais de storefront/admin/customer e `.env.example` sem segredos.
+## Artefatos principais observados
 
-### Fase 1 — Catalogo, produtos e imagens
+### Aplicacao
 
-- Dominio de produtos em `src/features/products`.
-- Storefront em `/produtos` e `/produto/[slug]`.
-- Regras publicas preservadas:
-  - `status = published`;
-  - `publishedAt <= now`;
-  - `stockQuantity > 0`.
-- `draft`, futuro, sem estoque e `inactive` nao ficam publicos.
-- Imagens usam `isCover`, `sortOrder` e metadata; binario nao entra no banco.
+- `src/app`: rotas App Router, incluindo catalogo, carrinho e areas admin.
+- `src/features/catalog`: catalogo, produtos, filtros e componentes publicos.
+- `src/features/auth`: login administrativo, sessao e papeis.
+- `src/features/cart`: carrinho, itens, cupom aplicado, cotacao de frete e totais.
+- `src/features/coupons`: validacao de cupons, tipos de desconto e `free_shipping`.
+- `src/features/shipping`: regras manuais de frete, cotacoes, persistencia, admin e adapters futuros inativos.
+- `src/db/schema.ts`: schema Drizzle com tabelas de catalogo, auth, carrinho, cupons e frete.
+- `drizzle/0004_mute_ghost_rider.sql`: migration local gerada para frete; nao aplicada em banco real nesta etapa.
 
-### Fase 2 — Admin de produtos
+### Reversa
 
-- Admin em `/admin/produtos`, `/admin/produtos/novo` e `/admin/produtos/[id]/editar`.
-- Formulario validado com Zod, server actions e repository.
-- Upload controlado aceita JPEG, PNG e WebP ate 5 MB.
-- Sem `BLOB_READ_WRITE_TOKEN`, upload retorna bloqueio controlado.
+- `.reversa/state.json`
+- `.reversa/context/current-state.json`
+- `_reversa_sdd/inventory.md`
+- `_reversa_sdd/architecture.md`
+- `_reversa_sdd/domain.md`
+- `_reversa_sdd/dependencies.md`
+- `_reversa_sdd/data-dictionary.md`
+- `_reversa_sdd/state-machines.md`
+- `_reversa_sdd/permissions.md`
+- `_reversa_forward/005-fase-7-frete-cotacoes/*`
 
-### Fase 3 — Neon/Drizzle, migrations locais e seed
+## Capacidades atuais
 
-- Runtime seguro em `src/lib/runtime-mode.ts`.
-- `src/db/client.ts` exporta `db = null` sem `DATABASE_URL`.
-- `src/db/schema.ts` expressa uniques/indices de catalogo, N:N e capa unica parcial.
-- Migration local gerada: `drizzle/0000_shallow_shinko_yamashiro.sql`.
-- Migration nao aplicada contra banco real.
-- Repository Drizzle/fallback implementado para catalogo, admin de produtos e metadata de imagens.
+- Catalogo publico com produtos e filtros.
+- Autenticacao administrativa com papeis.
+- Carrinho para visitante e usuario autenticado.
+- Cupons percentuais, valor fixo e frete gratis.
+- Frete manual por regras internas.
+- Cotacao de frete por CEP.
+- Regras de frete por UF e/ou faixa de CEP.
+- Valor de frete em centavos.
+- Prazo estimado manual.
+- Selecao de frete persistida no carrinho.
+- Total parcial com frete.
+- `free_shipping` zerando somente frete manual calculado e elegivel.
+- Admin basico de frete protegido por `admin`/`manager`.
 
-### Fase 4 — Auth real, sessao e policies
+## Frete manual - superficie tecnica
 
-- Better Auth integrado em `src/features/auth/server/auth.ts` com adapter Drizzle quando `db` existe.
-- Route handler do provider em `src/app/api/auth/[...all]/route.ts`.
-- Login, cadastro e logout por e-mail/senha via server actions em `src/features/auth/server/actions.ts`.
-- Cadastro publico customer-only; role enviada pelo cliente nao e usada para criar admin/manager.
-- Sessao server-side normalizada em `src/features/auth/server/session.ts` com `userId`, `email` e `role`.
-- Roles reais: `customer`, `admin`, `manager`.
-- `admin` e `manager` sao equivalentes no MVP para acesso administrativo.
-- Policies reais em `src/features/auth/server/policies.ts`:
-  - `requireAuthenticated`;
-  - `requireAdminLike`;
-  - `requireCustomer`;
-  - `requireOwner`.
-- `/admin/**` protegido por `src/app/admin/layout.tsx`.
-- Area customer protegida por `src/app/(customer)/layout.tsx`.
-- Server actions administrativas de produto e upload exigem `requireAdminLike`.
-- Seed admin dev controlado em `scripts/db/seed-admin-dev.ts`.
-- Migration local de auth gerada: `drizzle/0001_curvy_blink.sql`.
-- Migration de auth nao aplicada contra banco real.
-- Google OAuth, magic link e granularidade fina de permissoes ficaram fora do escopo atual.
+- Dominio: `src/features/shipping/domain.ts`
+- Tipos: `src/features/shipping/types.ts`
+- Servico server-side: `src/features/shipping/server/shipping-service.ts`
+- Repositorio server-side: `src/features/shipping/server/shipping-repository.ts`
+- Acoes admin: `src/features/shipping/server/admin-shipping-actions.ts`
+- Fixtures locais: `src/features/shipping/server/shipping-fixtures.ts`
+- Providers futuros: `src/features/shipping/future-providers.ts`
+- UI de cotacao no carrinho: `src/features/shipping/components/shipping-quote-panel.tsx`
+- UI admin: `src/app/admin/frete/**`
 
-### Fase 5 — Carrinho e sessao de compra
+## Integracoes externas
 
-- Carrinho funcional em `src/features/cart`.
-- Carrinho anonimo usa cookie seguro/opaco `guestCartToken`.
-- Cookie nao armazena itens, precos, subtotal, userId, role ou dados sensiveis.
-- Carrinho autenticado e resolvido server-side por `session.userId`.
-- Ownership do carrinho fica no servidor; actions nao aceitam owner vindo do cliente.
-- Repository/service de carrinho usam Drizzle quando ha banco e fallback dev/test explicito sem banco.
-- Validacao de produto/estoque bloqueia `draft`, `inactive`, futuro, sem estoque e quantidade acima de `stockQuantity`.
-- Merge no login soma quantidades por produto, limita por estoque e marca carrinho anonimo como `converted`.
-- Server actions implementadas:
-  - obter carrinho;
-  - adicionar item;
-  - atualizar quantidade;
-  - remover item;
-  - limpar carrinho.
-- `/carrinho` renderiza estado vazio, itens, quantidade, subtotal, remocao, limpeza e aviso de fallback.
-- Checkout aparece desabilitado; checkout, pagamento, frete, cupom, pedido, reserva e baixa de estoque continuam fora de escopo.
-- Migration local de carrinho gerada: `drizzle/0002_tiny_enchantress.sql`.
-- Migration de carrinho nao aplicada contra banco real.
+| Integracao | Estado atual | Observacao |
+| --- | --- | --- |
+| Correios | Adapter futuro inativo | Nenhuma API real chamada |
+| Jadlog | Adapter futuro inativo | Nenhuma API real chamada |
+| Melhor Envio | Adapter futuro inativo | Nenhuma API real chamada |
+| Stripe | Fora do escopo atual | Checkout/pagamento nao implementados |
+| Banco real | Fora desta etapa | Nenhuma migration aplicada nesta re-extracao |
 
-### Fase 6 — Cupons e descontos no carrinho
+## Validacoes informadas para Fase 7
 
-- Dominio de cupons criado em `src/features/coupons`.
-- Mapeamento legado documentado e implementado:
-  - `percent` -> `percentage`;
-  - `fixed` -> `fixed_amount`.
-- Codigo de cupom normalizado com trim/uppercase.
-- Validacao server-side bloqueia cupom inativo, futuro, expirado, esgotado, abaixo de subtotal minimo e tipo indisponivel.
-- Desconto percentual e fixo calculados em centavos e limitados ao subtotal.
-- Arredondamento percentual coberto por teste unitario.
-- `free_shipping` fica apenas preparado/modelado, sem frete real e sem promessa de checkout.
-- Carrinho passa a persistir uma referencia unica de cupom aplicado em `carts.applied_coupon_id` quando ha banco real.
-- Divergencia intencional frente ao legado: no Laravel, cupom aplicado ficava em sessao (`cart_coupon_code`); no Next, fica no carrinho para preservar experiencia entre sessoes/dispositivos.
-- `usedCount` e consultado para bloquear cupom esgotado, mas nao e consumido em apply/remove/merge do carrinho.
-- Server actions de cupom nao aceitam desconto, subtotal, total, owner, role, cartId ou couponId vindos do cliente.
-- Admin minimo de cupons em `/admin/cupons`, `/admin/cupons/novo` e `/admin/cupons/[id]/editar`, protegido por `requireAdminLike`.
-- Admin de cupons e recorte minimo, nao paridade administrativa completa do legado.
-- Migration local de cupons gerada: `drizzle/0003_elite_titanium_man.sql`.
-- Migration de cupons nao aplicada contra banco real.
+- `pnpm lint`: passou
+- `pnpm typecheck`: passou
+- `pnpm test`: passou, 23 arquivos / 67 testes
+- `pnpm build`: passou
+- `pnpm test:e2e`: passou, 21 testes
 
-## Validacoes registradas da Fase 6
+## Fora do escopo atual
 
-- `pnpm lint`: passou.
-- `pnpm typecheck`: passou.
-- `pnpm test`: passou, 16 files / 54 tests.
-- `pnpm build`: passou.
-- `pnpm test:e2e`: passou, 16 tests.
+- Checkout real.
+- Pagamento.
+- Stripe.
+- Pedido.
+- Reserva de estoque.
+- Baixa de estoque.
+- Chamadas reais a APIs de frete.
+- Credenciais externas de frete.
+- Aplicacao de migrations em banco real.
 
-## Artefatos Reversa da Fase 4
+## Proxima etapa recomendada
 
-- `_reversa_forward/002-fase-4-auth-policies/requirements.md`
-- `_reversa_forward/002-fase-4-auth-policies/roadmap.md`
-- `_reversa_forward/002-fase-4-auth-policies/actions.md`
-- `_reversa_forward/002-fase-4-auth-policies/progress.jsonl`
-- `_reversa_forward/002-fase-4-auth-policies/legacy-impact.md`
-- `_reversa_forward/002-fase-4-auth-policies/regression-watch.md`
+A proxima feature deve ser aberta com:
 
-## Artefatos Reversa da Fase 5
-
-- `_reversa_forward/003-fase-5-carrinho/requirements.md`
-- `_reversa_forward/003-fase-5-carrinho/roadmap.md`
-- `_reversa_forward/003-fase-5-carrinho/actions.md`
-- `_reversa_forward/003-fase-5-carrinho/progress.jsonl`
-- `_reversa_forward/003-fase-5-carrinho/legacy-impact.md`
-- `_reversa_forward/003-fase-5-carrinho/regression-watch.md`
-
-## Artefatos Reversa da Fase 6
-
-- `_reversa_forward/004-fase-6-cupons-descontos/requirements.md`
-- `_reversa_forward/004-fase-6-cupons-descontos/roadmap.md`
-- `_reversa_forward/004-fase-6-cupons-descontos/actions.md`
-- `_reversa_forward/004-fase-6-cupons-descontos/progress.jsonl`
-- `_reversa_forward/004-fase-6-cupons-descontos/legacy-impact.md`
-- `_reversa_forward/004-fase-6-cupons-descontos/regression-watch.md`
-- `_reversa_forward/004-fase-6-cupons-descontos/audit/cross-check.md`
-- `_reversa_forward/004-fase-6-cupons-descontos/audit/legacy-direction-check.md`
-
-## Guardrails atuais
-
-- Nao ler, copiar ou expor `.env`.
-- Nao expor `DATABASE_URL`.
-- Nao rodar migrations sem validacao humana.
-- Nao conectar banco real nesta re-extracao.
-- Nao fazer upload real sem `BLOB_READ_WRITE_TOKEN`.
-- Nao fazer deploy.
-- Nao fazer push nesta etapa.
-- Carrinho nao reserva nem baixa estoque definitivamente.
-- Checkout, pagamento, frete real, pedido, reserva e baixa de estoque continuam fora de escopo.
-- Cupom acumulativo, limite por usuario e restricao por produto/categoria continuam fora de escopo.
-- `free_shipping` nao aplica beneficio real de frete nesta fase.
-- Nao modificar o Laravel legado.
-
-## Proxima fase recomendada
-
-Proxima fase recomendada: abrir a proxima feature com requisitos novos, mantendo catalogo,
-persistencia, auth/policies, carrinho e cupons/descontos como base confirmada. Sugestoes naturais:
-enderecos customer, frete real, pre-checkout/checkout sem pagamento real ou pedidos, conforme
-decisao de produto.
-
-Comando recomendado para abrir o ciclo: `/reversa-requirements`.
+```text
+/reversa-requirements
+```
