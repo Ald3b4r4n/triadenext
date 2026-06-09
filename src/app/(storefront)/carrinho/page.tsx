@@ -13,6 +13,10 @@ export default async function CarrinhoPage() {
           currency: "BRL" as const,
           items: [],
           subtotalCents: 0,
+          appliedCouponId: null,
+          coupon: null,
+          discountCents: 0,
+          partialTotalCents: 0,
           persistence: "unavailable" as const,
           messages: [result.message]
         };

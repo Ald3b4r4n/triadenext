@@ -10,6 +10,8 @@
 - `src/features/cart/server/cart-service.ts`: regras de negocio, estoque, ownership e merge.
 - `src/features/cart/server/cart-actions.ts`: server actions seguras para UI.
 - `src/features/cart/components/*`: formulario de adicionar e visualizacao do carrinho.
+- `src/features/coupons/server/coupon-service.ts`: validacao e calculo de cupom aplicados ao
+  carrinho.
 
 ## Persistencia
 
@@ -31,3 +33,15 @@ Erro real com banco configurado nao deve cair em fallback silencioso.
 
 O merge e disparado apos login bem-sucedido. O service soma itens por produto, limita por estoque,
 ignora indisponiveis e marca o carrinho anonimo como `converted` para idempotencia.
+
+## Cupom aplicado
+
+A Fase 6 adiciona `appliedCouponId` ao carrinho. O cupom e carregado e revalidado no servidor ao
+visualizar, aplicar, remover, alterar itens e fazer merge no login.
+
+O desconto nunca vem do cliente. O service recalcula `subtotalCents`, `discountCents` e
+`partialTotalCents`. Se o cupom deixar de ser elegivel, ele e removido/sinalizado de forma
+controlada.
+
+`free_shipping` permanece preparado e nao altera frete real. Aplicar/remover cupom nao cria pedido,
+nao inicia checkout, nao reserva/baixa estoque e nao incrementa `usedCount`.

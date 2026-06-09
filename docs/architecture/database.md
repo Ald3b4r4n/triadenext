@@ -102,3 +102,26 @@ Delta local gerado:
 Migration local: `drizzle/0002_tiny_enchantress.sql`.
 
 Essa migration foi gerada localmente. Nao foi aplicada contra banco real nesta etapa.
+
+## Fase 6 — Cupons no carrinho
+
+Cupons passam a ser operacionais no carrinho, sem ativar checkout/frete/pedido.
+
+Delta local gerado:
+
+- `carts.applied_coupon_id`: FK nullable para `coupons.id`, com `ON DELETE SET NULL`.
+- `carts_applied_coupon_id_idx`: índice de apoio para cupom aplicado.
+- `coupons.minimum_subtotal_cents`: subtotal mínimo opcional em centavos.
+- `coupons_code_unique`: código de cupom normalizado e único.
+- `coupons_active_window_idx`: apoio para consulta por ativo/janela.
+
+Migration local: `drizzle/0003_elite_titanium_man.sql`.
+
+Essa migration foi gerada localmente. Nao foi aplicada contra banco real nesta etapa.
+
+Mapeamento legado documentado:
+
+- `percent` -> `percentage`;
+- `fixed` -> `fixed_amount`.
+
+`free_shipping` fica modelado, mas nao aplica benefício real de frete antes da fase de frete.

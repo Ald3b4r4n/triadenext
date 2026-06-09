@@ -1,4 +1,5 @@
 import type { AuthRole } from "@/features/auth/server/session";
+import type { CouponView } from "@/features/coupons/types";
 
 export type CartStatus = "active" | "converted" | "abandoned" | "expired";
 export type CartPersistence = "real" | "dev_fallback" | "unavailable";
@@ -24,6 +25,10 @@ export type CartView = {
   currency: "BRL";
   items: CartItem[];
   subtotalCents: number;
+  appliedCouponId: string | null;
+  coupon: CouponView | null;
+  discountCents: number;
+  partialTotalCents: number;
   persistence: CartPersistence;
   messages: string[];
 };
@@ -31,6 +36,7 @@ export type CartView = {
 export type CartActionResult =
   | { status: "success"; cart: CartView; message?: string }
   | { status: "validation_error"; message: string }
+  | { status: "coupon_invalid"; message: string; cart?: CartView }
   | { status: "product_unavailable"; message: string }
   | { status: "insufficient_stock"; message: string; maxQuantity: number }
   | { status: "forbidden"; message: string }

@@ -1,13 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { addItemToCartMock } = vi.hoisted(() => ({
-  addItemToCartMock: vi.fn()
+const { addItemToCartMock, applyCouponToActiveCartMock } = vi.hoisted(() => ({
+  addItemToCartMock: vi.fn(),
+  applyCouponToActiveCartMock: vi.fn()
 }));
 
 vi.mock("@/features/cart/server/cart-service", () => ({
   addItemToCart: addItemToCartMock,
+  applyCouponToActiveCart: applyCouponToActiveCartMock,
   clearActiveCart: vi.fn(),
   getActiveCart: vi.fn(),
+  removeCouponFromActiveCart: vi.fn(),
   removeCartItem: vi.fn(),
   updateCartItemQuantity: vi.fn()
 }));
@@ -16,7 +19,7 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn()
 }));
 
-import { addCartItemAction } from "@/features/cart/server/cart-actions";
+import { addCartItemAction, applyCouponAction } from "@/features/cart/server/cart-actions";
 
 describe("cart actions", () => {
   it("validates inputs before calling the service", async () => {
@@ -39,5 +42,18 @@ describe("cart actions", () => {
       productId: "prod-example-published",
       quantity: 1
     });
+  });
+
+  it("does not accept discount or owner fields when applying a coupon", async () => {
+    const formData = new FormData();
+    formData.set("code", "dev10");
+    formData.set("discountCents", "999999");
+    formData.set("couponId", "attacker-coupon");
+    formData.set("cartId", "attacker-cart");
+    applyCouponToActiveCartMock.mockResolvedValueOnce({ status: "success", cart: {}, message: "ok" });
+
+    await applyCouponAction(formData);
+
+    expect(applyCouponToActiveCartMock).toHaveBeenCalledWith("dev10");
   });
 });

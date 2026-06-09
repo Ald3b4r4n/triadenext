@@ -10,7 +10,9 @@ vi.mock("@/features/cart/server/cart-session", () => ({
 
 import {
   addItemToCart,
+  applyCouponToActiveCart,
   mergeGuestCartIntoUser,
+  removeCouponFromActiveCart,
   updateCartItemQuantity
 } from "@/features/cart/server/cart-service";
 
@@ -84,5 +86,32 @@ describe("cart service", () => {
     expect(firstMerge.status).toBe("fallback");
     expect(secondMerge.status).toBe("fallback");
     expect(secondMerge.status === "fallback" && secondMerge.cart.items[0]?.quantity).toBe(2);
+  });
+
+  it("applies and removes one valid coupon without consuming usedCount", async () => {
+    resolveCartActorMock.mockResolvedValue({ kind: "guest", guestToken: "guest-coupon" });
+
+    await addItemToCart({ productId: "prod-example-published", quantity: 1 });
+    const applyResult = await applyCouponToActiveCart(" dev10 ");
+    const removeResult = await removeCouponFromActiveCart();
+
+    expect(applyResult.status).toBe("fallback");
+    expect(applyResult.status === "fallback" && applyResult.cart.coupon?.code).toBe("DEV10");
+    expect(applyResult.status === "fallback" && applyResult.cart.discountCents).toBe(1599);
+    expect(removeResult.status).toBe("fallback");
+    expect(removeResult.status === "fallback" && removeResult.cart.discountCents).toBe(0);
+  });
+
+  it("blocks unavailable coupon types and subtotal minimum", async () => {
+    resolveCartActorMock.mockResolvedValue({ kind: "guest", guestToken: "guest-coupon-blocked" });
+
+    await addItemToCart({ productId: "prod-example-published", quantity: 1 });
+
+    await expect(applyCouponToActiveCart("FRETEGRATIS")).resolves.toMatchObject({
+      status: "coupon_invalid"
+    });
+    await expect(applyCouponToActiveCart("MINIMO200")).resolves.toMatchObject({
+      status: "coupon_invalid"
+    });
   });
 });

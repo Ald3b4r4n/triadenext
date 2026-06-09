@@ -11,6 +11,7 @@ type CartRow = {
   id: string;
   userId: string | null;
   guestToken: string | null;
+  appliedCouponId: string | null;
   status: "active" | "converted" | "abandoned" | "expired";
   currency: string;
 };
@@ -29,6 +30,11 @@ export type CartRepository = {
   ): Promise<CartView | null>;
   removeItem(actor: Exclude<CartActor, { kind: "unavailable" }>, itemId: string): Promise<CartView>;
   clearCart(actor: Exclude<CartActor, { kind: "unavailable" }>): Promise<CartView>;
+  setAppliedCoupon(
+    actor: Exclude<CartActor, { kind: "unavailable" }>,
+    couponId: string
+  ): Promise<CartView>;
+  clearAppliedCoupon(actor: Exclude<CartActor, { kind: "unavailable" }>): Promise<CartView>;
   markCartConverted(cartId: string): Promise<void>;
 };
 
@@ -90,6 +96,22 @@ function createFallbackCartRepository(): CartRepository {
     async clearCart(actor) {
       const cart = getOrCreateFallbackCart(actor, fallbackCarts);
       cart.items = [];
+      cart.appliedCouponId = null;
+      cart.coupon = null;
+      cart.discountCents = 0;
+      cart.partialTotalCents = 0;
+      return recalculateFallbackCart(cart);
+    },
+    async setAppliedCoupon(actor, couponId) {
+      const cart = getOrCreateFallbackCart(actor, fallbackCarts);
+      cart.appliedCouponId = couponId;
+      return recalculateFallbackCart(cart);
+    },
+    async clearAppliedCoupon(actor) {
+      const cart = getOrCreateFallbackCart(actor, fallbackCarts);
+      cart.appliedCouponId = null;
+      cart.coupon = null;
+      cart.discountCents = 0;
       return recalculateFallbackCart(cart);
     },
     async markCartConverted(cartId) {
@@ -124,6 +146,7 @@ function createDrizzleCartRepository(): CartRepository {
           id: carts.id,
           userId: carts.userId,
           guestToken: carts.guestToken,
+          appliedCouponId: carts.appliedCouponId,
           status: carts.status,
           currency: carts.currency
         });
@@ -203,14 +226,49 @@ function createDrizzleCartRepository(): CartRepository {
         return cart;
       }
       await database.delete(cartItems).where(eq(cartItems.cartId, cart.id));
+      await database
+        .update(carts)
+        .set({ appliedCouponId: null, updatedAt: new Date() })
+        .where(eq(carts.id, cart.id));
       await touchCart(cart.id);
       return this.getActiveCart(actor);
     },
     async markCartConverted(cartId) {
       await database
         .update(carts)
-        .set({ status: "converted", convertedAt: new Date(), updatedAt: new Date() })
+        .set({
+          status: "converted",
+          appliedCouponId: null,
+          convertedAt: new Date(),
+          updatedAt: new Date()
+        })
         .where(eq(carts.id, cartId));
+    },
+    async setAppliedCoupon(actor, couponId) {
+      const cart = await this.getOrCreateActiveCart(actor);
+      if (cart.id === null) {
+        return cart;
+      }
+
+      await database
+        .update(carts)
+        .set({ appliedCouponId: couponId, updatedAt: new Date() })
+        .where(eq(carts.id, cart.id));
+
+      return this.getActiveCart(actor);
+    },
+    async clearAppliedCoupon(actor) {
+      const cart = await this.getOrCreateActiveCart(actor);
+      if (cart.id === null) {
+        return cart;
+      }
+
+      await database
+        .update(carts)
+        .set({ appliedCouponId: null, updatedAt: new Date() })
+        .where(eq(carts.id, cart.id));
+
+      return this.getActiveCart(actor);
     }
   };
 
@@ -225,6 +283,7 @@ function createDrizzleCartRepository(): CartRepository {
         id: carts.id,
         userId: carts.userId,
         guestToken: carts.guestToken,
+        appliedCouponId: carts.appliedCouponId,
         status: carts.status,
         currency: carts.currency
       })
@@ -289,6 +348,10 @@ function toCartView(
     currency: "BRL",
     items,
     subtotalCents: calculateCartSubtotalCents(items),
+    appliedCouponId: cart.appliedCouponId,
+    coupon: null,
+    discountCents: 0,
+    partialTotalCents: calculateCartSubtotalCents(items),
     persistence,
     messages: persistence === "dev_fallback" ? [runtimeMessages.cartFallbackNotPersisted] : []
   };
@@ -302,6 +365,10 @@ function emptyRealCart(actor: Exclude<CartActor, { kind: "unavailable" }>): Cart
     currency: "BRL",
     items: [],
     subtotalCents: 0,
+    appliedCouponId: null,
+    coupon: null,
+    discountCents: 0,
+    partialTotalCents: 0,
     persistence: "real",
     messages: []
   };
@@ -345,6 +412,7 @@ function getOrCreateFallbackCart(
 
 function recalculateFallbackCart(cart: CartView) {
   cart.subtotalCents = calculateCartSubtotalCents(cart.items);
+  cart.partialTotalCents = cart.subtotalCents - cart.discountCents;
   cart.messages = [runtimeMessages.cartFallbackNotPersisted];
   return cart;
 }

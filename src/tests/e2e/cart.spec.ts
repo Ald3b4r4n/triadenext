@@ -16,7 +16,7 @@ test("visitor can add a valid product in fallback mode", async ({ page }) => {
   await page.goto("/carrinho", { waitUntil: "commit" });
 
   await expect(page.getByText("Produto publicado de exemplo")).toBeVisible();
-  await expect(page.getByText("R$ 159,90", { exact: true })).toBeVisible();
+  await expect(page.getByText("Subtotal do item: R$ 159,90")).toBeVisible();
   await expect(page.getByText("Checkout indisponível")).toBeVisible();
 });
 
@@ -32,5 +32,5 @@ test("cart page continues to load without real database", async ({ page }) => {
   await page.goto("/carrinho", { waitUntil: "commit" });
 
   await expect(page.getByRole("heading", { name: "Resumo" })).toBeVisible();
-  await expect(page.getByText("Frete, cupom, pagamento e pedido ficam fora desta fase.")).toBeVisible();
+  await expect(page.getByText("Pagamento, frete real e pedido ficam fora desta fase.")).toBeVisible();
 });

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { formatMoney } from "@/lib/money";
+import { CartCouponPanel } from "./cart-coupon-panel";
 import {
   clearCartFormAction,
   removeCartItemFormAction,
@@ -66,7 +67,16 @@ export function CartView({ cart }: CartViewProps) {
           <span>Subtotal</span>
           <strong>{formatMoney(cart.subtotalCents)}</strong>
         </div>
-        <p className="muted">Frete, cupom, pagamento e pedido ficam fora desta fase.</p>
+        <div className="summary-row">
+          <span>Desconto</span>
+          <strong>-{formatMoney(cart.discountCents)}</strong>
+        </div>
+        <div className="summary-row summary-row--total">
+          <span>Total parcial</span>
+          <strong>{formatMoney(cart.partialTotalCents)}</strong>
+        </div>
+        <CartCouponPanel coupon={cart.coupon} />
+        <p className="muted">Pagamento, frete real e pedido ficam fora desta fase.</p>
         <button className="primary-action" type="button" disabled>
           Checkout indisponível
         </button>

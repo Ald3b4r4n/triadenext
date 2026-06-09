@@ -345,6 +345,49 @@ a {
   font-size: 18px;
 }
 
+.summary-row--total {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.coupon-panel {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+.coupon-panel h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.coupon-form {
+  display: grid;
+  gap: 10px;
+}
+
+.coupon-form button {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--foreground);
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
+.coupon-applied {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+}
+
 .cart-summary .primary-action {
   width: 100%;
   opacity: 0.65;

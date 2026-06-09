@@ -8,6 +8,10 @@ import {
   validatePurchasableProduct,
   validateQuantityForStock
 } from "../domain";
+import {
+  calculateAppliedCoupon,
+  validateCouponForCart
+} from "@/features/coupons/server/coupon-service";
 import type { CartActionResult, CartActor, CartItem, CartView } from "../types";
 import { createCartRepository } from "./cart-repository";
 import { resolveCartActor } from "./cart-session";
@@ -21,7 +25,7 @@ export async function getActiveCart(): Promise<CartActionResult> {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
   }
 
-  return toResult(await cartRepository.getActiveCart(actor));
+  return toResult(await recalculateCartForActor(actor, await cartRepository.getActiveCart(actor)));
 }
 
 export async function addItemToCart(input: { productId: string; quantity: number }): Promise<CartActionResult> {
@@ -57,12 +61,12 @@ export async function addItemToCart(input: { productId: string; quantity: number
   }
 
   return toResult(
-    await cartRepository.addItem(actor, {
+    await recalculateCartForActor(actor, await cartRepository.addItem(actor, {
       productId: productValidation.product.id,
       productNameSnapshot: productValidation.product.name,
       unitPriceSnapshotCents: productValidation.product.priceCents,
       quantity: input.quantity
-    })
+    }))
   );
 }
 
@@ -109,7 +113,7 @@ export async function updateCartItemQuantity(input: {
     return { status: "forbidden", message: runtimeMessages.cartForbidden };
   }
 
-  return toResult(updated);
+  return toResult(await recalculateCartForActor(actor, updated));
 }
 
 export async function removeCartItem(itemId: string): Promise<CartActionResult> {
@@ -118,7 +122,7 @@ export async function removeCartItem(itemId: string): Promise<CartActionResult> 
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
   }
 
-  return toResult(await cartRepository.removeItem(actor, itemId));
+  return toResult(await recalculateCartForActor(actor, await cartRepository.removeItem(actor, itemId)));
 }
 
 export async function clearActiveCart(): Promise<CartActionResult> {
@@ -127,7 +131,38 @@ export async function clearActiveCart(): Promise<CartActionResult> {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
   }
 
-  return toResult(await cartRepository.clearCart(actor));
+  return toResult(await recalculateCartForActor(actor, await cartRepository.clearCart(actor)));
+}
+
+export async function applyCouponToActiveCart(code: string): Promise<CartActionResult> {
+  const actor = await resolveCartActor({ createGuestToken: true });
+  if (actor.kind === "unavailable") {
+    return { status: "unavailable", message: runtimeMessages.cartUnavailable };
+  }
+
+  const cart = await recalculateCartView(await cartRepository.getOrCreateActiveCart(actor));
+  const validation = await validateCouponForCart({ code, subtotalCents: cart.subtotalCents });
+
+  if (validation.status !== "valid") {
+    return {
+      status: "coupon_invalid",
+      message: validation.message,
+      cart
+    };
+  }
+
+  const updated = await cartRepository.setAppliedCoupon(actor, validation.coupon.id);
+  return toResult(await recalculateCartForActor(actor, updated));
+}
+
+export async function removeCouponFromActiveCart(): Promise<CartActionResult> {
+  const actor = await resolveCartActor();
+  if (actor.kind === "unavailable") {
+    return { status: "unavailable", message: runtimeMessages.cartUnavailable };
+  }
+
+  const updated = await cartRepository.clearAppliedCoupon(actor);
+  return toResult(await recalculateCartForActor(actor, updated));
 }
 
 export async function mergeGuestCartIntoUser(input: {
@@ -142,8 +177,9 @@ export async function mergeGuestCartIntoUser(input: {
   const userActor: CartActor = { kind: "authenticated", userId: input.userId, role: "customer" };
 
   const guestCart = await cartRepository.getActiveCart(guestActor);
+  const guestCouponId = guestCart.appliedCouponId;
   if (guestCart.id === null || guestCart.items.length === 0) {
-    return toResult(await cartRepository.getOrCreateActiveCart(userActor));
+    return toResult(await recalculateCartForActor(userActor, await cartRepository.getOrCreateActiveCart(userActor)));
   }
 
   await cartRepository.getOrCreateActiveCart(userActor);
@@ -182,8 +218,13 @@ export async function mergeGuestCartIntoUser(input: {
     await cartRepository.markCartConverted(guestCart.id);
   }
 
-  const merged = await cartRepository.getActiveCart(userActor);
-  return toResult({ ...merged, messages: [...merged.messages, ...warnings] });
+  let merged = await cartRepository.getActiveCart(userActor);
+  if (guestCouponId && merged.appliedCouponId === null) {
+    merged = await cartRepository.setAppliedCoupon(userActor, guestCouponId);
+  }
+
+  const recalculated = await recalculateCartForActor(userActor, merged);
+  return toResult({ ...recalculated, messages: [...recalculated.messages, ...warnings] });
 }
 
 export async function recalculateCartView(cart: CartView): Promise<CartView> {
@@ -206,7 +247,52 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
     items.push(item);
   }
 
-  return { ...cart, items, subtotalCents: calculateCartSubtotalCents(items), messages };
+  const subtotalCents = calculateCartSubtotalCents(items);
+  if (cart.appliedCouponId === null) {
+    return {
+      ...cart,
+      items,
+      subtotalCents,
+      coupon: null,
+      discountCents: 0,
+      partialTotalCents: subtotalCents,
+      messages
+    };
+  }
+
+  const couponCalculation = await calculateAppliedCoupon({
+    couponId: cart.appliedCouponId,
+    subtotalCents
+  });
+
+  return {
+    ...cart,
+    items,
+    subtotalCents,
+    coupon: couponCalculation.coupon,
+    discountCents: couponCalculation.discountCents,
+    partialTotalCents: couponCalculation.partialTotalCents,
+    messages: [...messages, ...couponCalculation.messages]
+  };
+}
+
+async function recalculateCartForActor(
+  actor: Exclude<CartActor, { kind: "unavailable" }>,
+  cart: CartView
+) {
+  const recalculated = await recalculateCartView(cart);
+  const hasInvalidAppliedCoupon =
+    cart.appliedCouponId !== null && recalculated.discountCents === 0 && recalculated.messages.length > cart.messages.length;
+
+  if (hasInvalidAppliedCoupon) {
+    const cleared = await cartRepository.clearAppliedCoupon(actor);
+    return {
+      ...(await recalculateCartView(cleared)),
+      messages: recalculated.messages
+    };
+  }
+
+  return recalculated;
 }
 
 function toResult(cart: CartView): CartActionResult {

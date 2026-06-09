@@ -15,3 +15,7 @@ export const updateCartItemQuantitySchema = z.object({
 export const removeCartItemSchema = z.object({
   itemId: idSchema
 });
+
+export const applyCouponToCartSchema = z.object({
+  code: z.string().trim().min(1, "Codigo obrigatorio.").max(64, "Codigo muito longo.")
+});

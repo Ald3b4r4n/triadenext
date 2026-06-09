@@ -308,6 +308,7 @@ export const carts = pgTable(
     userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
     guestToken: text("guest_token"),
     sessionId: text("session_id"),
+    appliedCouponId: uuid("applied_coupon_id").references(() => coupons.id, { onDelete: "set null" }),
     status: cartStatus("status").notNull().default("active"),
     currency: text("currency").notNull().default("BRL"),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
@@ -318,7 +319,8 @@ export const carts = pgTable(
   (table) => ({
     userStatusIdx: index("carts_user_status_idx").on(table.userId, table.status),
     guestStatusIdx: index("carts_guest_status_idx").on(table.guestToken, table.status),
-    sessionStatusIdx: index("carts_session_status_idx").on(table.sessionId, table.status)
+    sessionStatusIdx: index("carts_session_status_idx").on(table.sessionId, table.status),
+    appliedCouponIdx: index("carts_applied_coupon_id_idx").on(table.appliedCouponId)
   })
 );
 
@@ -348,19 +350,31 @@ export const cartItems = pgTable(
   })
 );
 
-export const coupons = pgTable("coupons", {
-  id: idColumn(),
-  code: text("code").notNull(),
-  type: couponType("type").notNull(),
-  value: numeric("value", { precision: 12, scale: 2 }).notNull(),
-  startsAt: timestamp("starts_at", { withTimezone: true }),
-  endsAt: timestamp("ends_at", { withTimezone: true }),
-  maxUses: integer("max_uses"),
-  usedCount: integer("used_count").notNull().default(0),
-  isActive: boolean("is_active").notNull().default(true),
-  createdAt: createdAtColumn(),
-  updatedAt: updatedAtColumn()
-});
+export const coupons = pgTable(
+  "coupons",
+  {
+    id: idColumn(),
+    code: text("code").notNull(),
+    type: couponType("type").notNull(),
+    value: numeric("value", { precision: 12, scale: 2 }).notNull(),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    maxUses: integer("max_uses"),
+    usedCount: integer("used_count").notNull().default(0),
+    minimumSubtotalCents: integer("minimum_subtotal_cents"),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    codeUnique: uniqueIndex("coupons_code_unique").on(table.code),
+    activeWindowIdx: index("coupons_active_window_idx").on(
+      table.isActive,
+      table.startsAt,
+      table.endsAt
+    )
+  })
+);
 
 export const shippingRules = pgTable("shipping_rules", {
   id: idColumn(),

@@ -49,3 +49,22 @@ Ao fazer login com `guestCartToken`, o carrinho anonimo e mesclado ao carrinho a
 
 Checkout, pagamento, Stripe, frete, cupom, criacao de pedido, reserva de estoque e baixa de estoque
 continuam fora da Fase 5. O CTA de checkout permanece indisponivel.
+
+## Fase 6 — Cupons no carrinho
+
+O carrinho passa a aceitar um cupom aplicado por vez:
+
+- código normalizado no servidor;
+- cupom percentual ou valor fixo;
+- desconto e total parcial calculados em centavos;
+- subtotal mínimo validado quando existir;
+- cupom inativo, futuro, expirado ou esgotado bloqueado;
+- `usedCount` consultado, mas não consumido no carrinho;
+- `free_shipping` apenas preparado, sem frete real.
+
+No legado, o cupom aplicado era mantido em sessão (`cart_coupon_code`). No Next, com banco real, a
+referência do cupom fica persistida no carrinho. Essa divergência é intencional para preservar a
+experiência do carrinho autenticado entre sessões/dispositivos.
+
+Checkout, pagamento, frete real, pedido, reserva/baixa de estoque, cupom acumulativo, limite por
+usuário e restrição por produto/categoria continuam fora de escopo.

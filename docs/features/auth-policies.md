@@ -38,3 +38,12 @@ convertido.
 Admin e manager podem usar carrinho como usuarios autenticados normais, mas nao recebem bypass de
 estoque, disponibilidade, checkout, frete, cupom ou pedido. O ownership do carrinho autenticado e
 sempre resolvido no servidor.
+
+## Fase 6 — Cupons
+
+O admin mínimo de cupons usa `requireAdminLike` em rotas/actions administrativas. Customer e
+visitante não podem listar, criar ou editar cupons.
+
+No carrinho, admin e manager continuam sem privilégio especial: não podem forçar desconto, ignorar
+validade do cupom, burlar subtotal mínimo, consumir `usedCount` manualmente ou aplicar benefício
+real de frete grátis.

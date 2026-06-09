@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/003-fase-5-carrinho",
-  "feature-id": "003",
-  "short-name": "fase-5-carrinho",
-  "started-at": "2026-06-08T18:09:02-03:00",
+  "feature-dir": "_reversa_forward/004-fase-6-cupons-descontos",
+  "feature-id": "004",
+  "short-name": "fase-6-cupons-descontos",
+  "started-at": "2026-06-08T21:36:42-03:00",
   "current-stage": "coding",
   "stages-completed": [
     "requirements",
@@ -11,7 +11,6 @@
     "quality",
     "plan",
     "to-do",
-    "audit",
     "coding"
   ],
   "paused-features": []
