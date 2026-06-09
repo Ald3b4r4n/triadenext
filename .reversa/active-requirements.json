@@ -1,17 +1,16 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/004-fase-6-cupons-descontos",
-  "feature-id": "004",
-  "short-name": "fase-6-cupons-descontos",
-  "started-at": "2026-06-08T21:36:42-03:00",
-  "current-stage": "coding",
+  "feature-dir": "_reversa_forward/005-fase-7-frete-cotacoes",
+  "feature-id": "005",
+  "short-name": "fase-7-frete-cotacoes",
+  "started-at": "2026-06-09T13:34:33-03:00",
+  "current-stage": "to-do",
   "stages-completed": [
     "requirements",
     "clarify",
     "quality",
     "plan",
-    "to-do",
-    "coding"
+    "to-do"
   ],
   "paused-features": []
 }

@@ -16,7 +16,13 @@ export default async function CarrinhoPage() {
           appliedCouponId: null,
           coupon: null,
           discountCents: 0,
+          shippingPostalCode: null,
+          shippingQuoteId: null,
+          shippingQuote: null,
+          shippingOptions: [],
+          shippingAmountCents: 0,
           partialTotalCents: 0,
+          partialTotalWithShippingCents: 0,
           persistence: "unavailable" as const,
           messages: [result.message]
         };

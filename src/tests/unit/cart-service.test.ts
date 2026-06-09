@@ -102,13 +102,13 @@ describe("cart service", () => {
     expect(removeResult.status === "fallback" && removeResult.cart.discountCents).toBe(0);
   });
 
-  it("blocks unavailable coupon types and subtotal minimum", async () => {
+  it("accepts free shipping coupons and blocks subtotal minimum", async () => {
     resolveCartActorMock.mockResolvedValue({ kind: "guest", guestToken: "guest-coupon-blocked" });
 
     await addItemToCart({ productId: "prod-example-published", quantity: 1 });
 
     await expect(applyCouponToActiveCart("FRETEGRATIS")).resolves.toMatchObject({
-      status: "coupon_invalid"
+      status: "fallback"
     });
     await expect(applyCouponToActiveCart("MINIMO200")).resolves.toMatchObject({
       status: "coupon_invalid"

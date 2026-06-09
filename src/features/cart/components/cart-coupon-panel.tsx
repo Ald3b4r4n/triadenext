@@ -75,7 +75,7 @@ export function CartCouponPanel({ coupon }: CartCouponPanelProps) {
         </p>
       ) : null}
       <p className="muted">
-        Frete grátis está apenas preparado: esta fase não calcula nem zera frete real.
+        Frete grátis pode zerar apenas o frete manual elegível.
       </p>
     </div>
   );

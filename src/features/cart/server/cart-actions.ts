@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import {
   addCartItemSchema,
   applyCouponToCartSchema,
+  quoteShippingSchema,
   removeCartItemSchema,
+  selectShippingOptionSchema,
   updateCartItemQuantitySchema
 } from "../schemas";
 import type { CartActionResult } from "../types";
@@ -13,8 +15,11 @@ import {
   applyCouponToActiveCart,
   clearActiveCart,
   getActiveCart,
+  quoteShippingForActiveCart,
   removeCouponFromActiveCart,
   removeCartItem,
+  removeShippingSelectionFromActiveCart,
+  selectShippingOptionForActiveCart,
   updateCartItemQuantity
 } from "./cart-service";
 
@@ -22,6 +27,8 @@ export type CartCouponActionState = {
   status: "idle" | "success" | "error";
   message: string;
 };
+
+export type CartShippingActionState = CartCouponActionState;
 
 export async function getActiveCartAction() {
   return getActiveCart();
@@ -134,9 +141,7 @@ export async function removeCouponFormAction(): Promise<void> {
   await removeCouponAction();
 }
 
-export async function removeCouponStateAction(
-  previousState: CartCouponActionState
-): Promise<CartCouponActionState> {
+export async function removeCouponStateAction(previousState: CartCouponActionState): Promise<CartCouponActionState> {
   void previousState;
   const result = await removeCouponAction();
 
@@ -144,6 +149,95 @@ export async function removeCouponStateAction(
     return { status: "success", message: "Cupom removido do carrinho." };
   }
 
+  return { status: "error", message: result.message };
+}
+
+export async function quoteShippingAction(formData: FormData): Promise<CartActionResult> {
+  const parsed = quoteShippingSchema.safeParse({
+    postalCode: formData.get("postalCode")
+  });
+
+  if (!parsed.success) {
+    return { status: "validation_error", message: "CEP invalido." };
+  }
+
+  const result = await quoteShippingForActiveCart(parsed.data);
+  revalidateCartPaths();
+  return result;
+}
+
+export async function quoteShippingFormAction(formData: FormData): Promise<void> {
+  await quoteShippingAction(formData);
+}
+
+export async function quoteShippingStateAction(
+  _previousState: CartShippingActionState,
+  formData: FormData
+): Promise<CartShippingActionState> {
+  const result = await quoteShippingAction(formData);
+  if (result.status === "success" || result.status === "fallback") {
+    return { status: "success", message: "Cotacao de frete calculada." };
+  }
+  return { status: "error", message: result.message };
+}
+
+export async function selectShippingOptionAction(formData: FormData): Promise<CartActionResult> {
+  const parsed = selectShippingOptionSchema.safeParse({
+    quoteId: formData.get("quoteId"),
+    optionId: formData.get("optionId"),
+    postalCode: formData.get("postalCode")
+  });
+
+  if (!parsed.success) {
+    return { status: "validation_error", message: "Selecao de frete invalida." };
+  }
+
+  const result = await selectShippingOptionForActiveCart(parsed.data);
+  revalidateCartPaths();
+  return result;
+}
+
+export async function selectShippingOptionFormAction(formData: FormData): Promise<void> {
+  await selectShippingOptionAction(formData);
+}
+
+export async function selectShippingOptionStateAction(
+  _previousState: CartShippingActionState,
+  formData: FormData
+): Promise<CartShippingActionState> {
+  const result = await selectShippingOptionAction(formData);
+  if (result.status === "success" || result.status === "fallback") {
+    return { status: "success", message: "Frete selecionado." };
+  }
+  return { status: "error", message: result.message };
+}
+
+export async function removeShippingSelectionAction(formData: FormData): Promise<CartActionResult> {
+  const parsed = selectShippingOptionSchema.pick({ quoteId: true }).safeParse({
+    quoteId: formData.get("quoteId")
+  });
+
+  if (!parsed.success) {
+    return { status: "validation_error", message: "Selecao de frete invalida." };
+  }
+
+  const result = await removeShippingSelectionFromActiveCart();
+  revalidateCartPaths();
+  return result;
+}
+
+export async function removeShippingSelectionFormAction(formData: FormData): Promise<void> {
+  await removeShippingSelectionAction(formData);
+}
+
+export async function removeShippingSelectionStateAction(
+  _previousState: CartShippingActionState,
+  formData: FormData
+): Promise<CartShippingActionState> {
+  const result = await removeShippingSelectionAction(formData);
+  if (result.status === "success" || result.status === "fallback") {
+    return { status: "success", message: "Frete removido." };
+  }
   return { status: "error", message: result.message };
 }
 

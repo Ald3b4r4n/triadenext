@@ -180,6 +180,14 @@ a {
   grid-template-columns: minmax(220px, 1fr) minmax(160px, 240px) 120px;
 }
 
+.admin-table__row--coupons {
+  grid-template-columns: minmax(220px, 1fr) 140px 100px 120px 100px;
+}
+
+.admin-table__row--shipping {
+  grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px) 120px 100px 100px;
+}
+
 .admin-table__row:first-child {
   border-top: 0;
 }
@@ -356,6 +364,35 @@ a {
   border-top: 1px solid var(--border);
   margin-top: 18px;
   padding-top: 18px;
+}
+
+.shipping-panel {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+.shipping-panel h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.shipping-form,
+.shipping-options {
+  display: grid;
+  gap: 10px;
+}
+
+.shipping-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
 }
 
 .coupon-panel h3 {

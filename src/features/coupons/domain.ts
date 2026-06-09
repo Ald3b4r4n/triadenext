@@ -98,16 +98,6 @@ export function validateCouponForSubtotal(
     };
   }
 
-  if (coupon.type === "free_shipping") {
-    return {
-      status: "invalid",
-      code: "coupon_type_unavailable",
-      message:
-        "Cupom de frete gratis esta preparado, mas nao aplica frete real nesta fase.",
-      coupon
-    };
-  }
-
   return { status: "valid", coupon, messages: [] };
 }
 

@@ -48,7 +48,7 @@ Ao fazer login com `guestCartToken`, o carrinho anonimo e mesclado ao carrinho a
 ## Fora de escopo
 
 Checkout, pagamento, Stripe, frete, cupom, criacao de pedido, reserva de estoque e baixa de estoque
-continuam fora da Fase 5. O CTA de checkout permanece indisponivel.
+continuavam fora da Fase 5. O CTA de checkout permanece indisponivel.
 
 ## Fase 6 — Cupons no carrinho
 
@@ -60,11 +60,24 @@ O carrinho passa a aceitar um cupom aplicado por vez:
 - subtotal mínimo validado quando existir;
 - cupom inativo, futuro, expirado ou esgotado bloqueado;
 - `usedCount` consultado, mas não consumido no carrinho;
-- `free_shipping` apenas preparado, sem frete real.
+- `free_shipping` passa a zerar frete manual elegivel a partir da Fase 7.
 
 No legado, o cupom aplicado era mantido em sessão (`cart_coupon_code`). No Next, com banco real, a
 referência do cupom fica persistida no carrinho. Essa divergência é intencional para preservar a
 experiência do carrinho autenticado entre sessões/dispositivos.
 
-Checkout, pagamento, frete real, pedido, reserva/baixa de estoque, cupom acumulativo, limite por
-usuário e restrição por produto/categoria continuam fora de escopo.
+Checkout, pagamento, provider externo real, pedido, reserva/baixa de estoque, cupom acumulativo,
+limite por usuário e restrição por produto/categoria continuam fora de escopo.
+
+## Fase 7 — Frete manual
+
+O carrinho passa a cotar frete manual por CEP. A selecao fica vinculada ao carrinho atual, e payloads
+de cliente com valor de frete, total, owner ou `cartId` nao sao fonte confiavel. A selecao e
+invalidada quando itens mudam.
+
+Novos campos de visao:
+
+- `shippingAmountCents`;
+- `shippingPostalCode`;
+- `shippingQuoteId`;
+- `partialTotalWithShippingCents`.

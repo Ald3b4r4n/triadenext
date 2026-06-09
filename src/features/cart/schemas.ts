@@ -19,3 +19,19 @@ export const removeCartItemSchema = z.object({
 export const applyCouponToCartSchema = z.object({
   code: z.string().trim().min(1, "Codigo obrigatorio.").max(64, "Codigo muito longo.")
 });
+
+const postalCodeSchema = z
+  .string()
+  .trim()
+  .min(8, "CEP invalido.")
+  .max(9, "CEP invalido.");
+
+export const quoteShippingSchema = z.object({
+  postalCode: postalCodeSchema
+});
+
+export const selectShippingOptionSchema = z.object({
+  quoteId: z.string().trim().min(1, "Cotacao obrigatoria."),
+  optionId: z.string().trim().min(1, "Opcao obrigatoria."),
+  postalCode: postalCodeSchema
+});

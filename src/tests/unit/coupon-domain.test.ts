@@ -57,12 +57,13 @@ describe("coupon domain", () => {
     expect(calculateCouponDiscountCents(coupon({ type: "fixed_amount", value: 5000 }), 3000)).toBe(3000);
   });
 
-  it("keeps free shipping prepared without real freight benefit", () => {
+  it("keeps free shipping valid while leaving item discount untouched", () => {
     const calculation = calculateCartCoupon(coupon({ type: "free_shipping", value: 0 }), 15990, now);
 
     expect(calculation.discountCents).toBe(0);
     expect(calculation.partialTotalCents).toBe(15990);
-    expect(calculation.messages[0]).toContain("nao aplica frete real");
+    expect(calculation.coupon?.type).toBe("free_shipping");
+    expect(calculation.messages).toEqual([]);
   });
 });
 

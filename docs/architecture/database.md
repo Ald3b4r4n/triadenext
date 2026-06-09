@@ -124,4 +124,21 @@ Mapeamento legado documentado:
 - `percent` -> `percentage`;
 - `fixed` -> `fixed_amount`.
 
-`free_shipping` fica modelado, mas nao aplica benefício real de frete antes da fase de frete.
+`free_shipping` fica modelado e passa a aplicar beneficio de frete manual na Fase 7.
+
+## Fase 7 — Frete manual
+
+Frete manual passa a ser operacional no carrinho, sem checkout/pagamento/pedido.
+
+Delta local gerado:
+
+- `shipping_quotes`: cotacao por carrinho, CEP, hash dos itens, opcoes JSON e expiracao.
+- `carts.shipping_postal_code`: CEP normalizado da cotacao selecionada.
+- `carts.selected_shipping_quote_id`: referencia da cotacao selecionada.
+- `carts.selected_shipping_option`: preparo JSON para detalhe da opcao selecionada.
+- `carts.shipping_amount_cents`: valor de frete em centavos.
+- `shipping_rules.uf`, `postal_code_start`, `postal_code_end`, `price_cents` e `priority`.
+
+Migration local: `drizzle/0004_mute_ghost_rider.sql`.
+
+Essa migration foi gerada localmente. Nao foi aplicada contra banco real nesta etapa.

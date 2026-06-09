@@ -32,5 +32,5 @@ test("cart page continues to load without real database", async ({ page }) => {
   await page.goto("/carrinho", { waitUntil: "commit" });
 
   await expect(page.getByRole("heading", { name: "Resumo" })).toBeVisible();
-  await expect(page.getByText("Pagamento, frete real e pedido ficam fora desta fase.")).toBeVisible();
+  await expect(page.getByText("Pagamento, checkout e pedido ficam fora desta fase.")).toBeVisible();
 });

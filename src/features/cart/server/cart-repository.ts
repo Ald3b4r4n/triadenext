@@ -6,12 +6,17 @@ import { cartItems, carts } from "@/db/schema";
 import { runtimeMessages } from "@/lib/runtime-mode";
 import { calculateCartSubtotalCents, toCartItemSubtotal } from "../domain";
 import type { CartActor, CartItem, CartView } from "../types";
+import type { ShippingOption, ShippingQuote } from "@/features/shipping/types";
+import { createShippingRepository } from "@/features/shipping/server/shipping-repository";
 
 type CartRow = {
   id: string;
   userId: string | null;
   guestToken: string | null;
   appliedCouponId: string | null;
+  shippingPostalCode: string | null;
+  selectedShippingQuoteId: string | null;
+  shippingAmountCents: number;
   status: "active" | "converted" | "abandoned" | "expired";
   currency: string;
 };
@@ -35,26 +40,34 @@ export type CartRepository = {
     couponId: string
   ): Promise<CartView>;
   clearAppliedCoupon(actor: Exclude<CartActor, { kind: "unavailable" }>): Promise<CartView>;
+  setShippingSelection(
+    actor: Exclude<CartActor, { kind: "unavailable" }>,
+    input: {
+      postalCode: string;
+      quoteId: string;
+      quote: ShippingQuote;
+      option: ShippingOption;
+    }
+  ): Promise<CartView>;
+  clearShippingSelection(actor: Exclude<CartActor, { kind: "unavailable" }>): Promise<CartView>;
   markCartConverted(cartId: string): Promise<void>;
 };
 
 export function createCartRepository(): CartRepository {
-  if (db === null) {
-    return createFallbackCartRepository();
-  }
-
-  return createDrizzleCartRepository();
+  return db === null ? createFallbackCartRepository() : createDrizzleCartRepository();
 }
+
+const shippingRepository = createShippingRepository();
 
 function createFallbackCartRepository(): CartRepository {
   const fallbackCarts = getFallbackStore();
 
   return {
     async getOrCreateActiveCart(actor) {
-      return getOrCreateFallbackCart(actor, fallbackCarts);
+      return hydrateCartView(getOrCreateFallbackCart(actor, fallbackCarts));
     },
     async getActiveCart(actor) {
-      return getFallbackCart(actor, fallbackCarts) ?? emptyFallbackCart(actor);
+      return hydrateCartView(getFallbackCart(actor, fallbackCarts) ?? emptyFallbackCart(actor));
     },
     async addItem(actor, item) {
       const cart = getOrCreateFallbackCart(actor, fallbackCarts);
@@ -73,6 +86,7 @@ function createFallbackCartRepository(): CartRepository {
           })
         );
       }
+      clearShippingSelectionState(cart);
       return recalculateFallbackCart(cart);
     },
     async updateItemQuantity(actor, itemId, quantity) {
@@ -86,11 +100,13 @@ function createFallbackCartRepository(): CartRepository {
       }
       item.quantity = quantity;
       item.itemSubtotalCents = item.unitPriceSnapshotCents * quantity;
+      clearShippingSelectionState(cart);
       return recalculateFallbackCart(cart);
     },
     async removeItem(actor, itemId) {
       const cart = getOrCreateFallbackCart(actor, fallbackCarts);
       cart.items = cart.items.filter((item) => item.id !== itemId);
+      clearShippingSelectionState(cart);
       return recalculateFallbackCart(cart);
     },
     async clearCart(actor) {
@@ -99,7 +115,7 @@ function createFallbackCartRepository(): CartRepository {
       cart.appliedCouponId = null;
       cart.coupon = null;
       cart.discountCents = 0;
-      cart.partialTotalCents = 0;
+      clearShippingSelectionState(cart);
       return recalculateFallbackCart(cart);
     },
     async setAppliedCoupon(actor, couponId) {
@@ -114,11 +130,26 @@ function createFallbackCartRepository(): CartRepository {
       cart.discountCents = 0;
       return recalculateFallbackCart(cart);
     },
+    async setShippingSelection(actor, input) {
+      const cart = getOrCreateFallbackCart(actor, fallbackCarts);
+      cart.shippingPostalCode = input.postalCode;
+      cart.shippingQuoteId = input.quoteId;
+      cart.shippingQuote = input.quote;
+      cart.shippingOptions = input.quote.options;
+      cart.shippingAmountCents = input.option.priceCents;
+      return recalculateFallbackCart(cart);
+    },
+    async clearShippingSelection(actor) {
+      const cart = getOrCreateFallbackCart(actor, fallbackCarts);
+      clearShippingSelectionState(cart);
+      return recalculateFallbackCart(cart);
+    },
     async markCartConverted(cartId) {
       for (const cart of fallbackCarts.values()) {
         if (cart.id === cartId) {
           cart.status = "converted";
           cart.items = [];
+          clearShippingSelectionState(cart);
         }
       }
     }
@@ -147,18 +178,21 @@ function createDrizzleCartRepository(): CartRepository {
           userId: carts.userId,
           guestToken: carts.guestToken,
           appliedCouponId: carts.appliedCouponId,
+          shippingPostalCode: carts.shippingPostalCode,
+          selectedShippingQuoteId: carts.selectedShippingQuoteId,
+          shippingAmountCents: carts.shippingAmountCents,
           status: carts.status,
           currency: carts.currency
         });
 
-      return toCartView(created, [], "real");
+      return hydrateCartView(toCartView(created, [], "real"));
     },
     async getActiveCart(actor) {
       const active = await findActiveCart(actor);
       if (!active) {
         return emptyRealCart(actor);
       }
-      return toCartView(active, await listCartItems(active.id), "real");
+      return hydrateCartView(toCartView(active, await listCartItems(active.id), "real"));
     },
     async addItem(actor, item) {
       const cart = await this.getOrCreateActiveCart(actor);
@@ -189,6 +223,7 @@ function createDrizzleCartRepository(): CartRepository {
         });
       }
 
+      await clearShippingSelectionInDb(cart.id);
       await touchCart(cart.id);
       return this.getActiveCart(actor);
     },
@@ -208,6 +243,7 @@ function createDrizzleCartRepository(): CartRepository {
         return null;
       }
 
+      await clearShippingSelectionInDb(cart.id);
       await touchCart(cart.id);
       return this.getActiveCart(actor);
     },
@@ -217,6 +253,7 @@ function createDrizzleCartRepository(): CartRepository {
         return cart;
       }
       await database.delete(cartItems).where(and(eq(cartItems.cartId, cart.id), eq(cartItems.id, itemId)));
+      await clearShippingSelectionInDb(cart.id);
       await touchCart(cart.id);
       return this.getActiveCart(actor);
     },
@@ -228,7 +265,13 @@ function createDrizzleCartRepository(): CartRepository {
       await database.delete(cartItems).where(eq(cartItems.cartId, cart.id));
       await database
         .update(carts)
-        .set({ appliedCouponId: null, updatedAt: new Date() })
+        .set({
+          appliedCouponId: null,
+          shippingPostalCode: null,
+          selectedShippingQuoteId: null,
+          shippingAmountCents: 0,
+          updatedAt: new Date()
+        })
         .where(eq(carts.id, cart.id));
       await touchCart(cart.id);
       return this.getActiveCart(actor);
@@ -239,6 +282,9 @@ function createDrizzleCartRepository(): CartRepository {
         .set({
           status: "converted",
           appliedCouponId: null,
+          shippingPostalCode: null,
+          selectedShippingQuoteId: null,
+          shippingAmountCents: 0,
           convertedAt: new Date(),
           updatedAt: new Date()
         })
@@ -269,6 +315,33 @@ function createDrizzleCartRepository(): CartRepository {
         .where(eq(carts.id, cart.id));
 
       return this.getActiveCart(actor);
+    },
+    async setShippingSelection(actor, input) {
+      const cart = await this.getOrCreateActiveCart(actor);
+      if (cart.id === null) {
+        return cart;
+      }
+
+      await database
+        .update(carts)
+        .set({
+          shippingPostalCode: input.postalCode,
+          selectedShippingQuoteId: input.quoteId,
+          shippingAmountCents: input.option.priceCents,
+          updatedAt: new Date()
+        })
+        .where(eq(carts.id, cart.id));
+
+      return this.getActiveCart(actor);
+    },
+    async clearShippingSelection(actor) {
+      const cart = await this.getOrCreateActiveCart(actor);
+      if (cart.id === null) {
+        return cart;
+      }
+
+      await clearShippingSelectionInDb(cart.id);
+      return this.getActiveCart(actor);
     }
   };
 
@@ -284,6 +357,9 @@ function createDrizzleCartRepository(): CartRepository {
         userId: carts.userId,
         guestToken: carts.guestToken,
         appliedCouponId: carts.appliedCouponId,
+        shippingPostalCode: carts.shippingPostalCode,
+        selectedShippingQuoteId: carts.selectedShippingQuoteId,
+        shippingAmountCents: carts.shippingAmountCents,
         status: carts.status,
         currency: carts.currency
       })
@@ -310,6 +386,18 @@ function createDrizzleCartRepository(): CartRepository {
   async function touchCart(cartId: string) {
     await database.update(carts).set({ updatedAt: new Date() }).where(eq(carts.id, cartId));
   }
+
+  async function clearShippingSelectionInDb(cartId: string) {
+    await database
+      .update(carts)
+      .set({
+        shippingPostalCode: null,
+        selectedShippingQuoteId: null,
+        shippingAmountCents: 0,
+        updatedAt: new Date()
+      })
+      .where(eq(carts.id, cartId));
+  }
 }
 
 function toCartInsert(actor: Exclude<CartActor, { kind: "unavailable" }>) {
@@ -319,7 +407,8 @@ function toCartInsert(actor: Exclude<CartActor, { kind: "unavailable" }>) {
       guestToken: null,
       sessionId: null,
       status: "active" as const,
-      currency: "BRL"
+      currency: "BRL",
+      shippingAmountCents: 0
     };
   }
 
@@ -329,7 +418,8 @@ function toCartInsert(actor: Exclude<CartActor, { kind: "unavailable" }>) {
     sessionId: actor.guestToken,
     status: "active" as const,
     currency: "BRL",
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    shippingAmountCents: 0
   };
 }
 
@@ -338,6 +428,7 @@ function toCartView(
   items: CartItem[],
   persistence: "real" | "dev_fallback"
 ): CartView {
+  const subtotalCents = calculateCartSubtotalCents(items);
   return {
     id: cart.id,
     status: cart.status,
@@ -347,13 +438,41 @@ function toCartView(
         : { kind: "guest", guestTokenPresent: true },
     currency: "BRL",
     items,
-    subtotalCents: calculateCartSubtotalCents(items),
+    subtotalCents,
     appliedCouponId: cart.appliedCouponId,
     coupon: null,
     discountCents: 0,
-    partialTotalCents: calculateCartSubtotalCents(items),
+    shippingPostalCode: cart.shippingPostalCode,
+    shippingQuoteId: cart.selectedShippingQuoteId,
+    shippingQuote: null,
+    shippingOptions: [],
+    shippingAmountCents: cart.shippingAmountCents,
+    partialTotalCents: subtotalCents,
+    partialTotalWithShippingCents: subtotalCents + cart.shippingAmountCents,
     persistence,
     messages: persistence === "dev_fallback" ? [runtimeMessages.cartFallbackNotPersisted] : []
+  };
+}
+
+async function hydrateCartView(cart: CartView) {
+  if (!cart.shippingQuoteId) {
+    return cart;
+  }
+
+  const quote = await shippingRepository.findQuoteById(cart.shippingQuoteId);
+  if (!quote) {
+    return cart;
+  }
+
+  return {
+    ...cart,
+    shippingQuote: quote,
+    shippingOptions: quote.options,
+    shippingAmountCents:
+      quote.selectedOptionId && quote.options.some((option) => option.id === quote.selectedOptionId)
+        ? quote.options.find((option) => option.id === quote.selectedOptionId)?.priceCents ?? cart.shippingAmountCents
+        : cart.shippingAmountCents,
+    partialTotalWithShippingCents: cart.partialTotalCents + cart.shippingAmountCents
   };
 }
 
@@ -368,7 +487,13 @@ function emptyRealCart(actor: Exclude<CartActor, { kind: "unavailable" }>): Cart
     appliedCouponId: null,
     coupon: null,
     discountCents: 0,
+    shippingPostalCode: null,
+    shippingQuoteId: null,
+    shippingQuote: null,
+    shippingOptions: [],
+    shippingAmountCents: 0,
     partialTotalCents: 0,
+    partialTotalWithShippingCents: 0,
     persistence: "real",
     messages: []
   };
@@ -410,9 +535,18 @@ function getOrCreateFallbackCart(
   return created;
 }
 
+function clearShippingSelectionState(cart: CartView) {
+  cart.shippingPostalCode = null;
+  cart.shippingQuoteId = null;
+  cart.shippingQuote = null;
+  cart.shippingOptions = [];
+  cart.shippingAmountCents = 0;
+}
+
 function recalculateFallbackCart(cart: CartView) {
   cart.subtotalCents = calculateCartSubtotalCents(cart.items);
   cart.partialTotalCents = cart.subtotalCents - cart.discountCents;
+  cart.partialTotalWithShippingCents = cart.partialTotalCents + cart.shippingAmountCents;
   cart.messages = [runtimeMessages.cartFallbackNotPersisted];
   return cart;
 }

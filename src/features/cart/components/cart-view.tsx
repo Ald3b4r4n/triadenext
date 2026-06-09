@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { formatMoney } from "@/lib/money";
 import { CartCouponPanel } from "./cart-coupon-panel";
+import { ShippingQuotePanel } from "@/features/shipping/components/shipping-quote-panel";
 import {
   clearCartFormAction,
   removeCartItemFormAction,
@@ -19,7 +20,9 @@ export function CartView({ cart }: CartViewProps) {
       <div className="cart-main">
         {cart.messages.length > 0 ? (
           <div className="form-message form-message--error" role="status">
-            {cart.messages[0]}
+            {Array.from(new Set(cart.messages)).map((message) => (
+              <p key={message}>{message}</p>
+            ))}
           </div>
         ) : null}
 
@@ -75,8 +78,22 @@ export function CartView({ cart }: CartViewProps) {
           <span>Total parcial</span>
           <strong>{formatMoney(cart.partialTotalCents)}</strong>
         </div>
+        <div className="summary-row">
+          <span>Frete</span>
+          <strong>{cart.shippingAmountCents > 0 ? formatMoney(cart.shippingAmountCents) : "R$ 0,00"}</strong>
+        </div>
+        <div className="summary-row summary-row--total">
+          <span>Total com frete</span>
+          <strong>{formatMoney(cart.partialTotalWithShippingCents)}</strong>
+        </div>
         <CartCouponPanel coupon={cart.coupon} />
-        <p className="muted">Pagamento, frete real e pedido ficam fora desta fase.</p>
+        <ShippingQuotePanel
+          cartId={cart.id}
+          cartHash={cart.items.map((item) => `${item.productId}:${item.quantity}`).join("|")}
+          destinationPostalCode={cart.shippingPostalCode}
+          quote={cart.shippingQuote}
+        />
+        <p className="muted">Pagamento, checkout e pedido ficam fora desta fase.</p>
         <button className="primary-action" type="button" disabled>
           Checkout indisponível
         </button>

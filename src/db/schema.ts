@@ -309,6 +309,10 @@ export const carts = pgTable(
     guestToken: text("guest_token"),
     sessionId: text("session_id"),
     appliedCouponId: uuid("applied_coupon_id").references(() => coupons.id, { onDelete: "set null" }),
+    shippingPostalCode: text("shipping_postal_code"),
+    selectedShippingQuoteId: uuid("selected_shipping_quote_id"),
+    selectedShippingOption: jsonb("selected_shipping_option"),
+    shippingAmountCents: integer("shipping_amount_cents").notNull().default(0),
     status: cartStatus("status").notNull().default("active"),
     currency: text("currency").notNull().default("BRL"),
     expiresAt: timestamp("expires_at", { withTimezone: true }),
@@ -320,7 +324,8 @@ export const carts = pgTable(
     userStatusIdx: index("carts_user_status_idx").on(table.userId, table.status),
     guestStatusIdx: index("carts_guest_status_idx").on(table.guestToken, table.status),
     sessionStatusIdx: index("carts_session_status_idx").on(table.sessionId, table.status),
-    appliedCouponIdx: index("carts_applied_coupon_id_idx").on(table.appliedCouponId)
+    appliedCouponIdx: index("carts_applied_coupon_id_idx").on(table.appliedCouponId),
+    selectedShippingQuoteIdx: index("carts_selected_shipping_quote_id_idx").on(table.selectedShippingQuoteId)
   })
 );
 
@@ -376,19 +381,60 @@ export const coupons = pgTable(
   })
 );
 
-export const shippingRules = pgTable("shipping_rules", {
-  id: idColumn(),
-  name: text("name").notNull(),
-  provider: shippingProvider("provider").notNull().default("manual"),
-  ruleType: text("rule_type").notNull(),
-  ruleValue: jsonb("rule_value"),
-  price: numeric("price", { precision: 12, scale: 2 }).notNull(),
-  estimatedDays: integer("estimated_days"),
-  isActive: boolean("is_active").notNull().default(true),
-  metadata: jsonb("metadata"),
-  createdAt: createdAtColumn(),
-  updatedAt: updatedAtColumn()
-});
+export const shippingRules = pgTable(
+  "shipping_rules",
+  {
+    id: idColumn(),
+    name: text("name").notNull(),
+    provider: shippingProvider("provider").notNull().default("manual"),
+    ruleType: text("rule_type").notNull().default("uf"),
+    ruleValue: jsonb("rule_value"),
+    uf: text("uf"),
+    postalCodeStart: text("postal_code_start"),
+    postalCodeEnd: text("postal_code_end"),
+    price: numeric("price", { precision: 12, scale: 2 }).notNull(),
+    priceCents: integer("price_cents").notNull().default(0),
+    estimatedDays: integer("estimated_days"),
+    priority: integer("priority").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    metadata: jsonb("metadata"),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    activeManualIdx: index("shipping_rules_active_manual_idx").on(
+      table.provider,
+      table.isActive,
+      table.priority
+    ),
+    ufIdx: index("shipping_rules_uf_idx").on(table.uf),
+    postalRangeIdx: index("shipping_rules_postal_range_idx").on(
+      table.postalCodeStart,
+      table.postalCodeEnd
+    )
+  })
+);
+
+export const shippingQuotes = pgTable(
+  "shipping_quotes",
+  {
+    id: idColumn(),
+    cartId: uuid("cart_id").references(() => carts.id, { onDelete: "cascade" }),
+    postalCode: text("postal_code").notNull(),
+    cartHash: text("cart_hash").notNull(),
+    provider: shippingProvider("provider").notNull().default("manual"),
+    source: text("source").notNull().default("manual"),
+    options: jsonb("options").notNull(),
+    selectedOptionId: text("selected_option_id"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    cartIdx: index("shipping_quotes_cart_id_idx").on(table.cartId),
+    expiryIdx: index("shipping_quotes_expires_at_idx").on(table.expiresAt)
+  })
+);
 
 export const orders = pgTable("orders", {
   id: idColumn(),

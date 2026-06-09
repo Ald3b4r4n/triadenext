@@ -10,8 +10,11 @@ vi.mock("@/features/cart/server/cart-service", () => ({
   applyCouponToActiveCart: applyCouponToActiveCartMock,
   clearActiveCart: vi.fn(),
   getActiveCart: vi.fn(),
+  quoteShippingForActiveCart: vi.fn(),
   removeCouponFromActiveCart: vi.fn(),
   removeCartItem: vi.fn(),
+  removeShippingSelectionFromActiveCart: vi.fn(),
+  selectShippingOptionForActiveCart: vi.fn(),
   updateCartItemQuantity: vi.fn()
 }));
 

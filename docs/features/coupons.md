@@ -6,7 +6,7 @@
 - Um cupom por carrinho.
 - Cupons globais para o carrinho.
 - Tipos operacionais: percentual e valor fixo.
-- Tipo `free_shipping` apenas preparado/modelado, sem benefício real de frete.
+- Tipo `free_shipping` modelado e aplicado sobre frete manual elegivel na Fase 7.
 - Subtotal mínimo via `minimumSubtotalCents`.
 - Limite global consultado por `maxUses`/`usedCount`.
 - Admin mínimo para listar, criar e editar cupons básicos.
@@ -25,11 +25,10 @@
 - Aplicar/remover cupom no carrinho não incrementa `usedCount`.
 - Consumo de uso fica para fase futura de pedido/checkout.
 
-## Frete grátis preparado
+## Frete gratis
 
-`free_shipping` existe apenas como tipo reservado para a futura fase de frete. Nesta fase ele não
-zera frete, não calcula frete real, não promete frete grátis no checkout e retorna mensagem
-controlada quando aplicado.
+`free_shipping` zera apenas frete manual ja cotado e elegivel no carrinho. O beneficio nao altera
+`discountCents`, nao cria opcao de frete artificial e nao promete frete gratis em checkout.
 
 ## Admin mínimo
 
@@ -47,5 +46,5 @@ Ficam fora:
 
 ## Fora de escopo
 
-Checkout, pagamento, Stripe, frete real, pedido, reserva de estoque, baixa de estoque, cupons
+Checkout, pagamento, Stripe, provider externo real, pedido, reserva de estoque, baixa de estoque, cupons
 acumulativos, limite por usuário e restrição por produto/categoria continuam fora da Fase 6.

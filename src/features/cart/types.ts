@@ -1,5 +1,6 @@
 import type { AuthRole } from "@/features/auth/server/session";
 import type { CouponView } from "@/features/coupons/types";
+import type { ShippingOption, ShippingQuote } from "@/features/shipping/types";
 
 export type CartStatus = "active" | "converted" | "abandoned" | "expired";
 export type CartPersistence = "real" | "dev_fallback" | "unavailable";
@@ -28,7 +29,13 @@ export type CartView = {
   appliedCouponId: string | null;
   coupon: CouponView | null;
   discountCents: number;
+  shippingPostalCode: string | null;
+  shippingQuoteId: string | null;
+  shippingQuote: ShippingQuote | null;
+  shippingOptions: ShippingOption[];
+  shippingAmountCents: number;
   partialTotalCents: number;
+  partialTotalWithShippingCents: number;
   persistence: CartPersistence;
   messages: string[];
 };

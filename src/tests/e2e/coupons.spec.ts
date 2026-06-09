@@ -12,7 +12,7 @@ test("visitor applies a valid coupon and sees discount in fallback mode", async 
   await expect(page.getByText("Cupom aplicado ao carrinho.")).toBeVisible();
   await expect(page.getByText("DEV10")).toBeVisible();
   await expect(page.getByText("-R$ 15,99")).toBeVisible();
-  await expect(page.getByText("R$ 143,91")).toBeVisible();
+  await expect(page.getByText("Total parcial").locator("..").getByText("R$ 143,91")).toBeVisible();
 });
 
 test("invalid coupon shows controlled error", async ({ page }) => {
