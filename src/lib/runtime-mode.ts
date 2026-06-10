@@ -27,7 +27,15 @@ export const runtimeMessages = {
   cartProductUnavailable: "Produto indisponivel para compra.",
   cartInsufficientStock: "Quantidade solicitada acima do estoque disponivel.",
   cartForbidden: "Acesso negado ao carrinho solicitado.",
-  cartUpdated: "Carrinho atualizado."
+  cartUpdated: "Carrinho atualizado.",
+  checkoutUnauthenticated: "Faca login ou crie sua conta para iniciar o checkout.",
+  checkoutUnavailable:
+    "Checkout indisponivel neste ambiente sem banco configurado. Nenhum pedido real foi criado.",
+  checkoutFallback:
+    "Pedido pendente criado em fixture dev/test: DATABASE_URL ausente e sem persistencia real.",
+  checkoutValidationError: "Nao foi possivel criar o pedido pendente com os dados informados.",
+  orderForbidden: "Pedido indisponivel para este usuario.",
+  orderReadUnavailable: "Leitura de pedidos indisponivel neste ambiente sem banco configurado."
 } as const;
 
 export type RuntimeMode = {

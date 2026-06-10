@@ -1,16 +1,16 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/005-fase-7-frete-cotacoes",
-  "feature-id": "005",
-  "short-name": "fase-7-frete-cotacoes",
-  "started-at": "2026-06-09T13:34:33-03:00",
-  "current-stage": "to-do",
+  "feature-dir": "_reversa_forward/006-fase-8-checkout-pendente",
+  "feature-id": "006",
+  "short-name": "fase-8-checkout-pendente",
+  "started-at": "2026-06-09T16:35:00-03:00",
+  "current-stage": "coding",
   "stages-completed": [
     "requirements",
     "clarify",
     "quality",
     "plan",
-    "to-do"
+    "coding"
   ],
   "paused-features": []
 }

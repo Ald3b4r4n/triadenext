@@ -524,12 +524,12 @@ function getOrCreateFallbackCart(
 ) {
   const key = fallbackKey(actor);
   const existing = store.get(key);
-  if (existing) {
+  if (existing?.status === "active") {
     return existing;
   }
   const created = {
     ...emptyFallbackCart(actor),
-    id: `dev-cart-${key}`
+    id: `dev-cart-${key}-${Date.now()}`
   };
   store.set(key, created);
   return created;

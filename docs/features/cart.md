@@ -48,7 +48,7 @@ Ao fazer login com `guestCartToken`, o carrinho anonimo e mesclado ao carrinho a
 ## Fora de escopo
 
 Checkout, pagamento, Stripe, frete, cupom, criacao de pedido, reserva de estoque e baixa de estoque
-continuavam fora da Fase 5. O CTA de checkout permanece indisponivel.
+continuavam fora da Fase 5.
 
 ## Fase 6 — Cupons no carrinho
 
@@ -81,3 +81,12 @@ Novos campos de visao:
 - `shippingPostalCode`;
 - `shippingQuoteId`;
 - `partialTotalWithShippingCents`.
+
+## Fase 8 — Checkout pendente
+
+O carrinho passa a exibir CTA de checkout. Visitantes sao enviados para login/cadastro e usuarios
+autenticados seguem para revisao do pedido. O carrinho usado para criar pedido pendente e marcado
+como `converted` e nao aceita novas mutacoes; compras futuras resolvem um novo carrinho ativo.
+
+A criacao do pedido nao baixa estoque, nao reserva estoque, nao chama Stripe, nao coleta cartao e
+nao consome `usedCount` de cupom.

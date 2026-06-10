@@ -14,10 +14,13 @@ test("visitor can add a valid product in fallback mode", async ({ page }) => {
   await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await page.waitForLoadState("networkidle");
   await page.goto("/carrinho", { waitUntil: "commit" });
+  await page.getByLabel("CEP").fill("01001-000");
+  await page.getByRole("button", { name: "Cotar" }).click();
+  await expect(page.getByText("Cotacao de frete calculada.")).toBeVisible();
 
   await expect(page.getByText("Produto publicado de exemplo")).toBeVisible();
   await expect(page.getByText("Subtotal do item: R$ 159,90")).toBeVisible();
-  await expect(page.getByText("Checkout indisponível")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Entrar para checkout" })).toBeVisible();
 });
 
 test("unavailable products are not exposed as purchasable", async ({ page }) => {
@@ -32,5 +35,5 @@ test("cart page continues to load without real database", async ({ page }) => {
   await page.goto("/carrinho", { waitUntil: "commit" });
 
   await expect(page.getByRole("heading", { name: "Resumo" })).toBeVisible();
-  await expect(page.getByText("Pagamento, checkout e pedido ficam fora desta fase.")).toBeVisible();
+  await expect(page.getByText("Checkout cria pedido pendente")).toBeVisible();
 });

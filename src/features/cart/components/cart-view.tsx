@@ -93,10 +93,22 @@ export function CartView({ cart }: CartViewProps) {
           destinationPostalCode={cart.shippingPostalCode}
           quote={cart.shippingQuote}
         />
-        <p className="muted">Pagamento, checkout e pedido ficam fora desta fase.</p>
-        <button className="primary-action" type="button" disabled>
-          Checkout indisponível
-        </button>
+        <p className="muted">
+          Checkout cria pedido pendente sem cartão, sem Stripe e sem pagamento real.
+        </p>
+        {cart.items.length === 0 || !cart.shippingQuoteId ? (
+          <button className="primary-action" type="button" disabled>
+            Selecione itens e frete
+          </button>
+        ) : cart.owner.kind === "guest" ? (
+          <Link className="primary-action" href="/login?returnTo=/checkout">
+            Entrar para checkout
+          </Link>
+        ) : (
+          <Link className="primary-action" href="/checkout">
+            Iniciar checkout
+          </Link>
+        )}
         {cart.items.length > 0 ? (
           <form action={clearCartFormAction}>
             <button className="text-action cart-clear" type="submit">

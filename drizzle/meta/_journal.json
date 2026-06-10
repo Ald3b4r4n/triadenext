@@ -36,6 +36,13 @@
       "when": 1781029546561,
       "tag": "0004_mute_ghost_rider",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1781094420336,
+      "tag": "0005_glossy_talisman",
+      "breakpoints": true
     }
   ]
 }

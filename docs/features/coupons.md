@@ -23,7 +23,7 @@
 - Desconto nunca ultrapassa o subtotal.
 - `partialTotalCents = subtotalCents - discountCents`.
 - Aplicar/remover cupom no carrinho não incrementa `usedCount`.
-- Consumo de uso fica para fase futura de pedido/checkout.
+- Consumo de uso fica para fase futura de pagamento confirmado ou pedido efetivamente confirmado.
 
 ## Frete gratis
 
@@ -46,5 +46,11 @@ Ficam fora:
 
 ## Fora de escopo
 
-Checkout, pagamento, Stripe, provider externo real, pedido, reserva de estoque, baixa de estoque, cupons
-acumulativos, limite por usuário e restrição por produto/categoria continuam fora da Fase 6.
+Pagamento, Stripe, provider externo real, reserva de estoque, baixa de estoque, cupons acumulativos,
+limite por usuário e restrição por produto/categoria continuam fora da Fase 6.
+
+## Fase 8 — Snapshot no pedido
+
+No checkout pendente, o cupom aplicado no carrinho e revalidado no servidor. O pedido guarda snapshot
+de codigo, tipo, valor, desconto efetivo e `usedCount` observado. A criacao do pedido pendente nao
+incrementa `usedCount`.

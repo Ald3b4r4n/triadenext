@@ -142,3 +142,20 @@ Delta local gerado:
 Migration local: `drizzle/0004_mute_ghost_rider.sql`.
 
 Essa migration foi gerada localmente. Nao foi aplicada contra banco real nesta etapa.
+
+## Fase 8 — Pedido pendente
+
+Checkout pendente amplia `orders` e `order_items` para snapshots historicos.
+
+Delta local gerado:
+
+- `orders.cart_id`: vinculo unico com carrinho convertido para idempotencia.
+- `orders.subtotal_cents`, `shipping_total_cents`, `discount_total_cents`, `grand_total_cents`.
+- `orders.coupon_snapshot`: snapshot do cupom sem consumir `usedCount`.
+- `order_items.slug_snapshot`, `image_snapshot`, `unit_price_cents`, `line_total_cents`.
+- indices por `orders.user_id`, `orders.status/expires_at`, `orders.cart_id` unico e
+  `order_items.order_id`.
+
+Migration local: `drizzle/0005_glossy_talisman.sql`.
+
+Essa migration foi gerada localmente. Nao foi aplicada contra banco real nesta etapa.

@@ -436,31 +436,45 @@ export const shippingQuotes = pgTable(
   })
 );
 
-export const orders = pgTable("orders", {
-  id: idColumn(),
-  userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
-  number: text("number").notNull(),
-  status: orderStatus("status").notNull().default("aguardando_pagamento"),
-  fulfillmentStatus: fulfillmentStatus("fulfillment_status").notNull().default("unfulfilled"),
-  subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull(),
-  shippingTotal: numeric("shipping_total", { precision: 12, scale: 2 }).notNull().default("0"),
-  discountTotal: numeric("discount_total", { precision: 12, scale: 2 }).notNull().default("0"),
-  grandTotal: numeric("grand_total", { precision: 12, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("BRL"),
-  customerSnapshot: jsonb("customer_snapshot").notNull(),
-  shippingAddressSnapshot: jsonb("shipping_address_snapshot").notNull(),
-  shippingSnapshot: jsonb("shipping_snapshot"),
-  publicToken: text("public_token").notNull(),
-  expiresAt: timestamp("expires_at", { withTimezone: true }),
-  placedAt: timestamp("placed_at", { withTimezone: true }),
-  paidAt: timestamp("paid_at", { withTimezone: true }),
-  cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
-  completedAt: timestamp("completed_at", { withTimezone: true }),
-  blingOrderId: text("bling_order_id"),
-  fiscalDocumentStatus: text("fiscal_document_status"),
-  createdAt: createdAtColumn(),
-  updatedAt: updatedAtColumn()
-});
+export const orders = pgTable(
+  "orders",
+  {
+    id: idColumn(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    cartId: uuid("cart_id").references(() => carts.id, { onDelete: "set null" }),
+    number: text("number").notNull(),
+    status: orderStatus("status").notNull().default("aguardando_pagamento"),
+    fulfillmentStatus: fulfillmentStatus("fulfillment_status").notNull().default("unfulfilled"),
+    subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull(),
+    subtotalCents: integer("subtotal_cents").notNull().default(0),
+    shippingTotal: numeric("shipping_total", { precision: 12, scale: 2 }).notNull().default("0"),
+    shippingTotalCents: integer("shipping_total_cents").notNull().default(0),
+    discountTotal: numeric("discount_total", { precision: 12, scale: 2 }).notNull().default("0"),
+    discountTotalCents: integer("discount_total_cents").notNull().default(0),
+    grandTotal: numeric("grand_total", { precision: 12, scale: 2 }).notNull(),
+    grandTotalCents: integer("grand_total_cents").notNull().default(0),
+    currency: text("currency").notNull().default("BRL"),
+    customerSnapshot: jsonb("customer_snapshot").notNull(),
+    shippingAddressSnapshot: jsonb("shipping_address_snapshot").notNull(),
+    shippingSnapshot: jsonb("shipping_snapshot"),
+    couponSnapshot: jsonb("coupon_snapshot"),
+    publicToken: text("public_token").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    placedAt: timestamp("placed_at", { withTimezone: true }),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    blingOrderId: text("bling_order_id"),
+    fiscalDocumentStatus: text("fiscal_document_status"),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    userIdx: index("orders_user_id_idx").on(table.userId),
+    statusExpiresIdx: index("orders_status_expires_at_idx").on(table.status, table.expiresAt),
+    cartUnique: uniqueIndex("orders_cart_id_unique").on(table.cartId)
+  })
+);
 
 export const orderItems = pgTable("order_items", {
   id: idColumn(),
@@ -470,11 +484,17 @@ export const orderItems = pgTable("order_items", {
   productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
   skuSnapshot: text("sku_snapshot").notNull(),
   nameSnapshot: text("name_snapshot").notNull(),
+  slugSnapshot: text("slug_snapshot"),
+  imageSnapshot: text("image_snapshot"),
   unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+  unitPriceCents: integer("unit_price_cents").notNull().default(0),
   quantity: integer("quantity").notNull(),
   lineTotal: numeric("line_total", { precision: 12, scale: 2 }).notNull(),
+  lineTotalCents: integer("line_total_cents").notNull().default(0),
   createdAt: createdAtColumn()
-});
+}, (table) => ({
+  orderIdx: index("order_items_order_id_idx").on(table.orderId)
+}));
 
 export const orderEvents = pgTable("order_events", {
   id: idColumn(),
