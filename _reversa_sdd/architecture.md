@@ -1,23 +1,23 @@
 # Arquitetura Reversa - Triade Essenza Next
 
-Data: 2026-06-09
-Escopo: arquitetura do projeto Next.js apos Fase 7.
+Data: 2026-06-10
+Escopo: arquitetura do projeto Next.js apos Fase 8.
 
 ## Visao geral
 
 O sistema atual e uma aplicacao Next.js App Router para a operacao da Triade Essenza Parfum. O projeto substitui gradualmente o legado Laravel por uma stack moderna com dominio modular em `src/features`, persistencia Drizzle e fluxos server-side para regras sensiveis.
 
-Apos a Fase 7, o carrinho passou a incorporar frete manual calculado por regras internas, cotacao por CEP, selecao persistida e total parcial com frete. Providers externos existem apenas como adapters futuros inativos.
+Apos a Fase 8, o carrinho pode iniciar checkout autenticado e criar pedido pendente `aguardando_pagamento`, sem pagamento real. O checkout passa a orquestrar carrinho, produtos, cupom, frete, cliente, endereco e snapshots de pedido no servidor. O carrinho usado no pedido vira `converted` e fica bloqueado para novas mutacoes.
 
 ## Camadas
 
 | Camada | Local | Responsabilidade |
 | --- | --- | --- |
-| Rotas | `src/app/**` | Paginas publicas, admin e server actions de rota |
+| Rotas | `src/app/**` | Paginas publicas, customer, admin e server actions de rota |
 | Dominio | `src/features/*/domain.ts` | Regras puras de negocio |
 | Servicos server-side | `src/features/*/server/**` | Orquestracao com sessao, permissao, repositorios e efeitos locais |
 | Repositorios | `src/features/*/server/*repository.ts` | Acesso a Drizzle ou fallback local controlado |
-| Componentes | `src/features/*/components/**` | UI de catalogo, carrinho, cupons, frete e admin |
+| Componentes | `src/features/*/components/**` | UI de catalogo, carrinho, cupons, frete, checkout, pedidos e admin |
 | Persistencia | `src/db/schema.ts`, `drizzle/**` | Schema Drizzle e migrations locais |
 
 ## Modulos funcionais
@@ -25,13 +25,13 @@ Apos a Fase 7, o carrinho passou a incorporar frete manual calculado por regras 
 ### Catalogo
 
 - Produtos, categorias, filtros e pagina publica.
-- Dados persistidos via schema Drizzle e seeds locais.
+- Produto compravel exige `published`, `publishedAt <= now` e estoque positivo.
 
 ### Autenticacao e permissoes
 
-- Sessao administrativa.
-- Papeis `admin`, `manager` e usuarios com escopo restrito.
-- Protecao de areas admin por helpers server-side.
+- Sessao por Better Auth.
+- Papeis `customer`, `manager` e `admin`.
+- Helpers `requireCustomer`, `requireAdminLike` e ownership server-side.
 
 ### Carrinho
 
@@ -39,71 +39,91 @@ Apos a Fase 7, o carrinho passou a incorporar frete manual calculado por regras 
 - Itens com quantidade e precos em centavos.
 - Cupom aplicado ao carrinho.
 - Selecao de frete persistida.
-- Campos de frete:
-  - CEP cotado.
-  - quote selecionada.
-  - opcao selecionada.
-  - valor de frete em centavos.
-  - total parcial com frete.
-- Alteracoes de itens invalidam a selecao de frete para evitar total stale.
+- Alteracoes de itens invalidam a selecao de frete.
+- `status = converted` apos criacao de pedido pendente.
+- Carrinho convertido nao deve ser reutilizado para nova compra; compra futura resolve novo carrinho ativo.
 
 ### Cupons
 
 - Tipos principais: percentual, valor fixo e `free_shipping`.
 - Cupom `free_shipping` nao cria desconto monetario direto em itens.
-- Na Fase 7, `free_shipping` zera somente frete manual calculado e elegivel.
+- `free_shipping` zera somente frete manual calculado e elegivel.
+- Checkout revalida cupom e copia snapshot sem consumir `usedCount`.
 
 ### Frete manual
 
 - Modulo: `src/features/shipping`.
 - Regras internas por UF e/ou faixa de CEP.
 - Cotacao por CEP normalizado.
-- Ordenacao de regras aplicaveis por prioridade, preco e nome.
 - Cotacao com validade local.
 - Selecao de opcao persistida no carrinho.
-- Admin basico de regras em `/admin/frete`.
-- Protecao admin/manager via `requireAdminLike`.
+- Checkout exige quote selecionada, nao expirada e pertencente ao carrinho.
+- Snapshot de frete entra no pedido.
 - Sem chamada real a Correios, Jadlog ou Melhor Envio.
-- Sem credenciais externas obrigatorias.
+
+### Checkout
+
+- Modulo: `src/features/checkout`.
+- `reviewPendingCheckout` exige sessao autenticada e carrinho valido.
+- `createPendingCheckoutOrder` valida formulario, ownership, produtos, estoque, cupom, frete e endereco.
+- Payload cliente nao define subtotal, desconto, frete, total, `userId`, `cartId`, role ou status.
+- UI de checkout coleta nome, telefone e endereco completo; o e-mail vem da sessao.
+- UI nao tem campos de cartao, Stripe ou PaymentIntent.
+
+### Orders
+
+- Modulo: `src/features/orders`.
+- Pedido nasce `aguardando_pagamento`.
+- Expiracao: `createdAt + 60 minutos`.
+- Snapshots de cliente, endereco, cupom, frete, itens e totais.
+- `cartId` unico funciona como idempotencia por carrinho convertido.
+- Customer lista apenas pedidos proprios.
+- Admin/manager lista pedidos pendentes em leitura minima, sem mutacao financeira.
 
 ## Persistencia
 
 Migrations locais observadas:
 
-- `drizzle/0000_initial_schema.sql`
-- `drizzle/0001_phase_4_auth.sql`
-- `drizzle/0002_cart_purchase_session.sql`
-- `drizzle/0003_*` relacionada a cupons/descontos
-- `drizzle/0004_mute_ghost_rider.sql` gerada para Fase 7 de frete
+- `drizzle/0000_shallow_shinko_yamashiro.sql`
+- `drizzle/0001_curvy_blink.sql`
+- `drizzle/0002_tiny_enchantress.sql`
+- `drizzle/0003_elite_titanium_man.sql`
+- `drizzle/0004_mute_ghost_rider.sql`
+- `drizzle/0005_glossy_talisman.sql`
 
-A migration `0004_mute_ghost_rider.sql` foi gerada localmente e versionada, mas nao foi aplicada em banco real durante esta re-extracao.
+A migration `0005_glossy_talisman.sql` foi gerada localmente e versionada, mas nao foi aplicada em banco real durante esta re-extracao.
 
 ## Banco e entidades relevantes
 
 - `products`, `categories`: catalogo.
-- `customers`, `admin_users` e entidades de auth: identidade e permissoes.
+- `users`, `sessions`, `accounts`, `verifications`: identidade e sessao.
 - `carts`, `cart_items`: carrinho.
-- `coupons`, `coupon_redemptions`: cupons.
-- `shipping_rules`: regras manuais de frete.
-- `shipping_quotes`: cotacoes de frete geradas para carrinhos.
+- `coupons`: cupons.
+- `shipping_rules`, `shipping_quotes`: frete manual.
+- `orders`, `order_items`: pedido pendente e snapshots.
+- `payment_intents`, `payment_events`: superficie futura inerte para pagamento.
 
 ## Integracoes externas
 
 | Area | Estado |
 | --- | --- |
 | Frete externo | Somente adapters futuros inativos |
-| Pagamento/Stripe | Fora do escopo implementado |
-| Banco real | Nao acessado nesta etapa |
-| Deploy | Nao executado nesta etapa |
+| Pagamento/Stripe | Fora do escopo produtivo da Fase 8 |
+| Banco real | Nao acessado nesta re-extracao |
+| Deploy | Nao executado nesta re-extracao |
 
 ## Guardrails arquiteturais atuais
 
-- Regras sensiveis de carrinho, cupom e frete ficam no servidor.
-- Payloads de cliente nao sao fonte de verdade para totais, dono do carrinho ou valor de frete.
-- Selecao de quote exige pertencer ao carrinho ativo.
+- Regras sensiveis de carrinho, cupom, frete, checkout e pedido ficam no servidor.
+- Payloads de cliente nao sao fonte de verdade para totais, dono do carrinho, valor de frete ou status.
+- Checkout exige usuario autenticado para criar pedido.
+- Pedido anonimo nao existe na Fase 8.
+- Carrinho convertido e terminal para novas mutacoes.
+- `usedCount` de cupom nao e consumido na criacao do pedido pendente.
+- Estoque e validado, mas nao baixado nem reservado definitivamente.
 - Providers externos de frete permanecem declarativos e inativos.
-- Checkout, pagamento, pedido, reserva e baixa de estoque ainda nao existem como fluxo produtivo.
+- Stripe, PaymentIntent real, cartao e captura de pagamento continuam fora do fluxo produtivo.
 
 ## Proxima evolucao
 
-A proxima fase deve iniciar em `/reversa-requirements`, definindo explicitamente o proximo incremento antes de qualquer alteracao funcional.
+Proximo passo operacional: committar os artefatos Reversa pos-Fase 8 e, apos validacao humana, fazer push dos commits locais.

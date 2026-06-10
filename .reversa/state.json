@@ -23,12 +23,15 @@
     "fase_6",
     "reextracao_pos_fase_6",
     "fase_7",
-    "reextracao_pos_fase_7"
+    "reextracao_pos_fase_7",
+    "fase_8",
+    "reextracao_pos_fase_8"
   ],
   "pending": [
-    "proxima_feature_a_definir_via_reversa_requirements"
+    "commit_reversa_pos_fase_8",
+    "push_commits_locais"
   ],
-  "last_checkpoint": "reextraction_after_phase_7_2026_06_09",
+  "last_checkpoint": "reextraction_after_phase_8_2026_06_10",
   "checkpoints": {
     "history_before_phase_7": {
       "completed_at": "2026-06-08T22:45:00-03:00",
@@ -97,9 +100,72 @@
       },
       "next_phase": "proxima_feature_a_definir",
       "next_command": "/reversa-requirements"
+    },
+    "reextraction_after_phase_8_2026_06_10": {
+      "completed_at": "2026-06-10T00:00:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD apos Fase 8 de checkout pendente e pedidos aguardando pagamento.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "latest_commit": {
+          "short": "1ace51b",
+          "hash": "1ace51b3ea7c2e2cb702e23e1a724793069cc972",
+          "message": "feat: implement pending checkout orders"
+        },
+        "phase8_commit_pushed": false,
+        "working_tree_before_reextraction": "clean"
+      },
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_forward/006-fase-8-checkout-pendente/regression-watch.md"
+      ],
+      "phase8_summary": {
+        "authenticated_checkout": true,
+        "anonymous_order": false,
+        "pending_order_status": "aguardando_pagamento",
+        "pending_order_expiration_minutes": 60,
+        "snapshots": [
+          "items",
+          "prices",
+          "coupon",
+          "shipping",
+          "customer",
+          "address",
+          "totals"
+        ],
+        "converted_cart_blocked": true,
+        "future_active_cart_after_conversion": true,
+        "server_side_final_validation": true,
+        "coupon_used_count_consumed": false,
+        "stock_decremented_or_reserved": false,
+        "shipping_snapshotted": true,
+        "customer_orders_minimal": true,
+        "admin_orders_minimal_readonly": true,
+        "stripe_or_payment_intent": false,
+        "card_collection": false,
+        "real_payment": false,
+        "local_migration_generated_not_applied": "drizzle/0005_glossy_talisman.sql"
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 27 files / 79 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 26 tests"
+      },
+      "next_phase": "commit_reversa_pos_fase_8_e_push",
+      "next_command": "git commit dos artefatos Reversa pos-Fase 8, depois push dos commits locais"
     }
   },
-  "next_reversa_command": "/reversa-requirements",
+  "next_reversa_command": "commit_reversa_pos_fase_8_then_push",
   "engines": [
     "claude-code",
     "codex",

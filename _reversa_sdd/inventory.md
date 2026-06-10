@@ -1,15 +1,16 @@
 # Inventario tecnico Reversa - Triade Essenza Next
 
-Data da re-extracao: 2026-06-09
-Escopo: estado do projeto Next.js apos Fase 7 concluida e enviada.
+Data da re-extracao: 2026-06-10
+Escopo: estado do projeto Next.js apos Fase 8 concluida e commitada localmente.
 
 ## Confirmacao de contexto
 
 - Projeto atual: `D:\Projetos\triade-essenza-next`
 - Nao e o legado Laravel: `D:\Projetos\triadeessenzaparfum.com.br`
 - Branch: `main`
-- Sincronia Git: `main...origin/main`
-- Ultimo commit funcional confirmado: `5d103b7882e121fe4929537e50c0b4a0e40a615e feat: implement manual shipping quotes`
+- Sincronia Git no inicio da re-extracao: `main...origin/main [ahead 1]`
+- Ultimo commit funcional confirmado: `1ace51b3ea7c2e2cb702e23e1a724793069cc972 feat: implement pending checkout orders`
+- Working tree antes da re-extracao: limpo
 
 ## Fases implementadas
 
@@ -22,19 +23,22 @@ Escopo: estado do projeto Next.js apos Fase 7 concluida e enviada.
 | Fase 5 | `7215cf1` | Concluida | Carrinho e sessao de compra sem checkout real |
 | Fase 6 | `399953c` | Concluida | Cupons e descontos no carrinho |
 | Fase 7 | `5d103b7` | Concluida | Frete manual, cotacao por CEP e admin basico de frete |
+| Fase 8 | `1ace51b` | Concluida | Checkout autenticado, pedido pendente, snapshots e carrinho convertido |
 
 ## Artefatos principais observados
 
 ### Aplicacao
 
-- `src/app`: rotas App Router, incluindo catalogo, carrinho e areas admin.
-- `src/features/catalog`: catalogo, produtos, filtros e componentes publicos.
-- `src/features/auth`: login administrativo, sessao e papeis.
-- `src/features/cart`: carrinho, itens, cupom aplicado, cotacao de frete e totais.
+- `src/app`: rotas App Router, incluindo catalogo, carrinho, checkout, customer e admin.
+- `src/features/products`: catalogo, produtos, filtros e componentes publicos.
+- `src/features/auth`: sessao, papeis, policies e login/cadastro.
+- `src/features/cart`: carrinho ativo, itens, cupom, frete selecionado e conversao.
 - `src/features/coupons`: validacao de cupons, tipos de desconto e `free_shipping`.
 - `src/features/shipping`: regras manuais de frete, cotacoes, persistencia, admin e adapters futuros inativos.
-- `src/db/schema.ts`: schema Drizzle com tabelas de catalogo, auth, carrinho, cupons e frete.
-- `drizzle/0004_mute_ghost_rider.sql`: migration local gerada para frete; nao aplicada em banco real nesta etapa.
+- `src/features/checkout`: orquestracao server-side do checkout pendente.
+- `src/features/orders`: dominio, snapshots, repository, leitura customer/admin e componentes de pedidos.
+- `src/db/schema.ts`: schema Drizzle com catalogo, auth, carrinho, cupons, frete, pedidos e pagamentos futuros inertes.
+- `drizzle/0005_glossy_talisman.sql`: migration local gerada para pedido pendente; nao aplicada em banco real.
 
 ### Reversa
 
@@ -47,35 +51,39 @@ Escopo: estado do projeto Next.js apos Fase 7 concluida e enviada.
 - `_reversa_sdd/data-dictionary.md`
 - `_reversa_sdd/state-machines.md`
 - `_reversa_sdd/permissions.md`
-- `_reversa_forward/005-fase-7-frete-cotacoes/*`
+- `_reversa_forward/006-fase-8-checkout-pendente/*`
 
 ## Capacidades atuais
 
 - Catalogo publico com produtos e filtros.
-- Autenticacao administrativa com papeis.
+- Autenticacao com papeis `customer`, `manager` e `admin`.
 - Carrinho para visitante e usuario autenticado.
+- Merge de carrinho anonimo para usuario autenticado.
 - Cupons percentuais, valor fixo e frete gratis.
-- Frete manual por regras internas.
-- Cotacao de frete por CEP.
-- Regras de frete por UF e/ou faixa de CEP.
-- Valor de frete em centavos.
-- Prazo estimado manual.
+- Frete manual por regras internas e cotacao por CEP.
 - Selecao de frete persistida no carrinho.
-- Total parcial com frete.
-- `free_shipping` zerando somente frete manual calculado e elegivel.
-- Admin basico de frete protegido por `admin`/`manager`.
+- Total parcial com frete e `free_shipping` sobre frete manual elegivel.
+- Checkout autenticado.
+- Pedido pendente `aguardando_pagamento`.
+- Expiracao de pedido pendente em 60 minutos.
+- Snapshots de itens, cliente, endereco, cupom, frete e totais.
+- Carrinho convertido/bloqueado apos criacao do pedido.
+- Novo carrinho ativo futuro apos conversao.
+- Area customer minima de pedidos pendentes.
+- Admin minimo de pedidos pendentes, somente leitura.
 
-## Frete manual - superficie tecnica
+## Checkout e pedidos - superficie tecnica
 
-- Dominio: `src/features/shipping/domain.ts`
-- Tipos: `src/features/shipping/types.ts`
-- Servico server-side: `src/features/shipping/server/shipping-service.ts`
-- Repositorio server-side: `src/features/shipping/server/shipping-repository.ts`
-- Acoes admin: `src/features/shipping/server/admin-shipping-actions.ts`
-- Fixtures locais: `src/features/shipping/server/shipping-fixtures.ts`
-- Providers futuros: `src/features/shipping/future-providers.ts`
-- UI de cotacao no carrinho: `src/features/shipping/components/shipping-quote-panel.tsx`
-- UI admin: `src/app/admin/frete/**`
+- Dominio de pedido: `src/features/orders/domain.ts`
+- Tipos e schemas de pedido: `src/features/orders/types.ts`, `src/features/orders/schemas.ts`
+- Repository de pedidos: `src/features/orders/server/order-repository.ts`
+- Actions de pedidos: `src/features/orders/server/order-actions.ts`
+- Service de checkout: `src/features/checkout/server/checkout-service.ts`
+- Actions de checkout: `src/features/checkout/server/checkout-actions.ts`
+- UI checkout: `src/app/(storefront)/checkout/page.tsx`
+- CTA no carrinho: `src/features/cart/components/cart-view.tsx`
+- Customer pedidos: `src/app/(customer)/pedidos/page.tsx`
+- Admin pedidos: `src/app/admin/pedidos/page.tsx`
 
 ## Integracoes externas
 
@@ -84,33 +92,33 @@ Escopo: estado do projeto Next.js apos Fase 7 concluida e enviada.
 | Correios | Adapter futuro inativo | Nenhuma API real chamada |
 | Jadlog | Adapter futuro inativo | Nenhuma API real chamada |
 | Melhor Envio | Adapter futuro inativo | Nenhuma API real chamada |
-| Stripe | Fora do escopo atual | Checkout/pagamento nao implementados |
-| Banco real | Fora desta etapa | Nenhuma migration aplicada nesta re-extracao |
+| Stripe | Fora do escopo produtivo da Fase 8 | Nenhum PaymentIntent real, cartao ou captura |
+| Banco real | Nao acessado nesta re-extracao | Nenhuma migration aplicada |
 
-## Validacoes informadas para Fase 7
+## Validacoes informadas para Fase 8
 
 - `pnpm lint`: passou
 - `pnpm typecheck`: passou
-- `pnpm test`: passou, 23 arquivos / 67 testes
+- `pnpm test`: passou, 27 arquivos / 79 testes
 - `pnpm build`: passou
-- `pnpm test:e2e`: passou, 21 testes
+- `pnpm test:e2e`: passou, 26 testes
 
 ## Fora do escopo atual
 
-- Checkout real.
-- Pagamento.
-- Stripe.
-- Pedido.
-- Reserva de estoque.
-- Baixa de estoque.
+- Pedido anonimo.
+- Pagamento real.
+- Stripe real.
+- PaymentIntent real.
+- Coleta de cartao.
+- Captura de pagamento.
+- Reserva definitiva de estoque.
+- Baixa definitiva de estoque.
+- Consumo de `usedCount` na criacao do pedido pendente.
 - Chamadas reais a APIs de frete.
-- Credenciais externas de frete.
 - Aplicacao de migrations em banco real.
+- Deploy.
+- Push do commit funcional.
 
 ## Proxima etapa recomendada
 
-A proxima feature deve ser aberta com:
-
-```text
-/reversa-requirements
-```
+Committar os artefatos Reversa pos-Fase 8 e depois fazer push dos commits locais quando validado.

@@ -6,7 +6,9 @@
 
 ## Histórico de re-extrações
 
-Vazio nesta rodada. Preencher em futura re-extração `/reversa`.
+| Data | Re-extração | Veredito | Evidência |
+|---|---|---|---|
+| 2026-06-10 | reextracao_pos_fase_8 | 🟢 | `_reversa_sdd/state-machines.md` e `_reversa_sdd/domain.md` registram carrinho `converted` como terminal/bloqueado e nova compra futura resolvendo carrinho ativo. |
 
 ## Arquivadas
 

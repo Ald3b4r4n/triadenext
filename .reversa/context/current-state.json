@@ -5,17 +5,17 @@
     "isLegacyLaravel": false,
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
-  "updatedAt": "2026-06-09T16:15:00-03:00",
-  "scope": "Re-extracao Reversa pos-Fase 7 concluida",
+  "updatedAt": "2026-06-10T00:00:00-03:00",
+  "scope": "Re-extracao Reversa pos-Fase 8 concluida",
   "git": {
     "branch": "main",
-    "status": "main...origin/main",
+    "status": "main...origin/main [ahead 1]",
     "latestCommit": {
-      "short": "5d103b7",
-      "hash": "5d103b7882e121fe4929537e50c0b4a0e40a615e",
-      "message": "feat: implement manual shipping quotes"
+      "short": "1ace51b",
+      "hash": "1ace51b3ea7c2e2cb702e23e1a724793069cc972",
+      "message": "feat: implement pending checkout orders"
     },
-    "phase7CommitPushed": true,
+    "phase8CommitPushed": false,
     "workingTreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
@@ -42,7 +42,7 @@
     {
       "phase": 5,
       "status": "completed",
-      "summary": "Carrinho e sessao de compra sem checkout real"
+      "summary": "Carrinho e sessao de compra"
     },
     {
       "phase": 6,
@@ -54,77 +54,96 @@
       "status": "completed",
       "summary": "Frete manual, cotacao por CEP e selecao persistida no carrinho",
       "commit": "5d103b7882e121fe4929537e50c0b4a0e40a615e"
+    },
+    {
+      "phase": 8,
+      "status": "completed",
+      "summary": "Checkout autenticado, pedido pendente aguardando pagamento, snapshots e carrinho convertido",
+      "commit": "1ace51b3ea7c2e2cb702e23e1a724793069cc972"
     }
   ],
   "currentCapabilities": {
     "catalog": "Catalogo publico com produtos e filtros",
-    "auth": "Autenticacao administrativa com papeis",
-    "cart": "Carrinho de visitante/usuario com itens, cupom e frete manual",
-    "coupons": "Cupons percentuais, valor fixo e free_shipping",
-    "shipping": "Frete manual por regras internas, cotacao por CEP, prazo estimado e admin basico"
+    "auth": "Autenticacao com papeis customer/admin/manager",
+    "cart": "Carrinho de visitante/usuario com itens, cupom, frete manual e conversao",
+    "coupons": "Cupons percentuais, valor fixo e free_shipping sem consumo de usedCount no pedido pendente",
+    "shipping": "Frete manual por regras internas, cotacao por CEP, prazo estimado e admin basico",
+    "checkout": "Checkout autenticado que cria pedido pendente sem pagamento real",
+    "orders": "Pedidos aguardando pagamento com snapshots e leitura customer/admin minima"
   },
-  "currentCart": {
-    "shippingPostalCode": "CEP cotado e persistido no carrinho",
-    "shippingQuoteId": "Quote selecionada persistida",
-    "shippingQuote": "Cotacao hidratada a partir do repositorio",
-    "shippingOptions": "Opcoes manuais geradas por regras aplicaveis",
-    "shippingAmountCents": "Valor de frete em centavos",
-    "partialTotalWithShippingCents": "Total parcial incluindo frete efetivo",
-    "invalidationRule": "Alteracoes de itens invalidam frete selecionado"
-  },
-  "currentCoupons": {
-    "percentage": "Desconto percentual sobre itens elegiveis",
-    "fixedAmount": "Desconto fixo em centavos",
-    "freeShipping": "Zera somente frete manual calculado e elegivel; nao cria frete e nao gera discountCents de produto"
-  },
-  "currentShipping": {
-    "mode": "manual",
-    "quoteInput": "CEP com 8 digitos numericos",
-    "ruleTypes": [
-      "uf",
-      "postal_range"
+  "currentCheckout": {
+    "requiresAuthentication": true,
+    "anonymousOrder": false,
+    "initialOrderStatus": "aguardando_pagamento",
+    "expirationMinutes": 60,
+    "serverSideValidation": [
+      "session",
+      "active_owned_cart",
+      "non_empty_cart",
+      "purchasable_products",
+      "stock_available",
+      "valid_coupon",
+      "valid_shipping_quote",
+      "complete_address",
+      "server_totals"
     ],
-    "priceUnit": "cents",
-    "estimatedDays": "manual",
-    "admin": "Rotas /admin/frete protegidas por admin/manager",
-    "externalProviders": {
-      "correios": "future_adapter_inactive",
-      "jadlog": "future_adapter_inactive",
-      "melhor_envio": "future_adapter_inactive"
-    },
-    "externalApiCalls": false,
-    "externalCredentialsRequired": false
+    "payment": {
+      "stripe": false,
+      "paymentIntent": false,
+      "cardCollection": false,
+      "capture": false
+    }
+  },
+  "currentOrders": {
+    "status": "aguardando_pagamento",
+    "snapshots": [
+      "items",
+      "prices",
+      "coupon",
+      "shipping",
+      "customer",
+      "address",
+      "totals"
+    ],
+    "cartConversion": "cart marked converted/blocked after pending order creation",
+    "futureActiveCart": "converted fallback carts are not reused for new purchases",
+    "customerRead": "own pending orders only",
+    "adminRead": "admin/manager pending order list without financial mutation"
   },
   "currentPersistence": {
     "migrations": [
-      "drizzle/0000_initial_schema.sql",
-      "drizzle/0001_phase_4_auth.sql",
-      "drizzle/0002_cart_purchase_session.sql",
-      "drizzle/0003_*",
-      "drizzle/0004_mute_ghost_rider.sql"
+      "drizzle/0000_shallow_shinko_yamashiro.sql",
+      "drizzle/0001_curvy_blink.sql",
+      "drizzle/0002_tiny_enchantress.sql",
+      "drizzle/0003_elite_titanium_man.sql",
+      "drizzle/0004_mute_ghost_rider.sql",
+      "drizzle/0005_glossy_talisman.sql"
     ],
-    "phase7Migration": {
-      "file": "drizzle/0004_mute_ghost_rider.sql",
+    "phase8Migration": {
+      "file": "drizzle/0005_glossy_talisman.sql",
       "status": "generated_not_applied_to_real_database",
-      "summary": "Campos de frete no carrinho, regras manuais e cotacoes"
+      "summary": "orders cartId, cents totals, coupon snapshot, order item line snapshots and indexes"
     }
   },
   "validations": {
-    "phase7": {
+    "phase8": {
       "pnpm lint": "passed",
       "pnpm typecheck": "passed",
-      "pnpm test": "passed - 23 files / 67 tests",
+      "pnpm test": "passed - 27 files / 79 tests",
       "pnpm build": "passed",
-      "pnpm test:e2e": "passed - 21 tests"
+      "pnpm test:e2e": "passed - 26 tests"
     }
   },
   "outOfScope": [
-    "checkout",
-    "payment",
+    "anonymous_order",
+    "real_payment",
     "stripe",
-    "order",
+    "payment_intent",
+    "card_collection",
+    "payment_capture",
     "stock_reservation",
     "stock_decrement",
+    "coupon_used_count_consumption_on_pending_order",
     "real_shipping_provider_api",
     "real_database_migration_application",
     "deploy"
@@ -139,10 +158,10 @@
       "_reversa_sdd/state-machines.md",
       "_reversa_sdd/permissions.md"
     ],
-    "forwardFeature": "_reversa_forward/005-fase-7-frete-cotacoes"
+    "forwardFeature": "_reversa_forward/006-fase-8-checkout-pendente"
   },
   "nextStep": {
-    "recommendedCommand": "/reversa-requirements",
-    "reason": "Abrir a proxima feature com requisitos antes de planejar ou implementar"
+    "recommendedCommand": "git commit dos artefatos Reversa pos-Fase 8, depois push dos commits locais",
+    "reason": "A re-extracao atualizou o conhecimento tecnico e de dominio apos a implementacao da Fase 8"
   }
 }
