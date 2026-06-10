@@ -1,6 +1,6 @@
 import "server-only";
 
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { coupons } from "@/db/schema";
 import { assertCanMutateRealData, runtimeMessages } from "@/lib/runtime-mode";
@@ -14,6 +14,7 @@ export type CouponRepository = {
   listCouponsForAdmin(): Promise<Coupon[]>;
   createCoupon(input: CouponAdminInput): Promise<CouponMutationResult>;
   updateCoupon(id: string, input: CouponAdminInput): Promise<CouponMutationResult>;
+  incrementUsedCount(id: string): Promise<boolean>;
 };
 
 export function createCouponRepository(): CouponRepository {
@@ -61,6 +62,18 @@ function createFallbackCouponRepository(): CouponRepository {
         message:
           "Cupom atualizado em modo dev/fixture, sem persistencia real por ausencia de DATABASE_URL."
       };
+    },
+    async incrementUsedCount(id) {
+      const coupon = [...store.values()].find((candidate) => candidate.id === id);
+      if (!coupon) {
+        return false;
+      }
+      store.set(coupon.code, {
+        ...coupon,
+        usedCount: coupon.usedCount + 1,
+        updatedAt: new Date()
+      });
+      return true;
     }
   };
 }
@@ -127,6 +140,17 @@ function createDrizzleCouponRepository(): CouponRepository {
         coupon: toCoupon(updated),
         message: "Cupom atualizado em Neon/Drizzle."
       };
+    },
+    async incrementUsedCount(id) {
+      const [updated] = await database
+        .update(coupons)
+        .set({
+          usedCount: sql`${coupons.usedCount} + 1`,
+          updatedAt: new Date()
+        })
+        .where(eq(coupons.id, id))
+        .returning({ id: coupons.id });
+      return Boolean(updated);
     }
   };
 }

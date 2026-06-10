@@ -9,7 +9,7 @@ export default async function CustomerPedidosPage() {
       <section className="page-intro">
         <p className="muted">Area do cliente</p>
         <h1>Meus pedidos</h1>
-        <p>Pedidos pendentes aparecem em leitura minima, sem pagamento real nesta fase.</p>
+        <p>Acompanhe pedidos pendentes e pagos. O pagamento e confirmado pelo webhook Stripe.</p>
       </section>
       {result.status === "success" ? (
         <OrderList orders={result.orders} audience="customer" />

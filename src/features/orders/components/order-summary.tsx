@@ -1,14 +1,29 @@
 import { formatMoney } from "@/lib/money";
+import type { PaymentIntentRecord } from "@/features/payments/types";
 import type { PendingOrder } from "../types";
 
-export function OrderSummary({ order }: { order: PendingOrder }) {
+export function OrderSummary({
+  order,
+  paymentIntent
+}: {
+  order: PendingOrder;
+  paymentIntent?: PaymentIntentRecord | null;
+}) {
   return (
     <article className="placeholder-panel" data-testid="pending-order-summary">
       <p className="muted">Pedido {order.number}</p>
       <h2>Status: {order.status}</h2>
       <p>Total: {formatMoney(order.grandTotalCents)}</p>
-      <p>Expira em: {order.expiresAt.toLocaleString("pt-BR")}</p>
-      <p className="muted">Pagamento real, cartão e PaymentIntent ficam fora desta fase.</p>
+      {order.status === "aguardando_pagamento" ? (
+        <p>Expira em: {order.expiresAt.toLocaleString("pt-BR")}</p>
+      ) : null}
+      {order.paidAt ? <p>Pago em: {order.paidAt.toLocaleString("pt-BR")}</p> : null}
+      <p className="muted">
+        Status do pagamento: {paymentIntent?.status ?? "ainda nao iniciado"}
+      </p>
+      <p className="muted">
+        Cartao e processado pelo Payment Element. O servidor nao armazena dados sensiveis.
+      </p>
     </article>
   );
 }

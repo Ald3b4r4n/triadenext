@@ -13,6 +13,7 @@ export type OrderRepository = {
   getCustomerOrder(userId: string, orderId: string): Promise<PendingOrder | null>;
   listAdminPendingOrders(): Promise<PendingOrder[]>;
   getAdminOrder(orderId: string): Promise<PendingOrder | null>;
+  markOrderPaid(orderId: string, paidAt: Date): Promise<PendingOrder | null>;
 };
 
 export type OrderPersistenceResult =
@@ -56,19 +57,30 @@ function createFallbackOrderRepository(): OrderRepository {
       };
     },
     async listCustomerPendingOrders(userId) {
-      return [...store.values()].filter(
-        (order) => order.userId === userId && order.status === "aguardando_pagamento"
-      );
+      return [...store.values()].filter((order) => order.userId === userId);
     },
     async getCustomerOrder(userId, orderId) {
       const order = store.get(orderId) ?? null;
       return order?.userId === userId ? order : null;
     },
     async listAdminPendingOrders() {
-      return [...store.values()].filter((order) => order.status === "aguardando_pagamento");
+      return [...store.values()];
     },
     async getAdminOrder(orderId) {
       return store.get(orderId) ?? null;
+    },
+    async markOrderPaid(orderId, paidAt) {
+      const order = store.get(orderId);
+      if (!order) {
+        return null;
+      }
+      const paidOrder = {
+        ...order,
+        status: "pago" as const,
+        paidAt
+      };
+      store.set(orderId, paidOrder);
+      return paidOrder;
     }
   };
 }
@@ -164,7 +176,7 @@ function createDrizzleOrderRepository(): OrderRepository {
       const rows = await database
         .select()
         .from(orders)
-        .where(and(eq(orders.userId, userId), eq(orders.status, "aguardando_pagamento")))
+        .where(eq(orders.userId, userId))
         .orderBy(desc(orders.createdAt));
       return hydrateOrderRows(rows);
     },
@@ -180,12 +192,19 @@ function createDrizzleOrderRepository(): OrderRepository {
       const rows = await database
         .select()
         .from(orders)
-        .where(eq(orders.status, "aguardando_pagamento"))
         .orderBy(desc(orders.createdAt));
       return hydrateOrderRows(rows);
     },
     async getAdminOrder(orderId) {
       return findById(orderId);
+    },
+    async markOrderPaid(orderId, paidAt) {
+      const [updated] = await database
+        .update(orders)
+        .set({ status: "pago", paidAt, updatedAt: paidAt })
+        .where(eq(orders.id, orderId))
+        .returning();
+      return updated ? findById(updated.id) : null;
     }
   };
 
@@ -242,7 +261,7 @@ function toPendingOrderFromRows(
     userId: row.userId ?? "",
     cartId: row.cartId ?? "",
     number: row.number,
-    status: "aguardando_pagamento",
+    status: row.status,
     subtotalCents: row.subtotalCents,
     discountTotalCents: row.discountTotalCents,
     shippingTotalCents: row.shippingTotalCents,
@@ -256,6 +275,7 @@ function toPendingOrderFromRows(
     publicToken: row.publicToken,
     createdAt: row.createdAt,
     expiresAt: row.expiresAt ?? row.createdAt,
+    paidAt: row.paidAt,
     persistence: "real"
   };
 }

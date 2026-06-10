@@ -19,7 +19,7 @@ export default async function CheckoutPage({
           <section className="page-intro">
             <p className="muted">Checkout pendente</p>
             <h1>Pedido criado</h1>
-            <p>Pedido aguardando pagamento. A etapa de pagamento real sera implementada em fase futura.</p>
+            <p>Pedido aguardando pagamento. Continue pela area de pedidos para pagar com Stripe.</p>
           </section>
           <OrderSummary order={orderResult.order} />
           <OrderItemsSummary order={orderResult.order} />
@@ -72,7 +72,7 @@ export default async function CheckoutPage({
       <section className="page-intro">
         <p className="muted">Checkout pendente</p>
         <h1>Revisao do pedido</h1>
-        <p>Confira itens, frete, cupom e endereco. Nenhum pagamento real sera iniciado nesta etapa.</p>
+        <p>Confira itens, frete, cupom e endereco. O pagamento sera iniciado depois que o pedido for criado.</p>
       </section>
 
       <section className="cart-layout" aria-label="Revisao de checkout">
@@ -167,7 +167,7 @@ export default async function CheckoutPage({
               "selecionado"}
           </p>
           <p className="muted">Pedido expira 60 minutos apos a criacao.</p>
-          <p className="muted">Sem cartao, sem Stripe, sem PaymentIntent e sem captura de pagamento.</p>
+          <p className="muted">Dados de cartao nao sao coletados neste formulario.</p>
         </aside>
       </section>
     </main>

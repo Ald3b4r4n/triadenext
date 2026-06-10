@@ -43,6 +43,13 @@
       "when": 1781094420336,
       "tag": "0005_glossy_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781102541225,
+      "tag": "0006_soft_mole_man",
+      "breakpoints": true
     }
   ]
 }

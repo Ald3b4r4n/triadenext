@@ -1,15 +1,16 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/006-fase-8-checkout-pendente",
-  "feature-id": "006",
-  "short-name": "fase-8-checkout-pendente",
-  "started-at": "2026-06-09T16:35:00-03:00",
+  "feature-dir": "_reversa_forward/007-fase-9-pagamento-stripe",
+  "feature-id": "007",
+  "short-name": "fase-9-pagamento-stripe",
+  "started-at": "2026-06-10T10:07:41.2531397-03:00",
   "current-stage": "coding",
   "stages-completed": [
     "requirements",
     "clarify",
-    "quality",
     "plan",
+    "to-do",
+    "audit",
     "coding"
   ],
   "paused-features": []

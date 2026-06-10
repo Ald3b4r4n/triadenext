@@ -71,7 +71,7 @@ export type PendingOrder = {
   userId: string;
   cartId: string;
   number: string;
-  status: "aguardando_pagamento";
+  status: OrderStatus;
   subtotalCents: number;
   discountTotalCents: number;
   shippingTotalCents: number;
@@ -85,11 +85,13 @@ export type PendingOrder = {
   publicToken: string;
   createdAt: Date;
   expiresAt: Date;
+  paidAt?: Date | null;
   persistence: OrderPersistence;
 };
 
 export type PendingOrderDraft = Omit<PendingOrder, "id" | "number" | "publicToken" | "createdAt" | "persistence" | "items"> & {
   createdAt: Date;
+  status: "aguardando_pagamento";
   items: Array<Omit<PendingOrderItem, "id" | "orderId">>;
 };
 

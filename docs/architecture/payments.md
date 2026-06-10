@@ -1,21 +1,31 @@
-# Payments
+# Payments — Fase 9
 
-Stripe esta preparado somente como placeholder. Na Fase 8, checkout cria somente pedido pendente.
+## Fluxo
 
-Contrato futuro:
+- Cliente autenticado inicia pagamento de pedido proprio em `aguardando_pagamento`.
+- O servidor usa `grandTotalCents` e `currency` do snapshot do pedido.
+- O servidor cria PaymentIntent direto; Stripe Checkout Session nao e o fluxo principal.
+- O client usa Stripe.js/Payment Element e nao coleta cartao em formulario proprio.
+- Retorno client-side apenas informa processamento.
+- `payment_intent.succeeded` por webhook assinado e a fonte final para marcar pago.
 
-- Checkout cria pedido `aguardando_pagamento`.
-- Pagamento inicial nasce `pendente`.
-- Webhook valida assinatura e idempotencia por `eventId`.
-- Evento `paid` marca pedido e pagamento como `pago`.
-- Evento `paid` tambem baixa estoque, envia e-mails, registra analytics e aciona Bling.
-- Admin nao deve marcar pedido como pago manualmente.
+## Webhook e atomicidade
 
-## Fase 8
+O endpoint `/api/webhooks/stripe` valida assinatura e registra `eventId`. Evento duplicado vira no-op.
+No caminho com banco real, uma transacao marca pagamento e pedido como pagos, baixa estoque e
+incrementa `usedCount` do cupom. Divergencia de pedido, valor, moeda ou estoque impede conclusao
+parcial e fica registrada como erro controlado.
 
-- Nenhuma chamada Stripe.
-- Nenhum PaymentIntent real.
-- Nenhum campo de cartao na UI.
-- Nenhuma captura de pagamento.
-- Pedido fica `aguardando_pagamento` por 60 minutos.
-- Estoque e cupom sao validados, mas estoque nao baixa/reserva e `usedCount` nao e consumido.
+## Ambiente
+
+- Dev/test sem chaves Stripe usam adapter mock explicito.
+- Preview/producao sem Stripe configurado falham de forma segura.
+- Client secret, secret key e webhook secret nao sao gravados em logs.
+- Mock nao representa cobranca real.
+
+## Fora de escopo
+
+- Stripe Checkout Session como fluxo principal.
+- Formulario proprio ou armazenamento de dados sensiveis de cartao.
+- Marcacao manual de pago pelo admin.
+- Bling, NF-e, fiscal e email transacional obrigatorio.

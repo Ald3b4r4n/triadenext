@@ -50,7 +50,7 @@ export async function createPendingOrderAction(
   revalidatePath("/admin/pedidos");
   return {
     status: "success",
-    message: `${result.message} Nenhum pagamento real foi iniciado.`,
+    message: `${result.message} O pagamento ainda precisa ser iniciado pelo cliente.`,
     orderId: result.order.id
   };
 }

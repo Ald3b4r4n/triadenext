@@ -509,39 +509,56 @@ export const orderEvents = pgTable("order_events", {
   createdAt: createdAtColumn()
 });
 
-export const paymentIntents = pgTable("payment_intents", {
-  id: idColumn(),
-  orderId: uuid("order_id")
-    .notNull()
-    .references(() => orders.id, { onDelete: "cascade" }),
-  provider: text("provider").notNull().default("stripe"),
-  providerReference: text("provider_reference"),
-  checkoutSessionId: text("checkout_session_id"),
-  status: paymentStatus("status").notNull().default("pendente"),
-  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
-  currency: text("currency").notNull().default("BRL"),
-  failureReason: text("failure_reason"),
-  paidAt: timestamp("paid_at", { withTimezone: true }),
-  refundedAt: timestamp("refunded_at", { withTimezone: true }),
-  createdAt: createdAtColumn(),
-  updatedAt: updatedAtColumn()
-});
+export const paymentIntents = pgTable(
+  "payment_intents",
+  {
+    id: idColumn(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    provider: text("provider").notNull().default("stripe"),
+    providerReference: text("provider_reference"),
+    checkoutSessionId: text("checkout_session_id"),
+    status: paymentStatus("status").notNull().default("pendente"),
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    currency: text("currency").notNull().default("BRL"),
+    failureReason: text("failure_reason"),
+    paidAt: timestamp("paid_at", { withTimezone: true }),
+    refundedAt: timestamp("refunded_at", { withTimezone: true }),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    providerReferenceUnique: uniqueIndex("payment_intents_provider_reference_unique").on(
+      table.providerReference
+    ),
+    orderStatusIdx: index("payment_intents_order_status_idx").on(table.orderId, table.status)
+  })
+);
 
-export const paymentEvents = pgTable("payment_events", {
-  id: idColumn(),
-  paymentIntentId: uuid("payment_intent_id").references(() => paymentIntents.id, {
-    onDelete: "set null"
-  }),
-  orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
-  eventId: text("event_id").notNull(),
-  eventType: text("event_type").notNull(),
-  signatureValid: boolean("signature_valid").notNull().default(false),
-  payload: jsonb("payload"),
-  processingStatus: text("processing_status").notNull().default("received"),
-  processedAt: timestamp("processed_at", { withTimezone: true }),
-  failureReason: text("failure_reason"),
-  createdAt: createdAtColumn()
-});
+export const paymentEvents = pgTable(
+  "payment_events",
+  {
+    id: idColumn(),
+    paymentIntentId: uuid("payment_intent_id").references(() => paymentIntents.id, {
+      onDelete: "set null"
+    }),
+    orderId: uuid("order_id").references(() => orders.id, { onDelete: "set null" }),
+    eventId: text("event_id").notNull(),
+    eventType: text("event_type").notNull(),
+    signatureValid: boolean("signature_valid").notNull().default(false),
+    payload: jsonb("payload"),
+    processingStatus: text("processing_status").notNull().default("received"),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+    failureReason: text("failure_reason"),
+    createdAt: createdAtColumn()
+  },
+  (table) => ({
+    eventIdUnique: uniqueIndex("payment_events_event_id_unique").on(table.eventId),
+    paymentIntentIdx: index("payment_events_payment_intent_id_idx").on(table.paymentIntentId),
+    orderIdx: index("payment_events_order_id_idx").on(table.orderId)
+  })
+);
 
 export const fiscalDocuments = pgTable("fiscal_documents", {
   id: idColumn(),

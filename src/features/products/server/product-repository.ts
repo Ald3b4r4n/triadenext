@@ -1,7 +1,7 @@
 import { db } from "@/db/client";
 import { categories, productCategories, productImages, products } from "@/db/schema";
 import { assertCanMutateRealData, runtimeMessages } from "@/lib/runtime-mode";
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, sql } from "drizzle-orm";
 import { sortProductImages } from "../domain";
 import { devCategories, devProducts } from "../dev/fixtures";
 import type { Category, Product, ProductGender, ProductImage, ProductMutationInput } from "../types";
@@ -15,6 +15,7 @@ export type ProductRepository = {
   saveProductImageMetadata(input: ProductImageMetadataInput): Promise<ProductImageMetadataResult>;
   createProduct(input: ProductMutationInput): Promise<ProductMutationPersistenceResult>;
   updateProduct(id: string, input: ProductMutationInput): Promise<ProductMutationPersistenceResult>;
+  decrementStock(productId: string, quantity: number): Promise<boolean>;
 };
 
 export type ProductImageMetadataInput = {
@@ -112,6 +113,14 @@ function createFixtureProductRepository(): ProductRepository {
         productId: id,
         message: runtimeMessages.devFallbackUpdate
       };
+    },
+    async decrementStock(productId, quantity) {
+      const product = devProducts.find((candidate) => candidate.id === productId);
+      if (!product || product.stockQuantity < quantity) {
+        return false;
+      }
+      product.stockQuantity -= quantity;
+      return true;
     }
   };
 }
@@ -259,6 +268,17 @@ function createDrizzleProductRepository(): ProductRepository {
         productId: id,
         message: runtimeMessages.persistedUpdate
       };
+    },
+    async decrementStock(productId, quantity) {
+      const [updated] = await database
+        .update(products)
+        .set({
+          stockQuantity: sql`${products.stockQuantity} - ${quantity}`,
+          updatedAt: new Date()
+        })
+        .where(and(eq(products.id, productId), gte(products.stockQuantity, quantity)))
+        .returning({ id: products.id });
+      return Boolean(updated);
     }
   };
 }

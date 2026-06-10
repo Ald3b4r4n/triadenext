@@ -8,8 +8,8 @@ export default async function AdminPedidosPage() {
     <main className="page-shell">
       <section className="page-intro">
         <p className="muted">Admin</p>
-        <h1>Pedidos pendentes</h1>
-        <p>Visualizacao minima. Sem marcar como pago, sem editar valores e sem baixa de estoque.</p>
+        <h1>Pedidos</h1>
+        <p>Visualizacao financeira minima. Sem marcar como pago ou editar valores.</p>
       </section>
       {result.status === "success" ? (
         <OrderList orders={result.orders} audience="admin" />

@@ -159,3 +159,16 @@ Delta local gerado:
 Migration local: `drizzle/0005_glossy_talisman.sql`.
 
 Essa migration foi gerada localmente. Nao foi aplicada contra banco real nesta etapa.
+
+## Fase 9 — Idempotencia de pagamentos
+
+`payment_intents` e `payment_events` passam a sustentar o fluxo Stripe real/mock:
+
+- unique em `payment_intents.provider_reference`;
+- indice por `payment_intents.order_id/status`;
+- unique em `payment_events.event_id`;
+- indices por `payment_events.payment_intent_id` e `payment_events.order_id`.
+
+Migration local: `drizzle/0006_soft_mole_man.sql`.
+
+Essa migration foi gerada localmente e nao foi aplicada contra banco real.
