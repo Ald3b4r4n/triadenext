@@ -15,7 +15,18 @@
 
 ## Historico de re-extracoes
 
-Nenhuma re-extracao registrada apos a Fase 9.
+### Re-extração 2026-06-10 12:30
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | `_reversa_sdd/domain.md` e `_reversa_sdd/state-machines.md` registram que pedido so vira `pago` por webhook assinado/idempotente. |
+| W002 | 🟢 verde | `_reversa_sdd/architecture.md` e `_reversa_sdd/domain.md` registram PaymentIntent com valor/moeda do snapshot server-side. |
+| W003 | 🟢 verde | `_reversa_sdd/domain.md` registra `usedCount` consumido uma vez somente no webhook confirmado. |
+| W004 | 🟢 verde | `_reversa_sdd/domain.md` registra baixa de estoque somente no settlement confirmado. |
+| W005 | 🟢 verde | `_reversa_sdd/permissions.md` mantem admin/manager sem marcar pago, editar valores, baixar estoque ou consumir cupom. |
+| W006 | 🟢 verde | `_reversa_sdd/dependencies.md` e `_reversa_sdd/data-dictionary.md` registram assinatura de webhook e `eventId` unico. |
+| W007 | 🟢 verde | `_reversa_sdd/domain.md` registra mock restrito a dev/test e falha segura em preview/producao sem Stripe. |
+| W008 | 🟢 verde | `_reversa_sdd/state-machines.md` registra divergencia/estoque insuficiente sem conclusao operacional parcial. |
 
 ## Arquivadas
 

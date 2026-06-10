@@ -25,13 +25,15 @@
     "fase_7",
     "reextracao_pos_fase_7",
     "fase_8",
-    "reextracao_pos_fase_8"
+    "reextracao_pos_fase_8",
+    "fase_9",
+    "reextracao_pos_fase_9"
   ],
   "pending": [
-    "commit_reversa_pos_fase_8",
+    "commit_reversa_pos_fase_9",
     "push_commits_locais"
   ],
-  "last_checkpoint": "reextraction_after_phase_8_2026_06_10",
+  "last_checkpoint": "reextraction_after_phase_9_2026_06_10",
   "checkpoints": {
     "history_before_phase_7": {
       "completed_at": "2026-06-08T22:45:00-03:00",
@@ -163,9 +165,81 @@
       },
       "next_phase": "commit_reversa_pos_fase_8_e_push",
       "next_command": "git commit dos artefatos Reversa pos-Fase 8, depois push dos commits locais"
+    },
+    "reextraction_after_phase_9_2026_06_10": {
+      "completed_at": "2026-06-10T12:30:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD apos Fase 9 de pagamento Stripe com PaymentIntent, Payment Element, webhook e settlement.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "latest_commit": {
+          "short": "8d01351",
+          "hash": "8d013511699a098e5fc7faededf558a6b7c2a53d",
+          "message": "feat: implement stripe payment intents"
+        },
+        "phase9_commit_pushed": false,
+        "working_tree_before_reextraction": "clean"
+      },
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_forward/007-fase-9-pagamento-stripe/regression-watch.md"
+      ],
+      "phase9_summary": {
+        "payment_intent_server_side": true,
+        "payment_element_client": true,
+        "mock_dev_test_explicit": true,
+        "signed_stripe_webhook": true,
+        "webhook_idempotency": true,
+        "internal_payment_intent_record": true,
+        "webhook_event_record": true,
+        "client_return_marks_paid": false,
+        "financial_confirmation_source": "payment_intent.succeeded",
+        "failure_events_do_not_mark_paid": true,
+        "atomic_settlement": [
+          "order",
+          "payment",
+          "stock",
+          "coupon"
+        ],
+        "stock_decrement_only_after_webhook": true,
+        "coupon_used_count_only_after_webhook": true,
+        "admin_manual_paid_transition": false,
+        "own_card_collection": false,
+        "card_sensitive_data_storage": false,
+        "stripe_checkout_session_main_flow": false,
+        "fiscal_bling_nfe": false,
+        "mandatory_real_transactional_email": false,
+        "local_migration_generated_not_applied": "drizzle/0006_soft_mole_man.sql"
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 82 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 27 tests"
+      },
+      "regression_watch": {
+        "feature": "_reversa_forward/007-fase-9-pagamento-stripe",
+        "items": 8,
+        "latest_verdicts": {
+          "green": 8,
+          "yellow": 0,
+          "red": 0
+        }
+      },
+      "next_phase": "commit_reversa_pos_fase_9_e_push",
+      "next_command": "git commit dos artefatos Reversa pos-Fase 9, depois push dos commits locais"
     }
   },
-  "next_reversa_command": "commit_reversa_pos_fase_8_then_push",
+  "next_reversa_command": "commit_reversa_pos_fase_9_then_push",
   "engines": [
     "claude-code",
     "codex",

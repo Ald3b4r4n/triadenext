@@ -1,7 +1,7 @@
 # Inventario tecnico Reversa - Triade Essenza Next
 
 Data da re-extracao: 2026-06-10
-Escopo: estado do projeto Next.js apos Fase 8 concluida e commitada localmente.
+Escopo: estado do projeto Next.js apos Fase 9 concluida e commitada localmente.
 
 ## Confirmacao de contexto
 
@@ -9,7 +9,7 @@ Escopo: estado do projeto Next.js apos Fase 8 concluida e commitada localmente.
 - Nao e o legado Laravel: `D:\Projetos\triadeessenzaparfum.com.br`
 - Branch: `main`
 - Sincronia Git no inicio da re-extracao: `main...origin/main [ahead 1]`
-- Ultimo commit funcional confirmado: `1ace51b3ea7c2e2cb702e23e1a724793069cc972 feat: implement pending checkout orders`
+- Ultimo commit funcional confirmado: `8d013511699a098e5fc7faededf558a6b7c2a53d feat: implement stripe payment intents`
 - Working tree antes da re-extracao: limpo
 
 ## Fases implementadas
@@ -24,21 +24,23 @@ Escopo: estado do projeto Next.js apos Fase 8 concluida e commitada localmente.
 | Fase 6 | `399953c` | Concluida | Cupons e descontos no carrinho |
 | Fase 7 | `5d103b7` | Concluida | Frete manual, cotacao por CEP e admin basico de frete |
 | Fase 8 | `1ace51b` | Concluida | Checkout autenticado, pedido pendente, snapshots e carrinho convertido |
+| Fase 9 | `8d01351` | Concluida | PaymentIntent Stripe, Payment Element, webhook assinado/idempotente e settlement |
 
 ## Artefatos principais observados
 
 ### Aplicacao
 
-- `src/app`: rotas App Router, incluindo catalogo, carrinho, checkout, customer e admin.
-- `src/features/products`: catalogo, produtos, filtros e componentes publicos.
+- `src/app`: rotas App Router, incluindo catalogo, carrinho, checkout, customer, admin e webhook Stripe.
+- `src/features/products`: catalogo, produtos, filtros, fixtures e baixa de estoque no settlement.
 - `src/features/auth`: sessao, papeis, policies e login/cadastro.
 - `src/features/cart`: carrinho ativo, itens, cupom, frete selecionado e conversao.
-- `src/features/coupons`: validacao de cupons, tipos de desconto e `free_shipping`.
+- `src/features/coupons`: validacao de cupons, tipos de desconto e consumo de `usedCount` no settlement.
 - `src/features/shipping`: regras manuais de frete, cotacoes, persistencia, admin e adapters futuros inativos.
 - `src/features/checkout`: orquestracao server-side do checkout pendente.
-- `src/features/orders`: dominio, snapshots, repository, leitura customer/admin e componentes de pedidos.
-- `src/db/schema.ts`: schema Drizzle com catalogo, auth, carrinho, cupons, frete, pedidos e pagamentos futuros inertes.
-- `drizzle/0005_glossy_talisman.sql`: migration local gerada para pedido pendente; nao aplicada em banco real.
+- `src/features/orders`: dominio, snapshots, repository, leitura customer/admin e status `pago`.
+- `src/features/payments`: PaymentIntent, adapter Stripe/mock, Payment Element, webhook e settlement.
+- `src/db/schema.ts`: schema Drizzle com catalogo, auth, carrinho, cupons, frete, pedidos e pagamentos.
+- `drizzle/0006_soft_mole_man.sql`: migration local gerada para indices de pagamento/webhook; nao aplicada em banco real.
 
 ### Reversa
 
@@ -51,7 +53,7 @@ Escopo: estado do projeto Next.js apos Fase 8 concluida e commitada localmente.
 - `_reversa_sdd/data-dictionary.md`
 - `_reversa_sdd/state-machines.md`
 - `_reversa_sdd/permissions.md`
-- `_reversa_forward/006-fase-8-checkout-pendente/*`
+- `_reversa_forward/007-fase-9-pagamento-stripe/*`
 
 ## Capacidades atuais
 
@@ -64,61 +66,64 @@ Escopo: estado do projeto Next.js apos Fase 8 concluida e commitada localmente.
 - Selecao de frete persistida no carrinho.
 - Total parcial com frete e `free_shipping` sobre frete manual elegivel.
 - Checkout autenticado.
-- Pedido pendente `aguardando_pagamento`.
-- Expiracao de pedido pendente em 60 minutos.
+- Pedido pendente `aguardando_pagamento` com expiracao de 60 minutos.
 - Snapshots de itens, cliente, endereco, cupom, frete e totais.
 - Carrinho convertido/bloqueado apos criacao do pedido.
-- Novo carrinho ativo futuro apos conversao.
-- Area customer minima de pedidos pendentes.
-- Admin minimo de pedidos pendentes, somente leitura.
+- Area customer minima de pedidos pendentes/pagos.
+- Admin minimo de pedidos em leitura financeira.
+- PaymentIntent server-side para pedido pendente proprio.
+- Payment Element no client, sem formulario proprio de cartao.
+- Webhook Stripe assinado e idempotente.
+- Confirmacao financeira por `payment_intent.succeeded`.
+- Baixa de estoque e consumo de cupom somente no webhook confirmado.
+- Mock explicito em dev/test sem credenciais reais.
 
-## Checkout e pedidos - superficie tecnica
+## Pagamentos - superficie tecnica
 
-- Dominio de pedido: `src/features/orders/domain.ts`
-- Tipos e schemas de pedido: `src/features/orders/types.ts`, `src/features/orders/schemas.ts`
-- Repository de pedidos: `src/features/orders/server/order-repository.ts`
-- Actions de pedidos: `src/features/orders/server/order-actions.ts`
-- Service de checkout: `src/features/checkout/server/checkout-service.ts`
-- Actions de checkout: `src/features/checkout/server/checkout-actions.ts`
-- UI checkout: `src/app/(storefront)/checkout/page.tsx`
-- CTA no carrinho: `src/features/cart/components/cart-view.tsx`
-- Customer pedidos: `src/app/(customer)/pedidos/page.tsx`
-- Admin pedidos: `src/app/admin/pedidos/page.tsx`
+- Configuracao segura: `src/features/payments/server/payment-config.ts`
+- Adapter Stripe/mock: `src/features/payments/server/stripe-adapter.ts`
+- Repository de pagamentos/eventos: `src/features/payments/server/payment-repository.ts`
+- Inicio de pagamento: `src/features/payments/server/payment-service.ts`
+- Server actions: `src/features/payments/server/payment-actions.ts`
+- Webhook: `src/app/api/webhooks/stripe/route.ts`
+- Processamento de webhook: `src/features/payments/server/stripe-webhook-service.ts`
+- Settlement atomico: `src/features/payments/server/payment-settlement-service.ts`
+- UI Payment Element: `src/features/payments/components/payment-element-form.tsx`
+- Pagina customer: `src/app/(customer)/pedidos/[id]/pagamento/page.tsx`
 
 ## Integracoes externas
 
 | Integracao | Estado atual | Observacao |
 | --- | --- | --- |
+| Stripe | Ativo quando configurado | PaymentIntent direto, Payment Element e webhook assinado |
+| Stripe mock | Ativo apenas dev/test sem chaves reais | Simula PaymentIntent/webhook de forma explicita |
 | Correios | Adapter futuro inativo | Nenhuma API real chamada |
 | Jadlog | Adapter futuro inativo | Nenhuma API real chamada |
 | Melhor Envio | Adapter futuro inativo | Nenhuma API real chamada |
-| Stripe | Fora do escopo produtivo da Fase 8 | Nenhum PaymentIntent real, cartao ou captura |
 | Banco real | Nao acessado nesta re-extracao | Nenhuma migration aplicada |
 
-## Validacoes informadas para Fase 8
+## Validacoes informadas para Fase 9
 
 - `pnpm lint`: passou
 - `pnpm typecheck`: passou
-- `pnpm test`: passou, 27 arquivos / 79 testes
+- `pnpm test`: passou, 82 testes
 - `pnpm build`: passou
-- `pnpm test:e2e`: passou, 26 testes
+- `pnpm test:e2e`: passou, 27 testes
 
 ## Fora do escopo atual
 
 - Pedido anonimo.
-- Pagamento real.
-- Stripe real.
-- PaymentIntent real.
-- Coleta de cartao.
-- Captura de pagamento.
-- Reserva definitiva de estoque.
-- Baixa definitiva de estoque.
-- Consumo de `usedCount` na criacao do pedido pendente.
-- Chamadas reais a APIs de frete.
+- Stripe Checkout Session como fluxo principal.
+- Coleta propria de cartao.
+- Armazenamento de dados sensiveis de cartao.
+- Pagamento marcado como pago por retorno client-side.
+- Marcacao manual de pago pelo admin.
+- Bling, NF-e e fiscal.
+- E-mail transacional real obrigatorio.
 - Aplicacao de migrations em banco real.
 - Deploy.
 - Push do commit funcional.
 
 ## Proxima etapa recomendada
 
-Committar os artefatos Reversa pos-Fase 8 e depois fazer push dos commits locais quando validado.
+Committar os artefatos Reversa pos-Fase 9 e depois fazer push dos commits locais quando validado.

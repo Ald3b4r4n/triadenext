@@ -1,14 +1,14 @@
 # Dicionario de dados Reversa - Triade Essenza Next
 
 Data: 2026-06-10
-Escopo: modelo de dados apos Fase 8.
+Escopo: modelo de dados apos Fase 9.
 
 ## Convencoes
 
 - Valores monetarios sao armazenados em centavos para calculo de dominio.
 - Campos decimais permanecem para compatibilidade operacional/relatorio.
 - Datas usam timestamp.
-- Regras server-side sao fonte de verdade para totais.
+- Regras server-side sao fonte de verdade para totais e pagamentos.
 - Migrations sao locais/versionadas; nenhuma aplicacao em banco real ocorreu nesta re-extracao.
 
 ## Enums e dominios controlados
@@ -26,14 +26,35 @@ Escopo: modelo de dados apos Fase 8.
 
 | Valor | Significado |
 | --- | --- |
-| `aguardando_pagamento` | Estado inicial da Fase 8 |
-| `pago` | Futuro, depende de pagamento confirmado |
+| `aguardando_pagamento` | Estado inicial apos checkout pendente |
+| `pago` | Pagamento confirmado por webhook e settlement |
 | `em_preparacao` | Futuro operacional |
 | `enviado` | Futuro operacional |
 | `entregue` | Futuro operacional |
 | `cancelado` | Futuro operacional |
 | `expirado` | Futuro para pedido pendente vencido |
 | `reembolsado` | Futuro financeiro |
+
+### Status de PaymentIntent interno
+
+| Valor | Significado |
+| --- | --- |
+| `pendente` | Registro criado ou PaymentIntent aguardando conclusao |
+| `requer_acao` | Stripe requer acao/confirmacao do cliente |
+| `pago` | Confirmado por webhook e settlement |
+| `falhou` | Falha correlata do PaymentIntent |
+| `cancelado` | PaymentIntent cancelado |
+| `divergente` | Valor, moeda ou pedido divergente |
+
+### Status de evento de pagamento
+
+| Valor | Significado |
+| --- | --- |
+| `received` | Evento recebido/registrado |
+| `processed` | Evento processado com sucesso ou falha correlata tratada |
+| `failed` | Evento valido mas impossivel de concluir com seguranca |
+| `ignored` | Evento fora do escopo atual |
+| `duplicate` | Evento repetido/idempotente |
 
 ### Tipo de cupom
 
@@ -61,82 +82,28 @@ Campos relevantes:
 | `id` | string | Identificador do carrinho |
 | `user_id` | string opcional | Usuario autenticado, quando houver |
 | `guest_token` | string opcional | Visitante anonimo |
-| `session_id` | string opcional | Apoio ao carrinho anonimo |
 | `applied_coupon_id` | string opcional | Cupom aplicado |
-| `shipping_postal_code` | string opcional | CEP usado na cotacao |
 | `selected_shipping_quote_id` | string opcional | Quote selecionada |
 | `selected_shipping_option` | json opcional | Snapshot/preparo da opcao selecionada |
 | `shipping_amount_cents` | inteiro | Frete efetivo em centavos |
 | `status` | enum | `active`, `converted`, `abandoned`, `expired` |
 | `converted_at` | timestamp opcional | Momento em que gerou pedido |
-| `expires_at` | timestamp opcional | Expiracao de carrinho anonimo |
-| `created_at` | timestamp | Criacao |
-| `updated_at` | timestamp | Atualizacao |
-
-Derivados em view de carrinho:
-
-- subtotal dos itens.
-- desconto de cupom.
-- valor de frete.
-- total parcial com frete.
-
-## `shipping_rules`
-
-Tabela de regras manuais de frete.
-
-| Campo | Tipo conceitual | Observacao |
-| --- | --- | --- |
-| `id` | string | Identificador |
-| `name` | string | Nome operacional da regra |
-| `provider` | string | `manual` no fluxo atual |
-| `rule_type` | string | `uf` ou `postal_range` |
-| `uf` | string opcional | UF alvo |
-| `postal_code_start` | string opcional | Inicio da faixa de CEP |
-| `postal_code_end` | string opcional | Fim da faixa de CEP |
-| `price_cents` | inteiro | Valor do frete em centavos |
-| `estimated_days` | inteiro | Prazo manual estimado |
-| `priority` | inteiro | Prioridade de aplicacao |
-| `is_active` | booleano | Regra ativa/inativa |
-| `created_at` | timestamp | Criacao |
-| `updated_at` | timestamp | Atualizacao |
-
-## `shipping_quotes`
-
-Tabela de cotacoes de frete por carrinho.
-
-| Campo | Tipo conceitual | Observacao |
-| --- | --- | --- |
-| `id` | string | Identificador da quote |
-| `cart_id` | string | Carrinho dono da cotacao |
-| `postal_code` | string | CEP normalizado |
-| `cart_hash` | string | Assinatura do estado do carrinho |
-| `provider` | string | `manual` no fluxo atual |
-| `source` | string | Origem da cotacao: manual/fixture/dev |
-| `options` | json | Opcoes geradas |
-| `selected_option_id` | string opcional | Opcao escolhida |
-| `expires_at` | timestamp | Validade local da cotacao |
-| `created_at` | timestamp | Criacao |
-| `updated_at` | timestamp | Atualizacao |
 
 ## `orders`
 
-Tabela de pedidos pendentes e futuros estados de pedido.
+Tabela de pedidos pendentes/pagos e futuros estados de pedido.
 
 | Campo | Tipo conceitual | Observacao |
 | --- | --- | --- |
 | `id` | string | Identificador do pedido |
-| `user_id` | string opcional no schema | Na Fase 8 deve existir para pedido criado |
+| `user_id` | string opcional no schema | Na regra atual deve existir para pedido criado |
 | `cart_id` | string opcional | Carrinho convertido que originou o pedido; indice unico |
 | `number` | string | Numero operacional `TE-*` |
-| `status` | enum | Inicial `aguardando_pagamento` |
+| `status` | enum | `aguardando_pagamento` ou `pago` na Fase 9 |
 | `fulfillment_status` | enum | Inicial `unfulfilled` |
-| `subtotal` | decimal | Compatibilidade operacional |
 | `subtotal_cents` | inteiro | Subtotal server-side em centavos |
-| `shipping_total` | decimal | Compatibilidade operacional |
 | `shipping_total_cents` | inteiro | Frete efetivo em centavos |
-| `discount_total` | decimal | Compatibilidade operacional |
 | `discount_total_cents` | inteiro | Desconto efetivo em centavos |
-| `grand_total` | decimal | Compatibilidade operacional |
 | `grand_total_cents` | inteiro | Total final em centavos |
 | `currency` | string | `BRL` |
 | `customer_snapshot` | json | Nome completo, e-mail da sessao e telefone |
@@ -146,9 +113,7 @@ Tabela de pedidos pendentes e futuros estados de pedido.
 | `public_token` | string | Token interno de visualizacao |
 | `expires_at` | timestamp | `created_at + 60 minutos` |
 | `placed_at` | timestamp opcional | Momento de criacao do pedido pendente |
-| `paid_at` | timestamp opcional | Futuro, nao usado na Fase 8 |
-| `cancelled_at` | timestamp opcional | Futuro |
-| `completed_at` | timestamp opcional | Futuro |
+| `paid_at` | timestamp opcional | Preenchido no settlement confirmado |
 | `created_at` | timestamp | Criacao |
 | `updated_at` | timestamp | Atualizacao |
 
@@ -166,37 +131,88 @@ Tabela de snapshots de linhas do pedido.
 | --- | --- | --- |
 | `id` | string | Identificador do item |
 | `order_id` | string | Pedido dono |
-| `product_id` | string opcional | Produto de origem, se ainda existir |
+| `product_id` | string opcional | Produto de origem, usado na baixa de estoque |
 | `sku_snapshot` | string | SKU no momento do pedido |
 | `name_snapshot` | string | Nome no momento do pedido |
 | `slug_snapshot` | string opcional | Slug no momento do pedido |
 | `image_snapshot` | string opcional | Imagem no momento do pedido |
-| `unit_price` | decimal | Compatibilidade operacional |
 | `unit_price_cents` | inteiro | Preco unitario em centavos |
 | `quantity` | inteiro | Quantidade pedida |
-| `line_total` | decimal | Compatibilidade operacional |
 | `line_total_cents` | inteiro | Total da linha em centavos |
+
+## `payment_intents`
+
+Registro interno do PaymentIntent Stripe/mock.
+
+| Campo | Tipo conceitual | Observacao |
+| --- | --- | --- |
+| `id` | string | Identificador interno |
+| `order_id` | string | Pedido associado |
+| `provider` | string | `stripe` ou `stripe_mock` |
+| `provider_reference` | string opcional | ID do PaymentIntent no provider; unico |
+| `amount_cents` | inteiro | Valor do pedido snapshotado |
+| `currency` | string | Moeda do pedido |
+| `status` | enum conceitual | `pendente`, `requer_acao`, `pago`, `falhou`, `cancelado`, `divergente` |
+| `client_secret` | string opcional | Nao deve ser persistido no caminho real |
+| `failure_reason` | string opcional | Motivo sanitizado de falha/divergencia |
+| `paid_at` | timestamp opcional | Preenchido no settlement |
+| `created_at` | timestamp | Criacao |
+| `updated_at` | timestamp | Atualizacao |
+
+Indices relevantes:
+
+- `payment_intents_provider_reference_unique`.
+- `payment_intents_order_status_idx`.
+
+## `payment_events`
+
+Registro de eventos de webhook para auditoria e idempotencia.
+
+| Campo | Tipo conceitual | Observacao |
+| --- | --- | --- |
+| `id` | string | Identificador interno |
+| `event_id` | string | ID do evento Stripe; unico |
+| `event_type` | string | Ex.: `payment_intent.succeeded` |
+| `payment_intent_id` | string opcional | Registro interno associado |
+| `order_id` | string opcional | Pedido associado |
+| `signature_valid` | booleano | Assinatura validada antes do registro |
+| `processing_status` | enum conceitual | `received`, `processed`, `failed`, `ignored`, `duplicate` |
+| `failure_reason` | string opcional | Motivo sanitizado |
+| `payload` | json opcional | Payload reduzido/sanitizado |
+| `processed_at` | timestamp opcional | Momento de processamento |
 | `created_at` | timestamp | Criacao |
 
-## `payment_intents` e `payment_events`
+Indices relevantes:
 
-Existem no schema como superficie futura. A Fase 8 nao cria PaymentIntent real, nao chama Stripe,
-nao captura pagamento e nao coleta cartao.
+- `payment_events_event_id_unique`.
+- `payment_events_payment_intent_id_idx`.
+- `payment_events_order_id_idx`.
 
 ## Relacoes relevantes
 
 - `cart_items` pertence a `carts`.
 - `carts.applied_coupon_id` aponta para cupom aplicado.
 - `shipping_quotes.cart_id` pertence a `carts`.
-- `carts.selected_shipping_quote_id` referencia a quote selecionada.
 - `orders.cart_id` referencia carrinho convertido.
 - `orders.user_id` referencia o usuario dono.
 - `order_items.order_id` pertence a `orders`.
-- Alterar itens do carrinho invalida a selecao de frete.
+- `payment_intents.order_id` referencia pedido pagavel.
+- `payment_events.payment_intent_id` referencia registro interno de pagamento.
+- `payment_events.event_id` impede reprocessamento duplicado.
 - Criar pedido pendente converte/bloqueia o carrinho.
+- Criar PaymentIntent nao altera pedido para `pago`.
+- Webhook confirmado atualiza `orders`, `payment_intents`, `products`, `coupons` e `payment_events`.
 
-## Migration local da Fase 8
+## Migrations locais recentes
+
+### Fase 8
 
 - Arquivo: `drizzle/0005_glossy_talisman.sql`
 - Conteudo conceitual: adiciona `cart_id`, totais em centavos e `coupon_snapshot` em `orders`; adiciona slug, imagem e centavos em `order_items`; cria indices de leitura/idempotencia.
+- Estado: gerada e versionada localmente; nao aplicada em banco real nesta etapa.
+
+### Fase 9
+
+- Arquivo: `drizzle/0006_soft_mole_man.sql`
+- Conteudo conceitual: cria indice unico para `payment_events.event_id`, indices de consulta para eventos e intents, e indice unico para `payment_intents.provider_reference`.
 - Estado: gerada e versionada localmente; nao aplicada em banco real nesta etapa.

@@ -1,7 +1,7 @@
 # Maquinas de estado Reversa - Triade Essenza Next
 
 Data: 2026-06-10
-Escopo: estados apos Fase 8.
+Escopo: estados apos Fase 9.
 
 ## Carrinho
 
@@ -24,17 +24,7 @@ stateDiagram-v2
   converted --> [*]
 ```
 
-Estados relevantes:
-
-- `empty`: sem itens.
-- `active`: com itens e sem checkout.
-- `coupon_applied`: cupom valido aplicado.
-- `shipping_quoted`: quote gerada para CEP.
-- `shipping_selected`: opcao de frete persistida.
-- `checkout_review`: usuario autenticado revisa pedido.
-- `converted`: pedido pendente criado; carrinho bloqueado.
-- `shipping_invalidated`: frete descartado apos mudanca de itens.
-- `shipping_removed`: usuario removeu a selecao de frete.
+Carrinho `converted` e terminal para novas mutacoes. Pagamento nao reabre carrinho.
 
 ## Checkout pendente
 
@@ -56,31 +46,103 @@ stateDiagram-v2
 Regras:
 
 - Visitante nao cria pedido.
-- Carrinho anonimo nao vira pedido diretamente.
 - O servidor recalcula tudo antes de criar pedido.
 - Payload financeiro do cliente e ignorado.
-- Nenhum pagamento real e iniciado.
+- Nenhum pagamento e confirmado no checkout.
 
 ## Pedido
 
 ```mermaid
 stateDiagram-v2
   [*] --> aguardando_pagamento
-  aguardando_pagamento --> expirado: 60 minutos sem pagamento futuro
-  aguardando_pagamento --> pago: fase futura de pagamento confirmado
+  aguardando_pagamento --> expirado: 60 minutos sem pagamento confirmado
+  aguardando_pagamento --> pago: webhook payment_intent.succeeded valido
+  aguardando_pagamento --> cancelado: fase futura ou falha operacional controlada
   pago --> em_preparacao: fase futura operacional
   em_preparacao --> enviado: fase futura operacional
   enviado --> entregue: fase futura operacional
-  aguardando_pagamento --> cancelado: fase futura
+  pago --> reembolsado: fase futura financeira
 ```
 
-Estado implementado na Fase 8:
+Estado implementado na Fase 9:
 
-- `aguardando_pagamento`: criado sem pagamento real, com snapshots e expiracao de 60 minutos.
+- `aguardando_pagamento`: criado sem pagamento confirmado.
+- `pago`: somente por settlement de webhook assinado/idempotente.
 
-Estados futuros modelados:
+Estados futuros:
 
-- `pago`, `em_preparacao`, `enviado`, `entregue`, `cancelado`, `expirado`, `reembolsado`.
+- `em_preparacao`, `enviado`, `entregue`, `cancelado`, `expirado`, `reembolsado`.
+
+## PaymentIntent
+
+```mermaid
+stateDiagram-v2
+  [*] --> requested
+  requested --> not_payable: pedido alheio, expirado, pago ou invalido
+  requested --> unavailable: Stripe indisponivel fora de dev/test
+  requested --> internal_pending: registro interno criado
+  internal_pending --> provider_created: PaymentIntent Stripe/mock criado
+  provider_created --> requires_action: Stripe exige acao do cliente
+  provider_created --> pending_confirmation: aguardando webhook
+  requires_action --> pending_confirmation: Payment Element confirmado
+  pending_confirmation --> paid: webhook succeeded processado
+  pending_confirmation --> failed: webhook failed
+  pending_confirmation --> canceled: webhook canceled
+  pending_confirmation --> divergent: valor/moeda/pedido divergente
+```
+
+Regras:
+
+- PaymentIntent usa valor e moeda do pedido no servidor.
+- Client nao define amount/currency.
+- PaymentIntent pode ser reutilizado quando ainda e seguro.
+- Client secret nao e secret key e nao deve ser confundido com credencial server-side.
+- Retorno client-side nao muda pedido para `pago`.
+
+## Webhook Stripe
+
+```mermaid
+stateDiagram-v2
+  [*] --> received
+  received --> rejected: assinatura ausente ou invalida
+  received --> duplicate: eventId ja registrado
+  received --> unresolved: PaymentIntent interno ausente
+  received --> succeeded: payment_intent.succeeded
+  received --> failed_or_canceled: payment_failed ou canceled
+  received --> ignored: evento fora do escopo
+  succeeded --> settlement_validation
+  settlement_validation --> divergent: valor, moeda ou pedido divergente
+  settlement_validation --> insufficient_stock: estoque insuficiente
+  settlement_validation --> settled: pedido, pagamento, estoque e cupom atualizados
+  failed_or_canceled --> payment_status_updated: sem marcar pedido como pago
+```
+
+Regras:
+
+- Assinatura valida e pre-condicao.
+- `eventId` unico torna o processamento idempotente.
+- Evento duplicado nao baixa estoque nem consome cupom de novo.
+- Falha/cancelamento nao marca pedido como pago.
+- Divergencia nao conclui estado operacional parcial.
+
+## Settlement
+
+```mermaid
+stateDiagram-v2
+  [*] --> validate_order
+  validate_order --> validate_amount_currency
+  validate_amount_currency --> validate_stock
+  validate_stock --> consume_coupon
+  consume_coupon --> decrement_stock
+  decrement_stock --> mark_payment_paid
+  mark_payment_paid --> mark_order_paid
+  mark_order_paid --> mark_event_processed
+  validate_amount_currency --> failed: divergencia
+  validate_stock --> failed: estoque insuficiente
+  consume_coupon --> failed: cupom ausente quando exigido
+```
+
+No banco real, o settlement e executado em transacao Drizzle. Em mock dev/test, os efeitos simulam a mesma ordem conceitual sobre fixtures.
 
 ## Cotacao de frete
 
@@ -97,14 +159,6 @@ stateDiagram-v2
   persisted --> snapshotted: pedido pendente criado
 ```
 
-Regras:
-
-- CEP deve ter 8 digitos numericos.
-- Apenas regras manuais ativas sao usadas.
-- Providers externos nao participam do fluxo atual.
-- Selecao exige ownership da quote pelo carrinho ativo.
-- Checkout copia snapshot do frete.
-
 ## Cupom `free_shipping`
 
 ```mermaid
@@ -114,14 +168,10 @@ stateDiagram-v2
   applied --> manual_freight_zeroed: frete manual elegivel cotado
   applied --> no_effect: frete inexistente ou nao elegivel
   manual_freight_zeroed --> snapshotted: pedido pendente criado
+  snapshotted --> consumed: webhook succeeded confirmado
 ```
 
-Regras:
-
-- O cupom nao cria frete.
-- O cupom nao altera desconto monetario de produtos.
-- O cupom zera somente frete manual calculado e elegivel.
-- Pedido pendente nao consome `usedCount`.
+Pedido pendente nao consome `usedCount`; webhook confirmado consome uma vez.
 
 ## Admin de pedidos
 
@@ -130,21 +180,20 @@ stateDiagram-v2
   [*] --> access_requested
   access_requested --> blocked: sem auth/policy admin-like
   access_requested --> allowed: admin ou manager
-  allowed --> pending_orders_listed: listar pendentes
-  pending_orders_listed --> detail_viewed: ver detalhe basico
+  allowed --> orders_listed: listar pedidos
+  orders_listed --> detail_viewed: ver detalhe basico
 ```
 
 Permissao:
 
-- `admin` e `manager` podem listar pedidos pendentes.
-- Nao ha transicao para marcar pago, editar valores, baixar estoque ou criar pagamento.
+- `admin` e `manager` podem listar pedidos.
+- Nao ha transicao admin para marcar pago, editar valores, baixar estoque, consumir cupom ou criar pagamento.
 
 ## Fluxos ainda inexistentes
 
-- Pagamento real.
-- Stripe real.
-- PaymentIntent real.
-- Coleta de cartao.
-- Captura de pagamento.
-- Reserva definitiva de estoque.
-- Baixa definitiva de estoque.
+- Stripe Checkout Session como fluxo principal.
+- Coleta propria de cartao.
+- Armazenamento de dados sensiveis de cartao.
+- Refund/disputa completos.
+- Fiscal/Bling/NF-e.
+- E-mail transacional real obrigatorio.

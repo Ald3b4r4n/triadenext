@@ -1,7 +1,7 @@
 # Dominio Reversa - Triade Essenza Next
 
 Data: 2026-06-10
-Escopo: dominio apos Fase 8.
+Escopo: dominio apos Fase 9.
 
 ## Subdominios atuais
 
@@ -11,7 +11,8 @@ Escopo: dominio apos Fase 8.
 - Cupons e descontos.
 - Frete manual e cotacoes.
 - Checkout autenticado.
-- Pedido pendente.
+- Pedido pendente/pago.
+- Pagamento Stripe por PaymentIntent.
 
 ## Catalogo
 
@@ -23,6 +24,8 @@ Produto compravel exige:
 - quantidade solicitada menor ou igual ao estoque disponivel.
 
 Produto `draft`, `inactive`, futuro ou sem estoque nao e compravel.
+
+Na Fase 9, o estoque continua sem reserva na criacao do pedido ou PaymentIntent. A baixa ocorre somente no settlement confirmado por webhook.
 
 ## Carrinho
 
@@ -59,6 +62,10 @@ Regras atuais:
 - Checkout revalida cupom antes de criar pedido.
 - Pedido guarda snapshot do cupom e do desconto efetivo.
 - Criacao de pedido pendente nao incrementa `usedCount`.
+- Criacao de PaymentIntent nao incrementa `usedCount`.
+- Retorno client-side do Stripe nao incrementa `usedCount`.
+- Webhook `payment_intent.succeeded` confirmado incrementa `usedCount` uma unica vez.
+- Webhook duplicado nao pode consumir cupom duas vezes.
 
 ## Frete manual
 
@@ -90,7 +97,7 @@ O frete atual e manual, calculado por regras internas do projeto.
 
 ### Providers futuros
 
-Correios, Jadlog e Melhor Envio estao modelados apenas como adapters futuros inativos. A Fase 8 nao faz chamadas externas e nao exige credenciais de frete.
+Correios, Jadlog e Melhor Envio estao modelados apenas como adapters futuros inativos. A Fase 9 nao faz chamadas externas de frete e nao exige credenciais de frete.
 
 ## Checkout pendente
 
@@ -115,9 +122,9 @@ Ordem de validacao observada:
 
 Payload cliente nao e fonte de verdade para subtotal, desconto, frete, total, `userId`, `cartId`, role ou status.
 
-## Pedido pendente
+## Pedido pendente e pago
 
-Pedido criado na Fase 8:
+Pedido criado no checkout:
 
 - nasce com status `aguardando_pagamento`;
 - pertence sempre a um `userId`;
@@ -127,7 +134,19 @@ Pedido criado na Fase 8:
 - possui token publico interno;
 - guarda totais em centavos;
 - guarda snapshot de cliente, endereco, cupom, frete e itens;
-- nao representa pagamento autorizado, pago ou capturado.
+- nao representa pagamento autorizado, pago ou capturado antes do webhook.
+
+Pedido muda para `pago` somente quando o settlement do webhook confirma:
+
+- assinatura Stripe valida;
+- evento idempotente ainda nao processado;
+- PaymentIntent interno encontrado;
+- tipo `payment_intent.succeeded`;
+- valor igual ao snapshot do pedido;
+- moeda igual ao snapshot do pedido;
+- metadata/pedido coerente;
+- estoque suficiente no momento da confirmacao;
+- cupom snapshotado existente quando aplicavel.
 
 Snapshots de item preservam:
 
@@ -140,35 +159,70 @@ Snapshots de item preservam:
 - quantidade;
 - total da linha em centavos.
 
+## Pagamento Stripe
+
+Regras confirmadas na Fase 9:
+
+- PaymentIntent e criado pelo servidor para pedido proprio `aguardando_pagamento`.
+- O cliente nao envia valor financeiro nem moeda.
+- Valor e moeda do PaymentIntent usam `grandTotalCents` e `currency` do pedido snapshotado.
+- Adapter real usa Stripe server-side e idempotency key.
+- Adapter mock e explicito para dev/test sem credenciais reais.
+- Preview/producao sem Stripe configurado falham de forma segura.
+- Payment Element e usado no client com publishable key/client secret.
+- Nao ha formulario proprio de cartao.
+- Nao ha armazenamento de dados sensiveis de cartao no app.
+- Stripe Checkout Session nao e o fluxo principal.
+- Retorno client-side informa estado visual, mas nao marca pedido como pago.
+- `payment_intent.succeeded` por webhook assinado e a fonte final de pagamento confirmado.
+- `payment_intent.payment_failed` e `payment_intent.canceled` atualizam pagamento interno sem marcar pedido como pago.
+- Evento duplicado retorna como duplicado e nao repete efeitos.
+- Divergencia de valor, moeda ou pedido marca falha/divergencia e nao conclui pagamento.
+
+## Settlement financeiro e operacional
+
+O settlement de sucesso deve ser atomico:
+
+- marcar pagamento interno como `pago`;
+- marcar pedido como `pago`;
+- preencher `paidAt`;
+- baixar estoque dos itens do pedido;
+- consumir `usedCount` do cupom aplicado;
+- marcar evento de webhook como processado.
+
+Se houver erro de valor, moeda, pedido, estoque ou cupom, o sistema registra falha controlada e nao deve deixar estado operacional inconsistente.
+
 ## Customer e admin
 
 - Customer lista somente pedidos proprios.
-- Admin/manager lista pedidos pendentes em leitura minima.
+- Customer pode iniciar pagamento de pedido proprio pendente e nao expirado.
+- Admin/manager lista pedidos em leitura minima.
 - Admin nao marca pedido como pago.
 - Admin nao edita valores financeiros.
 - Admin nao baixa nem reserva estoque.
+- Admin nao consome cupom.
 - Admin nao cria pagamento.
 
 ## Fallback sem banco
 
-- Sem `DATABASE_URL`, preview/producao falham de forma segura para checkout/pedido.
-- Em dev/test pode existir fixture explicita sem promessa de persistencia real.
+- Sem `DATABASE_URL`, preview/producao falham de forma segura para checkout/pedido/pagamento real.
+- Em dev/test pode existir fixture/mock explicito sem promessa de persistencia real.
+- Stripe mock fica restrito a dev/test.
 - Quando banco real existir, erro real nao deve virar fallback silencioso.
 
 ## Regras fora do escopo
 
 - Pedido anonimo.
-- Pagamento real.
-- Stripe real.
-- PaymentIntent real.
-- Coleta de cartao.
-- Captura de pagamento.
-- Reserva definitiva de estoque.
-- Baixa definitiva de estoque.
-- Consumo de `usedCount` na criacao do pedido pendente.
+- Stripe Checkout Session como fluxo principal.
+- Coleta propria de cartao.
+- Armazenamento de dados sensiveis de cartao.
+- Pagamento confirmado por retorno client-side.
+- Marcacao manual de pago por admin.
+- Bling, NF-e e fiscal.
+- E-mail transacional real obrigatorio.
 - Cotacao real em API externa de frete.
 - Aplicacao de migration em banco real nesta etapa.
 
 ## Proxima fase
 
-O proximo passo esperado e committar os artefatos Reversa pos-Fase 8 e depois fazer push dos commits locais quando aprovado.
+O proximo passo esperado e committar os artefatos Reversa pos-Fase 9 e depois fazer push dos commits locais quando aprovado.
