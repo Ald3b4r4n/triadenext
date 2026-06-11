@@ -5,13 +5,13 @@
   "chat_language": "pt-br",
   "doc_language": "Português",
   "answer_mode": "chat",
-  "doc_level": "completo",
+  "doc_level": "detalhado",
   "output_folder": "_reversa_sdd",
   "forward_folder": "_reversa_forward",
   "project_path": "D:\\Projetos\\triade-essenza-next",
   "legacy_path": "D:\\Projetos\\triadeessenzaparfum.com.br",
   "is_legacy_laravel": false,
-  "phase": null,
+  "phase": "reconhecimento",
   "completed": [
     "initial_reversa_extraction",
     "fase_1",
@@ -29,14 +29,47 @@
     "fase_9",
     "reextracao_pos_fase_9",
     "fase_10",
-    "reextracao_pos_fase_10"
+    "reextracao_pos_fase_10",
+    "scout_reversa_rerun_2026_06_11"
   ],
   "pending": [
     "commit_reversa_pos_fase_10",
     "push_commits_locais"
   ],
-  "last_checkpoint": "reextraction_after_phase_10_2026_06_11",
+  "last_checkpoint": "scout_rerun_2026_06_11",
   "checkpoints": {
+    "scout_rerun_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Retomar /reversa para completar artefatos obrigatorios antes do /reversa-migrate.",
+      "agent": "Scout",
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/plan.md",
+        ".reversa/context/surface.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/dependencies.md"
+      ],
+      "summary": {
+        "primary_language": "TypeScript",
+        "main_framework": "Next.js App Router",
+        "package_manager": "pnpm",
+        "modules": [
+          "auth",
+          "products",
+          "cart",
+          "coupons",
+          "shipping",
+          "checkout",
+          "orders",
+          "payments",
+          "notifications",
+          "uploads",
+          "db",
+          "lib"
+        ],
+        "organization_suggestion": "hybrid"
+      }
+    },
     "history_before_phase_7": {
       "completed_at": "2026-06-08T22:45:00-03:00",
       "summary": "Historico Reversa anterior mantinha re-extracoes pos-Fase 3, 4, 5 e 6. O checkpoint operacional atual passa a ser a re-extracao pos-Fase 7.",

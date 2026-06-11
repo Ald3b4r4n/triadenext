@@ -1,63 +1,85 @@
 # Dependencias Reversa - Triade Essenza Next
 
 Atualizado em: 2026-06-11
-Escopo: dependencias apos Fase 10.
+Agente: Scout
+Escopo: dependencias declaradas em `package.json` e configuracoes principais.
 
-## Runtime observado
+## Runtime e framework
 
-- Next.js App Router, React e TypeScript.
-- Drizzle ORM e PostgreSQL/Neon quando `DATABASE_URL` existe.
-- Auth.js para sessao e papeis.
-- Stripe server SDK e Stripe.js/Payment Element.
-- Zod e utilitarios internos de validacao.
-- Nenhum SDK adicional de e-mail e obrigatorio na Fase 10.
+| Dependencia | Versao declarada | Papel |
+| --- | --- | --- |
+| `next` | `latest` | Framework App Router |
+| `react` | `latest` | UI |
+| `react-dom` | `latest` | Renderizacao React |
+| `typescript` | `latest` | Linguagem e typecheck |
+| `server-only` | `^0.0.1` | Protecao de modulos server-only |
 
-## Modulos internos
+## Dados e persistencia
 
-- `src/features/catalog`: produtos e disponibilidade.
-- `src/features/auth`: sessao, papeis e policies.
-- `src/features/cart`, `coupons`, `shipping`: compra antes do checkout.
-- `src/features/orders`: pedidos e snapshots.
-- `src/features/payments`: PaymentIntent, webhook e settlement.
-- `src/features/notifications`: entregas, templates, provider e consulta administrativa.
+| Dependencia | Versao declarada | Papel |
+| --- | --- | --- |
+| `drizzle-orm` | `latest` | ORM/query layer |
+| `drizzle-kit` | `latest` | Migrations e tooling |
+| `@neondatabase/serverless` | `latest` | Driver Neon/Postgres |
 
-## Dependencias do fluxo de notificacao
+## Auth e validacao
 
-- O disparo depende de settlement confirmado, nunca do client return.
-- `post-payment-event.ts` depende de leitura do pedido pago.
-- O service depende do repository de entregas e do adapter de provider.
-- Templates dependem somente de snapshots seguros do pedido.
-- A consulta administrativa depende de `requireAdminLike`.
-- Falha do provider e capturada e nao retorna ao fluxo financeiro.
+| Dependencia | Versao declarada | Papel |
+| --- | --- | --- |
+| `better-auth` | `^1.6.15` | Autenticacao |
+| `@better-auth/drizzle-adapter` | `^1.6.15` | Adapter Drizzle para auth |
+| `zod` | `latest` | Schemas e validacao |
+| `react-hook-form` | `latest` | Formularios client-side |
+| `@hookform/resolvers` | `latest` | Integracao RHF/Zod |
 
-## Configuracao
+## Pagamentos, upload e UI
 
-- Destinatarios administrativos sao definidos por variavel de ambiente contratual, sem valores versionados.
-- Dev/test selecionam provider mock.
-- Preview/producao sem provider real selecionam adapter indisponivel.
-- Build, testes unitarios e E2E nao exigem provider real nem credenciais de e-mail.
-- Nenhum segredo e copiado ou materializado nos artefatos Reversa.
+| Dependencia | Versao declarada | Papel |
+| --- | --- | --- |
+| `stripe` | `latest` | Stripe server SDK |
+| `@stripe/react-stripe-js` | `^6.6.0` | Payment Element React |
+| `@stripe/stripe-js` | `^9.8.0` | Stripe.js |
+| `@vercel/blob` | `latest` | Storage de blobs |
+| `lucide-react` | `latest` | Icones |
+| `@radix-ui/react-slot` | `latest` | Composicao UI |
+| `class-variance-authority` | `latest` | Variantes de componentes |
+| `clsx` | `latest` | Classes condicionais |
+| `tailwind-merge` | `latest` | Merge de classes Tailwind |
 
-## Persistencia
+## Tooling e testes
 
-- Drizzle contem catalogo, auth, carrinho, cupons, frete, pedidos, pagamentos e notificacoes.
-- `notification_deliveries.idempotency_key` e unica.
-- Indices cobrem pedido, status, evento de pagamento e criacao.
-- Migration Fase 10: `drizzle/0007_outstanding_midnight.sql`, gerada e nao aplicada em banco real.
-- Fallback em memoria existe para ambiente seguro sem banco.
+| Dependencia | Versao declarada | Papel |
+| --- | --- | --- |
+| `eslint` | `^9.39.1` | Lint |
+| `eslint-config-next` | `latest` | Regras Next |
+| `vitest` | `latest` | Unit/integration tests |
+| `@testing-library/react` | `latest` | Testes de componentes |
+| `@testing-library/jest-dom` | `latest` | Matchers DOM |
+| `jsdom` | `latest` | DOM em testes |
+| `@playwright/test` | `latest` | E2E |
+| `tsx` | `^4.22.4` | Execucao TS em scripts |
+| `prettier` | `latest` | Formatacao |
+| `tailwindcss` | `latest` | CSS utilitario |
+| `@tailwindcss/postcss` | `latest` | PostCSS/Tailwind |
+| `autoprefixer` | `latest` | CSS post-processing |
 
-## Scripts validados na Fase 10
+## Scripts declarados
 
-- `pnpm lint`: passou.
-- `pnpm typecheck`: passou.
-- `pnpm test`: passou, 32 arquivos / 96 testes.
-- `pnpm build`: passou.
-- `pnpm test:e2e`: passou, 29 testes.
+- `dev`: `next dev`.
+- `build`: `next build`.
+- `start`: `next start`.
+- `lint`: `eslint . --max-warnings=0`.
+- `typecheck`: `tsc --noEmit`.
+- `test`: `vitest run`.
+- `test:e2e`: `playwright test`.
+- `db:generate`: `drizzle-kit generate`.
+- `db:migrate`: `node scripts/db/require-database-url.mjs && drizzle-kit migrate`.
+- `db:studio`: `drizzle-kit studio`.
+- `db:seed`: `node scripts/db/seed.mjs`.
+- `db:seed:admin-dev`: `tsx scripts/db/seed-admin-dev.ts`.
 
-## Riscos de dependencia
+## Observacoes de risco
 
-- Provider real de e-mail ainda nao e obrigatorio; preview/producao podem registrar falha segura.
-- Configuracao vazia de admins produz `skipped`, nao envio implicito.
-- Replays exigem preservacao da unique de idempotencia.
-- Remover o isolamento pos-settlement poderia acoplar notificacao a regras financeiras.
-- Persistencia em memoria nao substitui garantias transacionais de banco real.
+- Dependencias com `latest` exigem lockfile como fonte efetiva de versao.
+- `db:migrate` tem guarda de `DATABASE_URL`, mas nao deve ser executado contra banco real sem aprovacao.
+- Providers reais externos devem permanecer isolados por adapters e fakes em teste.

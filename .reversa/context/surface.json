@@ -1,0 +1,181 @@
+{
+  "generated_at": "2026-06-11T00:00:00-03:00",
+  "project_root": "D:\\Projetos\\triade-essenza-next",
+  "languages": [
+    {
+      "name": "TypeScript",
+      "extensions": [".ts", ".tsx"],
+      "file_count": 191
+    },
+    {
+      "name": "Markdown",
+      "extensions": [".md"],
+      "file_count": 31
+    },
+    {
+      "name": "SQL",
+      "extensions": [".sql"],
+      "file_count": 8
+    },
+    {
+      "name": "JavaScript",
+      "extensions": [".mjs"],
+      "file_count": 2
+    }
+  ],
+  "primary_language": "TypeScript",
+  "frameworks": [
+    {
+      "name": "Next.js",
+      "version": "latest",
+      "source": "package.json"
+    },
+    {
+      "name": "React",
+      "version": "latest",
+      "source": "package.json"
+    },
+    {
+      "name": "Drizzle ORM",
+      "version": "latest",
+      "source": "package.json"
+    },
+    {
+      "name": "Better Auth",
+      "version": "^1.6.15",
+      "source": "package.json"
+    },
+    {
+      "name": "Stripe",
+      "version": "latest",
+      "source": "package.json"
+    },
+    {
+      "name": "Tailwind CSS",
+      "version": "latest",
+      "source": "package.json"
+    },
+    {
+      "name": "Vitest",
+      "version": "latest",
+      "source": "package.json"
+    },
+    {
+      "name": "Playwright",
+      "version": "latest",
+      "source": "package.json"
+    }
+  ],
+  "package_manager": "pnpm",
+  "entry_points": [
+    {
+      "path": "src/app/layout.tsx",
+      "type": "app_entry"
+    },
+    {
+      "path": "src/app/(storefront)/page.tsx",
+      "type": "public_home"
+    },
+    {
+      "path": "src/app/(storefront)/produtos/page.tsx",
+      "type": "public_catalog"
+    },
+    {
+      "path": "src/app/(storefront)/produto/[slug]/page.tsx",
+      "type": "public_product"
+    },
+    {
+      "path": "src/app/(storefront)/carrinho/page.tsx",
+      "type": "cart"
+    },
+    {
+      "path": "src/app/(storefront)/checkout/page.tsx",
+      "type": "checkout"
+    },
+    {
+      "path": "src/app/admin/layout.tsx",
+      "type": "admin_entry"
+    },
+    {
+      "path": "src/app/api/webhooks/stripe/route.ts",
+      "type": "webhook"
+    }
+  ],
+  "config_files": [
+    ".env.example",
+    "next.config.ts",
+    "tsconfig.json",
+    "tailwind.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+    "eslint.config.mjs",
+    "postcss.config.mjs",
+    "drizzle.config.ts"
+  ],
+  "ci_cd": [],
+  "docker": {},
+  "database_hints": [
+    {
+      "path": "src/db/schema.ts",
+      "type": "drizzle_schema"
+    },
+    {
+      "path": "drizzle/",
+      "type": "migrations_dir"
+    },
+    {
+      "path": "drizzle.config.ts",
+      "type": "drizzle_config"
+    }
+  ],
+  "test_framework": "Vitest + Playwright",
+  "test_file_count": 47,
+  "modules": [
+    "auth",
+    "products",
+    "cart",
+    "coupons",
+    "shipping",
+    "checkout",
+    "orders",
+    "payments",
+    "notifications",
+    "uploads",
+    "db",
+    "lib"
+  ],
+  "total_files": 242,
+  "organization_suggestion": {
+    "granularity": "hybrid",
+    "rationale": "O projeto combina rotas App Router, pastas de dominio em src/features e testes E2E por comportamento.",
+    "signals": [
+      {
+        "type": "app_router_routes",
+        "evidence": [
+          "src/app/(storefront)/page.tsx",
+          "src/app/admin/layout.tsx",
+          "src/app/api/webhooks/stripe/route.ts"
+        ]
+      },
+      {
+        "type": "domain_folders",
+        "evidence": [
+          "src/features/auth",
+          "src/features/products",
+          "src/features/orders",
+          "src/features/payments",
+          "src/features/notifications"
+        ]
+      },
+      {
+        "type": "behavior_e2e_specs",
+        "evidence": [
+          "src/tests/e2e/home.spec.ts",
+          "src/tests/e2e/cart.spec.ts",
+          "src/tests/e2e/payment-mock.spec.ts"
+        ]
+      }
+    ],
+    "features": []
+  }
+}
