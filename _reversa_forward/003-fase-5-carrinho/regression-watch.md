@@ -20,6 +20,7 @@
 
 | Data | Re-extração | Resultado |
 |---|---|---|
+| 2026-06-11 | Re-extração pós-Fase 10 | verde: carrinho convertido segue terminal; guest token/ownership e calculos server-side permanecem; notificacoes nao mutam carrinho. |
 | 2026-06-08 | Re-extração pós-Fase 5 | 🟢 Sem regressão semântica detectada: carrinho segue sem checkout/pagamento/frete/cupom/pedido/reserva/baixa de estoque; `guestCartToken` segue opaco; fallback sem banco segue explícito; admin/manager seguem sem bypass documentado. |
 
 ## Arquivadas

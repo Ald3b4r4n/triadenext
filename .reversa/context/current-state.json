@@ -5,145 +5,58 @@
     "isLegacyLaravel": false,
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
-  "updatedAt": "2026-06-10T12:30:00-03:00",
-  "scope": "Re-extracao Reversa pos-Fase 9 concluida",
+  "updatedAt": "2026-06-11T00:00:00-03:00",
+  "scope": "Re-extracao Reversa pos-Fase 10 concluida",
   "git": {
     "branch": "main",
-    "status": "main...origin/main [ahead 1]",
+    "statusBeforeReextraction": "main...origin/main [ahead 1]",
     "latestCommit": {
-      "short": "8d01351",
-      "hash": "8d013511699a098e5fc7faededf558a6b7c2a53d",
-      "message": "feat: implement stripe payment intents"
+      "short": "f1c2bf4",
+      "hash": "f1c2bf45df23184a9a862f11585eafe035529112",
+      "message": "feat: implement post-payment notifications"
     },
-    "phase9CommitPushed": false,
+    "phase10CommitPushed": false,
     "workingTreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
+    {"phase": 1, "status": "completed", "summary": "Fundacao Next.js"},
+    {"phase": 2, "status": "completed", "summary": "Persistencia inicial"},
+    {"phase": 3, "status": "completed", "summary": "Catalogo publico"},
+    {"phase": 4, "status": "completed", "summary": "Auth, papeis e admin"},
+    {"phase": 5, "status": "completed", "summary": "Carrinho"},
+    {"phase": 6, "status": "completed", "summary": "Cupons"},
+    {"phase": 7, "status": "completed", "summary": "Frete manual"},
+    {"phase": 8, "status": "completed", "summary": "Checkout e pedido pendente"},
+    {"phase": 9, "status": "completed", "summary": "Stripe e settlement"},
     {
-      "phase": 1,
+      "phase": 10,
       "status": "completed",
-      "summary": "Fundacao Next.js App Router e UI base"
-    },
-    {
-      "phase": 2,
-      "status": "completed",
-      "summary": "Persistencia inicial de catalogo e clientes"
-    },
-    {
-      "phase": 3,
-      "status": "completed",
-      "summary": "Catalogo publico com filtros e seed local"
-    },
-    {
-      "phase": 4,
-      "status": "completed",
-      "summary": "Autenticacao, papeis e admin base"
-    },
-    {
-      "phase": 5,
-      "status": "completed",
-      "summary": "Carrinho e sessao de compra"
-    },
-    {
-      "phase": 6,
-      "status": "completed",
-      "summary": "Cupons e descontos no carrinho"
-    },
-    {
-      "phase": 7,
-      "status": "completed",
-      "summary": "Frete manual, cotacao por CEP e selecao persistida no carrinho",
-      "commit": "5d103b7882e121fe4929537e50c0b4a0e40a615e"
-    },
-    {
-      "phase": 8,
-      "status": "completed",
-      "summary": "Checkout autenticado, pedido pendente aguardando pagamento, snapshots e carrinho convertido",
-      "commit": "1ace51b3ea7c2e2cb702e23e1a724793069cc972"
-    },
-    {
-      "phase": 9,
-      "status": "completed",
-      "summary": "PaymentIntent server-side, Payment Element, webhook assinado/idempotente e settlement de pedido, pagamento, estoque e cupom",
-      "commit": "8d013511699a098e5fc7faededf558a6b7c2a53d"
+      "summary": "Notificacoes pos-pagamento idempotentes",
+      "commit": "f1c2bf45df23184a9a862f11585eafe035529112"
     }
   ],
   "currentCapabilities": {
-    "catalog": "Catalogo publico com produtos, filtros e baixa de estoque apenas no settlement confirmado",
-    "auth": "Autenticacao com papeis customer/admin/manager",
-    "cart": "Carrinho de visitante/usuario com itens, cupom, frete manual e conversao",
-    "coupons": "Cupons percentuais, valor fixo e free_shipping; usedCount consumido apenas por webhook confirmado",
-    "shipping": "Frete manual por regras internas, cotacao por CEP, prazo estimado e admin basico",
-    "checkout": "Checkout autenticado que cria pedido pendente com snapshots e sem pagamento confirmado",
-    "orders": "Pedidos aguardando pagamento ou pagos, com leitura customer/admin minima",
-    "payments": "PaymentIntent Stripe server-side, Payment Element, webhook assinado/idempotente e mock dev/test explicito"
+    "catalog": "Catalogo publico e estoque baixado somente no settlement",
+    "auth": "Papeis customer/admin/manager e ownership server-side",
+    "cart": "Carrinho com cupom, frete e conversao",
+    "checkout": "Pedido pendente autenticado com snapshots",
+    "payments": "Stripe PaymentIntent, webhook assinado/idempotente e settlement atomico",
+    "notifications": "Customer e admins notificados apos pagamento; historico admin somente leitura"
   },
-  "currentCheckout": {
-    "requiresAuthentication": true,
-    "anonymousOrder": false,
-    "initialOrderStatus": "aguardando_pagamento",
-    "expirationMinutes": 60,
-    "serverSideValidation": [
-      "session",
-      "active_owned_cart",
-      "non_empty_cart",
-      "purchasable_products",
-      "stock_available",
-      "valid_coupon",
-      "valid_shipping_quote",
-      "complete_address",
-      "server_totals"
-    ],
-    "payment": {
-      "paymentIntent": "server_side",
-      "paymentElement": true,
-      "webhookSourceOfTruth": true,
-      "clientReturnMarksPaid": false,
-      "adminMarksPaid": false
-    }
-  },
-  "currentPayments": {
-    "provider": "stripe",
-    "mainFlow": "PaymentIntent direto no fluxo autenticado",
-    "checkoutSessionMainFlow": false,
-    "ownCardForm": false,
-    "cardDataStored": false,
+  "currentNotifications": {
+    "trigger": "after_confirmed_settlement",
+    "types": ["customer_order_paid", "admin_order_paid"],
+    "statuses": ["pending", "sending", "sent", "mocked", "failed", "skipped"],
+    "idempotency": "order_id + event_type + notification_type + normalized_recipient",
+    "duplicateEffectiveDelivery": false,
+    "adminRecipients": "explicit_configuration",
+    "noAdminRecipient": "skipped",
     "mockDevTest": true,
-    "previewProductionWithoutStripe": "fail_safe_unavailable",
-    "sourceOfTruth": "payment_intent.succeeded via signed webhook",
-    "failureEvents": [
-      "payment_intent.payment_failed",
-      "payment_intent.canceled"
-    ],
-    "idempotency": "payment_events.event_id unico",
-    "settlementEffects": [
-      "payment_intent_internal_paid",
-      "order_paid",
-      "product_stock_decrement",
-      "coupon_used_count_increment",
-      "event_processed"
-    ],
-    "stockDecrementTiming": "only_after_confirmed_webhook",
-    "couponUsedCountTiming": "only_after_confirmed_webhook"
-  },
-  "currentOrders": {
-    "statuses": [
-      "aguardando_pagamento",
-      "pago"
-    ],
-    "snapshots": [
-      "items",
-      "prices",
-      "coupon",
-      "shipping",
-      "customer",
-      "address",
-      "totals"
-    ],
-    "cartConversion": "cart marked converted/blocked after pending order creation",
-    "futureActiveCart": "converted fallback carts are not reused for new purchases",
-    "customerRead": "own orders only, with payment CTA only for pending payables",
-    "adminRead": "admin/manager order list without financial mutation"
+    "previewProductionWithoutProvider": "fail_safe_unavailable",
+    "failureChangesFinancialState": false,
+    "adminStatusRead": "admin_manager_only_masked_readonly",
+    "customerHistory": false,
+    "manualResend": false
   },
   "currentPersistence": {
     "migrations": [
@@ -153,33 +66,32 @@
       "drizzle/0003_elite_titanium_man.sql",
       "drizzle/0004_mute_ghost_rider.sql",
       "drizzle/0005_glossy_talisman.sql",
-      "drizzle/0006_soft_mole_man.sql"
+      "drizzle/0006_soft_mole_man.sql",
+      "drizzle/0007_outstanding_midnight.sql"
     ],
-    "phase9Migration": {
-      "file": "drizzle/0006_soft_mole_man.sql",
+    "phase10Migration": {
+      "file": "drizzle/0007_outstanding_midnight.sql",
       "status": "generated_not_applied_to_real_database",
-      "summary": "indexes for payment_intents provider reference and payment_events event/id lookup"
+      "summary": "notification_deliveries, enums, unique idempotency, foreign keys and indexes"
     }
   },
   "validations": {
-    "phase9": {
+    "phase10": {
       "pnpm lint": "passed",
       "pnpm typecheck": "passed",
-      "pnpm test": "passed - 82 tests",
+      "pnpm test": "passed - 32 files / 96 tests",
       "pnpm build": "passed",
-      "pnpm test:e2e": "passed - 27 tests"
+      "pnpm test:e2e": "passed - 29 tests"
     }
   },
   "outOfScope": [
     "anonymous_order",
-    "stripe_checkout_session_main_flow",
-    "own_card_collection",
-    "card_sensitive_data_storage",
-    "client_side_paid_transition",
-    "admin_manual_paid_transition",
+    "client_or_admin_paid_transition",
     "refunds_and_disputes",
-    "bling_nfe_fiscal",
-    "mandatory_real_transactional_email",
+    "mandatory_real_email_provider",
+    "manual_notification_resend",
+    "customer_notification_history",
+    "whatsapp_sms_bling_nfe_fiscal",
     "real_shipping_provider_api",
     "real_database_migration_application",
     "deploy"
@@ -194,10 +106,10 @@
       "_reversa_sdd/state-machines.md",
       "_reversa_sdd/permissions.md"
     ],
-    "forwardFeature": "_reversa_forward/007-fase-9-pagamento-stripe"
+    "forwardFeature": "_reversa_forward/008-fase-10-notificacoes-email"
   },
   "nextStep": {
-    "recommendedCommand": "git commit dos artefatos Reversa pos-Fase 9, depois push dos commits locais",
-    "reason": "A re-extracao atualizou o conhecimento tecnico e de dominio apos a implementacao da Fase 9"
+    "recommendedCommand": "git commit dos artefatos Reversa pos-Fase 10, depois push dos commits locais",
+    "reason": "Conhecimento tecnico e de dominio atualizado apos a Fase 10"
   }
 }

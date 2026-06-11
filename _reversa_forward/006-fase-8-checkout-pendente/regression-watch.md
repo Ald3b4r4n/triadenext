@@ -8,6 +8,7 @@
 
 | Data | Re-extração | Veredito | Evidência |
 |---|---|---|---|
+| 2026-06-11 | reextracao_pos_fase_10 | verde | Carrinho `converted` continua terminal para item, cupom e frete; notificacoes nao alteram o carrinho. |
 | 2026-06-10 | reextracao_pos_fase_8 | 🟢 | `_reversa_sdd/state-machines.md` e `_reversa_sdd/domain.md` registram carrinho `converted` como terminal/bloqueado e nova compra futura resolvendo carrinho ativo. |
 
 ## Arquivadas

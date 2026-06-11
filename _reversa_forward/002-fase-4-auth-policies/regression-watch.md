@@ -12,6 +12,7 @@
 
 | Data | Evento | Observacao |
 |---|---|---|
+| 2026-06-11 | Re-extracao pos-Fase 10 | verde: mutacoes e leituras administrativas continuam protegidas por `requireAdminLike`; status de notificacao nao e acessivel a customer/visitante. |
 
 ## Arquivadas
 

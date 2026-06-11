@@ -14,7 +14,17 @@
 
 ## Historico de re-extracoes
 
-Nenhuma re-extracao registrada.
+### Re-extracao 2026-06-11 - Pos-Fase 10
+
+| ID | Veredito | Observacao |
+|---|---|---|
+| W001 | verde | SDD registra notificacao somente apos a conclusao do settlement. |
+| W002 | verde | Falha de notificacao nao reverte nem altera `usedCount`. |
+| W003 | verde | Falha de notificacao nao reverte nem altera estoque. |
+| W004 | verde | Chave idempotente impede segunda entrega efetiva em replay. |
+| W005 | verde | Mock permanece restrito a dev/test; preview/producao falham seguro. |
+| W006 | verde | Status e mascarado, somente leitura e protegido por `requireAdminLike`. |
+| W007 | verde | WhatsApp, SMS, Bling, NF-e e fiscal permanecem ausentes. |
 
 ## Arquivadas
 
