@@ -7,7 +7,13 @@ type ProductGridProps = {
 
 export function ProductGrid({ products }: ProductGridProps) {
   if (products.length === 0) {
-    return <p className="muted">Nenhum produto publico disponivel no momento.</p>;
+    return (
+      <div className="storefront-empty" role="status">
+        <p className="eyebrow">Novidades a caminho</p>
+        <h3>Nenhum produto disponível no momento.</h3>
+        <p>Nossa seleção está sendo renovada. Volte em breve para descobrir novas fragrâncias.</p>
+      </div>
+    );
   }
 
   return (

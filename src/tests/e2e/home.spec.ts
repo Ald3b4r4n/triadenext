@@ -1,7 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-test("home renders reconstruction placeholder", async ({ page }) => {
+test("home renders a functional public storefront", async ({ page }) => {
   await page.goto("/", { waitUntil: "commit" });
-  await expect(page.getByRole("heading", { name: "Storefront" })).toBeVisible();
-  await expect(page.getByText("handoff do Reversa")).toBeVisible();
+
+  await expect(page.getByText("Reconstrucao em andamento")).toHaveCount(0);
+  await expect(page.getByText(/Placeholder funcional/)).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Tríade Essenza Parfum" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Ver produtos" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Carrinho", exact: true })).toBeVisible();
+  await expect(page.getByText("Produto publicado de exemplo")).toBeVisible();
+  await expect(page.getByText("Produto sem estoque de exemplo")).toHaveCount(0);
 });

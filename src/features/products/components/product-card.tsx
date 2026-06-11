@@ -14,7 +14,10 @@ export function ProductCard({ product }: ProductCardProps) {
         <ProductImage image={product.coverImage} label={product.name} />
       </Link>
       <div className="product-card__body">
-        <p className="muted">{product.categories[0]?.name ?? "Produto"}</p>
+        <div className="product-card__meta">
+          <p className="muted">{product.categories[0]?.name ?? "Produto"}</p>
+          <span>Disponível</span>
+        </div>
         <h2>
           <Link href={`/produto/${product.slug}`}>{product.name}</Link>
         </h2>
@@ -23,6 +26,9 @@ export function ProductCard({ product }: ProductCardProps) {
           priceCents={product.priceCents}
           compareAtPriceCents={product.compareAtPriceCents}
         />
+        <Link className="product-card__action" href={`/produto/${product.slug}`}>
+          Ver detalhes
+        </Link>
       </div>
     </article>
   );
