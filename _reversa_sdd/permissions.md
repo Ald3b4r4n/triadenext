@@ -1,55 +1,60 @@
-# Permissoes Reversa - Triade Essenza Next
+# Permissions - Triade Essenza Next
 
-Atualizado em: 2026-06-11
-Escopo: permissoes apos Fase 10.
+Atualizado em: 2026-06-11  
+Agente: Detective
 
-## Papeis
+## Papéis
 
-| Papel | Descricao |
-|---|---|
-| Visitante | Navegacao publica e carrinho guest |
-| Customer | Compra autenticada e leitura dos proprios pedidos |
-| Manager | Operacao administrativa permitida |
-| Admin | Administracao ampla dentro dos guardrails |
+| Papel | Descrição | Confiança |
+| --- | --- | --- |
+| Visitante | Usuário sem sessão; navega storefront e pode ter carrinho guest. | 🟢 |
+| Customer | Usuário autenticado para compra e leitura dos próprios pedidos. | 🟢 |
+| Manager | Papel administrativo operacional no MVP. | 🟢 |
+| Admin | Papel administrativo amplo dentro dos guardrails. | 🟢 |
+| Sistema/Webhook | Ator sem sessão browser, autorizado por assinatura/evento externo. | 🟢 |
 
-## Matriz de acesso
+## Matriz de Permissões
 
-| Recurso/acao | Visitante | Customer | Manager | Admin |
-|---|---:|---:|---:|---:|
-| Catalogo publico | Sim | Sim | Sim | Sim |
-| Carrinho proprio | Sim | Sim | Sim | Sim |
-| Checkout/criar pedido | Nao | Sim | Nao | Nao |
-| Ler pedido proprio | Nao | Sim | Nao | Nao |
-| Ler pedidos administrativos | Nao | Nao | Sim | Sim |
-| Criar PaymentIntent do proprio pedido | Nao | Sim | Nao | Nao |
-| Marcar pedido pago | Nao | Nao | Nao | Nao |
-| Receber notificacao do proprio pedido | Nao | Sistema | Nao | Nao |
-| Ler historico customer de notificacoes | Nao | Nao | Nao | Nao |
-| Ler status admin de notificacoes | Nao | Nao | Sim | Sim |
-| Reenviar notificacao | Nao | Nao | Nao | Nao |
+| Recurso/ação | Visitante | Customer | Manager | Admin | Sistema/Webhook |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Ver home/catálogo/produto público | Sim | Sim | Sim | Sim | N/A |
+| Ver draft/inactive/futuro/sem estoque no público | Não | Não | Não | Não | N/A |
+| Criar/editar produto | Não | Não | Sim | Sim | Não |
+| Upload de imagem de produto | Não | Não | Sim | Sim | Não |
+| Carrinho guest | Sim | Não | Não | Não | Não |
+| Carrinho autenticado próprio | Não | Sim | Sim* | Sim* | Não |
+| Aplicar/remover cupom no próprio carrinho | Sim | Sim | Sim* | Sim* | Não |
+| Cotar/selecionar frete no próprio carrinho | Sim | Sim | Sim* | Sim* | Não |
+| Checkout/criar pedido | Não | Sim | Não | Não | Não |
+| Ler pedido próprio | Não | Sim | Não | Não | Não |
+| Ler pedidos administrativos | Não | Não | Sim | Sim | Não |
+| Criar PaymentIntent do próprio pedido | Não | Sim | Não | Não | Não |
+| Confirmar pagamento | Não | Não | Não | Não | Sim |
+| Baixar estoque/consumir cupom | Não | Não | Não | Não | Sim |
+| Ler status admin de notificações | Não | Não | Sim | Sim | Não |
+| Receber notificação de pedido pago | Não | Sim | Configurado | Configurado | Dispara |
+| Reenviar notificação | Não | Não | Não | Não | Não |
+| Operar fiscal/Bling/NF-e | Não | Não | Não | Não | Não |
 
-## Protecoes server-side
+`*` Manager/Admin podem ter sessão com papel administrativo, mas carrinho continua resolvido por usuário/sessão própria; não há operação "editar carrinho de terceiro".
 
-- `requireCustomer` protege checkout, pagamento e pedidos customer.
-- Ownership do carrinho, pedido e PaymentIntent e verificado no servidor.
-- `requireAdminLike` protege paginas/actions administrativas.
-- Webhook Stripe valida assinatura e nao depende de sessao browser.
-- Consulta administrativa de notificacoes usa `requireAdminLike`.
-- Destinatarios e conteudo de notificacao sao derivados de snapshots/configuracao server-side.
+## Policies
 
-## Checkout, pagamento e notificacoes
+- 🟢 `requireCustomer` protege checkout, pagamento e leitura de pedido customer.
+- 🟢 `requireAdminLike` protege admin, produtos, cupons, frete, upload e status administrativo.
+- 🟢 `requireOwner` existe para ownership explícito, embora nem todos os fluxos usem diretamente.
+- 🟢 Webhook Stripe não depende de sessão; depende de adapter/assinatura/eventId.
 
-- Customer nao escolhe valor, moeda, status financeiro ou destinatario admin.
-- Admin/manager nao marcam pago, editam totais, baixam estoque ou consomem cupom.
-- A notificacao customer so e criada para pedido pago confirmado.
-- Status administrativo mascara destinatarios e erros.
-- Falha de provider nao concede permissao nem altera dominio financeiro.
-- Nao ha endpoint/action de reenvio manual.
+## Guardrails
 
-## Fora do escopo de permissao atual
+- 🟢 Admin-like também bloqueia quando `DATABASE_URL` ou auth real estão ausentes.
+- 🟢 Mutação real usa `assertCanMutateRealData`, liberando somente auth pronto em dev/test.
+- 🟢 Preview/produção sem provider externo real falham de forma segura.
+- 🟢 Mensagens de erro são controladas e não expõem secrets.
 
-- Pedido anonimo.
-- Delegacao granular alem de manager/admin.
-- Historico customer de notificacoes.
-- Reenvio manual.
-- Operacoes fiscais, Bling/NF-e, WhatsApp ou SMS.
+## Lacunas de Permissão
+
+- 🔴 Não há matriz granular além de `admin`/`manager`.
+- 🔴 Customer profile e endereços ainda não têm actions completas.
+- 🔴 Operações pós-pagamento administrativas ainda não foram implementadas.
+- 🔴 Fiscal/Bling/NF-e não possui superfície funcional autorizável.

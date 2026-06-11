@@ -11,7 +11,7 @@
   "project_path": "D:\\Projetos\\triade-essenza-next",
   "legacy_path": "D:\\Projetos\\triadeessenzaparfum.com.br",
   "is_legacy_laravel": false,
-  "phase": "reconhecimento",
+  "phase": "interpretacao",
   "completed": [
     "initial_reversa_extraction",
     "fase_1",
@@ -30,13 +30,17 @@
     "reextracao_pos_fase_9",
     "fase_10",
     "reextracao_pos_fase_10",
-    "scout_reversa_rerun_2026_06_11"
+    "scout_reversa_rerun_2026_06_11",
+    "archaeologist_reversa_rerun_2026_06_11",
+    "detective_reversa_rerun_2026_06_11",
+    "architect_reversa_rerun_2026_06_11"
   ],
   "pending": [
     "commit_reversa_pos_fase_10",
-    "push_commits_locais"
+    "writer_reversa_rerun",
+    "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "scout_rerun_2026_06_11",
+  "last_checkpoint": "writer_rerun_auth_policies_tasks_2026_06_11",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -69,6 +73,236 @@
         ],
         "organization_suggestion": "hybrid"
       }
+    },
+    "archaeologist_rerun_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Escavacao detalhada dos modulos atuais para completar artefatos obrigatorios antes do /reversa-migrate.",
+      "agent": "Archaeologist",
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/plan.md",
+        ".reversa/context/modules.json",
+        "_reversa_sdd/code-analysis.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/flowcharts/*.md"
+      ],
+      "modules_analyzed": [
+        "auth",
+        "products",
+        "cart",
+        "coupons",
+        "shipping",
+        "checkout",
+        "orders",
+        "payments",
+        "notifications",
+        "uploads",
+        "db",
+        "lib"
+      ],
+      "summary": {
+        "primary_algorithms": [
+          "public product filter",
+          "cart recalculation",
+          "pending checkout order draft",
+          "stripe webhook settlement",
+          "post-payment notification outbox"
+        ],
+        "entities_documented": 24,
+        "doc_level": "detalhado"
+      }
+    },
+    "detective_rerun_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Interpretacao detalhada do dominio atual, estados, permissoes e decisoes retroativas.",
+      "agent": "Detective",
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/plan.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_sdd/adrs/*.md"
+      ],
+      "rules_identified": [
+        "produto publico exige published, publishedAt vigente e estoque positivo",
+        "checkout exige customer autenticado e snapshots server-side",
+        "webhook Stripe e fonte de verdade financeira",
+        "settlement e transacional antes de notificacao",
+        "fallback sem banco deve ser explicito e seguro",
+        "admin-like exige auth, banco e papel admin/manager"
+      ],
+      "adrs_generated": 6,
+      "state_machines": [
+        "produto",
+        "carrinho",
+        "cupom",
+        "frete",
+        "pedido",
+        "pagamento",
+        "evento de pagamento",
+        "notificacao",
+        "fulfillment"
+      ],
+      "red_gaps": [
+        "area do cliente completa",
+        "operacao pos-pagamento",
+        "fiscal/Bling/NF-e",
+        "frete externo real",
+        "estoque auditavel",
+        "relatorios e analytics"
+      ]
+    },
+    "architect_rerun_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Sintese arquitetural detalhada apos Scout, Archaeologist e Detective.",
+      "agent": "Architect",
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/plan.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/c4-context.md",
+        "_reversa_sdd/c4-containers.md",
+        "_reversa_sdd/c4-components.md",
+        "_reversa_sdd/erd-complete.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/deployment.md"
+      ],
+      "containers": [
+        "Next.js App",
+        "Domain Modules",
+        "Postgres/Neon",
+        "Vercel Blob",
+        "Stripe",
+        "Email Provider"
+      ],
+      "integrations": [
+        "Stripe API",
+        "Stripe webhook",
+        "Vercel Blob",
+        "Email provider",
+        "future shipping providers",
+        "future Bling/NF-e"
+      ],
+      "technical_debts": [
+        "customer area incomplete",
+        "post-payment operations incomplete",
+        "fiscal/Bling absent",
+        "real shipping providers absent",
+        "inventory movements absent",
+        "some placeholders remain"
+      ]
+    },
+    "writer_rerun_auth_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio incremental da geracao de specs SDD executaveis pelo Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/auth/design.md"
+    },
+    "writer_rerun_auth_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao incremental da geracao de specs SDD executaveis pelo Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/auth/tasks.md"
+    },
+    "writer_rerun_auth_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao do trio canonico da unit auth na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/auth",
+      "status": "partial",
+      "next_file": "_reversa_sdd/auth/login-cadastro-sessao/requirements.md"
+    },
+    "writer_rerun_auth_login_cadastro_sessao_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade auth/login-cadastro-sessao na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/login-cadastro-sessao/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/auth/login-cadastro-sessao/design.md"
+    },
+    "writer_rerun_auth_login_cadastro_sessao_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade auth/login-cadastro-sessao na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/login-cadastro-sessao/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/auth/login-cadastro-sessao/tasks.md"
+    },
+    "writer_rerun_auth_login_cadastro_sessao_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade auth/login-cadastro-sessao na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/login-cadastro-sessao/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/auth/login-cadastro-sessao",
+      "status": "partial",
+      "next_file": "_reversa_sdd/auth/policies-admin-customer-owner/requirements.md"
+    },
+    "writer_rerun_auth_policies_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade auth/policies-admin-customer-owner na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/policies-admin-customer-owner/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/auth/policies-admin-customer-owner/design.md"
+    },
+    "writer_rerun_auth_policies_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade auth/policies-admin-customer-owner na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/policies-admin-customer-owner/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/auth/policies-admin-customer-owner/tasks.md"
+    },
+    "writer_rerun_auth_policies_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade auth/policies-admin-customer-owner na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/auth/policies-admin-customer-owner/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/auth/policies-admin-customer-owner",
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/requirements.md"
     },
     "history_before_phase_7": {
       "completed_at": "2026-06-08T22:45:00-03:00",

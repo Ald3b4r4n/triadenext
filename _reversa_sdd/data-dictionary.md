@@ -1,87 +1,202 @@
-# Dicionario de dados Reversa - Triade Essenza Next
+# Data Dictionary - Triade Essenza Next
 
-Atualizado em: 2026-06-11
-Escopo: modelo de dados apos Fase 10.
+Atualizado em: 2026-06-11  
+Agente: Archaeologist  
+Fonte principal: `src/db/schema.ts`, schemas Zod e tipos de domínio.
 
-## Convencoes
+## Enums
 
-- Valores monetarios em centavos.
-- IDs e timestamps gerados server-side.
-- Snapshots preservam o contexto da compra.
-- Chaves externas mantem ownership e rastreabilidade.
-- Migrations `drizzle/0000` a `drizzle/0007` sao locais/versionadas; nenhuma foi aplicada em banco real nesta re-extracao.
+| Enum | Valores | Confiança |
+| --- | --- | --- |
+| `user_role` | `customer`, `admin`, `manager` | 🟢 |
+| `product_status` | `draft`, `published`, `inactive` | 🟢 |
+| `cart_status` | `active`, `converted`, `abandoned`, `expired` | 🟢 |
+| `coupon_type` | `percentage`, `fixed_amount`, `free_shipping` | 🟢 |
+| `order_status` | `aguardando_pagamento`, `pago`, `em_preparacao`, `enviado`, `entregue`, `cancelado`, `expirado`, `reembolsado` | 🟢 |
+| `payment_status` | `pendente`, `pago`, `falhou`, `cancelado`, `reembolsado` | 🟢 |
+| `fulfillment_status` | `unfulfilled`, `preparing`, `shipped`, `delivered`, `cancelled` | 🟢 |
+| `shipping_provider` | `manual`, `melhor_envio`, `jadlog`, `correios` | 🟢 |
+| `fiscal_document_type` | `invoice`, `receipt`, `other` | 🟢 |
+| `notification_delivery_status` | `pending`, `sending`, `sent`, `mocked`, `failed`, `skipped` | 🟢 |
+| `notification_delivery_type` | `customer_order_paid`, `admin_order_paid` | 🟢 |
 
-## Dominios controlados
+## Tabelas
 
-| Dominio | Valores relevantes |
-|---|---|
-| Carrinho | `active`, `converted` |
-| Pedido | `aguardando_pagamento`, `pago` |
-| PaymentIntent interno | estados de criacao/processamento/pago/falha/cancelado |
-| Evento de pagamento | recebido, processado, ignorado ou falho |
-| Tipo de notificacao | `customer_order_paid`, `admin_order_paid` |
-| Status de notificacao | `pending`, `sending`, `sent`, `mocked`, `failed`, `skipped` |
+### users
 
-## `orders`
+Usuário Better Auth estendido com papel operacional.
 
-- Identifica customer e carrinho convertido.
-- Persiste status, expiracao, moeda e totais.
-- Mantem snapshots de itens, precos, cupom, frete, customer e endereco.
-- Pedido pago e origem das notificacoes da Fase 10.
+Campos principais: `id`, `name`, `email`, `emailVerified`, `phone`, `passwordHash`, `role`, `mustChangePassword`, `lastLoginAt`, `createdAt`, `updatedAt`.
 
-## `payment_intents`
+Índices: `users_email_unique`, `users_role_idx`.
 
-- Liga pedido ao identificador do provider.
-- Persiste valor, moeda e status interno.
-- Nao armazena dados sensiveis de cartao.
+### sessions / accounts / verifications
 
-## `payment_events`
+Tabelas de autenticação Better Auth para sessão, conta externa/senha e verificação.
 
-- Persiste `event_id` unico e tipo recebido.
-- Registra processamento idempotente do webhook.
-- Fornece o evento de origem da entrega de notificacao.
+Relacionamento: `sessions.userId` e `accounts.userId` referenciam `users.id`.
 
-## `notification_deliveries`
+### customer_profiles
 
-| Campo | Papel |
-|---|---|
-| `id` | Identificador da entrega |
-| `type` | `customer_order_paid` ou `admin_order_paid` |
-| `channel` | Canal da entrega, atualmente e-mail |
-| `recipient` | Destinatario normalizado/mascaravel |
-| `recipient_role` | Papel logico do destinatario |
-| `order_id` | FK para pedido pago |
-| `user_id` | FK opcional para usuario |
-| `payment_event_id` | Referencia textual ao evento de pagamento |
-| `event_type` | Tipo do evento que originou a entrega |
-| `provider` | Adapter selecionado |
-| `provider_message_id` | ID externo quando houver |
-| `idempotency_key` | Chave unica por pedido/evento/tipo/destinatario |
-| `status` | Estado atual da entrega |
-| `attempt_count` | Quantidade de tentativas registradas |
-| `last_error` | Erro sanitizado |
-| `metadata` | Metadados seguros da entrega |
-| `sent_at` / `failed_at` | Marcos de resultado |
-| `created_at` / `updated_at` | Auditoria temporal |
+Perfil de cliente.
 
-## Relacoes e indices
+Campos: `userId`, `cpf`, `documentType`, `birthDate`, aceite de privacidade e opt-in marketing.
 
-- `notification_deliveries.order_id -> orders.id`.
-- `notification_deliveries.user_id -> users.id`, opcional.
-- Unique em `notification_deliveries.idempotency_key`.
-- Indices por `order_id`, `status`, `payment_event_id` e `created_at`.
-- A entrega nao possui FK que permita alterar estoque, cupom ou pagamento.
+🟡 Tabela existe, mas UI/serviço completo ainda não foi implementado.
 
-## Migrations locais recentes
+### addresses
 
-### Fase 8
+Endereços do cliente.
 
-`drizzle/0005_glossy_talisman.sql`: pedidos, itens e snapshots de checkout.
+Campos: `recipient`, `phone`, `postalCode`, `street`, `number`, `complement`, `district`, `city`, `state`, `country`, `isDefaultShipping`.
 
-### Fase 9
+🟡 Tabela existe, mas área de endereços ainda é parcial/placeholder.
 
-`drizzle/0006_soft_mole_man.sql`: indices de PaymentIntent e eventos.
+### categories
 
-### Fase 10
+Categorias do catálogo.
 
-`drizzle/0007_outstanding_midnight.sql`: enums e tabela `notification_deliveries`, unique idempotente, FKs e indices. Gerada localmente e nao aplicada em banco real.
+Campos: `name`, `slug`, `description`, `parentId`, `type`, `isActive`, `isProtected`, `sortOrder`.
+
+Índices: slug único e ordenação ativa.
+
+### products
+
+Produto comercial.
+
+Campos principais: `categoryId`, `name`, `slug`, `sku`, descrições, `brand`, `inspirationName`, `gender`, `concentration`, `volumeMl`, `dimensions`, preços em decimal e centavos, `status`, `availabilityType`, `stockQuantity`, `lowStockThreshold`, `isFeatured`, `publishedAt`, SEO e campos Bling.
+
+Índices: slug único, SKU único, índice público por status/publicação/estoque.
+
+Regras públicas: publicado, vigente e com estoque.
+
+### product_images
+
+Imagens de produto no Blob/storage.
+
+Campos: `productId`, `blobUrl`, `pathname`, `altText`, `sortOrder`, `isCover`, dimensões, `sizeBytes`, `contentType`.
+
+Índices: ordenação por produto e uma capa única por produto.
+
+### product_categories
+
+Tabela N:N entre produto e categoria.
+
+Índice único: produto + categoria.
+
+### carts
+
+Carrinho ativo, convertido ou abandonado.
+
+Campos: `userId`, `guestToken`, `sessionId`, `appliedCouponId`, `shippingPostalCode`, `selectedShippingQuoteId`, `selectedShippingOption`, `shippingAmountCents`, `status`, `currency`, `expiresAt`, `convertedAt`.
+
+Índices por usuário/status, guest/status e cupom/frete.
+
+### cart_items
+
+Itens do carrinho com snapshots mínimos.
+
+Campos: `cartId`, `productId`, `productNameSnapshot`, `unitPriceSnapshot`, `unitPriceSnapshotCents`, `quantity`.
+
+Único: `cartId + productId`.
+
+### coupons
+
+Cupom de desconto.
+
+Campos: `code`, `type`, `value`, `startsAt`, `endsAt`, `maxUses`, `usedCount`, `minimumSubtotalCents`, `isActive`.
+
+Regras: status calculado por vigência, ativo e limite de uso.
+
+### shipping_rules
+
+Regras manuais de frete.
+
+Campos: `name`, `provider`, `ruleType`, `uf`, faixa de CEP, preço em decimal e centavos, prazo, prioridade, ativo.
+
+Regras: somente `provider=manual` ativo entra na cotação atual.
+
+### shipping_quotes
+
+Cotações de frete por carrinho.
+
+Campos: `cartId`, `postalCode`, `cartHash`, `provider`, `source`, `options`, `selectedOptionId`, `expiresAt`.
+
+Regra: validade padrão de 30 minutos.
+
+### orders
+
+Pedido com snapshots financeiros, cliente, endereço, frete e cupom.
+
+Campos: `userId`, `cartId`, `number`, `status`, `fulfillmentStatus`, subtotais/total em decimal e centavos, `currency`, snapshots JSON, `publicToken`, expiração, datas operacionais e campos Bling/fiscal.
+
+Índice único: `cartId`.
+
+### order_items
+
+Itens do pedido com snapshot imutável.
+
+Campos: `orderId`, `productId`, `skuSnapshot`, `nameSnapshot`, `slugSnapshot`, `imageSnapshot`, preço unitário, quantidade e total de linha.
+
+### order_events
+
+Histórico operacional de pedido.
+
+Campos: `orderId`, `actorUserId`, `eventType`, `fromStatus`, `toStatus`, `payload`, `createdAt`.
+
+🟡 Tabela existe, mas transições operacionais completas ainda não estão implementadas.
+
+### payment_intents
+
+Registro interno de intenção de pagamento.
+
+Campos: `orderId`, `provider`, `providerReference`, `checkoutSessionId`, `status`, `amount`, `currency`, `failureReason`, `paidAt`, `refundedAt`.
+
+Índices: providerReference único e order/status.
+
+### payment_events
+
+Eventos de webhook de pagamento.
+
+Campos: `paymentIntentId`, `orderId`, `eventId`, `eventType`, `signatureValid`, `payload`, `processingStatus`, `processedAt`, `failureReason`.
+
+Índice único: `eventId`.
+
+### notification_deliveries
+
+Outbox de notificações.
+
+Campos: `type`, `channel`, `recipient`, `recipientRole`, `orderId`, `userId`, `paymentEventId`, `eventType`, `provider`, `providerMessageId`, `idempotencyKey`, `status`, `attemptCount`, `lastError`, `metadata`, `sentAt`, `failedAt`.
+
+Índice único: `idempotencyKey`.
+
+### fiscal_documents
+
+Documentos fiscais anexados a pedido.
+
+Campos: `orderId`, `customerId`, `uploadedByUserId`, `blobUrl`, `pathname`, `filename`, `contentType`, `sizeBytes`, `type`, `documentNumber`, `issuedAt`.
+
+🔴 Schema existe; feature fiscal completa ausente.
+
+### admin_notifications
+
+Notificações internas administrativas.
+
+Campos: `userId`, `eventType`, `channel`, `title`, `message`, `relatedModelType`, `relatedModelId`, `isRead`, `sentAt`, `failedAt`, `failureReason`.
+
+🔴 Schema existe; uso funcional completo ainda ausente.
+
+## DTOs e Snapshots
+
+- `OrderCustomerSnapshot`: nome, e-mail, telefone.
+- `OrderAddressSnapshot`: destinatário, CEP, UF, cidade, bairro, logradouro, número, complemento, país.
+- `OrderShippingSnapshot`: CEP, quoteId, optionId, provider, source, label, prazo, valor original, valor efetivo e flag de frete grátis.
+- `OrderCouponSnapshot`: id, código, tipo, valor, desconto aplicado e `usedCountAtCheckout`.
+- `PaymentIntentRecord`: pedido, provider, reference, status, valor, moeda e client secret.
+- `NotificationDeliveryDraft`: tipo, canal, destinatário, pedido, evento, provider e idempotency key.
+
+## Regras de Dinheiro
+
+- 🟢 Campos críticos usam centavos (`*_cents`) como fonte de cálculo.
+- 🟢 Campos `numeric` existem para persistência decimal/compatibilidade.
+- 🟢 Desconto nunca ultrapassa subtotal.

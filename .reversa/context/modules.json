@@ -1,0 +1,253 @@
+{
+  "generated_at": "2026-06-11T00:00:00-03:00",
+  "modules": [
+    {
+      "name": "auth",
+      "path": "src/features/auth",
+      "purpose": "Autenticacao, sessao, papeis e policies de acesso.",
+      "primary_files": [
+        "src/features/auth/server/auth.ts",
+        "src/features/auth/server/session.ts",
+        "src/features/auth/server/policies.ts",
+        "src/features/auth/server/actions.ts"
+      ],
+      "functions": [
+        { "name": "getCurrentSession", "file": "src/features/auth/server/session.ts", "params": [], "returns": "Promise<AppSession>", "confidence": "confirmed" },
+        { "name": "requireAdminLike", "file": "src/features/auth/server/policies.ts", "params": ["session?: Promise<AppSession>"], "returns": "Promise<PolicyDecision>", "confidence": "confirmed" },
+        { "name": "loginAction", "file": "src/features/auth/server/actions.ts", "params": ["AuthActionState", "FormData"], "returns": "Promise<AuthActionState>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "User", "fields": [{"name":"id","type":"uuid","required":true},{"name":"email","type":"text","required":true},{"name":"role","type":"customer|admin|manager","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Admin-like exige papel admin ou manager e ambiente com banco/auth prontos.", "location": "src/features/auth/server/policies.ts", "confidence": "confirmed" },
+        { "description": "returnTo so aceita caminhos internos seguros.", "location": "src/features/auth/server/session.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["db", "cart", "lib"],
+      "algorithms": ["timeout de sessao", "normalizacao de role", "merge de carrinho guest no login"],
+      "complexity": "medium"
+    },
+    {
+      "name": "products",
+      "path": "src/features/products",
+      "purpose": "Catalogo, produto publico, admin de produtos, imagens e estoque basico.",
+      "primary_files": ["src/features/products/domain.ts", "src/features/products/server/product-service.ts", "src/features/products/server/product-repository.ts", "src/features/products/schemas.ts"],
+      "functions": [
+        { "name": "isProductPublic", "file": "src/features/products/domain.ts", "params": ["Product", "Date?"], "returns": "boolean", "confidence": "confirmed" },
+        { "name": "productCanBeMarkedPublic", "file": "src/features/products/domain.ts", "params": ["ProductMutationInput", "Date?"], "returns": "boolean", "confidence": "confirmed" },
+        { "name": "decrementStock", "file": "src/features/products/server/product-repository.ts", "params": ["productId: string", "quantity: number"], "returns": "Promise<boolean>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "Product", "fields": [{"name":"status","type":"draft|published|inactive","required":true},{"name":"priceCents","type":"integer","required":true},{"name":"stockQuantity","type":"integer","required":true}], "confidence": "confirmed" },
+        { "name": "ProductImage", "fields": [{"name":"blobUrl","type":"string","required":true},{"name":"isCover","type":"boolean","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Produto publico exige published, publishedAt vigente e estoque positivo.", "location": "src/features/products/domain.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["db", "uploads", "lib"],
+      "algorithms": ["normalizacao de slug", "parse de preco para centavos", "selecao de imagem de capa"],
+      "complexity": "medium"
+    },
+    {
+      "name": "cart",
+      "path": "src/features/cart",
+      "purpose": "Carrinho guest/autenticado, itens, cupom, frete selecionado e recalculo de totais.",
+      "primary_files": ["src/features/cart/domain.ts", "src/features/cart/server/cart-service.ts", "src/features/cart/server/cart-repository.ts", "src/features/cart/server/cart-actions.ts"],
+      "functions": [
+        { "name": "addItemToCart", "file": "src/features/cart/server/cart-service.ts", "params": ["{ productId: string; quantity: number }"], "returns": "Promise<CartActionResult>", "confidence": "confirmed" },
+        { "name": "recalculateCartView", "file": "src/features/cart/server/cart-service.ts", "params": ["CartView"], "returns": "Promise<CartView>", "confidence": "confirmed" },
+        { "name": "mergeGuestCartIntoUser", "file": "src/features/cart/server/cart-service.ts", "params": ["{ userId: string; guestToken: string | null }"], "returns": "Promise<CartActionResult>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "Cart", "fields": [{"name":"status","type":"active|converted|abandoned|expired","required":true},{"name":"shippingAmountCents","type":"integer","required":true}], "confidence": "confirmed" },
+        { "name": "CartItem", "fields": [{"name":"productNameSnapshot","type":"string","required":true},{"name":"unitPriceSnapshotCents","type":"integer","required":true},{"name":"quantity","type":"integer","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Carrinho recalcula itens contra produto/estoque atuais e remove cupom invalido.", "location": "src/features/cart/server/cart-service.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["products", "coupons", "shipping", "auth", "db"],
+      "algorithms": ["calculo de subtotal", "validacao de estoque", "merge guest-to-user", "cartHash para frete"],
+      "complexity": "high"
+    },
+    {
+      "name": "coupons",
+      "path": "src/features/coupons",
+      "purpose": "Validacao, calculo, persistencia e administracao de cupons.",
+      "primary_files": ["src/features/coupons/domain.ts", "src/features/coupons/server/coupon-service.ts", "src/features/coupons/server/coupon-repository.ts", "src/features/coupons/schemas.ts"],
+      "functions": [
+        { "name": "getCouponStatus", "file": "src/features/coupons/domain.ts", "params": ["Coupon", "Date?"], "returns": "CouponStatus", "confidence": "confirmed" },
+        { "name": "validateCouponForSubtotal", "file": "src/features/coupons/domain.ts", "params": ["Coupon | null", "number", "Date?"], "returns": "CouponValidationResult", "confidence": "confirmed" },
+        { "name": "calculateCouponDiscountCents", "file": "src/features/coupons/domain.ts", "params": ["Coupon", "number"], "returns": "number", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "Coupon", "fields": [{"name":"code","type":"string","required":true},{"name":"type","type":"percentage|fixed_amount|free_shipping","required":true},{"name":"usedCount","type":"integer","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Cupom precisa estar ativo, vigente, nao esgotado, com subtotal minimo atendido e valor valido.", "location": "src/features/coupons/domain.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["db", "lib"],
+      "algorithms": ["calculo percentage/fixed", "clamp de desconto", "normalizacao uppercase"],
+      "complexity": "medium"
+    },
+    {
+      "name": "shipping",
+      "path": "src/features/shipping",
+      "purpose": "Frete manual, cotacoes, regras por UF/faixa de CEP e adapters futuros.",
+      "primary_files": ["src/features/shipping/domain.ts", "src/features/shipping/server/shipping-service.ts", "src/features/shipping/server/shipping-repository.ts", "src/features/shipping/future-providers.ts"],
+      "functions": [
+        { "name": "buildManualShippingOptions", "file": "src/features/shipping/domain.ts", "params": ["ShippingManualRule[]", "destination"], "returns": "ShippingOption[]", "confidence": "confirmed" },
+        { "name": "createShippingQuote", "file": "src/features/shipping/domain.ts", "params": ["quote input"], "returns": "ShippingQuote", "confidence": "confirmed" },
+        { "name": "selectShippingQuoteOption", "file": "src/features/shipping/server/shipping-service.ts", "params": ["{ quoteId: string; optionId: string }"], "returns": "Promise<Result>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "ShippingRule", "fields": [{"name":"provider","type":"manual|melhor_envio|jadlog|correios","required":true},{"name":"priceCents","type":"integer","required":true}], "confidence": "confirmed" },
+        { "name": "ShippingQuote", "fields": [{"name":"postalCode","type":"string","required":true},{"name":"options","type":"json","required":true},{"name":"expiresAt","type":"Date","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Cotacao manual expira em 30 minutos e precisa pertencer ao carrinho.", "location": "src/features/shipping/domain.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["db", "cart"],
+      "algorithms": ["normalizacao de CEP", "aplicabilidade UF/faixa", "ordenacao prioridade/preco/nome"],
+      "complexity": "medium"
+    },
+    {
+      "name": "checkout",
+      "path": "src/features/checkout",
+      "purpose": "Revisao de carrinho e criacao de pedido pendente autenticado.",
+      "primary_files": ["src/features/checkout/server/checkout-service.ts", "src/features/checkout/server/checkout-actions.ts"],
+      "functions": [
+        { "name": "reviewPendingCheckout", "file": "src/features/checkout/server/checkout-service.ts", "params": [], "returns": "Promise<CheckoutReviewResult>", "confidence": "confirmed" },
+        { "name": "createPendingCheckoutOrder", "file": "src/features/checkout/server/checkout-service.ts", "params": ["CheckoutFormInput"], "returns": "Promise<CheckoutCreateResult>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "CheckoutFormInput", "fields": [{"name":"fullName","type":"string","required":true},{"name":"postalCode","type":"string","required":true},{"name":"state","type":"string","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Checkout exige autenticacao, carrinho ativo, item compravel, estoque, cupom valido e frete selecionado.", "location": "src/features/checkout/server/checkout-service.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["auth", "cart", "coupons", "shipping", "orders", "products"],
+      "algorithms": ["validacao final server-side", "snapshotizacao de pedido"],
+      "complexity": "high"
+    },
+    {
+      "name": "orders",
+      "path": "src/features/orders",
+      "purpose": "Pedido pendente/pago, snapshots e leitura customer/admin.",
+      "primary_files": ["src/features/orders/domain.ts", "src/features/orders/server/order-repository.ts", "src/features/orders/server/order-actions.ts", "src/features/orders/schemas.ts"],
+      "functions": [
+        { "name": "buildPendingOrderDraft", "file": "src/features/orders/domain.ts", "params": ["draft input"], "returns": "PendingOrderDraft", "confidence": "confirmed" },
+        { "name": "createPendingOrder", "file": "src/features/orders/server/order-repository.ts", "params": ["PendingOrderDraft"], "returns": "Promise<OrderPersistenceResult>", "confidence": "confirmed" },
+        { "name": "markOrderPaid", "file": "src/features/orders/server/order-repository.ts", "params": ["orderId: string", "paidAt: Date"], "returns": "Promise<PendingOrder | null>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "Order", "fields": [{"name":"status","type":"order_status","required":true},{"name":"grandTotalCents","type":"integer","required":true},{"name":"customerSnapshot","type":"json","required":true}], "confidence": "confirmed" },
+        { "name": "OrderItem", "fields": [{"name":"skuSnapshot","type":"string","required":true},{"name":"unitPriceCents","type":"integer","required":true},{"name":"quantity","type":"integer","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Um carrinho gera no maximo um pedido por cartId unico.", "location": "src/db/schema.ts", "confidence": "confirmed" },
+        { "description": "Pedido pendente expira em 60 minutos.", "location": "src/features/orders/domain.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["db", "auth", "cart", "products"],
+      "algorithms": ["geracao de numero", "public token", "hydration de itens"],
+      "complexity": "high"
+    },
+    {
+      "name": "payments",
+      "path": "src/features/payments",
+      "purpose": "Stripe PaymentIntent, mock seguro, webhook e settlement atomico.",
+      "primary_files": ["src/features/payments/domain.ts", "src/features/payments/server/payment-service.ts", "src/features/payments/server/payment-settlement-service.ts", "src/features/payments/server/stripe-webhook-service.ts"],
+      "functions": [
+        { "name": "startOrderPayment", "file": "src/features/payments/server/payment-service.ts", "params": ["{ userId: string; orderId: string }"], "returns": "Promise<StartPaymentResult>", "confidence": "confirmed" },
+        { "name": "processStripeWebhook", "file": "src/features/payments/server/stripe-webhook-service.ts", "params": ["{ rawBody: string; signature: string | null }"], "returns": "Promise<WebhookProcessingResult>", "confidence": "confirmed" },
+        { "name": "settleSucceededPayment", "file": "src/features/payments/server/payment-settlement-service.ts", "params": ["eventId, paymentIntent, stripeIntent"], "returns": "Promise<WebhookProcessingResult>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "PaymentIntent", "fields": [{"name":"providerReference","type":"string","required":false},{"name":"status","type":"payment_status","required":true},{"name":"amount","type":"numeric","required":true}], "confidence": "confirmed" },
+        { "name": "PaymentEvent", "fields": [{"name":"eventId","type":"string","required":true},{"name":"processingStatus","type":"string","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Somente webhook de sucesso marca pedido como pago.", "location": "src/features/payments/server/payment-settlement-service.ts", "confidence": "confirmed" },
+        { "description": "Valor, moeda e metadata do PaymentIntent precisam bater com o pedido.", "location": "src/features/payments/domain.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["orders", "products", "coupons", "notifications", "db"],
+      "algorithms": ["idempotencia Stripe", "settlement transacional", "mascara de secrets"],
+      "complexity": "high"
+    },
+    {
+      "name": "notifications",
+      "path": "src/features/notifications",
+      "purpose": "Outbox e envio mock/unavailable de notificacoes pos-pagamento.",
+      "primary_files": ["src/features/notifications/service.ts", "src/features/notifications/post-payment-event.ts", "src/features/notifications/idempotency.ts", "src/features/notifications/providers/resolve-email-provider.ts"],
+      "functions": [
+        { "name": "notifyOrderPaidAfterSettlement", "file": "src/features/notifications/post-payment-event.ts", "params": ["order/payment event input"], "returns": "Promise<Result>", "confidence": "confirmed" },
+        { "name": "processOrderPaid", "file": "src/features/notifications/service.ts", "params": ["OrderPaidContext"], "returns": "Promise<NotificationDelivery[]>", "confidence": "confirmed" },
+        { "name": "buildNotificationIdempotencyKey", "file": "src/features/notifications/idempotency.ts", "params": ["input"], "returns": "string", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "NotificationDelivery", "fields": [{"name":"idempotencyKey","type":"string","required":true},{"name":"status","type":"notification_delivery_status","required":true},{"name":"recipient","type":"string","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Falha de notificacao e segura e nao altera pagamento/pedido/estoque/cupom.", "location": "src/features/notifications/post-payment-event.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["orders", "db"],
+      "algorithms": ["outbox idempotente", "normalizacao de destinatario", "renderizacao segura"],
+      "complexity": "medium"
+    },
+    {
+      "name": "uploads",
+      "path": "src/features/uploads",
+      "purpose": "Upload de imagens de produto via Vercel Blob e persistencia de metadata.",
+      "primary_files": ["src/features/uploads/product-image-upload.ts", "src/features/uploads/schemas.ts", "src/app/api/upload/route.ts"],
+      "functions": [
+        { "name": "uploadProductImage", "file": "src/features/uploads/product-image-upload.ts", "params": ["ProductImageUploadInput"], "returns": "Promise<ProductImageUploadResult>", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "ProductImageUploadInput", "fields": [{"name":"productId","type":"string","required":true},{"name":"file","type":"File","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Upload exige admin-like, Blob token e arquivo JPEG/PNG/WebP ate 5 MB.", "location": "src/features/uploads/schemas.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["auth", "products", "lib"],
+      "algorithms": ["validacao de MIME/tamanho", "pathname unico com randomUUID"],
+      "complexity": "medium"
+    },
+    {
+      "name": "db",
+      "path": "src/db",
+      "purpose": "Schema relacional Drizzle e cliente Neon/Postgres opcional.",
+      "primary_files": ["src/db/schema.ts", "src/db/client.ts"],
+      "functions": [
+        { "name": "db", "file": "src/db/client.ts", "params": ["env.DATABASE_URL"], "returns": "Drizzle database | null", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "Schema", "fields": [{"name":"tables","type":"pgTable[]","required":true},{"name":"enums","type":"pgEnum[]","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Ausencia de DATABASE_URL desativa cliente real e aciona fallbacks permitidos.", "location": "src/db/client.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": ["lib"],
+      "algorithms": ["cliente condicional por env"],
+      "complexity": "medium"
+    },
+    {
+      "name": "lib",
+      "path": "src/lib",
+      "purpose": "Utilitarios transversais de env, runtime, dinheiro e slug.",
+      "primary_files": ["src/lib/env.ts", "src/lib/runtime-mode.ts", "src/lib/money.ts", "src/lib/slug.ts"],
+      "functions": [
+        { "name": "getRuntimeMode", "file": "src/lib/runtime-mode.ts", "params": [], "returns": "RuntimeMode", "confidence": "confirmed" },
+        { "name": "assertCanMutateRealData", "file": "src/lib/runtime-mode.ts", "params": [], "returns": "GuardrailResult", "confidence": "confirmed" },
+        { "name": "normalizeSlug", "file": "src/lib/slug.ts", "params": ["string"], "returns": "string", "confidence": "confirmed" }
+      ],
+      "entities": [
+        { "name": "RuntimeMode", "fields": [{"name":"hasDatabase","type":"boolean","required":true},{"name":"canMutateRealData","type":"boolean","required":true}], "confidence": "confirmed" }
+      ],
+      "business_rules": [
+        { "description": "Mutacao real so e liberada com auth pronto em development/test.", "location": "src/lib/runtime-mode.ts", "confidence": "confirmed" }
+      ],
+      "dependencies": [],
+      "algorithms": ["determinacao de ambiente", "clamp de desconto", "normalizacao unicode de slug"],
+      "complexity": "low"
+    }
+  ]
+}

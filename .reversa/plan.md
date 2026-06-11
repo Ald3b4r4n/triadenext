@@ -20,31 +20,40 @@
 
 > O Reversa preenche esta seção com os módulos reais após o Scout concluir o reconhecimento.
 
-- [ ] **Archaeologist** — Análise do módulo `auth`
-- [ ] **Archaeologist** — Análise do módulo `products`
-- [ ] **Archaeologist** — Análise do módulo `cart`
-- [ ] **Archaeologist** — Análise do módulo `coupons`
-- [ ] **Archaeologist** — Análise do módulo `shipping`
-- [ ] **Archaeologist** — Análise do módulo `checkout`
-- [ ] **Archaeologist** — Análise do módulo `orders`
-- [ ] **Archaeologist** — Análise do módulo `payments`
-- [ ] **Archaeologist** — Análise do módulo `notifications`
-- [ ] **Archaeologist** — Análise do módulo `uploads`
-- [ ] **Archaeologist** — Análise do módulo `db`
-- [ ] **Archaeologist** — Análise do módulo `lib`
+- [x] **Archaeologist** — Análise do módulo `auth` ✅
+- [x] **Archaeologist** — Análise do módulo `products` ✅
+- [x] **Archaeologist** — Análise do módulo `cart` ✅
+- [x] **Archaeologist** — Análise do módulo `coupons` ✅
+- [x] **Archaeologist** — Análise do módulo `shipping` ✅
+- [x] **Archaeologist** — Análise do módulo `checkout` ✅
+- [x] **Archaeologist** — Análise do módulo `orders` ✅
+- [x] **Archaeologist** — Análise do módulo `payments` ✅
+- [x] **Archaeologist** — Análise do módulo `notifications` ✅
+- [x] **Archaeologist** — Análise do módulo `uploads` ✅
+- [x] **Archaeologist** — Análise do módulo `db` ✅
+- [x] **Archaeologist** — Análise do módulo `lib` ✅
 
 ## Fase 3: Interpretação 🧠
 
-- [ ] **Detetive** — Arqueologia Git e ADRs retroativos
-- [ ] **Detetive** — Regras de negócio implícitas e máquinas de estado
-- [ ] **Detetive** — Matriz de permissões (RBAC/ACL)
-- [ ] **Arquiteto** — Diagramas C4 (Contexto, Containers, Componentes)
-- [ ] **Arquiteto** — ERD completo e integrações externas
-- [ ] **Arquiteto** — Spec Impact Matrix
+- [x] **Detetive** — Arqueologia Git e ADRs retroativos ✅
+- [x] **Detetive** — Regras de negócio implícitas e máquinas de estado ✅
+- [x] **Detetive** — Matriz de permissões (RBAC/ACL) ✅
+- [x] **Arquiteto** — Diagramas C4 (Contexto, Containers, Componentes) ✅
+- [x] **Arquiteto** — ERD completo e integrações externas ✅
+- [x] **Arquiteto** — Spec Impact Matrix ✅
 
 ## Fase 4: Geração 📝
 
 - [ ] **Redator** — Specs SDD por componente
+  - [x] `auth/requirements.md` ✅
+  - [x] `auth/design.md` ✅
+  - [x] `auth/tasks.md` ✅
+  - [x] `auth/login-cadastro-sessao/requirements.md` ✅
+  - [x] `auth/login-cadastro-sessao/design.md` ✅
+  - [x] `auth/login-cadastro-sessao/tasks.md` ✅
+  - [x] `auth/policies-admin-customer-owner/requirements.md` ✅
+  - [x] `auth/policies-admin-customer-owner/design.md` ✅
+  - [x] `auth/policies-admin-customer-owner/tasks.md` ✅
 - [ ] **Redator** — OpenAPI (se aplicável)
 - [ ] **Redator** — User Stories (se aplicável)
 - [ ] **Redator** — Code/Spec Matrix

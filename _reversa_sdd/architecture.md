@@ -1,82 +1,91 @@
-# Arquitetura Reversa - Triade Essenza Next
+# Architecture - Triade Essenza Next
 
-Atualizado em: 2026-06-11
-Escopo: arquitetura do projeto Next.js apos Fase 10.
+Atualizado em: 2026-06-11  
+Agente: Architect  
+Nível: detalhado
 
-## Visao geral
+## Visão Geral
 
-O sistema usa Next.js App Router, server components/actions, Drizzle ORM e PostgreSQL/Neon quando configurado. O checkout cria pedido pendente; Stripe confirma o pagamento exclusivamente por webhook assinado e idempotente. O settlement conclui pagamento, pedido, estoque e cupom. Somente depois dessa unidade financeira terminar, a camada de notificacoes tenta registrar e entregar mensagens de pedido pago.
+🟢 **CONFIRMADO** A aplicação é um e-commerce Next.js App Router em TypeScript, com domínios organizados em `src/features`, persistência Drizzle/Postgres opcional, autenticação Better Auth, pagamentos Stripe, storage Vercel Blob e testes Vitest/Playwright.
 
-## Camadas
+🟢 **CONFIRMADO** O fluxo comercial atual cobre catálogo público, carrinho, cupom, frete manual, checkout autenticado, pedido pendente, PaymentIntent, webhook, settlement e notificações pós-pagamento.
 
-| Camada | Responsabilidade |
-|---|---|
-| `src/app` | Rotas, layouts, pages, route handlers e server actions |
-| `src/features` | Dominio, services, repositories, policies e adapters |
-| `src/db` | Schema, conexao e persistencia Drizzle |
-| `src/lib` | Infraestrutura compartilhada e configuracao |
-| `tests` / `e2e` | Provas unitarias, integracao e navegacao |
+🟡 **INFERIDO** A arquitetura alvo segue fatias verticais por domínio, com Server Components/pages para leitura, Server Actions para mutação, Route Handlers para APIs/webhooks e repositories isolando Drizzle/fallback.
 
-## Modulos funcionais
+## Containers
 
-### Catalogo, auth e carrinho
+| Container | Tecnologia | Responsabilidade |
+| --- | --- | --- |
+| Web App | Next.js App Router | Storefront, customer, admin, server actions e route handlers |
+| Domain Modules | TypeScript em `src/features` | Regras, services, repositories, schemas e adapters |
+| Database | Postgres/Neon via Drizzle | Dados relacionais, snapshots, pagamentos e outbox |
+| Blob Storage | Vercel Blob | Imagens de produto e documentos futuros |
+| Stripe | Stripe API/Webhooks | PaymentIntent, Payment Element e eventos financeiros |
+| Email Provider | Mock/unavailable hoje; Resend/SMTP futuro | Entrega transacional |
 
-- Catalogo publico filtra produtos compraveis.
-- Auth aplica papeis e ownership server-side.
-- Carrinho persiste itens, cupom e frete; carrinho convertido fica bloqueado.
+## Componentes Internos
 
-### Checkout, orders e payments
+- `src/app`: roteamento e superfícies públicas/customer/admin/API.
+- `src/features/auth`: Better Auth, sessão e RBAC.
+- `src/features/products`: catálogo, admin, imagens, estoque básico.
+- `src/features/cart`: carrinho guest/customer, cupom e frete selecionado.
+- `src/features/coupons`: validação e administração de descontos.
+- `src/features/shipping`: frete manual e contratos futuros de provider.
+- `src/features/checkout`: validação final e criação do pedido.
+- `src/features/orders`: snapshots, leitura e marcação paga.
+- `src/features/payments`: PaymentIntent, webhook e settlement.
+- `src/features/notifications`: outbox e e-mail pós-pagamento.
+- `src/features/uploads`: upload de imagem para Blob.
+- `src/db`: schema Drizzle e cliente condicional.
+- `src/lib`: env, runtime guardrails, dinheiro e slug.
 
-- Checkout exige customer autenticado e recalcula tudo no servidor.
-- Pedido nasce `aguardando_pagamento` com snapshots imutaveis.
-- PaymentIntent usa valor/moeda server-side.
-- Webhook Stripe assinado e `payment_events.event_id` unico comandam o settlement.
-- Client return e admin nao marcam pedido como pago.
+## Fluxo Comercial Principal
 
-### Notifications
+1. Storefront lista somente produtos públicos.
+2. Cliente/visitante adiciona item ao carrinho.
+3. Carrinho recalcula estoque, cupom e frete.
+4. Customer autenticado cria pedido pendente com snapshots.
+5. Customer inicia PaymentIntent do próprio pedido.
+6. Stripe/Mock retorna evento webhook.
+7. Settlement valida valor/moeda/metadata, baixa estoque, consome cupom e marca pedido como pago.
+8. Notificação pós-pagamento roda fora da transação financeira.
 
-- `src/features/notifications` concentra contrato do provider, configuracao, templates, repositories e service.
-- `post-payment-event.ts` recarrega o pedido pago e dispara o service apos o settlement.
-- O service cria uma entrega customer e uma por destinatario admin configurado.
-- A chave idempotente impede segunda entrega efetiva do mesmo evento/tipo/destinatario.
-- O repository usa Drizzle com banco e memoria no fallback seguro.
-- Templates usam snapshots do pedido, escape de conteudo e mensagens sem dados sensiveis.
-- Erros de provider sao sanitizados antes de persistir.
+## Integrações Externas
 
-## Persistencia
+| Integração | Direção | Estado | Guardrail |
+| --- | --- | --- | --- |
+| Stripe API | Outbound | Real quando configurado; mock dev/test | Sem segredo, falha segura |
+| Stripe Webhook | Inbound | Implementado | Assinatura/eventId/idempotência |
+| Vercel Blob | Outbound | Service implementado; rota API ainda placeholder | Exige token e admin-like |
+| E-mail | Outbound | Mock/unavailable | Sem envio real obrigatório |
+| Correios/Jadlog/Melhor Envio | Outbound futuro | Inativo | Sem chamada HTTP atual |
+| Bling/NF-e | Outbound futuro | Ausente funcionalmente | Planejado em Reversa Forward |
 
-Migrations locais observadas: `drizzle/0000` ate `drizzle/0007_outstanding_midnight.sql`.
+## Dados
 
-Entidades centrais:
+Os agregados críticos são:
 
-- catalogo: produtos e imagens;
-- identidade: usuarios, contas e sessoes;
-- compra: carrinhos, itens, cupons e frete;
-- checkout: pedidos e itens;
-- pagamentos: `payment_intents` e `payment_events`;
-- notificacoes: `notification_deliveries`.
+- `Catalog`: `products`, `product_images`, `categories`, `product_categories`.
+- `Cart`: `carts`, `cart_items`, `coupons`, `shipping_quotes`.
+- `Order`: `orders`, `order_items`, `order_events`.
+- `Payment`: `payment_intents`, `payment_events`.
+- `Notification`: `notification_deliveries`.
+- `Customer/Auth`: `users`, `sessions`, `accounts`, `customer_profiles`, `addresses`.
 
-Nenhuma migration foi aplicada a banco real nesta re-extracao.
+## Dívidas Técnicas
 
-## Integracoes externas
+- 🔴 Área do cliente completa ainda não está implementada.
+- 🔴 Status operacionais de pedido e fulfillment existem no schema, mas não têm fluxo completo.
+- 🔴 Fiscal/Bling/NF-e ainda é schema/roadmap, não feature funcional.
+- 🔴 Frete real e rastreamento ainda não existem.
+- 🔴 Estoque não tem movimentos auditáveis.
+- 🟡 Alguns placeholders administrativos/customer permanecem.
+- 🟡 Dependências em `latest` exigem lockfile como fonte efetiva.
 
-- Stripe: adapter real quando configurado, mock dev/test e indisponibilidade segura.
-- E-mail: adapter contratual; mock dev/test; preview/producao sem provider real ficam indisponiveis.
-- Frete externo: adapters futuros inativos.
-- WhatsApp, SMS, Bling, NF-e e fiscal: nao integrados.
+## Guardrails
 
-## Guardrails arquiteturais atuais
-
-- Totais, estoque, cupom, frete, pedido e pagamento sao server-side.
-- Pagamento so e confirmado por webhook assinado/idempotente.
-- Settlement financeiro ocorre antes da notificacao.
-- Notificacao roda fora da transacao financeira e nao propaga falha para o settlement.
-- Replay de webhook nao cria segunda entrega efetiva.
-- Mock de notificacao nao opera em preview/producao.
-- Admin/manager consultam status mascarado e nao reenviam notificacoes.
-- Customer nao possui historico de notificacoes.
-- Nenhum dado de cartao ou segredo de provider e persistido na entrega.
-
-## Proxima evolucao
-
-Committar os artefatos Reversa pos-Fase 10 e, apos validacao humana, fazer push dos commits locais.
+- 🟢 Sem `DATABASE_URL`, fallback explícito e seguro.
+- 🟢 Mutação real exige auth pronto e ambiente permitido.
+- 🟢 Pagamento só é confirmado por webhook assinado/idempotente.
+- 🟢 Notificação falha sem reverter settlement.
+- 🟢 Secrets são tratados por env e não devem aparecer em docs/logs.

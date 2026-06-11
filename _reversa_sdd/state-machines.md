@@ -1,81 +1,157 @@
-# Maquinas de estado Reversa - Triade Essenza Next
+# State Machines - Triade Essenza Next
 
-Atualizado em: 2026-06-11
-Escopo: estados apos Fase 10.
+Atualizado em: 2026-06-11  
+Agente: Detective
+
+## Produto
+
+```mermaid
+stateDiagram-v2
+  [*] --> draft
+  draft --> published: admin publica com campos minimos
+  published --> inactive: admin desativa
+  inactive --> published: admin reativa e republica
+  published --> draft: admin retira de publicacao
+```
+
+Regras:
+
+- 🟢 `published` só é público se `publishedAt <= now` e estoque positivo.
+- 🟢 `draft`, `inactive`, futuro e sem estoque não aparecem no catálogo público.
 
 ## Carrinho
 
-```text
-active -> converted
-converted -> terminal para mutacoes
+```mermaid
+stateDiagram-v2
+  [*] --> active
+  active --> converted: checkout cria pedido
+  active --> abandoned: futuro/inferido
+  active --> expired: futuro/inferido
+  converted --> [*]
 ```
 
-Carrinho convertido nao recebe item, cupom ou frete novo.
+Regras:
+
+- 🟢 `active` permite item, cupom e frete.
+- 🟢 `converted` é terminal para mutações de compra.
+- 🟡 `abandoned` e `expired` existem no enum, mas sem rotina operacional completa.
+
+## Cupom
+
+```mermaid
+stateDiagram-v2
+  [*] --> inactive
+  inactive --> scheduled: isActive true e startsAt futuro
+  scheduled --> active: startsAt <= now
+  active --> expired: endsAt passado
+  active --> exhausted: usedCount >= maxUses
+  active --> inactive: admin desativa
+```
+
+Regras:
+
+- 🟢 Status é calculado, não necessariamente persistido.
+- 🟢 `usedCount` incrementa no settlement, não no carrinho.
+
+## Cotação de Frete
+
+```mermaid
+stateDiagram-v2
+  [*] --> created
+  created --> selected: usuario escolhe opcao
+  created --> expired: expiresAt <= now
+  selected --> expired: expiresAt <= now
+```
+
+Regras:
+
+- 🟢 Cotação vale por 30 minutos.
+- 🟢 Cotação precisa pertencer ao carrinho atual.
 
 ## Pedido
 
-```text
-aguardando_pagamento
-  -> pago              [somente webhook assinado + settlement valido]
+```mermaid
+stateDiagram-v2
+  [*] --> aguardando_pagamento
+  aguardando_pagamento --> pago: webhook payment_intent.succeeded + settlement valido
+  aguardando_pagamento --> expirado: futuro/rotina pendente
+  aguardando_pagamento --> cancelado: futuro/operacao pendente
+  pago --> em_preparacao: futuro/admin
+  em_preparacao --> enviado: futuro/admin
+  enviado --> entregue: futuro/admin/tracking
+  pago --> reembolsado: futuro/refund
+  pago --> cancelado: futuro/regra humana
 ```
 
-Client return e admin nao executam a transicao.
+Regras:
 
-## PaymentIntent e webhook
+- 🟢 Implementado hoje: `aguardando_pagamento -> pago`.
+- 🟢 Browser e admin não marcam pedido pago.
+- 🔴 Transições operacionais restantes ainda não foram implementadas.
 
-```text
-criado -> processando -> pago
-                     \-> falho/cancelado
+## Pagamento Interno
 
-evento recebido -> validado -> processado
-                \-> ignorado/falho
+```mermaid
+stateDiagram-v2
+  [*] --> pendente
+  pendente --> pago: webhook succeeded
+  pendente --> falhou: webhook payment_failed
+  pendente --> cancelado: webhook canceled
+  pago --> reembolsado: futuro/refund
 ```
 
-`payment_events.event_id` unico impede segundo settlement.
+Regras:
 
-## Settlement
+- 🟢 PaymentIntent pendente pode ser reutilizado se valor/moeda/pedido ainda batem.
+- 🟢 Falha/cancelamento não muda pedido para pago.
 
-```text
-validar evento e snapshots
-  -> atualizar pagamento
-  -> atualizar pedido
-  -> baixar estoque
-  -> consumir cupom quando aplicavel
-  -> marcar evento processado
-  -> concluir transacao
-  -> tentar notificacoes pos-pagamento
+## Evento de Pagamento
+
+```mermaid
+stateDiagram-v2
+  [*] --> received
+  received --> processed: evento tratado
+  received --> failed: erro controlado
+  received --> ignored: fora de escopo
+  received --> duplicate: eventId ja processado
 ```
 
-Qualquer falha antes da conclusao impede estado financeiro parcial. Falha depois da conclusao, na notificacao, nao reverte os efeitos confirmados.
+Regras:
 
-## Entrega de notificacao
+- 🟢 `eventId` único impede repetição do settlement.
+- 🟢 Payload armazenado é sanitizado/normalizado, não segredo bruto.
 
-```text
-pending -> sending -> sent
-                   \-> mocked
-                   \-> failed
-pending -----------> skipped
+## Entrega de Notificação
+
+```mermaid
+stateDiagram-v2
+  [*] --> pending
+  pending --> sending
+  sending --> sent
+  sending --> mocked
+  sending --> failed
+  pending --> skipped
 ```
 
-- `mocked` e permitido somente em dev/test.
-- `skipped` cobre ausencia explicita de destinatario admin.
-- Duplicata idempotente retorna o registro existente, sem nova transicao efetiva.
-- Preview/producao sem provider real terminam em falha segura, nunca em `mocked`.
+Regras:
 
-## Admin de notificacoes
+- 🟢 `mocked` só em dev/test.
+- 🟢 `skipped` cobre ausência de destinatário admin.
+- 🟢 Duplicata idempotente retorna registro existente.
+- 🟢 Falha de notificação não altera pedido, pagamento, estoque ou cupom.
 
-```text
-admin/manager autenticado -> listar status mascarado
-customer/visitante -------> bloqueado
+## Fulfillment
+
+```mermaid
+stateDiagram-v2
+  [*] --> unfulfilled
+  unfulfilled --> preparing: futuro
+  preparing --> shipped: futuro
+  shipped --> delivered: futuro
+  unfulfilled --> cancelled: futuro
+  preparing --> cancelled: futuro
 ```
 
-Nao ha transicao de reenvio manual.
+Regras:
 
-## Fluxos ainda inexistentes
-
-- Pagamento confirmado pelo browser ou admin.
-- Retry agendado/reenvio manual de notificacao.
-- Historico customer de notificacoes.
-- WhatsApp, SMS, Bling, NF-e ou fiscal.
-- Refund/dispute completo.
-- Frete externo real.
+- 🔴 Enum existe; fluxo operacional ainda não foi implementado.

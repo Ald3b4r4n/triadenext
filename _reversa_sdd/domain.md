@@ -1,101 +1,112 @@
-# Dominio Reversa - Triade Essenza Next
+# Domain - Triade Essenza Next
 
-Atualizado em: 2026-06-11
-Escopo: dominio apos Fase 10.
+Atualizado em: 2026-06-11  
+Agente: Detective  
+Nível: detalhado
 
-## Subdominios atuais
+## Glossário
 
-- Catalogo e estoque.
-- Identidade, autenticacao e papeis.
-- Carrinho, cupons e frete manual.
-- Checkout e pedidos.
-- Pagamentos Stripe.
-- Notificacoes pos-pagamento.
+| Termo | Definição | Confiança |
+| --- | --- | --- |
+| Produto público | Produto `published`, com `publishedAt <= now` e `stockQuantity > 0`. | 🟢 |
+| Produto comprável | Produto público disponível para entrada no carrinho. | 🟢 |
+| Carrinho ativo | Carrinho `active` associado a guest token ou usuário autenticado. | 🟢 |
+| Carrinho convertido | Carrinho usado para criar pedido; não deve receber novas mutações. | 🟢 |
+| Cupom vigente | Cupom ativo, dentro da janela, não esgotado e com valor válido. | 🟢 |
+| Frete manual | Cotação gerada por regras internas por UF/faixa de CEP. | 🟢 |
+| Pedido pendente | Pedido `aguardando_pagamento`, criado a partir do carrinho e ainda não liquidado. | 🟢 |
+| Snapshot de pedido | Cópia de cliente, endereço, itens, preços, cupom e frete no momento do checkout. | 🟢 |
+| PaymentIntent interno | Registro local da tentativa de pagamento Stripe/mock. | 🟢 |
+| Settlement | Efeito de confirmar pagamento: pedido pago, pagamento pago, estoque baixado e cupom consumido. | 🟢 |
+| Outbox de notificação | Registro idempotente de entrega transacional pós-pagamento. | 🟢 |
 
-## Catalogo
+## Regras de Domínio
 
-Produto compravel precisa estar publicado, ativo no periodo aplicavel e com estoque positivo. Precos e totais sao tratados em centavos. Nao ha reserva na criacao do pedido ou PaymentIntent; a baixa ocorre uma vez no settlement confirmado.
+### Catálogo
 
-## Carrinho, cupons e frete
+- 🟢 Produto público precisa estar publicado, vigente e com estoque positivo.
+- 🟢 Produto publicado exige nome, slug, SKU, preço positivo, estoque positivo e `publishedAt` válido.
+- 🟢 Imagem de capa usa `isCover`; se não houver, usa a primeira por ordenação.
+- 🟢 Preço e totais de regra usam centavos.
 
-- Carrinho pertence a guest token opaco ou customer.
-- Carrinho convertido e terminal para mutacoes.
-- Um cupom pode ser aplicado; desconto e elegibilidade sao server-side.
-- `usedCount` nao muda em apply/remove e incrementa uma vez no settlement.
-- Frete manual e recalculado no servidor; providers externos permanecem inativos.
+### Carrinho
 
-## Checkout e pedido
+- 🟢 Carrinho pertence a guest token ou a usuário autenticado.
+- 🟢 Item de carrinho preserva snapshot de nome e preço unitário.
+- 🟢 Alteração de item limpa seleção de frete, pois o `cartHash` fica obsoleto.
+- 🟢 Recálculo remove item indisponível, limita estoque e remove cupom inválido.
+- 🟢 Carrinho convertido é terminal para mutações de compra.
 
-- Checkout exige customer autenticado, carrinho ativo e endereco completo.
-- Produtos, estoque, cupom, frete e totais sao revalidados no servidor.
-- Pedido nasce `aguardando_pagamento`, com expiracao e snapshots.
-- Customer le apenas pedidos proprios.
-- Admin/manager possuem leitura minima sem mutacao financeira.
+### Cupom
 
-## Pagamento Stripe
+- 🟢 Código é normalizado em uppercase.
+- 🟢 Cupom pode ser `percentage`, `fixed_amount` ou `free_shipping`.
+- 🟢 Percentual precisa estar entre 1 e 100.
+- 🟢 Valor fixo não pode exceder subtotal efetivo.
+- 🟢 `usedCount` não muda ao aplicar/remover; só muda no settlement confirmado.
 
-- PaymentIntent e criado no servidor com valor e moeda do pedido.
-- Stripe.js/Payment Element coleta dados diretamente para Stripe.
-- Client return nao confirma pagamento.
-- Somente `payment_intent.succeeded` recebido por webhook assinado pode iniciar settlement.
-- `payment_events.event_id` unico evita efeitos duplicados.
-- Eventos de falha/cancelamento nao marcam pedido pago.
+### Frete
 
-## Settlement financeiro e operacional
+- 🟢 CEP é normalizado para 8 dígitos.
+- 🟢 Frete atual é manual, por UF ou faixa de CEP.
+- 🟢 Cotação expira em 30 minutos.
+- 🟢 Frete escolhido é salvo no carrinho e vira snapshot no pedido.
+- 🟢 Correios, Jadlog e Melhor Envio são providers futuros inativos.
 
-O settlement confirmado atualiza de forma coerente:
+### Checkout e Pedido
 
-1. pagamento interno para pago;
-2. pedido para `pago`;
-3. estoque decrementado uma vez;
-4. `usedCount` do cupom incrementado uma vez, quando aplicavel;
-5. evento marcado como processado.
+- 🟢 Checkout exige customer autenticado.
+- 🟢 Pedido nasce de carrinho ativo, com itens, cupom e frete revalidados no servidor.
+- 🟢 CEP do endereço precisa coincidir com CEP da cotação.
+- 🟢 Pedido pendente expira em 60 minutos.
+- 🟢 `cartId` único impede dois pedidos para o mesmo carrinho.
+- 🟢 Customer só lê pedidos próprios; admin/manager lê pedidos administrativos.
 
-Divergencia de valor, moeda, ownership ou estoque impede conclusao parcial. A notificacao nao faz parte dessa transacao: ela comeca somente depois do settlement terminar.
+### Pagamento
 
-## Notificacoes pos-pagamento
+- 🟢 Pedido só pode iniciar pagamento se estiver `aguardando_pagamento`, não expirado e com total positivo.
+- 🟢 PaymentIntent usa valor e moeda do snapshot do pedido.
+- 🟢 Retorno client-side não confirma pagamento.
+- 🟢 Webhook `payment_intent.succeeded` é a fonte de verdade financeira.
+- 🟢 Valor, moeda e metadata precisam bater entre Stripe e pedido.
+- 🟢 Evento Stripe duplicado não repete settlement.
 
-- Evento de dominio suportado: pedido pago.
-- Tipos: `customer_order_paid` e `admin_order_paid`.
-- Destinatario customer vem do snapshot/usuario do pedido.
-- Destinatarios admin vêm de configuracao explicita; ausencia gera entrega `skipped`.
-- A chave idempotente inclui pedido, evento, tipo de notificacao e destinatario normalizado.
-- Duplicata retorna a entrega existente e nao envia novamente.
-- Estados: `pending`, `sending`, `sent`, `mocked`, `failed`, `skipped`.
-- Mock e permitido somente em dev/test.
-- Preview/producao sem provider real registram indisponibilidade segura, sem envio ficticio.
-- Templates usam nome, numero do pedido, itens e totais seguros; conteudo e escapado.
-- Falhas e mensagens de provider sao sanitizadas, sem stack ou segredo.
-- Falha de notificacao nao altera pedido pago, pagamento, estoque ou cupom.
-- Retorno client-side nao dispara notificacao; apenas o evento processado depois do settlement pode faze-lo.
+### Settlement
 
-## Customer e admin
+- 🟢 Settlement real é transacional: estoque, cupom, pagamento, pedido e evento.
+- 🟢 Falha antes do commit impede estado parcial.
+- 🟢 Divergência de valor/moeda/metadata marca pagamento como divergente/falha.
+- 🟢 Falha de notificação posterior não desfaz settlement.
 
-- Customer pode receber a notificacao do proprio pedido pago.
-- Customer nao consulta historico de entregas nesta fase.
-- Admin/manager podem consultar status mascarado das entregas.
-- Visitante/customer nao acessam a consulta administrativa.
-- Nao existe reenvio manual.
+### Notificações
 
-## Fallback sem banco
+- 🟢 Notificação pós-pagamento só roda após pedido `pago`.
+- 🟢 Tipos atuais: `customer_order_paid`, `admin_order_paid`.
+- 🟢 Idempotência inclui pedido, evento, tipo e destinatário normalizado.
+- 🟢 Ausência de destinatários admin gera `skipped`, não envio implícito.
+- 🟢 Mock é permitido em dev/test; preview/production sem provider real falham de forma segura.
 
-- Repositories de dominio usam memoria apenas em dev/test quando previsto.
-- Stripe e notificacoes usam mocks explicitos em dev/test.
-- Preview/producao sem configuracao real falham de forma segura.
-- Fallback nao promete persistencia, pagamento ou envio real.
+### Guardrails de Ambiente
 
-## Regras fora do escopo
+- 🟢 Sem `DATABASE_URL`, `db = null`.
+- 🟢 Repositories podem usar fallback explícito em dev/test.
+- 🟢 Mutação real exige auth pronto e ambiente development/test.
+- 🟢 Sem `BLOB_READ_WRITE_TOKEN`, upload real bloqueia.
+- 🟢 Secrets não são gravados nos artefatos nem expostos em mensagens.
 
-- Pedido anonimo.
-- Pagamento confirmado pelo browser ou admin.
-- Refunds/disputas completas.
-- Provider real de e-mail obrigatorio.
-- Retry agendado ou reenvio manual.
-- Historico customer de notificacoes.
-- WhatsApp, SMS, Bling, NF-e e fiscal.
-- Frete externo real.
-- Migration em banco real e deploy.
+## Decisões Implícitas Extraídas do Git
 
-## Proxima fase
+- 🟢 A migração avançou em fases verticais: persistência, auth, carrinho, cupons, frete, checkout, pagamento, notificações e storefront.
+- 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
+- 🟢 O sistema prefere fallback explícito a falha silenciosa.
+- 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.
+- 🟢 Operação financeira é protegida contra confirmação por browser/admin.
 
-Committar os artefatos Reversa pos-Fase 10 e depois fazer push dos commits locais quando aprovado.
+## Lacunas
+
+- 🔴 Área do cliente completa ainda falta: perfil, endereços reais, segurança de conta.
+- 🔴 Operação pós-pagamento ainda não usa a máquina completa de status do enum.
+- 🔴 Fiscal/Bling/NF-e existe como schema/roadmap, não como fluxo funcional.
+- 🔴 Frete externo real e rastreamento ainda não estão implementados.
+- 🔴 Estoque auditável por movimentos ainda não existe.
+- 🔴 Relatórios, analytics e admin operacional permanecem como features futuras.
