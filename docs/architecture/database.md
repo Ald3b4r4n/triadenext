@@ -172,3 +172,18 @@ Essa migration foi gerada localmente. Nao foi aplicada contra banco real nesta e
 Migration local: `drizzle/0006_soft_mole_man.sql`.
 
 Essa migration foi gerada localmente e nao foi aplicada contra banco real.
+
+## Fase 10 - Outbox de notificacoes
+
+`notification_deliveries` registra e-mails transacionais pos-pagamento com:
+
+- tipos `customer_order_paid` e `admin_order_paid`;
+- estados `pending`, `sending`, `sent`, `mocked`, `failed` e `skipped`;
+- chave unica de idempotencia;
+- referencias a pedido e usuario opcional;
+- provider, tentativa, timestamps e erro sanitizado;
+- indices por pedido, status, evento de pagamento e criacao.
+
+Migration local: `drizzle/0007_outstanding_midnight.sql`.
+
+Essa migration foi apenas gerada e revisada. Nao foi aplicada contra banco real.

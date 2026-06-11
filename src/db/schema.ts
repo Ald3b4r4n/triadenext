@@ -65,6 +65,18 @@ export const fiscalDocumentType = pgEnum("fiscal_document_type", [
   "receipt",
   "other"
 ]);
+export const notificationDeliveryStatus = pgEnum("notification_delivery_status", [
+  "pending",
+  "sending",
+  "sent",
+  "mocked",
+  "failed",
+  "skipped"
+]);
+export const notificationDeliveryType = pgEnum("notification_delivery_type", [
+  "customer_order_paid",
+  "admin_order_paid"
+]);
 
 export const users = pgTable(
   "users",
@@ -557,6 +569,45 @@ export const paymentEvents = pgTable(
     eventIdUnique: uniqueIndex("payment_events_event_id_unique").on(table.eventId),
     paymentIntentIdx: index("payment_events_payment_intent_id_idx").on(table.paymentIntentId),
     orderIdx: index("payment_events_order_id_idx").on(table.orderId)
+  })
+);
+
+export const notificationDeliveries = pgTable(
+  "notification_deliveries",
+  {
+    id: idColumn(),
+    type: notificationDeliveryType("type").notNull(),
+    channel: text("channel").notNull().default("email"),
+    recipient: text("recipient").notNull(),
+    recipientRole: text("recipient_role").notNull(),
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    paymentEventId: text("payment_event_id"),
+    eventType: text("event_type").notNull().default("order_paid"),
+    provider: text("provider").notNull(),
+    providerMessageId: text("provider_message_id"),
+    idempotencyKey: text("idempotency_key").notNull(),
+    status: notificationDeliveryStatus("status").notNull().default("pending"),
+    attemptCount: integer("attempt_count").notNull().default(0),
+    lastError: text("last_error"),
+    metadata: jsonb("metadata"),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
+    failedAt: timestamp("failed_at", { withTimezone: true }),
+    createdAt: createdAtColumn(),
+    updatedAt: updatedAtColumn()
+  },
+  (table) => ({
+    idempotencyKeyUnique: uniqueIndex("notification_deliveries_idempotency_key_unique").on(
+      table.idempotencyKey
+    ),
+    orderIdx: index("notification_deliveries_order_id_idx").on(table.orderId),
+    statusIdx: index("notification_deliveries_status_idx").on(table.status),
+    paymentEventIdx: index("notification_deliveries_payment_event_id_idx").on(
+      table.paymentEventId
+    ),
+    createdAtIdx: index("notification_deliveries_created_at_idx").on(table.createdAt)
   })
 );
 

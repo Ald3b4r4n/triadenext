@@ -1,8 +1,18 @@
 import Link from "next/link";
+import { NotificationStatus } from "@/features/notifications/components/notification-status";
+import type { NotificationDelivery } from "@/features/notifications/types";
 import { formatMoney } from "@/lib/money";
 import type { PendingOrder } from "../types";
 
-export function OrderList({ orders, audience }: { orders: PendingOrder[]; audience: "customer" | "admin" }) {
+export function OrderList({
+  orders,
+  audience,
+  notificationsByOrder = {}
+}: {
+  orders: PendingOrder[];
+  audience: "customer" | "admin";
+  notificationsByOrder?: Record<string, NotificationDelivery[]>;
+}) {
   if (orders.length === 0) {
     return (
       <div className="placeholder-panel">
@@ -33,6 +43,9 @@ export function OrderList({ orders, audience }: { orders: PendingOrder[]; audien
               <Link className="secondary-action" href={`/pedidos/${order.id}/pagamento`}>
                 Pagar pedido
               </Link>
+            ) : null}
+            {audience === "admin" ? (
+              <NotificationStatus deliveries={notificationsByOrder[order.id] ?? []} />
             ) : null}
           </div>
           <strong>{formatMoney(order.grandTotalCents)}</strong>

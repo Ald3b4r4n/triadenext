@@ -16,6 +16,13 @@ No caminho com banco real, uma transacao marca pagamento e pedido como pagos, ba
 incrementa `usedCount` do cupom. Divergencia de pedido, valor, moeda ou estoque impede conclusao
 parcial e fica registrada como erro controlado.
 
+## Fronteira com notifications
+
+`payment-settlement-service` chama a fronteira de notificacoes somente depois de concluir o
+settlement. No caminho real, a chamada ocorre depois do commit da transacao Drizzle. No fallback
+dev/test, ocorre depois de marcar pedido/pagamento e aplicar os efeitos simulados de estoque e
+cupom. A fronteira captura falhas e nunca as propaga para desfazer o settlement.
+
 ## Ambiente
 
 - Dev/test sem chaves Stripe usam adapter mock explicito.

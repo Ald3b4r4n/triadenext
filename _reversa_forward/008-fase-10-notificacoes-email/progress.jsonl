@@ -1,0 +1,68 @@
+{"ts":"2026-06-11T02:07:50Z","action":"F10-001","status":"done","files":[".reversa/active-requirements.json"],"note":"Projeto Next confirmado; next-env.d.ts restaurado; somente artefatos da Fase 10 estavam pendentes."}
+{"ts":"2026-06-11T02:07:51Z","action":"F10-002","status":"done","files":["_reversa_forward/008-fase-10-notificacoes-email/progress.jsonl"],"note":"Guardrails: sem secrets, banco real, envio real obrigatorio, push, deploy, Bling, NF-e, WhatsApp ou SMS."}
+{"ts":"2026-06-11T02:07:52Z","action":"F10-003","status":"done","files":["src/db/schema.ts","src/features/payments/server/payment-settlement-service.ts","src/features/orders/server/order-repository.ts"]}
+{"ts":"2026-06-11T02:07:53Z","action":"F10-004","status":"done","files":["package.json",".env.example","src/lib/env.ts"],"note":"Nenhuma infraestrutura de e-mail reutilizavel; adapter neutro criado sem nova dependencia."}
+{"ts":"2026-06-11T02:07:54Z","action":"F10-005","status":"done","files":["_reversa_forward/008-fase-10-notificacoes-email/actions.md"],"note":"Ordem segura adotada; divergencia F10-035/F10-037 corrigida."}
+{"ts":"2026-06-11T02:07:55Z","action":"F10-006","status":"done","files":[".env.example","src/lib/env.ts"]}
+{"ts":"2026-06-11T02:07:56Z","action":"F10-007","status":"done","files":["src/features/notifications/config.ts"]}
+{"ts":"2026-06-11T02:07:57Z","action":"F10-008","status":"done","files":["src/features/notifications/recipients.ts"]}
+{"ts":"2026-06-11T02:07:58Z","action":"F10-009","status":"done","files":["src/features/notifications/config.ts","src/features/notifications/providers/resolve-email-provider.ts"]}
+{"ts":"2026-06-11T02:07:59Z","action":"F10-010","status":"done","files":["docs/operations/env.md"]}
+{"ts":"2026-06-11T02:08:00Z","action":"F10-011","status":"done","files":["src/db/schema.ts","_reversa_forward/008-fase-10-notificacoes-email/data-delta.md"]}
+{"ts":"2026-06-11T02:08:01Z","action":"F10-012","status":"done","files":["src/db/schema.ts"],"note":"Estados padronizados: pending, sending, sent, mocked, failed, skipped; duplicate e resultado, nao estado."}
+{"ts":"2026-06-11T02:08:02Z","action":"F10-013","status":"done","files":["src/db/schema.ts"]}
+{"ts":"2026-06-11T02:08:03Z","action":"F10-014","status":"done","files":["drizzle/0007_outstanding_midnight.sql","drizzle/meta/0007_snapshot.json","drizzle/meta/_journal.json"],"note":"Migration somente gerada, nunca aplicada."}
+{"ts":"2026-06-11T02:08:04Z","action":"F10-015","status":"done","files":["drizzle/0007_outstanding_midnight.sql"],"note":"SQL aditivo, sem operacoes destrutivas ou alteracoes financeiras."}
+{"ts":"2026-06-11T02:08:05Z","action":"F10-016","status":"done","files":["src/features/notifications/types.ts"]}
+{"ts":"2026-06-11T02:08:06Z","action":"F10-017","status":"done","files":["src/features/notifications/schemas.ts"]}
+{"ts":"2026-06-11T02:08:07Z","action":"F10-018","status":"done","files":["src/features/notifications/idempotency.ts"]}
+{"ts":"2026-06-11T02:08:08Z","action":"F10-019","status":"done","files":["src/features/notifications/status.ts"]}
+{"ts":"2026-06-11T02:08:09Z","action":"F10-020","status":"done","files":["src/features/notifications/errors.ts"]}
+{"ts":"2026-06-11T02:08:10Z","action":"F10-021","status":"done","files":["src/features/notifications/recipients.ts","src/features/notifications/schemas.ts"]}
+{"ts":"2026-06-11T02:08:11Z","action":"F10-022","status":"done","files":["src/features/notifications/template-data.ts"]}
+{"ts":"2026-06-11T02:08:12Z","action":"F10-023","status":"done","files":["src/features/notifications/providers/email-provider.ts"]}
+{"ts":"2026-06-11T02:08:13Z","action":"F10-024","status":"done","files":["src/features/notifications/providers/mock-email-provider.ts"]}
+{"ts":"2026-06-11T02:08:14Z","action":"F10-025","status":"done","files":["src/features/notifications/providers/unavailable-email-provider.ts"]}
+{"ts":"2026-06-11T02:08:15Z","action":"F10-026","status":"done","files":["src/features/notifications/providers/index.ts"]}
+{"ts":"2026-06-11T02:08:16Z","action":"F10-027","status":"done","files":["src/features/notifications/providers/resolve-email-provider.ts"]}
+{"ts":"2026-06-11T02:08:17Z","action":"F10-028","status":"done","files":["src/features/notifications/errors.ts","src/features/notifications/service.ts"]}
+{"ts":"2026-06-11T02:08:18Z","action":"F10-029","status":"done","files":["src/features/notifications/templates/customer-order-paid.ts"]}
+{"ts":"2026-06-11T02:08:19Z","action":"F10-030","status":"done","files":["src/features/notifications/templates/admin-order-paid.ts"]}
+{"ts":"2026-06-11T02:08:20Z","action":"F10-031","status":"done","files":["src/features/notifications/templates/formatters.ts"]}
+{"ts":"2026-06-11T02:08:21Z","action":"F10-032","status":"done","files":["src/features/notifications/templates/guards.ts"]}
+{"ts":"2026-06-11T02:08:22Z","action":"F10-033","status":"done","files":["src/features/notifications/repository.ts"]}
+{"ts":"2026-06-11T02:08:23Z","action":"F10-034","status":"done","files":["src/features/notifications/drizzle-repository.ts","src/db/schema.ts"]}
+{"ts":"2026-06-11T02:08:24Z","action":"F10-035","status":"done","files":["src/features/notifications/drizzle-repository.ts","src/features/notifications/memory-repository.ts"]}
+{"ts":"2026-06-11T02:08:25Z","action":"F10-036","status":"done","files":["src/features/notifications/drizzle-repository.ts"]}
+{"ts":"2026-06-11T02:08:26Z","action":"F10-037","status":"done","files":["src/features/notifications/service.ts"]}
+{"ts":"2026-06-11T02:08:27Z","action":"F10-038","status":"done","files":["src/features/notifications/service.ts","src/features/notifications/templates/customer-order-paid.ts"]}
+{"ts":"2026-06-11T02:08:28Z","action":"F10-039","status":"done","files":["src/features/notifications/service.ts","src/features/notifications/recipients.ts"]}
+{"ts":"2026-06-11T02:08:29Z","action":"F10-040","status":"done","files":["src/features/notifications/service.ts"]}
+{"ts":"2026-06-11T02:08:30Z","action":"F10-041","status":"done","files":["src/features/notifications/types.ts","src/features/notifications/repository.ts"],"note":"Contagem e erro preparados; sem scheduler ou retry automatico."}
+{"ts":"2026-06-11T02:08:31Z","action":"F10-042","status":"done","files":["src/features/notifications/post-payment-event.ts"]}
+{"ts":"2026-06-11T02:08:32Z","action":"F10-043","status":"done","files":["src/features/payments/server/payment-settlement-service.ts"],"note":"Chamada fora da transacao financeira e depois dos efeitos da Fase 9."}
+{"ts":"2026-06-11T02:08:33Z","action":"F10-044","status":"done","files":["src/features/notifications/template-data.ts","src/features/notifications/post-payment-event.ts"]}
+{"ts":"2026-06-11T02:08:34Z","action":"F10-045","status":"done","files":["src/features/payments/server/payment-settlement-service.ts","src/tests/e2e/notifications-mock.spec.ts"]}
+{"ts":"2026-06-11T02:08:35Z","action":"F10-046","status":"done","files":["src/features/notifications/idempotency.ts","src/features/notifications/drizzle-repository.ts"]}
+{"ts":"2026-06-11T02:08:36Z","action":"F10-047","status":"done","files":["src/features/notifications/post-payment-event.ts","src/features/payments/server/payment-settlement-service.ts"]}
+{"ts":"2026-06-11T02:08:37Z","action":"F10-048","status":"done","files":["src/features/notifications/server/notification-actions.ts"]}
+{"ts":"2026-06-11T02:08:38Z","action":"F10-049","status":"done","files":["src/app/admin/pedidos/page.tsx","src/features/orders/components/order-list.tsx","src/features/notifications/components/notification-status.tsx"]}
+{"ts":"2026-06-11T02:08:39Z","action":"F10-050","status":"done","files":["src/app/admin/pedidos/page.tsx","src/tests/e2e/notifications-mock.spec.ts"],"note":"Nenhum botao, action ou endpoint de reenvio criado."}
+{"ts":"2026-06-11T02:08:40Z","action":"F10-051","status":"done","files":["src/app/(customer)"],"note":"Nenhuma tela ou consulta de historico customer adicionada."}
+{"ts":"2026-06-11T02:08:41Z","action":"F10-052","status":"done","files":["src/features/notifications/memory-repository.ts"]}
+{"ts":"2026-06-11T02:08:42Z","action":"F10-053","status":"done","files":["src/features/notifications/service.ts"]}
+{"ts":"2026-06-11T02:08:43Z","action":"F10-054","status":"done","files":["src/tests/unit/notification-provider.test.ts","src/tests/unit/notification-service.test.ts"]}
+{"ts":"2026-06-11T02:08:44Z","action":"F10-055","status":"done","files":["src/tests/unit/notification-provider.test.ts","src/features/notifications/config.ts"]}
+{"ts":"2026-06-11T02:08:45Z","action":"F10-056","status":"done","files":["src/tests/unit/notification-domain.test.ts"]}
+{"ts":"2026-06-11T02:08:46Z","action":"F10-057","status":"done","files":["src/tests/unit/notification-provider.test.ts"]}
+{"ts":"2026-06-11T02:08:47Z","action":"F10-058","status":"done","files":["src/tests/unit/notification-service.test.ts"]}
+{"ts":"2026-06-11T02:08:48Z","action":"F10-059","status":"done","files":["src/tests/unit/notification-service.test.ts"]}
+{"ts":"2026-06-11T02:08:49Z","action":"F10-060","status":"done","files":["src/tests/unit/payment-service.test.ts"],"note":"Pagamento, estoque e usedCount permanecem liquidados uma unica vez."}
+{"ts":"2026-06-11T02:08:50Z","action":"F10-061","status":"done","files":["src/tests/unit/payment-service.test.ts","src/tests/e2e/notifications-mock.spec.ts"]}
+{"ts":"2026-06-11T02:08:51Z","action":"F10-062","status":"done","files":["src/tests/e2e/notifications-mock.spec.ts","src/tests/unit/notification-admin-access.test.ts"],"note":"requireAdminLike testado explicitamente para visitante, customer, manager e admin."}
+{"ts":"2026-06-11T02:08:52Z","action":"F10-063","status":"done","files":["docs/features/notifications.md","docs/architecture/notifications.md"]}
+{"ts":"2026-06-11T02:08:53Z","action":"F10-064","status":"done","files":["docs/features/payments.md","docs/architecture/payments.md","docs/architecture/database.md"]}
+{"ts":"2026-06-11T02:08:54Z","action":"F10-065","status":"done","files":["docs/operations/env.md"],"note":"Docs criticos executados sequencialmente. Contagem real apos correcao: 8 tarefas [//]."}
+{"ts":"2026-06-11T02:09:55Z","action":"F10-066","status":"done","files":["src/tests"],"note":"lint passou; typecheck passou; test passou 32 arquivos/96 testes; build passou; E2E passou 29 testes."}
+{"ts":"2026-06-11T02:10:30Z","action":"F10-067","status":"done","files":["git diff","drizzle/0007_outstanding_midnight.sql"],"note":"Sem secrets reais, envio real, migration aplicada, mutacao financeira ou integracao fora de escopo."}
+{"ts":"2026-06-11T02:10:31Z","action":"F10-068","status":"done","files":["_reversa_forward/008-fase-10-notificacoes-email/actions.md","_reversa_forward/008-fase-10-notificacoes-email/legacy-impact.md","_reversa_forward/008-fase-10-notificacoes-email/regression-watch.md"]}

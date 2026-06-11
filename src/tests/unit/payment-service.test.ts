@@ -21,6 +21,7 @@ import {
 import { createPendingCheckoutOrder } from "@/features/checkout/server/checkout-service";
 import { createCouponRepository } from "@/features/coupons/server/coupon-repository";
 import { createOrderRepository } from "@/features/orders/server/order-repository";
+import { createNotificationRepository } from "@/features/notifications/drizzle-repository";
 import { startOrderPayment } from "@/features/payments/server/payment-service";
 import { processStripeWebhook } from "@/features/payments/server/stripe-webhook-service";
 import { createProductRepository } from "@/features/products/server/product-repository";
@@ -125,6 +126,19 @@ describe("payment service", () => {
     expect(
       (await couponRepository.findCouponById("coupon-dev-10"))?.usedCount
     ).toBe(usedCountBefore + 1);
+    const notifications = await createNotificationRepository().listForAdminOrder(order.id);
+    expect(notifications).toContainEqual(
+      expect.objectContaining({
+        type: "customer_order_paid",
+        status: "mocked"
+      })
+    );
+    expect(notifications).toContainEqual(
+      expect.objectContaining({
+        type: "admin_order_paid",
+        status: "skipped"
+      })
+    );
 
     await expect(
       processStripeWebhook({
@@ -139,6 +153,9 @@ describe("payment service", () => {
     expect(
       (await couponRepository.findCouponById("coupon-dev-10"))?.usedCount
     ).toBe(usedCountBefore + 1);
+    expect(await createNotificationRepository().listForAdminOrder(order.id)).toHaveLength(
+      notifications.length
+    );
   });
 
   it("rejects a divergent webhook without marking the order paid", async () => {

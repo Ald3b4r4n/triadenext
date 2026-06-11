@@ -1,13 +1,14 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/007-fase-9-pagamento-stripe",
-  "feature-id": "007",
-  "short-name": "fase-9-pagamento-stripe",
-  "started-at": "2026-06-10T10:07:41.2531397-03:00",
+  "feature-dir": "_reversa_forward/008-fase-10-notificacoes-email",
+  "feature-id": "008",
+  "short-name": "fase-10-notificacoes-email",
+  "started-at": "2026-06-10T13:00:00-03:00",
   "current-stage": "coding",
   "stages-completed": [
     "requirements",
     "clarify",
+    "quality",
     "plan",
     "to-do",
     "audit",

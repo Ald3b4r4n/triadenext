@@ -341,6 +341,17 @@ a {
   font-size: 20px;
 }
 
+.notification-status {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.notification-status ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
 .cart-quantity-form {
   display: flex;
   gap: 10px;

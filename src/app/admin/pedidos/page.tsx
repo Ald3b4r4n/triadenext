@@ -1,8 +1,13 @@
 import { OrderList } from "@/features/orders/components/order-list";
 import { listAdminPendingOrdersAction } from "@/features/orders/server/order-actions";
+import { listAdminNotificationDeliveriesAction } from "@/features/notifications/server/notification-actions";
 
 export default async function AdminPedidosPage() {
   const result = await listAdminPendingOrdersAction();
+  const notificationResult =
+    result.status === "success"
+      ? await listAdminNotificationDeliveriesAction(result.orders.map((order) => order.id))
+      : null;
 
   return (
     <main className="page-shell">
@@ -12,7 +17,15 @@ export default async function AdminPedidosPage() {
         <p>Visualizacao financeira minima. Sem marcar como pago ou editar valores.</p>
       </section>
       {result.status === "success" ? (
-        <OrderList orders={result.orders} audience="admin" />
+        <OrderList
+          orders={result.orders}
+          audience="admin"
+          notificationsByOrder={
+            notificationResult?.status === "success"
+              ? notificationResult.deliveriesByOrder
+              : {}
+          }
+        />
       ) : (
         <div className="placeholder-panel">
           <p className="muted">Pedidos bloqueados</p>

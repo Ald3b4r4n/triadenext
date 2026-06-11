@@ -13,6 +13,7 @@ import {
 import { createOrderRepository } from "@/features/orders/server/order-repository";
 import { createProductRepository } from "@/features/products/server/product-repository";
 import { createCouponRepository } from "@/features/coupons/server/coupon-repository";
+import { notifyOrderPaidAfterSettlement } from "@/features/notifications/post-payment-event";
 import { sanitizePaymentFailureReason, validateStripeIntentMatchesOrder } from "../domain";
 import { createPaymentRepository } from "./payment-repository";
 import type {
@@ -90,6 +91,13 @@ export async function settleSucceededPayment(input: {
       eventId: input.eventId,
       processingStatus: "processed"
     });
+    await notifyOrderPaidAfterSettlement({
+      orderId: order.id,
+      userId: order.userId,
+      paymentIntentId: input.paymentIntent.id,
+      paymentEventId: input.eventId,
+      occurredAt: paidAt
+    });
     return {
       status: "processed",
       message:
@@ -162,6 +170,14 @@ export async function settleSucceededPayment(input: {
         .update(paymentEvents)
         .set({ processingStatus: "processed", processedAt: paidAt, failureReason: null })
         .where(eq(paymentEvents.eventId, input.eventId));
+    });
+
+    await notifyOrderPaidAfterSettlement({
+      orderId: order.id,
+      userId: order.userId,
+      paymentIntentId: input.paymentIntent.id,
+      paymentEventId: input.eventId,
+      occurredAt: paidAt
     });
 
     return {

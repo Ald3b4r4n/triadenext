@@ -16,6 +16,14 @@ Variaveis minimas:
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_SITE_NAME`
 - `RESEND_API_KEY`
+- `ORDER_NOTIFICATION_RECIPIENTS`
+- `EMAIL_PROVIDER`
+- `EMAIL_FROM`
+- `EMAIL_API_KEY`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_USER`
+- `SMTP_PASSWORD`
 - `SENTRY_DSN`
 
 `src/lib/env.ts` aceita valores ausentes nesta fundacao para nao quebrar build local sem credenciais reais.
@@ -43,3 +51,14 @@ Sem `BLOB_READ_WRITE_TOKEN`, upload real fica bloqueado antes de chamar Vercel B
 - Dev/test podem executar com adapter mock explicito sem qualquer chave real.
 - Preview/producao sem as tres variaveis nao iniciam pagamento real.
 - Nenhuma chave deve ser copiada do legado, commitada, registrada em logs ou incluida em docs.
+
+## E-mail transacional
+
+- `ORDER_NOTIFICATION_RECIPIENTS` aceita lista separada por virgula, ponto e virgula ou linha.
+- Dev/test usam mock explicito sem rede e sem credenciais.
+- Preview/producao sem provider real usam estado indisponivel/falha segura, nunca mock.
+- Os placeholders de provider existem para extensao futura; provider real nao e requisito de
+  lint, typecheck, testes, build ou E2E.
+- Nao hardcodar e-mails reais, copiar `.env` do legado ou registrar secrets em logs/templates.
+
+WhatsApp, SMS, retry automatico, reenvio admin, Bling, NF-e e fiscal permanecem fora da Fase 10.

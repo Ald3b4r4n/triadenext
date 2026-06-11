@@ -13,6 +13,14 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().optional().or(z.literal("")).default(""),
   NEXT_PUBLIC_SITE_NAME: z.string().optional().default("Triade Essenza Parfum"),
   RESEND_API_KEY: z.string().optional().default(""),
+  ORDER_NOTIFICATION_RECIPIENTS: z.string().optional().default(""),
+  EMAIL_PROVIDER: z.string().optional().default(""),
+  EMAIL_FROM: z.string().optional().default(""),
+  EMAIL_API_KEY: z.string().optional().default(""),
+  SMTP_HOST: z.string().optional().default(""),
+  SMTP_PORT: z.string().optional().default(""),
+  SMTP_USER: z.string().optional().default(""),
+  SMTP_PASSWORD: z.string().optional().default(""),
   SENTRY_DSN: z.string().optional().default("")
 });
 
@@ -29,6 +37,14 @@ export const env = envSchema.parse({
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   NEXT_PUBLIC_SITE_NAME: process.env.NEXT_PUBLIC_SITE_NAME,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
+  ORDER_NOTIFICATION_RECIPIENTS: process.env.ORDER_NOTIFICATION_RECIPIENTS,
+  EMAIL_PROVIDER: process.env.EMAIL_PROVIDER,
+  EMAIL_FROM: process.env.EMAIL_FROM,
+  EMAIL_API_KEY: process.env.EMAIL_API_KEY,
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: process.env.SMTP_PORT,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASSWORD: process.env.SMTP_PASSWORD,
   SENTRY_DSN: process.env.SENTRY_DSN
 });
 
