@@ -40,7 +40,7 @@
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "writer_rerun_auth_policies_tasks_2026_06_11",
+  "last_checkpoint": "writer_rerun_cart_design_2026_06_11",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -303,6 +303,141 @@
       "unit_completed": "_reversa_sdd/auth/policies-admin-customer-owner",
       "status": "partial",
       "next_file": "_reversa_sdd/products/requirements.md"
+    },
+    "writer_rerun_products_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da unit products na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/design.md"
+    },
+    "writer_rerun_products_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da unit products na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/tasks.md"
+    },
+    "writer_rerun_products_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao do trio canonico da unit products na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/products",
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/catalogo-publico/requirements.md"
+    },
+    "writer_rerun_products_catalogo_publico_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade products/catalogo-publico na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/catalogo-publico/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/catalogo-publico/design.md"
+    },
+    "writer_rerun_products_catalogo_publico_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade products/catalogo-publico na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/catalogo-publico/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/catalogo-publico/tasks.md"
+    },
+    "writer_rerun_products_catalogo_publico_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade products/catalogo-publico na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/catalogo-publico/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/products/catalogo-publico",
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/admin-produtos-imagens/requirements.md"
+    },
+    "writer_rerun_products_admin_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade products/admin-produtos-imagens na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/admin-produtos-imagens/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/admin-produtos-imagens/design.md"
+    },
+    "writer_rerun_products_admin_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade products/admin-produtos-imagens na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/admin-produtos-imagens/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/products/admin-produtos-imagens/tasks.md"
+    },
+    "writer_rerun_products_admin_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade products/admin-produtos-imagens na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/products/admin-produtos-imagens/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/products/admin-produtos-imagens",
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/requirements.md"
+    },
+    "writer_rerun_cart_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da unit cart na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/design.md"
+    },
+    "writer_rerun_cart_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da unit cart na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/tasks.md"
     },
     "history_before_phase_7": {
       "completed_at": "2026-06-08T22:45:00-03:00",
