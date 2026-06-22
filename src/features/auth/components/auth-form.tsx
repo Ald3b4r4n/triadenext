@@ -22,13 +22,13 @@ export function AuthForm({ mode, action, returnTo }: AuthFormProps) {
     <form className="form-panel" action={formAction}>
       {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
       {isSignup ? (
-        <label>
+        <label className="form-field">
           Nome
           <input name="name" autoComplete="name" aria-invalid={Boolean(state.fields?.name)} />
           {state.fields?.name ? <span className="field-error">{state.fields.name}</span> : null}
         </label>
       ) : null}
-      <label>
+      <label className="form-field">
         E-mail
         <input
           name="email"
@@ -38,7 +38,7 @@ export function AuthForm({ mode, action, returnTo }: AuthFormProps) {
         />
         {state.fields?.email ? <span className="field-error">{state.fields.email}</span> : null}
       </label>
-      <label>
+      <label className="form-field">
         Senha
         <input
           name="password"

@@ -14,7 +14,7 @@ export default async function AdminProdutosPage() {
         <p className="muted">Admin</p>
         <h1>Produtos</h1>
         <p>
-          Listagem administrativa com base de criacao, edicao e persistencia preparada para
+          Listagem administrativa com base de criação, edição e persistência preparada para
           Neon/Drizzle.
         </p>
         <Link className="primary-action" href="/admin/produtos/novo">

@@ -10,6 +10,7 @@ describe("cart repository fallback", () => {
     });
 
     expect(cart.persistence).toBe("dev_fallback");
-    expect(cart.messages[0]).toContain("dev/fixture");
+    expect(cart.messages[0]).toContain("teste local");
+    expect(cart.messages[0]).not.toMatch(/DATABASE_URL|dev\/fixture|secret|token/i);
   });
 });

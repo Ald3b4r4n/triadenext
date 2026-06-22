@@ -7,20 +7,33 @@ export function NotificationStatus({
   deliveries: NotificationDelivery[];
 }) {
   if (deliveries.length === 0) {
-    return <p className="muted">Notificacoes: nenhum registro.</p>;
+    return <p className="muted">Notificações: nenhuma entrega registrada.</p>;
   }
 
   return (
     <div className="notification-status" aria-label="Status de notificacoes">
-      <strong>Notificacoes</strong>
+      <strong>Notificações</strong>
       <ul>
         {deliveries.map((delivery) => (
           <li key={delivery.id}>
             {delivery.type === "customer_order_paid" ? "Cliente" : "Interna"}:{" "}
-            {maskEmailRecipient(delivery.recipient)} - {delivery.status}
+            {maskEmailRecipient(delivery.recipient)} - {notificationStatusLabel(delivery.status)}
           </li>
         ))}
       </ul>
     </div>
   );
+}
+
+function notificationStatusLabel(status: NotificationDelivery["status"]) {
+  const labels: Record<NotificationDelivery["status"], string> = {
+    pending: "pendente",
+    sending: "em envio",
+    sent: "enviada",
+    mocked: "teste local",
+    failed: "falhou",
+    skipped: "não aplicável"
+  };
+
+  return labels[status];
 }

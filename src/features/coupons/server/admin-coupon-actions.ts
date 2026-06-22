@@ -39,7 +39,7 @@ export async function createCouponAction(formData: FormData): Promise<AdminCoupo
 
   const parsed = adminCouponSchema.safeParse(formDataToCouponInput(formData));
   if (!parsed.success) {
-    return { status: "validation_error", message: "Dados invalidos para cupom." };
+    return { status: "validation_error", message: "Dados inválidos para cupom." };
   }
 
   const result = await createAdminCoupon({
@@ -66,7 +66,7 @@ export async function updateCouponAction(formData: FormData): Promise<AdminCoupo
     id: formData.get("id")
   });
   if (!parsed.success) {
-    return { status: "validation_error", message: "Dados invalidos para cupom." };
+    return { status: "validation_error", message: "Dados inválidos para cupom." };
   }
 
   const { id, ...input } = parsed.data;

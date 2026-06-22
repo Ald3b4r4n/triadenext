@@ -41,7 +41,7 @@ export async function addCartItemAction(formData: FormData): Promise<CartActionR
   });
 
   if (!parsed.success) {
-    return { status: "validation_error", message: "Dados invalidos para adicionar ao carrinho." };
+    return { status: "validation_error", message: "Dados inválidos para adicionar ao carrinho." };
   }
 
   const result = await addItemToCart(parsed.data);
@@ -60,7 +60,7 @@ export async function updateCartItemQuantityAction(formData: FormData): Promise<
   });
 
   if (!parsed.success) {
-    return { status: "validation_error", message: "Quantidade invalida." };
+    return { status: "validation_error", message: "Quantidade inválida." };
   }
 
   const result = await updateCartItemQuantity(parsed.data);
@@ -78,7 +78,7 @@ export async function removeCartItemAction(formData: FormData): Promise<CartActi
   });
 
   if (!parsed.success) {
-    return { status: "validation_error", message: "Item invalido." };
+    return { status: "validation_error", message: "Item inválido." };
   }
 
   const result = await removeCartItem(parsed.data.itemId);
@@ -106,7 +106,7 @@ export async function applyCouponAction(formData: FormData): Promise<CartActionR
   });
 
   if (!parsed.success) {
-    return { status: "validation_error", message: "Codigo de cupom invalido." };
+    return { status: "validation_error", message: "Código de cupom inválido." };
   }
 
   const result = await applyCouponToActiveCart(parsed.data.code);
@@ -158,7 +158,7 @@ export async function quoteShippingAction(formData: FormData): Promise<CartActio
   });
 
   if (!parsed.success) {
-    return { status: "validation_error", message: "CEP invalido." };
+    return { status: "validation_error", message: "CEP inválido." };
   }
 
   const result = await quoteShippingForActiveCart(parsed.data);
@@ -176,7 +176,7 @@ export async function quoteShippingStateAction(
 ): Promise<CartShippingActionState> {
   const result = await quoteShippingAction(formData);
   if (result.status === "success" || result.status === "fallback") {
-    return { status: "success", message: "Cotacao de frete calculada." };
+    return { status: "success", message: "Cotação de frete calculada." };
   }
   return { status: "error", message: result.message };
 }
@@ -189,7 +189,7 @@ export async function selectShippingOptionAction(formData: FormData): Promise<Ca
   });
 
   if (!parsed.success) {
-    return { status: "validation_error", message: "Selecao de frete invalida." };
+    return { status: "validation_error", message: "Seleção de frete inválida." };
   }
 
   const result = await selectShippingOptionForActiveCart(parsed.data);
@@ -218,7 +218,7 @@ export async function removeShippingSelectionAction(formData: FormData): Promise
   });
 
   if (!parsed.success) {
-    return { status: "validation_error", message: "Selecao de frete invalida." };
+    return { status: "validation_error", message: "Seleção de frete inválida." };
   }
 
   const result = await removeShippingSelectionFromActiveCart();

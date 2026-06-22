@@ -38,7 +38,7 @@ export async function createShippingRuleAction(formData: FormData): Promise<Admi
     isActive: formData.get("isActive") === "on"
   });
   if (!parsed.success) {
-    return { status: "validation_error", message: "Dados invalidos para regra de frete." };
+    return { status: "validation_error", message: "Dados inválidos para regra de frete." };
   }
   await shippingRepository.createManualRule(parsed.data);
   revalidatePath("/admin/frete");
@@ -66,7 +66,7 @@ export async function updateShippingRuleAction(formData: FormData): Promise<Admi
     isActive: formData.get("isActive") === "on"
   });
   if (!parsed.success) {
-    return { status: "validation_error", message: "Dados invalidos para regra de frete." };
+    return { status: "validation_error", message: "Dados inválidos para regra de frete." };
   }
   await shippingRepository.updateManualRule(id, parsed.data);
   revalidatePath("/admin/frete");

@@ -91,7 +91,7 @@ function createFallbackPaymentRepository(): PaymentRepository {
     async setProviderIntent(input) {
       const current = store.get(input.id);
       if (!current) {
-        throw new Error("Pagamento interno nao encontrado.");
+        throw new Error("Pagamento interno não encontrado.");
       }
       const updated = {
         ...current,
@@ -244,7 +244,7 @@ function createDrizzlePaymentRepository(): PaymentRepository {
           .where(eq(paymentEvents.eventId, input.eventId))
           .limit(1);
         if (!concurrent) {
-          throw new Error("Evento de pagamento concorrente nao foi resolvido.");
+          throw new Error("Evento de pagamento concorrente não foi resolvido.");
         }
         return { created: false, event: toPaymentEvent(concurrent) };
       }

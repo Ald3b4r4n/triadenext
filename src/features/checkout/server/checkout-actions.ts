@@ -35,7 +35,7 @@ export async function createPendingOrderAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: parsed.error.issues[0]?.message ?? "Dados invalidos para criar pedido pendente."
+      message: parsed.error.issues[0]?.message ?? "Dados inválidos para criar pedido pendente."
     };
   }
 

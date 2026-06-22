@@ -12,6 +12,7 @@ describe("StorefrontHome", () => {
 
     expect(screen.queryByText("Reconstrucao em andamento")).not.toBeInTheDocument();
     expect(screen.queryByText(/Placeholder funcional/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Storefront$/)).not.toBeInTheDocument();
     expect(screen.getByText("Tríade Essenza Parfum")).toBeInTheDocument();
     expect(screen.getByText("Perfumaria árabe contemporânea")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ver produtos" })).toHaveAttribute(
@@ -19,6 +20,11 @@ describe("StorefrontHome", () => {
       "/produtos"
     );
     expect(screen.getByText("Produto publicado de exemplo")).toBeInTheDocument();
+    expect(screen.getByText(/R\$\s*159,90/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ver detalhes" })).toHaveAttribute(
+      "href",
+      "/produto/produto-publicado-de-exemplo"
+    );
     expect(screen.queryByText("Produto sem estoque de exemplo")).not.toBeInTheDocument();
   });
 
@@ -26,6 +32,7 @@ describe("StorefrontHome", () => {
     render(<StorefrontHome products={[]} />);
 
     expect(screen.getByText("Nenhum produto disponível no momento.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Voltar para a home" })).toHaveAttribute("href", "/");
     expect(screen.queryByText(/stack|DATABASE_URL|secret/i)).not.toBeInTheDocument();
   });
 

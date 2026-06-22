@@ -27,7 +27,7 @@ export async function quoteShippingForCart(input: {
   });
 
   if (options.length === 0) {
-    return { status: "not_found", message: "Nao ha cobertura manual para este CEP." };
+    return { status: "not_found", message: "Não há cobertura manual para este CEP." };
   }
 
   const quote = createShippingQuote({
@@ -38,17 +38,17 @@ export async function quoteShippingForCart(input: {
     source: options.some((option) => option.source === "fixture") ? "fixture" : "manual"
   });
 
-  return { status: "success", quote: await shippingRepository.createQuote(quote), message: "Cotacao de frete calculada." };
+  return { status: "success", quote: await shippingRepository.createQuote(quote), message: "Cotação de frete calculada." };
 }
 
 export async function selectShippingQuoteOption(input: { quoteId: string; optionId: string }) {
   const quote = await shippingRepository.findQuoteById(input.quoteId);
   if (!quote) {
-    return { status: "not_found" as const, message: "Cotacao nao encontrada." };
+    return { status: "not_found" as const, message: "Cotação não encontrada." };
   }
 
   if (isQuoteExpired(quote)) {
-    return { status: "not_found" as const, message: "Cotacao expirada." };
+    return { status: "not_found" as const, message: "Cotação expirada." };
   }
 
   const option = quote.options.find((item) => item.id === input.optionId);
@@ -59,13 +59,13 @@ export async function selectShippingQuoteOption(input: { quoteId: string; option
   const updated = await shippingRepository.selectQuoteOption(quote.id, option.id);
   return updated
     ? { status: "success" as const, quote: updated, message: "Frete selecionado." }
-    : { status: "not_found" as const, message: "Cotacao nao encontrada." };
+    : { status: "not_found" as const, message: "Cotação não encontrada." };
 }
 
 export async function removeShippingQuoteSelection(input: { quoteId: string }) {
   const quote = await shippingRepository.findQuoteById(input.quoteId);
   if (!quote) {
-    return { status: "not_found" as const, message: "Cotacao nao encontrada." };
+    return { status: "not_found" as const, message: "Cotação não encontrada." };
   }
   return {
     status: "success" as const,

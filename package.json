@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "ops:check-env": "node scripts/ops/check-env-readiness.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node scripts/db/require-database-url.mjs && drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",

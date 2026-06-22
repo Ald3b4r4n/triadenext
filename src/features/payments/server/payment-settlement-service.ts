@@ -34,7 +34,7 @@ export async function settleSucceededPayment(input: {
 }): Promise<WebhookProcessingResult> {
   const order = await orderRepository.getAdminOrder(input.paymentIntent.orderId);
   if (!order) {
-    return fail(input.eventId, "Pedido interno nao encontrado.");
+    return fail(input.eventId, "Pedido interno não encontrado.");
   }
 
   const match = validateStripeIntentMatchesOrder({
@@ -55,7 +55,7 @@ export async function settleSucceededPayment(input: {
       eventId: input.eventId,
       processingStatus: "duplicate"
     });
-    return { status: "duplicate", message: "Pedido ja estava pago.", orderStatus: "pago" };
+    return { status: "duplicate", message: "Pedido já estava pago.", orderStatus: "pago" };
   }
 
   const paidAt = new Date();
@@ -72,7 +72,7 @@ export async function settleSucceededPayment(input: {
     if (order.couponSnapshot) {
       const coupon = await couponRepository.findCouponById(order.couponSnapshot.id);
       if (!coupon) {
-        return fail(input.eventId, "Cupom do pedido nao encontrado para consumo.");
+        return fail(input.eventId, "Cupom do pedido não encontrado para consumo.");
       }
     }
     for (const item of order.items) {
@@ -101,7 +101,7 @@ export async function settleSucceededPayment(input: {
     return {
       status: "processed",
       message:
-        "Pagamento mock confirmado em dev/test; estoque e cupom representam apenas fixture local.",
+        "Pagamento de teste confirmado; estoque e cupom representam apenas dados locais.",
       orderStatus: "pago"
     };
   }
@@ -110,7 +110,7 @@ export async function settleSucceededPayment(input: {
     await db.transaction(async (tx) => {
       const [orderRow] = await tx.select().from(orders).where(eq(orders.id, order.id)).limit(1);
       if (!orderRow) {
-        throw new Error("Pedido interno nao encontrado.");
+        throw new Error("Pedido interno não encontrado.");
       }
       if (orderRow.status === "pago") {
         return;
@@ -154,7 +154,7 @@ export async function settleSucceededPayment(input: {
           .where(eq(coupons.id, couponSnapshot.id))
           .returning({ id: coupons.id });
         if (!updatedCoupon) {
-          throw new Error("Cupom do pedido nao foi encontrado para consumo.");
+          throw new Error("Cupom do pedido não foi encontrado para consumo.");
         }
       }
 
@@ -182,7 +182,7 @@ export async function settleSucceededPayment(input: {
 
     return {
       status: "processed",
-      message: "Pagamento confirmado atomicamente pelo webhook.",
+      message: "Pagamento confirmado com segurança pelo servidor.",
       orderStatus: "pago"
     };
   } catch (error) {

@@ -12,7 +12,7 @@ export function ShippingRuleForm({ action, rule }: Props) {
       <section className="form-panel">
         <div className="form-panel__header">
           <h2>Regra manual</h2>
-          <p className="muted">Sem transportadora real, sem credenciais e sem painel avançado.</p>
+          <p className="muted">Frete manual para operação inicial, sem integração externa.</p>
         </div>
         <div className="form-grid">
           <label className="form-field">

@@ -8,7 +8,7 @@ export const productImageUploadSchema = z.object({
   file: z
     .custom<File>((value) => value instanceof File, "Informe um arquivo de imagem.")
     .refine((file) => allowedProductImageTypes.includes(file.type as never), {
-      message: "Tipo de imagem invalido. Use JPEG, PNG ou WebP."
+      message: "Tipo de imagem inválido. Use JPEG, PNG ou WebP."
     })
     .refine((file) => file.size <= maxProductImageSizeBytes, {
       message: "Imagem acima do limite de 5 MB."

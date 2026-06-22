@@ -46,7 +46,7 @@ function createFallbackCouponRepository(): CouponRepository {
         status: "dev_fallback",
         coupon,
         message:
-          "Cupom validado em modo dev/fixture, sem persistencia real por ausencia de DATABASE_URL."
+          "Cupom validado para teste local. A gravação definitiva depende da configuração de produção."
       };
     },
     async updateCoupon(id, input) {
@@ -60,7 +60,7 @@ function createFallbackCouponRepository(): CouponRepository {
         status: "dev_fallback",
         coupon,
         message:
-          "Cupom atualizado em modo dev/fixture, sem persistencia real por ausencia de DATABASE_URL."
+          "Cupom atualizado para teste local. A gravação definitiva depende da configuração de produção."
       };
     },
     async incrementUsedCount(id) {
@@ -132,7 +132,7 @@ function createDrizzleCouponRepository(): CouponRepository {
         .returning();
 
       if (!updated) {
-        return { status: "blocked", coupon: null, message: "Cupom nao encontrado." };
+        return { status: "blocked", coupon: null, message: "Cupom não encontrado." };
       }
 
       return {

@@ -3,8 +3,8 @@ import { z } from "zod";
 export const postalCodeSchema = z
   .string()
   .trim()
-  .min(8, "CEP invalido.")
-  .max(9, "CEP invalido.")
+  .min(8, "CEP inválido.")
+  .max(9, "CEP inválido.")
   .transform((value) => value.replace(/\D/g, ""));
 
 export const shippingQuoteSchema = z.object({

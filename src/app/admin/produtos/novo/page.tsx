@@ -17,8 +17,8 @@ export default async function NovoProdutoPage() {
         <p className="muted">Admin / Produtos</p>
         <h1>Novo produto</h1>
         <p>
-          Criacao validada com Zod. Sem `DATABASE_URL`, o envio confirma validacao mas nao grava em
-          banco real.
+          Criação validada antes da gravação. Em ambiente local seguro, o envio confirma a
+          validação sem persistir dados definitivos.
         </p>
       </section>
       {runtimeMode.databaseNotice ? (

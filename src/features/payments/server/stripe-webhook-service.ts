@@ -14,7 +14,7 @@ export async function processStripeWebhook(input: {
 }): Promise<WebhookProcessingResult> {
   const adapter = createStripePaymentAdapter();
   if (!adapter) {
-    return { status: "failed", message: "Stripe indisponivel neste ambiente." };
+    return { status: "failed", message: "Pagamento indisponível neste ambiente." };
   }
 
   let event;
@@ -36,16 +36,16 @@ export async function processStripeWebhook(input: {
   });
 
   if (!recorded.created) {
-    return { status: "duplicate", message: "Evento Stripe duplicado ignorado." };
+    return { status: "duplicate", message: "Confirmação duplicada ignorada." };
   }
 
   if (!internal) {
     await paymentRepository.finishEvent({
       eventId: event.id,
       processingStatus: "failed",
-      failureReason: "PaymentIntent interno nao encontrado."
+      failureReason: "Pagamento interno não encontrado."
     });
-    return { status: "failed", message: "PaymentIntent interno nao encontrado." };
+    return { status: "failed", message: "Pagamento interno não encontrado." };
   }
 
   if (event.type === "payment_intent.succeeded") {
@@ -63,7 +63,7 @@ export async function processStripeWebhook(input: {
     await paymentRepository.updateStatus({
       id: internal.id,
       status: event.type === "payment_intent.canceled" ? "cancelado" : "falhou",
-      failureReason: `Stripe informou ${event.type}.`
+      failureReason: `Provedor informou ${event.type}.`
     });
     await paymentRepository.finishEvent({
       eventId: event.id,
@@ -79,5 +79,5 @@ export async function processStripeWebhook(input: {
     eventId: event.id,
     processingStatus: "ignored"
   });
-  return { status: "ignored", message: "Evento Stripe fora do escopo da Fase 9." };
+  return { status: "ignored", message: "Evento de pagamento fora do escopo desta confirmação." };
 }

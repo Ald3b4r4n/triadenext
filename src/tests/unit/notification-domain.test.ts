@@ -51,9 +51,11 @@ describe("notification domain", () => {
   it("sanitizes provider errors", () => {
     expect(
       sanitizeNotificationError(
-        new Error("api_key=abc123 password=secret token=unsafe whsec_value")
+        new Error(
+          "api_key=abc123 password=secret token=unsafe whsec_value client_secret=pi_secret DATABASE_URL=postgres://secret"
+        )
       )
-    ).not.toMatch(/abc123|password=secret|token=unsafe|whsec_value/);
+    ).not.toMatch(/abc123|password=secret|token=unsafe|whsec_value|pi_secret|postgres:\/\/secret/i);
   });
 
   it("renders the customer and admin templates from safe snapshots", () => {

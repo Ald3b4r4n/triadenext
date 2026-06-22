@@ -1,20 +1,25 @@
 # Environment
 
-`.env.example` contem apenas nomes de variaveis, sem valores reais.
+`.env.example` contem apenas nomes de variaveis, sem valores reais. Para uma primeira
+producao, trate os nomes abaixo como checklist de presenca, nunca como lugar para copiar
+credenciais.
 
-Variaveis minimas:
+## Obrigatorias para producao real
 
 - `DATABASE_URL`
 - `BETTER_AUTH_SECRET`
 - `BETTER_AUTH_URL`
-- `DEV_ADMIN_EMAIL`
-- `DEV_ADMIN_PASSWORD`
 - `BLOB_READ_WRITE_TOKEN`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_SITE_NAME`
+
+## Opcionais ou condicionais
+
+- `DEV_ADMIN_EMAIL`
+- `DEV_ADMIN_PASSWORD`
 - `RESEND_API_KEY`
 - `ORDER_NOTIFICATION_RECIPIENTS`
 - `EMAIL_PROVIDER`
@@ -27,6 +32,8 @@ Variaveis minimas:
 - `SENTRY_DSN`
 
 `src/lib/env.ts` aceita valores ausentes nesta fundacao para nao quebrar build local sem credenciais reais.
+O script `pnpm ops:check-env` informa apenas presenca ou ausencia, sem imprimir valores e sem
+conectar banco, Stripe, Blob, SMTP ou qualquer provedor externo.
 
 ## Guardrails de runtime
 
@@ -61,4 +68,4 @@ Sem `BLOB_READ_WRITE_TOKEN`, upload real fica bloqueado antes de chamar Vercel B
   lint, typecheck, testes, build ou E2E.
 - Nao hardcodar e-mails reais, copiar `.env` do legado ou registrar secrets em logs/templates.
 
-WhatsApp, SMS, retry automatico, reenvio admin, Bling, NF-e e fiscal permanecem fora da Fase 10.
+Canais externos de mensagem, retry automatico, reenvio admin e integracoes fiscais permanecem fora da Fase 11.

@@ -47,7 +47,7 @@ export async function addItemToCart(input: { productId: string; quantity: number
   );
 
   if (quantityValidation.status === "invalid") {
-    return { status: "validation_error", message: "Quantidade invalida." };
+    return { status: "validation_error", message: "Quantidade inválida." };
   }
 
   if (quantityValidation.status === "insufficient_stock") {
@@ -91,7 +91,7 @@ export async function updateCartItemQuantity(input: { itemId: string; quantity: 
 
   const quantityValidation = validateQuantityForStock(input.quantity, productValidation.product.stockQuantity);
   if (quantityValidation.status === "invalid") {
-    return { status: "validation_error", message: "Quantidade invalida." };
+    return { status: "validation_error", message: "Quantidade inválida." };
   }
 
   if (quantityValidation.status === "insufficient_stock") {
@@ -170,7 +170,7 @@ export async function quoteShippingForActiveCart(input: { postalCode: string }):
   const rules = manualRules.length > 0 ? manualRules : devShippingRules;
   const options = buildManualShippingOptions(rules, { postalCode: validation.postalCode });
   if (options.length === 0) {
-    return { status: "validation_error", message: "Nao ha cobertura manual para este CEP." };
+    return { status: "validation_error", message: "Não há cobertura manual para este CEP." };
   }
 
   const quote = await shippingRepository.createQuote(
@@ -206,7 +206,7 @@ export async function selectShippingOptionForActiveCart(input: {
   const cart = await cartRepository.getActiveCart(actor);
   const quote = await shippingRepository.findQuoteById(input.quoteId);
   if (!quote) {
-    return { status: "validation_error", message: "Cotacao nao encontrada." };
+    return { status: "validation_error", message: "Cotação não encontrada." };
   }
 
   if (cart.id === null || quote.cartId !== cart.id) {
@@ -257,7 +257,7 @@ export async function mergeGuestCartIntoUser(input: { userId: string; guestToken
   for (const item of guestCart.items) {
     const product = await productRepository.findProductById(item.productId);
     if (!product || !isProductAvailableForPurchase(product)) {
-      warnings.push(`Item indisponivel removido do merge: ${item.productNameSnapshot}.`);
+      warnings.push(`Item indisponível removido da sua conta: ${item.productNameSnapshot}.`);
       continue;
     }
 
@@ -265,12 +265,12 @@ export async function mergeGuestCartIntoUser(input: { userId: string; guestToken
     const existingQuantity = userCart.items.find((userItem) => userItem.productId === item.productId)?.quantity ?? 0;
     const allowedQuantity = Math.min(item.quantity, Math.max(product.stockQuantity - existingQuantity, 0));
     if (allowedQuantity <= 0) {
-      warnings.push(`Estoque indisponivel para ${item.productNameSnapshot}.`);
+      warnings.push(`Estoque indisponível para ${item.productNameSnapshot}.`);
       continue;
     }
 
     if (allowedQuantity < item.quantity) {
-      warnings.push(`Quantidade de ${item.productNameSnapshot} limitada ao estoque disponivel.`);
+      warnings.push(`Quantidade de ${item.productNameSnapshot} limitada ao estoque disponível.`);
     }
 
     await cartRepository.addItem(userActor, {
@@ -301,12 +301,12 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
   for (const item of cart.items) {
     const product = await productRepository.findProductById(item.productId);
     if (!product || !isProductAvailableForPurchase(product)) {
-      messages.push(`${item.productNameSnapshot} nao esta disponivel para compra.`);
+      messages.push(`${item.productNameSnapshot} não está disponível para compra.`);
       continue;
     }
 
     if (item.quantity > product.stockQuantity) {
-      messages.push(`${item.productNameSnapshot} excede o estoque disponivel.`);
+      messages.push(`${item.productNameSnapshot} excede o estoque disponível.`);
       items.push({
         ...item,
         quantity: product.stockQuantity,
@@ -342,7 +342,7 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
     messages: [
       ...messages,
       ...(couponCalculation?.messages ?? []),
-      ...(freeShipping ? ["Cupom de frete gratis zerou o frete manual elegivel."] : [])
+      ...(freeShipping ? ["Cupom de frete grátis zerou o frete manual elegível."] : [])
     ]
   };
 }

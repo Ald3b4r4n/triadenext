@@ -5,7 +5,7 @@ const DEFAULT_EXPIRES_MINUTES = 30;
 export function normalizePostalCode(input: string) {
   const digits = input.replace(/\D/g, "");
   if (digits.length !== 8) {
-    throw new Error("CEP invalido.");
+    throw new Error("CEP inválido.");
   }
   return digits;
 }
@@ -19,7 +19,7 @@ export function validatePostalCode(input: string) {
   try {
     return { status: "valid" as const, postalCode: normalizePostalCode(input) };
   } catch {
-    return { status: "invalid" as const, message: "CEP invalido." };
+    return { status: "invalid" as const, message: "CEP inválido." };
   }
 }
 

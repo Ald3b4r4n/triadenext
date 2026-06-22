@@ -34,7 +34,7 @@ export function getPaymentRuntimeConfig(): PaymentRuntimeConfig {
       secretKey: env.STRIPE_SECRET_KEY,
       webhookSecret: env.STRIPE_WEBHOOK_SECRET,
       publishableKey: env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      message: "Stripe configurado para pagamento real."
+      message: "Pagamento seguro configurado."
     };
   }
 
@@ -42,13 +42,13 @@ export function getPaymentRuntimeConfig(): PaymentRuntimeConfig {
     return {
       status: "mock",
       publishableKey: "pk_test_triade_mock_explicit",
-      message: "Stripe mock ativo em dev/test: nenhuma credencial real e usada."
+      message: "Modo de teste seguro ativo: nenhuma cobrança real será feita."
     };
   }
 
   return {
     status: "unavailable",
-    message: "Pagamento real indisponivel: configure Stripe para este ambiente."
+    message: "Pagamento real indisponível: configure o provedor de pagamento para este ambiente."
   };
 }
 

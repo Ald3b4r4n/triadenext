@@ -26,7 +26,7 @@ export function isValidEmailRecipient(value: string) {
 export function maskEmailRecipient(value: string) {
   const [local, domain] = value.split("@");
   if (!local || !domain) {
-    return "nao-configurado";
+    return "não configurado";
   }
   return `${local.slice(0, 2)}***@${domain}`;
 }

@@ -7,7 +7,7 @@ test("visitor quotes a manual shipping option by CEP", async ({ page }) => {
   await page.getByRole("button", { name: "Cotar" }).click();
 
   await expect(page.getByRole("heading", { name: "Frete manual" })).toBeVisible();
-  await expect(page.getByText(/Capital paulista expresso|Sudeste economico/)).toBeVisible();
+  await expect(page.getByText(/Capital paulista expresso|Sudeste econômico/)).toBeVisible();
 });
 
 test("visitor selects manual freight and sees total with shipping", async ({ page }) => {
@@ -29,7 +29,7 @@ test("free shipping coupon zeroes eligible manual freight", async ({ page }) => 
   await page.getByLabel("Código").fill("FRETEGRATIS");
   await page.getByRole("button", { name: "Aplicar" }).click();
 
-  await expect(page.getByText("Cupom de frete gratis zerou o frete manual elegivel.")).toBeVisible();
+  await expect(page.getByText("Cupom de frete grátis zerou o frete manual elegível.")).toBeVisible();
 });
 
 test("postal code without coverage shows controlled error", async ({ page }) => {
@@ -38,7 +38,7 @@ test("postal code without coverage shows controlled error", async ({ page }) => 
   await page.getByLabel("CEP").fill("99999-999");
   await page.getByRole("button", { name: "Cotar" }).click();
 
-  await expect(page.getByText("Nao ha cobertura manual para este CEP.")).toBeVisible();
+  await expect(page.getByText("Não há cobertura manual para este CEP.")).toBeVisible();
 });
 
 async function addPublishedProductToCart(page: Page) {

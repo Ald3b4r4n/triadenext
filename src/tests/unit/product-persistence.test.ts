@@ -47,12 +47,12 @@ describe("product persistence fallback", () => {
     expect(product?.slug).toBe("produto-publicado-de-exemplo");
   });
 
-  it("returns dev_fallback for admin mutation without promising persistence", async () => {
+  it("returns dev_fallback for admin mutation without exposing technical env names", async () => {
     const result = await createAdminProduct(validProductInput);
 
     expect(result.status).toBe("dev_fallback");
-    expect(result.message).toContain("nao persistido");
-    expect(result.message).toContain("DATABASE_URL ausente");
+    expect(result.message).toContain("teste local");
+    expect(result.message).not.toMatch(/DATABASE_URL|secret|token/i);
   });
 
   it("keeps storefront public rules while using fixtures", async () => {

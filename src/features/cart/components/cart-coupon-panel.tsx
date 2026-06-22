@@ -57,7 +57,7 @@ export function CartCouponPanel({ coupon }: CartCouponPanelProps) {
         <form action={applyAction} className="coupon-form">
           <label className="form-field">
             <span>Código</span>
-            <input name="code" placeholder="DEV10" />
+            <input name="code" placeholder="PROMO10" />
           </label>
           <button type="submit" disabled={applyPending}>
             Aplicar

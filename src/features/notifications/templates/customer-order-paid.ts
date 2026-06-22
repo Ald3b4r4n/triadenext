@@ -15,7 +15,7 @@ export function renderCustomerOrderPaidEmail(
     ? `${input.shipping.label} - ${formatNotificationMoney(input.shipping.amountCents)}${
         input.shipping.estimatedDays ? ` - ate ${input.shipping.estimatedDays} dias` : ""
       }`
-    : "Frete nao informado";
+    : "Frete não informado";
   const subject = `Pedido ${input.orderNumber} pago`;
   const text = [
     `Seu pedido ${input.orderNumber} esta pago.`,

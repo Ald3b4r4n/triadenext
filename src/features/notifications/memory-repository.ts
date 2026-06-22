@@ -70,7 +70,7 @@ function update(
 ) {
   const current = store.get(id);
   if (!current) {
-    throw new Error("Registro de notificacao nao encontrado.");
+    throw new Error("Registro de notificação não encontrado.");
   }
   assertNotificationStatusTransition(current.status, change.status);
   const updated: NotificationDelivery = {

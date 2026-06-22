@@ -15,7 +15,7 @@ export default async function CadastroPage() {
       <section className="page-intro">
         <p className="muted">Cadastro</p>
         <h1>Criar conta</h1>
-        <p>O cadastro publico cria somente perfil de cliente.</p>
+        <p>O cadastro público cria somente perfil de cliente.</p>
       </section>
       <AuthForm mode="signup" action={signupAction} returnTo="/minha-conta" />
     </main>

@@ -2,18 +2,18 @@ import { z } from "zod";
 
 export const orderCustomerSnapshotSchema = z.object({
   fullName: z.string().trim().min(3, "Informe o nome completo."),
-  email: z.string().trim().email("E-mail invalido."),
-  phone: z.string().trim().min(8, "Informe um telefone/WhatsApp valido.")
+  email: z.string().trim().email("E-mail inválido."),
+  phone: z.string().trim().min(8, "Informe um telefone válido.")
 });
 
 export const orderAddressSnapshotSchema = z.object({
-  recipient: z.string().trim().min(3, "Informe o destinatario."),
+  recipient: z.string().trim().min(3, "Informe o destinatário."),
   postalCode: z.string().trim().min(8, "Informe o CEP."),
   state: z.string().trim().length(2, "Informe a UF."),
   city: z.string().trim().min(2, "Informe a cidade."),
   district: z.string().trim().min(2, "Informe o bairro."),
   street: z.string().trim().min(2, "Informe o logradouro."),
-  number: z.string().trim().min(1, "Informe o numero."),
+  number: z.string().trim().min(1, "Informe o número."),
   complement: z.string().trim().optional().nullable(),
   country: z.literal("BR").default("BR")
 });

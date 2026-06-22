@@ -19,7 +19,7 @@ export default async function CheckoutPage({
           <section className="page-intro">
             <p className="muted">Checkout pendente</p>
             <h1>Pedido criado</h1>
-            <p>Pedido aguardando pagamento. Continue pela area de pedidos para pagar com Stripe.</p>
+            <p>Pedido aguardando pagamento. Continue pela área de pedidos para seguir com a etapa de pagamento.</p>
           </section>
           <OrderSummary order={orderResult.order} />
           <OrderItemsSummary order={orderResult.order} />
@@ -72,7 +72,7 @@ export default async function CheckoutPage({
       <section className="page-intro">
         <p className="muted">Checkout pendente</p>
         <h1>Revisao do pedido</h1>
-        <p>Confira itens, frete, cupom e endereco. O pagamento sera iniciado depois que o pedido for criado.</p>
+        <p>Confira itens, frete, cupom e endereço. O pagamento será iniciado depois que o pedido for criado.</p>
       </section>
 
       <section className="cart-layout" aria-label="Revisao de checkout">
@@ -98,7 +98,7 @@ export default async function CheckoutPage({
               <input name="fullName" required minLength={3} />
             </label>
             <label>
-              <span>Telefone/WhatsApp</span>
+              <span>Telefone</span>
               <input name="phone" required minLength={8} />
             </label>
             <label>
@@ -166,8 +166,8 @@ export default async function CheckoutPage({
             {cart.shippingQuote?.options.find((option) => option.id === cart.shippingQuote?.selectedOptionId)?.label ??
               "selecionado"}
           </p>
-          <p className="muted">Pedido expira 60 minutos apos a criacao.</p>
-          <p className="muted">Dados de cartao nao sao coletados neste formulario.</p>
+          <p className="muted">Pedido expira 60 minutos após a criação.</p>
+          <p className="muted">Dados de cartão não são coletados neste formulário.</p>
         </aside>
       </section>
     </main>

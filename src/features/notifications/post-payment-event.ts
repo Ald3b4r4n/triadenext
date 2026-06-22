@@ -16,7 +16,7 @@ export async function notifyOrderPaidAfterSettlement(input: {
   try {
     const order = await orderRepository.getAdminOrder(input.orderId);
     if (!order || order.status !== "pago") {
-      return { status: "skipped" as const, message: "Pedido pago nao encontrado." };
+      return { status: "skipped" as const, message: "Pedido pago não encontrado." };
     }
     const deliveries = await notificationService.processOrderPaid({
       event: {

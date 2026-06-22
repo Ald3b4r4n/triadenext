@@ -8,7 +8,7 @@ export default async function AdminFretePage() {
   return (
     <main className="page-shell">
       <section className="page-intro">
-        <p className="muted">Admin minimo</p>
+        <p className="muted">Admin</p>
         <h1>Frete manual</h1>
         <p>Regras simples por UF ou faixa de CEP, sem transportadoras externas, contratos ou SLA avançado.</p>
         <Link className="primary-action" href="/admin/frete/novo">

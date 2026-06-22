@@ -49,7 +49,7 @@ export function ProductForm({ product, categories, action, submitLabel }: Produc
           <label className="form-field">
             <span>Genero</span>
             <select name="gender" defaultValue={product?.gender ?? "nao_informado"}>
-              <option value="nao_informado">Nao informado</option>
+              <option value="nao_informado">Não informado</option>
               <option value="feminino">Feminino</option>
               <option value="masculino">Masculino</option>
               <option value="unissex">Unissex</option>

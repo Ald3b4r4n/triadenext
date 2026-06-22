@@ -57,7 +57,7 @@ export function createStripePaymentAdapter(): StripePaymentAdapter | null {
       );
 
       if (!intent.client_secret) {
-        throw new Error("Stripe nao retornou client secret para o PaymentIntent.");
+        throw new Error("Provedor não retornou confirmação segura para o pagamento.");
       }
 
       return {
@@ -68,7 +68,7 @@ export function createStripePaymentAdapter(): StripePaymentAdapter | null {
     async retrievePaymentIntent(providerReference) {
       const intent = await stripe.paymentIntents.retrieve(providerReference);
       if (!intent.client_secret) {
-        throw new Error("Stripe nao retornou client secret para o PaymentIntent.");
+        throw new Error("Provedor não retornou confirmação segura para o pagamento.");
       }
       return { intent: toStripeIntentPayload(intent), clientSecret: intent.client_secret };
     },
@@ -110,13 +110,13 @@ function createMockStripeAdapter(publishableKey: string): StripePaymentAdapter {
       const store = getMockIntentStore();
       const intent = store.get(providerReference);
       if (!intent?.client_secret) {
-        throw new Error("PaymentIntent mock nao encontrado.");
+        throw new Error("Pagamento de teste não encontrado.");
       }
       return { intent, clientSecret: intent.client_secret };
     },
     constructWebhookEvent(rawBody, signature) {
       if (signature !== "triade-mock-signature") {
-        throw new Error("Assinatura Stripe mock invalida.");
+        throw new Error("Assinatura de teste inválida.");
       }
       return JSON.parse(rawBody) as StripeWebhookEvent;
     }

@@ -7,7 +7,7 @@ const { requireAdminLikeMock } = vi.hoisted(() => ({
 vi.mock("@/features/auth/server/policies", () => ({
   requireAdminLike: requireAdminLikeMock,
   policyMessage: vi.fn((decision) =>
-    decision.status === "allowed" ? "Autorizado." : "Acesso negado para esta operacao."
+    decision.status === "allowed" ? "Autorizado." : "Acesso negado para esta operação."
   )
 }));
 

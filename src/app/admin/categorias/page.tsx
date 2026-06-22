@@ -8,7 +8,7 @@ export default async function AdminCategoriasPage() {
       <section className="page-intro">
         <p className="muted">Admin</p>
         <h1>Categorias</h1>
-        <p>Estrutura inicial para selecao de categorias em produtos. CRUD completo fica pendente.</p>
+        <p>Estrutura inicial para seleção de categorias em produtos. CRUD completo fica pendente.</p>
       </section>
       <div className="admin-table" role="table" aria-label="Categorias administrativas">
         <div className="admin-table__row admin-table__row--categories" role="row">

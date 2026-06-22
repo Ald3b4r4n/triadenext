@@ -16,7 +16,7 @@ export default async function CustomerPaymentPage({
       <main className="page-shell">
         <section className="page-intro">
           <p className="muted">Pagamento</p>
-          <h1>Pedido indisponivel</h1>
+          <h1>Pedido indisponível</h1>
           <p>{result.message}</p>
           <Link className="secondary-action" href="/pedidos">
             Voltar aos pedidos
@@ -36,8 +36,8 @@ export default async function CustomerPaymentPage({
             : "Concluir pagamento"}
         </h1>
         <p>
-          O retorno do navegador nao marca o pedido como pago. A confirmacao final
-          vem do webhook Stripe validado pelo servidor.
+          O retorno do navegador não marca o pedido como pago. A confirmação final acontece
+          de forma segura no servidor.
         </p>
       </section>
       <OrderSummary order={result.order} paymentIntent={result.paymentIntent} />

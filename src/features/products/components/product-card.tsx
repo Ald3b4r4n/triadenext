@@ -26,9 +26,11 @@ export function ProductCard({ product }: ProductCardProps) {
           priceCents={product.priceCents}
           compareAtPriceCents={product.compareAtPriceCents}
         />
-        <Link className="product-card__action" href={`/produto/${product.slug}`}>
-          Ver detalhes
-        </Link>
+        <div className="product-card__actions">
+          <Link className="product-card__action" href={`/produto/${product.slug}`}>
+            Ver detalhes
+          </Link>
+        </div>
       </div>
     </article>
   );

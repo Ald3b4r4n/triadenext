@@ -20,8 +20,8 @@ export function OrderList({
         <h2>Nenhum pedido encontrado</h2>
         <p>
           {audience === "customer"
-            ? "Quando um checkout for criado, ele aparecera aqui."
-            : "Nao ha pedidos para acompanhamento administrativo."}
+            ? "Quando uma compra for iniciada, ela aparecerá aqui."
+            : "Não há pedidos para acompanhamento administrativo."}
         </p>
       </div>
     );

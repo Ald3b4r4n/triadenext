@@ -40,7 +40,7 @@ describe("notification service", () => {
       expect.objectContaining({
         type: "admin_order_paid",
         status: "skipped",
-        lastError: "Destinatarios internos nao configurados."
+        lastError: "Destinatários internos não configurados."
       })
     );
   });

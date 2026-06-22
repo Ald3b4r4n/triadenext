@@ -2,40 +2,40 @@ import { sensitiveRuntimeEnv } from "./env";
 
 export const runtimeMessages = {
   databaseMissing:
-    "Modo sem banco: DATABASE_URL ausente. O sistema usa fixtures de desenvolvimento e nao grava persistencia real.",
+    "Ambiente local sem persistência real. Os dados exibidos podem vir de exemplos seguros.",
   devFallbackCreate:
-    "Produto validado, mas nao persistido: DATABASE_URL ausente. Persistencia real depende de Neon/Drizzle.",
+    "Produto validado para teste local. A gravação definitiva depende da configuração de produção.",
   devFallbackUpdate:
-    "Produto validado, mas nao atualizado em banco: DATABASE_URL ausente. Persistencia real depende de Neon/Drizzle.",
+    "Produto validado para teste local. A atualização definitiva depende da configuração de produção.",
   blockedMutation:
-    "Mutacao real bloqueada: auth e policy admin reais sao obrigatorias para gravacoes.",
+    "Alteração bloqueada neste ambiente. Acesso administrativo real é obrigatório para gravar dados.",
   authNotReady:
-    "Auth real indisponivel: configure DATABASE_URL e BETTER_AUTH_SECRET para autenticar usuarios reais.",
+    "Autenticação administrativa real indisponível neste ambiente.",
   unauthenticated: "Sessao ausente ou expirada. Faca login para continuar.",
   forbidden: "Acesso negado para esta operacao.",
   adminWithoutAuth:
     "Painel protegido por auth/policies reais. Mutacoes exigem sessao admin ou manager.",
-  blobMissing: "Upload real bloqueado: BLOB_READ_WRITE_TOKEN nao esta configurado.",
+  blobMissing: "Upload definitivo indisponível neste ambiente.",
   persistedCreate: "Produto criado em Neon/Drizzle.",
   persistedUpdate: "Produto atualizado em Neon/Drizzle.",
   imageMetadataPersisted: "Metadata de imagem persistida em Neon/Drizzle."
   ,
   cartFallbackNotPersisted:
-    "Carrinho em modo dev/fixture: DATABASE_URL ausente. As interacoes nao representam persistencia real.",
+    "Carrinho ativo apenas para teste local; as interações não representam uma compra real.",
   cartUnavailable:
-    "Carrinho indisponivel neste ambiente sem banco configurado.",
+    "Carrinho temporariamente indisponível neste ambiente.",
   cartProductUnavailable: "Produto indisponivel para compra.",
   cartInsufficientStock: "Quantidade solicitada acima do estoque disponivel.",
   cartForbidden: "Acesso negado ao carrinho solicitado.",
   cartUpdated: "Carrinho atualizado.",
   checkoutUnauthenticated: "Faca login ou crie sua conta para iniciar o checkout.",
   checkoutUnavailable:
-    "Checkout indisponivel neste ambiente sem banco configurado. Nenhum pedido real foi criado.",
+    "Checkout indisponível neste ambiente. Nenhum pedido real foi criado.",
   checkoutFallback:
-    "Pedido pendente criado em fixture dev/test: DATABASE_URL ausente e sem persistencia real.",
+    "Pedido pendente criado apenas para teste local, sem persistência real.",
   checkoutValidationError: "Nao foi possivel criar o pedido pendente com os dados informados.",
   orderForbidden: "Pedido indisponivel para este usuario.",
-  orderReadUnavailable: "Leitura de pedidos indisponivel neste ambiente sem banco configurado."
+  orderReadUnavailable: "Leitura de pedidos temporariamente indisponível neste ambiente."
 } as const;
 
 export type RuntimeMode = {

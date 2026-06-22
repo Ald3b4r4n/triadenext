@@ -43,7 +43,7 @@ export async function startOrderPayment(input: {
         paymentIntent: { ...existing, clientSecret: retrieved.clientSecret },
         clientSecret: retrieved.clientSecret,
         publishableKey: adapter.publishableKey,
-        message: "PaymentIntent existente reutilizado com seguranca."
+        message: "Pagamento existente reutilizado com segurança."
       };
     }
 
@@ -75,8 +75,8 @@ export async function startOrderPayment(input: {
       publishableKey: adapter.publishableKey,
       message:
         adapter.mode === "mock"
-          ? "PaymentIntent mock criado em dev/test. Nenhuma cobranca real foi feita."
-          : "PaymentIntent criado. A confirmacao final depende do webhook Stripe."
+          ? "Pagamento de teste preparado. Nenhuma cobrança real foi feita."
+          : "Pagamento preparado. A confirmação final depende do servidor."
     };
   } catch (error) {
     return {
@@ -92,7 +92,7 @@ export async function getOrderPaymentStatus(input: {
 }): Promise<PaymentStatusResult> {
   const order = await orderRepository.getCustomerOrder(input.userId, input.orderId);
   if (!order) {
-    return { status: "not_found", message: "Pedido nao encontrado." };
+    return { status: "not_found", message: "Pedido não encontrado." };
   }
   return {
     status: "success",

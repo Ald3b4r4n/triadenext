@@ -8,6 +8,21 @@ type ProductAdminTableProps = {
 };
 
 export function ProductAdminTable({ products }: ProductAdminTableProps) {
+  if (products.length === 0) {
+    return (
+      <div className="admin-table admin-table--empty" role="status">
+        <p className="eyebrow">Produtos</p>
+        <h2>Nenhum produto cadastrado</h2>
+        <p className="muted">
+          Cadastre o primeiro produto para validar a vitrine pública e o fluxo de carrinho.
+        </p>
+        <Link className="primary-action" href="/admin/produtos/novo">
+          Novo produto
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="admin-table" role="table" aria-label="Produtos administrativos">
       <div className="admin-table__row admin-table__row--head admin-table__row--products" role="row">

@@ -32,6 +32,20 @@ export default function RootLayout({
           </div>
         </header>
         {children}
+        <footer className="site-footer">
+          <div className="page-shell site-footer__content">
+            <div>
+              <strong>Tríade Essenza Parfum</strong>
+              <p>Perfumaria árabe contemporânea para uma compra simples, segura e bem guiada.</p>
+            </div>
+            <nav className="site-footer__nav" aria-label="Links do rodapé">
+              <Link href="/produtos">Produtos</Link>
+              <Link href="/carrinho">Carrinho</Link>
+              <Link href="/login">Entrar</Link>
+              <Link href="/minha-conta">Minha conta</Link>
+            </nav>
+          </div>
+        </footer>
       </body>
     </html>
   );

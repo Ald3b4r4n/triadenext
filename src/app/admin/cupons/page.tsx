@@ -8,10 +8,10 @@ export default async function AdminCuponsPage() {
   return (
     <main className="page-shell">
       <section className="page-intro">
-        <p className="muted">Admin mínimo</p>
+        <p className="muted">Admin</p>
         <h1>Cupons</h1>
         <p>
-          Fundação de cupons globais para carrinho, sem campanhas avançadas, relatórios ou frete real.
+          Cupons globais para carrinho, sem campanhas avançadas, relatórios ou frete externo.
         </p>
         <Link className="primary-action" href="/admin/cupons/novo">
           Novo cupom

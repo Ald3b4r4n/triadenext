@@ -24,7 +24,7 @@ test("invalid coupon shows controlled error", async ({ page }) => {
   await page.getByLabel("Código").fill("naoexiste");
   await page.getByRole("button", { name: "Aplicar" }).click();
 
-  await expect(page.getByText("Cupom nao encontrado.")).toBeVisible();
+  await expect(page.getByText("Cupom não encontrado.")).toBeVisible();
 });
 
 test("coupon can be removed", async ({ page }) => {
@@ -59,5 +59,6 @@ test("admin coupons remains protected without real auth", async ({ page }) => {
   await page.goto("/admin/cupons", { waitUntil: "commit" });
 
   await expect(page.getByRole("heading", { name: "Acesso bloqueado" })).toBeVisible();
-  await expect(page.getByText("DATABASE_URL ausente")).toBeVisible();
+  await expect(page.getByText("Operação administrativa indisponível neste ambiente.")).toBeVisible();
+  await expect(page.getByText(/DATABASE_URL|secret|token/i)).toHaveCount(0);
 });

@@ -54,7 +54,7 @@ export function validateCouponForSubtotal(
     return {
       status: "invalid",
       code: "coupon_not_found",
-      message: "Cupom nao encontrado."
+      message: "Cupom não encontrado."
     };
   }
 
@@ -72,7 +72,7 @@ export function validateCouponForSubtotal(
     return {
       status: "invalid",
       code: "coupon_minimum_subtotal_not_met",
-      message: "Cupom exige carrinho com itens elegiveis.",
+      message: "Cupom exige carrinho com itens elegíveis.",
       coupon
     };
   }
@@ -93,7 +93,7 @@ export function validateCouponForSubtotal(
     return {
       status: "invalid",
       code: "coupon_invalid_value",
-      message: "Cupom possui valor invalido.",
+      message: "Cupom possui valor inválido.",
       coupon
     };
   }
@@ -170,7 +170,7 @@ export function formatCouponValue(coupon: Pick<Coupon, "type" | "value">) {
     }).format(coupon.value / 100);
   }
 
-  return "Frete gratis preparado";
+  return "Frete grátis preparado";
 }
 
 function isCouponValueValid(coupon: Coupon) {
@@ -203,7 +203,7 @@ function statusToMessage(status: Exclude<CouponStatus, "active">) {
     case "inactive":
       return "Cupom inativo.";
     case "scheduled":
-      return "Cupom ainda nao esta vigente.";
+      return "Cupom ainda não está vigente.";
     case "expired":
       return "Cupom expirado.";
     case "exhausted":

@@ -80,7 +80,7 @@ function toErrorState(fieldErrors: Record<string, string[] | undefined>): Produc
     fields: Object.fromEntries(
       Object.entries(fieldErrors)
         .filter(([, messages]) => messages !== undefined && messages.length > 0)
-        .map(([field, messages]) => [field, messages?.[0] ?? "Campo invalido."])
+        .map(([field, messages]) => [field, messages?.[0] ?? "Campo inválido."])
     )
   };
 }

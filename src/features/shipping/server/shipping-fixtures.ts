@@ -5,7 +5,7 @@ const fixtureDate = new Date("2026-01-10T12:00:00.000Z");
 export const devShippingRules: ShippingManualRule[] = [
   {
     id: "shipping-dev-1",
-    name: "Sudeste economico",
+    name: "Sudeste econômico",
     provider: "manual",
     ruleType: "uf",
     uf: "SP",

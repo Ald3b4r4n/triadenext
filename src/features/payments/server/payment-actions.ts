@@ -21,7 +21,7 @@ export async function startOrderPaymentAction(orderId: string): Promise<StartPay
   if (!parsed.success) {
     return {
       status: "validation_error",
-      message: parsed.error.issues[0]?.message ?? "Pedido invalido."
+      message: parsed.error.issues[0]?.message ?? "Pedido inválido."
     };
   }
 
@@ -51,7 +51,7 @@ export async function getOrderPaymentStatusAction(
   if (!parsed.success) {
     return {
       status: "validation_error",
-      message: parsed.error.issues[0]?.message ?? "Pedido invalido."
+      message: parsed.error.issues[0]?.message ?? "Pedido inválido."
     };
   }
 
@@ -69,7 +69,7 @@ export async function confirmMockPaymentAction(orderId: string) {
   if (getPaymentRuntimeConfig().status !== "mock") {
     return {
       status: "unavailable" as const,
-      message: "Confirmacao mock so esta disponivel em dev/test."
+      message: "Confirmação de teste só está disponível em dev/test."
     };
   }
 
@@ -80,7 +80,7 @@ export async function confirmMockPaymentAction(orderId: string) {
   ) {
     return {
       status: "validation_error" as const,
-      message: "PaymentIntent mock nao encontrado."
+      message: "Pagamento de teste não encontrado."
     };
   }
 

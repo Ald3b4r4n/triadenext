@@ -10,9 +10,12 @@ export function CouponAdminTable({ coupons }: CouponAdminTableProps) {
   if (coupons.length === 0) {
     return (
       <div className="placeholder-panel">
-        <p className="muted">Admin mínimo</p>
+        <p className="eyebrow">Cupons</p>
         <h2>Nenhum cupom cadastrado</h2>
         <p>Crie cupons básicos sem campanhas avançadas, relatórios ou restrições por produto.</p>
+        <Link className="primary-action" href="/admin/cupons/novo">
+          Novo cupom
+        </Link>
       </div>
     );
   }

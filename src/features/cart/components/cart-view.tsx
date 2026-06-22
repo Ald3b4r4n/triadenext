@@ -94,7 +94,7 @@ export function CartView({ cart }: CartViewProps) {
           quote={cart.shippingQuote}
         />
         <p className="muted">
-          Checkout cria pedido pendente sem cartão, sem Stripe e sem pagamento real.
+          O pedido é criado na próxima etapa e o pagamento aparece somente depois da revisão.
         </p>
         {cart.items.length === 0 || !cart.shippingQuoteId ? (
           <button className="primary-action" type="button" disabled>

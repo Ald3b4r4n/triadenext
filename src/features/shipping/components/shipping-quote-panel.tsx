@@ -76,7 +76,7 @@ export function ShippingQuotePanel({ quote, cartId, cartHash, destinationPostalC
           </form>
         </div>
       ) : (
-        <p className="muted">Cotacao ainda nao realizada.</p>
+        <p className="muted">Informe o CEP para ver opções de entrega disponíveis.</p>
       )}
 
       {message ? (

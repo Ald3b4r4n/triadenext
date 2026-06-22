@@ -17,21 +17,21 @@ export const removeCartItemSchema = z.object({
 });
 
 export const applyCouponToCartSchema = z.object({
-  code: z.string().trim().min(1, "Codigo obrigatorio.").max(64, "Codigo muito longo.")
+  code: z.string().trim().min(1, "Código obrigatório.").max(64, "Código muito longo.")
 });
 
 const postalCodeSchema = z
   .string()
   .trim()
-  .min(8, "CEP invalido.")
-  .max(9, "CEP invalido.");
+  .min(8, "CEP inválido.")
+  .max(9, "CEP inválido.");
 
 export const quoteShippingSchema = z.object({
   postalCode: postalCodeSchema
 });
 
 export const selectShippingOptionSchema = z.object({
-  quoteId: z.string().trim().min(1, "Cotacao obrigatoria."),
+  quoteId: z.string().trim().min(1, "Cotação obrigatória."),
   optionId: z.string().trim().min(1, "Opcao obrigatoria."),
   postalCode: postalCodeSchema
 });

@@ -19,10 +19,10 @@ export function OrderSummary({
       ) : null}
       {order.paidAt ? <p>Pago em: {order.paidAt.toLocaleString("pt-BR")}</p> : null}
       <p className="muted">
-        Status do pagamento: {paymentIntent?.status ?? "ainda nao iniciado"}
+        Status do pagamento: {paymentIntent?.status ?? "ainda não iniciado"}
       </p>
       <p className="muted">
-        Cartao e processado pelo Payment Element. O servidor nao armazena dados sensiveis.
+        Dados de cartão são coletados pelo provedor de pagamento seguro. O servidor não armazena dados sensíveis.
       </p>
     </article>
   );

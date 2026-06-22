@@ -22,6 +22,7 @@ import { createPendingCheckoutOrder } from "@/features/checkout/server/checkout-
 import { createCouponRepository } from "@/features/coupons/server/coupon-repository";
 import { createOrderRepository } from "@/features/orders/server/order-repository";
 import { createNotificationRepository } from "@/features/notifications/drizzle-repository";
+import { sanitizePaymentFailureReason } from "@/features/payments/domain";
 import { startOrderPayment } from "@/features/payments/server/payment-service";
 import { processStripeWebhook } from "@/features/payments/server/stripe-webhook-service";
 import { createProductRepository } from "@/features/products/server/product-repository";
@@ -77,7 +78,7 @@ describe("payment service", () => {
     const started = await startOrderPayment({ userId, orderId: order.id });
     expect(started.status).toBe("success");
     if (started.status !== "success" || !started.paymentIntent.providerReference) {
-      throw new Error("PaymentIntent mock nao foi criado.");
+      throw new Error("Pagamento de teste não foi criado.");
     }
     expect(
       await productRepository.findProductById("prod-example-published")
@@ -163,7 +164,7 @@ describe("payment service", () => {
     const order = await seedPendingOrder(userId);
     const started = await startOrderPayment({ userId, orderId: order.id });
     if (started.status !== "success" || !started.paymentIntent.providerReference) {
-      throw new Error("PaymentIntent mock nao foi criado.");
+      throw new Error("Pagamento de teste não foi criado.");
     }
 
     const result = await processStripeWebhook({
@@ -184,8 +185,19 @@ describe("payment service", () => {
     });
 
     expect(result.status).toBe("failed");
+    expect(result.message).not.toMatch(/PaymentIntent|Stripe|client_secret|database_url/i);
     const unchanged = await createOrderRepository().getCustomerOrder(userId, order.id);
     expect(unchanged?.status).toBe("aguardando_pagamento");
+  });
+
+  it("sanitizes payment failures before they can be rendered", () => {
+    const message = sanitizePaymentFailureReason(
+      new Error(
+        "sk_test_secret whsec_secret client_secret=pi_secret database_url=postgres://secret smtp_password=secret"
+      )
+    );
+
+    expect(message).not.toMatch(/sk_test_secret|whsec_secret|pi_secret|postgres:\/\/secret|smtp_password=secret/);
   });
 });
 

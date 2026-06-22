@@ -25,11 +25,11 @@ export function PaymentElementForm({ orderId }: { orderId: string }) {
     const result = await startOrderPaymentAction(orderId);
     setBusy(false);
     if (result.status !== "success") {
-      setMessage(result.message);
+      setMessage(toSafePaymentMessage(result.message));
       return;
     }
     setStarted(result);
-    setMessage(result.message);
+    setMessage(toSafePaymentMessage(result.message));
   }
 
   if (!started) {
@@ -37,7 +37,7 @@ export function PaymentElementForm({ orderId }: { orderId: string }) {
       <section className="placeholder-panel" data-testid="payment-start">
         <p className="muted">Pagamento seguro</p>
         <h2>Concluir pedido</h2>
-        <p>O valor vem do snapshot do pedido e nao pode ser alterado pelo navegador.</p>
+        <p>O valor vem do resumo do pedido e não pode ser alterado pelo navegador.</p>
         <button className="primary-action" disabled={busy} onClick={start} type="button">
           {busy ? "Preparando pagamento..." : "Iniciar pagamento"}
         </button>
@@ -109,20 +109,20 @@ function StripePaymentContent({ orderId }: { orderId: string }) {
     });
     setBusy(false);
     if (result.error) {
-      setMessage(result.error.message ?? "Pagamento nao foi concluido.");
+      setMessage(result.error.message ?? "Pagamento não foi concluído.");
       return;
     }
     const status = await getOrderPaymentStatusAction(orderId);
     setMessage(
       status.status === "success" && status.order.status === "pago"
         ? "Pagamento confirmado pelo servidor."
-        : "Pagamento enviado. Aguardando confirmacao segura do webhook."
+        : "Pagamento enviado. Aguardando confirmação segura do servidor."
     );
   }
 
   return (
     <form className="checkout-form" onSubmit={submit}>
-      <h2>Pagamento com Stripe</h2>
+      <h2>Pagamento seguro</h2>
       <PaymentElement />
       <button className="primary-action" disabled={!stripe || busy} type="submit">
         {busy ? "Processando..." : "Pagar pedido"}
@@ -146,20 +146,28 @@ function MockPaymentForm({
     setBusy(true);
     const result = await confirmMockPaymentAction(orderId);
     setBusy(false);
-    setMessage(result.message);
+    setMessage(toSafePaymentMessage(result.message));
   }
 
   return (
     <section className="placeholder-panel" data-testid="payment-mock">
-      <p className="muted">Stripe mock dev/test</p>
-      <h2>Nenhuma cobranca real sera feita</h2>
+      <p className="muted">Modo de teste seguro</p>
+      <h2>Nenhuma cobrança real será feita</h2>
       <p>
-        Esta confirmacao simula um webhook assinado e nao coleta dados de cartao.
+        Esta confirmação valida o fluxo local sem coletar dados de cartão e sem envio real.
       </p>
       <button className="primary-action" disabled={busy} onClick={confirm} type="button">
-        {busy ? "Confirmando webhook mock..." : "Simular pagamento confirmado"}
+        {busy ? "Confirmando pagamento de teste..." : "Confirmar pagamento de teste"}
       </button>
       {message ? <p role="status">{message}</p> : null}
     </section>
   );
+}
+
+function toSafePaymentMessage(message: string) {
+  return message
+    .replace(/PaymentIntent/gi, "pagamento")
+    .replace(/Stripe mock dev\/test/gi, "modo de teste seguro")
+    .replace(/Stripe/gi, "pagamento")
+    .replace(/webhook/gi, "confirmação do servidor");
 }

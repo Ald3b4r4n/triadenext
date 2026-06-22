@@ -1,18 +1,14 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/008-fase-10-notificacoes-email",
-  "feature-id": "008",
-  "short-name": "fase-10-notificacoes-email",
-  "started-at": "2026-06-10T13:00:00-03:00",
+  "feature-dir": "_reversa_forward/019-fase-11-qa-visual-hardening",
+  "feature-id": "019",
+  "short-name": "fase-11-qa-visual-hardening",
+  "started-at": "2026-06-22T09:07:45-03:00",
   "current-stage": "coding",
   "stages-completed": [
     "requirements",
-    "clarify",
-    "quality",
     "plan",
-    "to-do",
-    "audit",
-    "coding"
+    "to-do"
   ],
   "paused-features": []
 }

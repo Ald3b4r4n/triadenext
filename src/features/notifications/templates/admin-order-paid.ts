@@ -12,7 +12,7 @@ export function renderAdminOrderPaidEmail(input: AdminOrderPaidTemplateInput): R
     .join("\n");
   const shippingText = input.shipping
     ? `${input.shipping.label} - ${formatNotificationMoney(input.shipping.amountCents)}`
-    : "Frete nao informado";
+    : "Frete não informado";
   const text = [
     `Novo pedido pago: ${input.orderNumber}.`,
     `Cliente: ${input.customerName} (${input.customerEmail})`,

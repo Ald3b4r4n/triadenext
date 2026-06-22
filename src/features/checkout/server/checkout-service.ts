@@ -89,7 +89,7 @@ export async function createPendingCheckoutOrder(input: CheckoutFormInput): Prom
   if (cart.shippingPostalCode && normalizePostalCode(cart.shippingPostalCode) !== address.postalCode) {
     return {
       status: "validation_error",
-      message: "CEP do endereco precisa ser o mesmo da cotacao de frete selecionada."
+      message: "CEP do endereço precisa ser o mesmo da cotação de frete selecionada."
     };
   }
 
@@ -99,7 +99,7 @@ export async function createPendingCheckoutOrder(input: CheckoutFormInput): Prom
   const couponSnapshot = buildCouponSnapshot({ coupon, discountCents: cart.discountCents });
   const shippingSnapshot = buildShippingSnapshot(cart);
   if (!shippingSnapshot) {
-    return { status: "validation_error", message: "Selecione um frete valido antes do checkout." };
+    return { status: "validation_error", message: "Selecione um frete válido antes do checkout." };
   }
 
   const draft = buildPendingOrderDraft({
@@ -135,23 +135,23 @@ async function validateCartForCheckout(cart: Awaited<ReturnType<typeof recalcula
   }
 
   if (cart.id === null || cart.items.length === 0) {
-    return { status: "invalid" as const, message: "Carrinho vazio nao pode iniciar checkout." };
+    return { status: "invalid" as const, message: "Carrinho vazio não pode iniciar checkout." };
   }
 
   if (cart.status !== "active") {
-    return { status: "invalid" as const, message: "Carrinho convertido ou bloqueado nao pode iniciar checkout." };
+    return { status: "invalid" as const, message: "Carrinho convertido ou bloqueado não pode iniciar checkout." };
   }
 
   for (const item of cart.items) {
     const product = await productRepository.findProductById(item.productId);
     const productValidation = validatePurchasableProduct(product);
     if (productValidation.status !== "available") {
-      return { status: "invalid" as const, message: `${item.productNameSnapshot} nao esta disponivel.` };
+      return { status: "invalid" as const, message: `${item.productNameSnapshot} não está disponível.` };
     }
 
     const stockValidation = validateQuantityForStock(item.quantity, productValidation.product.stockQuantity);
     if (stockValidation.status !== "valid") {
-      return { status: "invalid" as const, message: `${item.productNameSnapshot} excede o estoque disponivel.` };
+      return { status: "invalid" as const, message: `${item.productNameSnapshot} excede o estoque disponível.` };
     }
   }
 
@@ -164,15 +164,15 @@ async function validateCartForCheckout(cart: Awaited<ReturnType<typeof recalcula
   }
 
   if (!cart.shippingQuote || !cart.shippingQuoteId || !cart.shippingQuote.selectedOptionId) {
-    return { status: "invalid" as const, message: "Selecione um frete valido antes do checkout." };
+    return { status: "invalid" as const, message: "Selecione um frete válido antes do checkout." };
   }
 
   if (isQuoteExpired(cart.shippingQuote)) {
-    return { status: "invalid" as const, message: "Cotacao de frete expirada. Recalcule o frete." };
+    return { status: "invalid" as const, message: "Cotação de frete expirada. Recalcule o frete." };
   }
 
   if (cart.shippingQuote.cartId !== cart.id) {
-    return { status: "invalid" as const, message: "Cotacao de frete nao pertence ao carrinho atual." };
+    return { status: "invalid" as const, message: "Cotação de frete não pertence ao carrinho atual." };
   }
 
   return { status: "valid" as const };

@@ -8,8 +8,12 @@ export function ShippingRuleTable({ rules }: Props) {
   if (rules.length === 0) {
     return (
       <div className="placeholder-panel">
-        <p className="muted">Admin minimo</p>
+        <p className="eyebrow">Frete manual</p>
         <h2>Nenhuma regra manual cadastrada</h2>
+        <p>Crie uma regra por UF ou faixa de CEP para habilitar cotações no carrinho.</p>
+        <Link className="primary-action" href="/admin/frete/novo">
+          Nova regra
+        </Link>
       </div>
     );
   }

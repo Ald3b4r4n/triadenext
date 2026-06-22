@@ -77,7 +77,7 @@ export async function getAdminPendingOrderAction(orderId: string): Promise<Order
 
   const order = await orderRepository.getAdminOrder(orderId);
   if (!order) {
-    return { status: "not_found", message: "Pedido nao encontrado." };
+    return { status: "not_found", message: "Pedido não encontrado." };
   }
 
   return { status: "success", order };

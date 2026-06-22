@@ -35,11 +35,11 @@ export default async function ProdutoPage({ params }: ProductPageProps) {
             </div>
             <div>
               <dt>Volume</dt>
-              <dd>{product.volumeMl ? `${product.volumeMl} ml` : "Nao informado"}</dd>
+              <dd>{product.volumeMl ? `${product.volumeMl} ml` : "Não informado"}</dd>
             </div>
             <div>
               <dt>Estoque</dt>
-              <dd>Disponivel</dd>
+              <dd>Disponível</dd>
             </div>
           </dl>
           <AddToCartForm productId={product.id} />

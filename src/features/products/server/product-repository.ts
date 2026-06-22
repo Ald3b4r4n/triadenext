@@ -97,7 +97,7 @@ function createFixtureProductRepository(): ProductRepository {
         status: "dev_fallback",
         imageId: null,
         message:
-          "Metadata de imagem validada, mas nao persistida: DATABASE_URL ausente. Persistencia real depende de Neon/Drizzle."
+          "Imagem validada para teste local. A gravação definitiva depende da configuração de produção."
       };
     },
     async createProduct(input: ProductMutationInput) {

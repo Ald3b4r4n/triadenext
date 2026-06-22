@@ -21,6 +21,6 @@ export function assertNotificationStatusTransition(
   to: NotificationDeliveryStatus
 ) {
   if (!canTransitionNotificationStatus(from, to)) {
-    throw new Error(`Transicao de notificacao invalida: ${from} -> ${to}.`);
+    throw new Error(`Transição de notificação inválida: ${from} -> ${to}.`);
   }
 }

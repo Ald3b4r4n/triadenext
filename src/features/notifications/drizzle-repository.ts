@@ -29,7 +29,7 @@ export function createNotificationRepository(): NotificationRepository {
         .where(eq(notificationDeliveries.idempotencyKey, draft.idempotencyKey))
         .limit(1);
       if (!existing) {
-        throw new Error("Registro idempotente de notificacao nao foi resolvido.");
+        throw new Error("Registro idempotente de notificação não foi resolvido.");
       }
       return { created: false, delivery: toDelivery(existing) };
     },
@@ -100,7 +100,7 @@ export function createNotificationRepository(): NotificationRepository {
 
 function requireDelivery(row: typeof notificationDeliveries.$inferSelect | undefined) {
   if (!row) {
-    throw new Error("Registro de notificacao nao encontrado.");
+    throw new Error("Registro de notificação não encontrado.");
   }
   return toDelivery(row);
 }

@@ -3,8 +3,8 @@ import { z } from "zod";
 const couponCodeSchema = z
   .string()
   .trim()
-  .min(1, "Codigo obrigatorio.")
-  .max(64, "Codigo muito longo.");
+  .min(1, "Código obrigatório.")
+  .max(64, "Código muito longo.");
 
 export const applyCouponSchema = z.object({
   code: couponCodeSchema

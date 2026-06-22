@@ -84,15 +84,15 @@ export function policyMessage(decision: PolicyDecision) {
       return "Autorizado.";
     case "blocked":
       if (decision.reason === "missing_database") {
-        return "Operacao bloqueada: DATABASE_URL ausente. Persistencia real nao esta disponivel.";
+        return "Operação administrativa indisponível neste ambiente.";
       }
       if (decision.reason === "auth_not_ready") {
-        return "Operacao bloqueada: auth/policies reais nao estao ativos.";
+        return "Autenticação administrativa real ainda não está ativa neste ambiente.";
       }
-      return "Operacao bloqueada pelo ambiente.";
+      return "Operação bloqueada pelo ambiente.";
     case "forbidden":
-      return "Acesso negado para esta operacao.";
+      return "Acesso negado para esta operação.";
     case "unauthenticated":
-      return "Sessao ausente ou expirada. Faca login para continuar.";
+      return "Sessão ausente ou expirada. Faça login para continuar.";
   }
 }

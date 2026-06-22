@@ -19,9 +19,9 @@ export default async function LoginPage({
   return (
     <main className="page-shell">
       <section className="page-intro">
-        <p className="muted">Autenticacao</p>
+        <p className="muted">Autenticação</p>
         <h1>Login</h1>
-        <p>Acesse sua conta para continuar em areas protegidas.</p>
+        <p>Acesse sua conta para continuar em áreas protegidas.</p>
       </section>
       <AuthForm mode="login" action={loginAction} returnTo={params?.returnTo} />
     </main>

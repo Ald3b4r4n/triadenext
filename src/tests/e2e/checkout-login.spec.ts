@@ -7,7 +7,7 @@ test("visitor clicks cart checkout CTA and is instructed to login", async ({ pag
   await page.goto("/carrinho", { waitUntil: "commit" });
   await page.getByLabel("CEP").fill("01001-000");
   await page.getByRole("button", { name: "Cotar" }).click();
-  await expect(page.getByText("Cotacao de frete calculada.")).toBeVisible();
+  await expect(page.getByText("Cotação de frete calculada.")).toBeVisible();
 
   await page.getByRole("link", { name: "Entrar para checkout" }).click();
 

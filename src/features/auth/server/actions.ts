@@ -89,7 +89,7 @@ export async function signupAction(
   } catch {
     return {
       status: "error",
-      message: "Nao foi possivel concluir o cadastro. Revise os dados e tente novamente."
+      message: "Não foi possível concluir o cadastro. Revise os dados e tente novamente."
     };
   }
 
@@ -115,7 +115,7 @@ function toAuthErrorState(fieldErrors: Record<string, string[] | undefined>): Au
     fields: Object.fromEntries(
       Object.entries(fieldErrors)
         .filter(([, messages]) => messages !== undefined && messages.length > 0)
-        .map(([field, messages]) => [field, messages?.[0] ?? "Campo invalido."])
+        .map(([field, messages]) => [field, messages?.[0] ?? "Campo inválido."])
     )
   };
 }

@@ -73,7 +73,7 @@ export function createNotificationService(dependencies: {
           created.created
             ? await repository.markSkipped({
                 id: created.delivery.id,
-                lastError: "Destinatarios internos nao configurados."
+                lastError: "Destinatários internos não configurados."
               })
             : created.delivery
         );

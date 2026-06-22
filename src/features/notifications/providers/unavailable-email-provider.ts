@@ -6,7 +6,7 @@ export function createUnavailableEmailProvider(): EmailProvider {
       return {
         status: "unavailable",
         provider: "unavailable",
-        safeError: "Provider de e-mail nao configurado para este ambiente."
+        safeError: "Provedor de e-mail não configurado para este ambiente."
       };
     }
   };
