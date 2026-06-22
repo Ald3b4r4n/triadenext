@@ -40,7 +40,7 @@
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "writer_rerun_cart_design_2026_06_11",
+  "last_checkpoint": "writer_rerun_checkout_snapshots_validacao_tasks_2026_06_11",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -438,6 +438,463 @@
       ],
       "status": "partial",
       "next_file": "_reversa_sdd/cart/tasks.md"
+    },
+    "writer_rerun_cart_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao do trio canonico da unit cart na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/cart",
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/carrinho-publico/requirements.md"
+    },
+    "writer_rerun_cart_carrinho_publico_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade cart/carrinho-publico na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/carrinho-publico/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/carrinho-publico/design.md"
+    },
+    "writer_rerun_cart_carrinho_publico_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade cart/carrinho-publico na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/carrinho-publico/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/carrinho-publico/tasks.md"
+    },
+    "writer_rerun_cart_carrinho_publico_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade cart/carrinho-publico na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/carrinho-publico/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/cart/carrinho-publico",
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/sessao-merge-guest/requirements.md"
+    },
+    "writer_rerun_cart_sessao_merge_guest_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade cart/sessao-merge-guest na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/sessao-merge-guest/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/sessao-merge-guest/design.md"
+    },
+    "writer_rerun_cart_sessao_merge_guest_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade cart/sessao-merge-guest na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/sessao-merge-guest/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/sessao-merge-guest/tasks.md"
+    },
+    "writer_rerun_cart_sessao_merge_guest_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade cart/sessao-merge-guest na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/sessao-merge-guest/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/cart/sessao-merge-guest",
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/cupom-frete-carrinho/requirements.md"
+    },
+    "writer_rerun_cart_cupom_frete_carrinho_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade cart/cupom-frete-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/cupom-frete-carrinho/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/cupom-frete-carrinho/design.md"
+    },
+    "writer_rerun_cart_cupom_frete_carrinho_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade cart/cupom-frete-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/cupom-frete-carrinho/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/cart/cupom-frete-carrinho/tasks.md"
+    },
+    "writer_rerun_cart_cupom_frete_carrinho_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade cart/cupom-frete-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/cart/cupom-frete-carrinho/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/cart/cupom-frete-carrinho",
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/requirements.md"
+    },
+    "writer_rerun_coupons_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da unit coupons na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/design.md"
+    },
+    "writer_rerun_coupons_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da unit coupons na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/tasks.md"
+    },
+    "writer_rerun_coupons_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao do trio canonico da unit coupons na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/coupons",
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/admin-cupons/requirements.md"
+    },
+    "writer_rerun_coupons_admin_cupons_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade coupons/admin-cupons na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/admin-cupons/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/admin-cupons/design.md"
+    },
+    "writer_rerun_coupons_admin_cupons_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade coupons/admin-cupons na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/admin-cupons/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/admin-cupons/tasks.md"
+    },
+    "writer_rerun_coupons_admin_cupons_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade coupons/admin-cupons na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/admin-cupons/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/coupons/admin-cupons",
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/cupom-publico-carrinho/requirements.md"
+    },
+    "writer_rerun_coupons_cupom_publico_carrinho_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade coupons/cupom-publico-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/cupom-publico-carrinho/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/cupom-publico-carrinho/design.md"
+    },
+    "writer_rerun_coupons_cupom_publico_carrinho_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade coupons/cupom-publico-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/cupom-publico-carrinho/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/coupons/cupom-publico-carrinho/tasks.md"
+    },
+    "writer_rerun_coupons_cupom_publico_carrinho_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade coupons/cupom-publico-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/coupons/cupom-publico-carrinho/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/coupons/cupom-publico-carrinho",
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/requirements.md"
+    },
+    "writer_rerun_shipping_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da unit shipping na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/design.md"
+    },
+    "writer_rerun_shipping_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da unit shipping na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/tasks.md"
+    },
+    "writer_rerun_shipping_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao do trio canonico da unit shipping na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/shipping",
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/admin-frete-manual/requirements.md"
+    },
+    "writer_rerun_shipping_admin_frete_manual_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade shipping/admin-frete-manual na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/admin-frete-manual/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/admin-frete-manual/design.md"
+    },
+    "writer_rerun_shipping_admin_frete_manual_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade shipping/admin-frete-manual na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/admin-frete-manual/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/admin-frete-manual/tasks.md"
+    },
+    "writer_rerun_shipping_admin_frete_manual_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade shipping/admin-frete-manual na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/admin-frete-manual/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/shipping/admin-frete-manual",
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/cotacao-publica-carrinho/requirements.md"
+    },
+    "writer_rerun_shipping_cotacao_publica_carrinho_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade shipping/cotacao-publica-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/cotacao-publica-carrinho/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/cotacao-publica-carrinho/design.md"
+    },
+    "writer_rerun_shipping_cotacao_publica_carrinho_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade shipping/cotacao-publica-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/cotacao-publica-carrinho/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/shipping/cotacao-publica-carrinho/tasks.md"
+    },
+    "writer_rerun_shipping_cotacao_publica_carrinho_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade shipping/cotacao-publica-carrinho na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/shipping/cotacao-publica-carrinho/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/shipping/cotacao-publica-carrinho",
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/requirements.md"
+    },
+    "writer_rerun_checkout_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da unit checkout na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/design.md"
+    },
+    "writer_rerun_checkout_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da unit checkout na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/tasks.md"
+    },
+    "writer_rerun_checkout_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao do trio canonico da unit checkout na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/checkout",
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/revisao-pedido-pendente/requirements.md"
+    },
+    "writer_rerun_checkout_revisao_pedido_pendente_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade checkout/revisao-pedido-pendente na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/revisao-pedido-pendente/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/revisao-pedido-pendente/design.md"
+    },
+    "writer_rerun_checkout_revisao_pedido_pendente_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade checkout/revisao-pedido-pendente na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/revisao-pedido-pendente/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/revisao-pedido-pendente/tasks.md"
+    },
+    "writer_rerun_checkout_revisao_pedido_pendente_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade checkout/revisao-pedido-pendente na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/revisao-pedido-pendente/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/checkout/revisao-pedido-pendente",
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/snapshots-validacao/requirements.md"
+    },
+    "writer_rerun_checkout_snapshots_validacao_requirements_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Inicio da subunidade checkout/snapshots-validacao na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/snapshots-validacao/requirements.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/snapshots-validacao/design.md"
+    },
+    "writer_rerun_checkout_snapshots_validacao_design_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Continuacao da subunidade checkout/snapshots-validacao na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/snapshots-validacao/design.md"
+      ],
+      "status": "partial",
+      "next_file": "_reversa_sdd/checkout/snapshots-validacao/tasks.md"
+    },
+    "writer_rerun_checkout_snapshots_validacao_tasks_2026_06_11": {
+      "completed_at": "2026-06-11T00:00:00-03:00",
+      "purpose": "Conclusao da subunidade checkout/snapshots-validacao na geracao incremental do Redator.",
+      "agent": "Writer",
+      "granularity": "hybrid",
+      "doc_level": "detalhado",
+      "files_created": [
+        "_reversa_sdd/checkout/snapshots-validacao/tasks.md"
+      ],
+      "unit_completed": "_reversa_sdd/checkout/snapshots-validacao",
+      "status": "partial",
+      "next_file": "_reversa_sdd/orders/requirements.md"
     },
     "history_before_phase_7": {
       "completed_at": "2026-06-08T22:45:00-03:00",
