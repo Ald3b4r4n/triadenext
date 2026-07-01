@@ -30,6 +30,7 @@ describe("env readiness script", () => {
       STRIPE_SECRET_KEY: "sk_test_never_print"
     });
 
+    expect(output).toContain("Ambiente avaliado: local");
     expect(output).toContain("DATABASE_URL: presente (opcional)");
     expect(output).toContain("STRIPE_SECRET_KEY: presente (opcional)");
     expect(output).not.toContain("postgres://safe-test-value");
@@ -43,5 +44,26 @@ describe("env readiness script", () => {
     }
 
     expect(() => runCheckEnv(["--production"], env)).toThrow(/Variaveis obrigatorias ausentes/);
+  });
+
+  it("supports preview readiness without exposing configured secret values", () => {
+    const output = runCheckEnv(["--environment=preview"], {
+      ...process.env,
+      DATABASE_URL: "postgres://preview-secret",
+      BETTER_AUTH_SECRET: "auth-secret-value",
+      BETTER_AUTH_URL: "https://preview.example.test",
+      NEXT_PUBLIC_APP_URL: "https://preview.example.test",
+      NEXT_PUBLIC_SITE_NAME: "Triade",
+      STRIPE_SECRET_KEY: "sk_test_preview_secret",
+      STRIPE_WEBHOOK_SECRET: "whsec_preview_secret",
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_preview"
+    });
+
+    expect(output).toContain("Ambiente avaliado: preview");
+    expect(output).toContain("DATABASE_URL: presente (obrigatoria)");
+    expect(output).not.toContain("postgres://preview-secret");
+    expect(output).not.toContain("auth-secret-value");
+    expect(output).not.toContain("sk_test_preview_secret");
+    expect(output).not.toContain("whsec_preview_secret");
   });
 });

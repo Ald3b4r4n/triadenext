@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/019-fase-11-qa-visual-hardening",
-  "feature-id": "019",
-  "short-name": "fase-11-qa-visual-hardening",
-  "started-at": "2026-06-22T09:07:45-03:00",
+  "feature-dir": "_reversa_forward/020-fase-12-production-readiness",
+  "feature-id": "020",
+  "short-name": "fase-12-production-readiness",
+  "started-at": "2026-06-26T10:11:03-03:00",
   "current-stage": "coding",
   "stages-completed": [
     "requirements",

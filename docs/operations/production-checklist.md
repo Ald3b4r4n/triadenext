@@ -1,16 +1,30 @@
 # Checklist seguro de producao
 
-Este checklist prepara a primeira validacao de producao da Tríade Essenza Parfum. Ele nao executa deploy, nao conecta banco real, nao roda migration real, nao envia e-mail real e nao valida credenciais imprimindo valores.
+Este checklist prepara staging/preview e producao futura da Tríade Essenza Parfum. Ele nao
+executa deploy, nao conecta banco real, nao roda migration real, nao envia e-mail real e nao
+valida credenciais imprimindo valores.
 
-## Ambiente
+## 1. Baseline local
+
+- [ ] `pnpm lint` passa.
+- [ ] `pnpm typecheck` passa.
+- [ ] `pnpm test` passa.
+- [ ] `pnpm build` passa.
+- [ ] `pnpm test:e2e` passa em ambiente seguro.
+- [ ] `pnpm ops:check-env` passa para local sem exigir credenciais reais.
+- [ ] `pnpm ops:check-build` confirma scripts locais seguros.
+- [ ] `pnpm ops:check-migrations` revisa migrations sem conectar banco.
+- [ ] `pnpm ops:check-smoke` valida URL padrao local segura.
+
+## 2. Variaveis por ambiente
 
 - [ ] `.env.example` lista nomes esperados sem valores reais.
 - [ ] Secrets reais ficam somente no provedor de deploy/ambiente seguro.
-- [ ] `pnpm build`, `pnpm test` e `pnpm test:e2e` continuam capazes de rodar sem credenciais reais.
-- [ ] `pnpm ops:check-env` pode ser usado localmente para ver apenas presença/ausência.
-- [ ] `pnpm ops:check-env -- --production` deve ser usado apenas como checklist local; ele nao testa rede nem imprime valores.
+- [ ] Local nao exige credenciais reais para lint/test/build/E2E.
+- [ ] Preview/staging tem variaveis configuradas no provedor, sem valores em docs.
+- [ ] Producao futura tem lista separada e bloqueia go-live se obrigatorias faltarem.
 
-## Variaveis obrigatorias para producao real
+Obrigatorias para producao real:
 
 - `DATABASE_URL`
 - `BETTER_AUTH_SECRET`
@@ -21,14 +35,14 @@ Este checklist prepara a primeira validacao de producao da Tríade Essenza Parfu
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-
-## Variaveis opcionais ou condicionais
-
-- `DEV_ADMIN_EMAIL`
-- `DEV_ADMIN_PASSWORD`
 - `EMAIL_PROVIDER`
 - `EMAIL_FROM`
 - `ORDER_NOTIFICATION_RECIPIENTS`
+
+Opcionais ou condicionais:
+
+- `DEV_ADMIN_EMAIL`
+- `DEV_ADMIN_PASSWORD`
 - `RESEND_API_KEY`
 - `EMAIL_API_KEY`
 - `SMTP_HOST`
@@ -37,46 +51,65 @@ Este checklist prepara a primeira validacao de producao da Tríade Essenza Parfu
 - `SMTP_PASSWORD`
 - `SENTRY_DSN`
 
-## Stripe test mode
+## 3. Neon e migrations
 
-- [ ] Usar chaves de teste antes de qualquer validacao com pagamento real.
-- [ ] Conferir webhook em modo teste antes de producao.
-- [ ] Confirmar que retorno do navegador nao marca pedido como pago.
-- [ ] Confirmar que evento duplicado nao repete settlement.
+- [ ] Migrations `0000` a `0007` revisadas.
+- [ ] `pnpm ops:check-migrations` executado localmente.
+- [ ] Projeto/branch Neon de staging identificado sem string de conexao em logs.
+- [ ] Backup/restore ou branch de rollback confirmado.
+- [ ] `pnpm db:migrate` bloqueado ate aprovacao humana explicita.
+- [ ] Seed bloqueado para staging/producao sem aprovacao.
 
-## Neon e migrations
+## 4. Vercel
 
-- [ ] Provisionar banco fora desta fase.
-- [ ] Revisar migrations localmente antes de qualquer aplicacao real.
-- [ ] Aplicar migration real somente em etapa operacional autorizada.
-- [ ] Confirmar plano de backup/rollback antes da primeira aplicacao real.
+- [ ] Build local verde antes de qualquer deploy.
+- [ ] Env vars separadas para Preview e Production.
+- [ ] URL de preview/staging aprovada para smoke sem querystring secreta.
+- [ ] Logs revisados sem secrets.
+- [ ] Rollback Vercel documentado separadamente do rollback de banco.
+- [ ] Dominio real fica no checklist de go-live posterior.
 
-## Blob/upload
+## 5. Stripe test mode
 
-- [ ] Configurar token real apenas no ambiente seguro.
-- [ ] Confirmar que ausencia de token bloqueia upload definitivo com mensagem segura.
-- [ ] Validar tamanho e tipo de arquivo antes de liberar upload real.
+- [ ] Usar chaves test mode em preview/staging.
+- [ ] Webhook `POST /api/webhooks/stripe` configurado apenas em ambiente aprovado.
+- [ ] Eventos minimos: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`.
+- [ ] Smoke de pagamento usa test/mock, nunca cartao real.
+- [ ] Retorno client-side nao marca pedido pago.
+- [ ] Live mode fica fora desta fase.
 
-## E-mail
+## 6. Blob/upload
 
-- [ ] Dev/test usam provider de teste sem rede real.
-- [ ] Producao sem provider configurado nao finge envio.
-- [ ] Destinatarios internos devem ser configurados fora do repositorio.
-- [ ] Nenhum template deve conter secret, token ou payload bruto de pagamento.
+- [ ] Decidir se staging validara upload real ou apenas fallback.
+- [ ] `BLOB_READ_WRITE_TOKEN` configurado apenas no provedor aprovado.
+- [ ] Ausencia de token bloqueia upload definitivo de forma controlada.
+- [ ] Limite de 5 MB e tipos JPEG/PNG/WebP confirmados.
+- [ ] Smoke padrao nao exige upload real.
 
-## Dominio e deploy
+## 7. Smoke production-ready
 
-- [ ] Configurar dominio em etapa separada.
-- [ ] Rodar smoke visual em 360px, 430px, 768px e 1366px antes de publicar.
-- [ ] Validar home, catalogo, carrinho, checkout, pedidos e admin protegido.
-- [ ] Nao fazer deploy a partir deste checklist sem decisao operacional explicita.
+- [ ] Home carrega sem placeholder.
+- [ ] Catalogo e pagina de produto carregam produto publicado.
+- [ ] Carrinho funciona em fallback/dev sem compra real.
+- [ ] Checkout nao expoe campos de cartao ou secrets.
+- [ ] Pedidos/customer redirecionam visitante para login.
+- [ ] Admin permanece bloqueado sem auth real.
+- [ ] Pagamento test/mock nao usa live mode.
+- [ ] Notificacoes mock/skipped nao fingem envio real.
 
-## Fora do escopo da Fase 11
+## 8. Fora do escopo desta fase
 
-- Deploy real.
-- Migration real.
-- Banco real.
+- Deploy real automatico.
+- Migration real automatica.
+- Banco real sem aprovacao.
 - Credenciais reais no repositorio.
-- Integracoes fiscais.
-- Canais externos de mensagem.
-- Redesign premium.
+- Bling.
+- NF-e.
+- Rotinas fiscais.
+- WhatsApp.
+- SMS.
+- Laravel legado.
+
+## 9. Gate para go-live posterior
+
+Use `docs/operations/go-live-checklist.md`. Esta fase termina com readiness, nao com go-live.

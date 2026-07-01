@@ -1,0 +1,38 @@
+{"ts":"2026-07-01T15:00:01-03:00","action":"T001","status":"done","files":[".reversa/active-requirements.json","_reversa_forward/020-fase-12-production-readiness/progress.jsonl"],"notes":"checkpoint confirmed in Next.js workspace; no legacy Laravel, deploy, migration or real database action executed"}
+{"ts":"2026-07-01T15:00:02-03:00","action":"T002","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/operational-audit.md"],"notes":"operational artifacts inventoried without reading real .env"}
+{"ts":"2026-07-01T15:00:03-03:00","action":"T003","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/docs-readiness-audit.md"]}
+{"ts":"2026-07-01T15:00:04-03:00","action":"T004","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/scripts-readiness-audit.md"]}
+{"ts":"2026-07-01T15:00:05-03:00","action":"T005","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/secret-safety-audit.md"],"notes":"no secret values printed"}
+{"ts":"2026-07-01T15:00:06-03:00","action":"T006","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/migration-readiness.md"],"notes":"static migration mapping only"}
+{"ts":"2026-07-01T15:00:07-03:00","action":"T007","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/readiness-file-map.md"]}
+{"ts":"2026-07-01T15:00:08-03:00","action":"T008","status":"done","files":["src/tests/unit/env-readiness.test.ts"]}
+{"ts":"2026-07-01T15:00:09-03:00","action":"T009","status":"done","files":["src/tests/unit/migration-readiness.test.ts"]}
+{"ts":"2026-07-01T15:00:10-03:00","action":"T010","status":"done","files":["src/tests/unit/build-readiness.test.ts"]}
+{"ts":"2026-07-01T15:00:11-03:00","action":"T011","status":"done","files":["src/tests/unit/smoke-readiness.test.ts"]}
+{"ts":"2026-07-01T15:00:12-03:00","action":"T012","status":"done","files":["src/tests/e2e/production-readiness-smoke.spec.ts"]}
+{"ts":"2026-07-01T15:00:13-03:00","action":"T013","status":"done","files":["src/tests/e2e/production-readiness-payment.spec.ts"],"notes":"mock/test readiness only; no card, email or live payment executed"}
+{"ts":"2026-07-01T15:00:14-03:00","action":"T014","status":"done","files":["docs/operations/database-migrations.md"]}
+{"ts":"2026-07-01T15:00:15-03:00","action":"T015","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/migration-readiness.md"],"notes":"confirmed no real migration executed"}
+{"ts":"2026-07-01T15:00:16-03:00","action":"T016","status":"done","files":[],"notes":"reviewed existing database-url guard; no change required"}
+{"ts":"2026-07-01T15:00:17-03:00","action":"T017","status":"done","files":["docs/operations/neon.md"]}
+{"ts":"2026-07-01T15:00:18-03:00","action":"T018","status":"done","files":["docs/operations/vercel.md"]}
+{"ts":"2026-07-01T15:00:19-03:00","action":"T019","status":"done","files":["docs/operations/stripe.md"]}
+{"ts":"2026-07-01T15:00:20-03:00","action":"T020","status":"done","files":["docs/operations/blob.md"]}
+{"ts":"2026-07-01T15:00:21-03:00","action":"T021","status":"done","files":[".env.example"],"notes":"placeholder variable names only; no real values"}
+{"ts":"2026-07-01T15:00:22-03:00","action":"T022","status":"done","files":["docs/operations/env.md"]}
+{"ts":"2026-07-01T15:00:23-03:00","action":"T023","status":"done","files":["docs/operations/production-checklist.md"]}
+{"ts":"2026-07-01T15:00:24-03:00","action":"T024","status":"done","files":["docs/operations/go-live-checklist.md"],"notes":"executed after T023"}
+{"ts":"2026-07-01T15:00:25-03:00","action":"T025","status":"done","files":["scripts/ops/check-env-readiness.mjs"]}
+{"ts":"2026-07-01T15:00:26-03:00","action":"T026","status":"done","files":["scripts/ops/check-migrations-readiness.mjs"],"notes":"static analysis; no database connection"}
+{"ts":"2026-07-01T15:00:27-03:00","action":"T027","status":"done","files":["scripts/ops/check-build-readiness.mjs"]}
+{"ts":"2026-07-01T15:00:28-03:00","action":"T028","status":"done","files":["scripts/ops/check-smoke-readiness.mjs"]}
+{"ts":"2026-07-01T15:00:29-03:00","action":"T029","status":"done","files":["package.json","pnpm-workspace.yaml"],"notes":"ops scripts registered; no deploy or real migration script added"}
+{"ts":"2026-07-01T15:00:30-03:00","action":"T030","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/neon-readiness.md"]}
+{"ts":"2026-07-01T15:00:31-03:00","action":"T031","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/vercel-readiness.md"]}
+{"ts":"2026-07-01T15:00:32-03:00","action":"T032","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/stripe-readiness.md"]}
+{"ts":"2026-07-01T15:00:33-03:00","action":"T033","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/blob-readiness.md"]}
+{"ts":"2026-07-01T15:00:34-03:00","action":"T034","status":"done","files":["docs/operations/production-checklist.md"],"notes":"production-ready smoke integrated after T023 as required"}
+{"ts":"2026-07-01T15:00:35-03:00","action":"T035","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/legacy-impact.md"],"notes":"no business rule, schema, deploy, real migration or real database change"}
+{"ts":"2026-07-01T15:00:36-03:00","action":"T036","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/regression-watch.md"],"notes":"no primary watch item because no green domain rule was modified"}
+{"ts":"2026-07-01T15:00:37-03:00","action":"T037","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/regression-watch.md"],"notes":"lint, typecheck, unit tests, build, e2e and ops checks passed"}
+{"ts":"2026-07-01T15:00:38-03:00","action":"T038","status":"done","files":["_reversa_forward/020-fase-12-production-readiness/progress.jsonl","next-env.d.ts"],"notes":"next-env.d.ts restored after generated diff; no push, deploy, real migration, real database connection or secrets"}

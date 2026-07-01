@@ -1,40 +1,53 @@
 # Database Migrations
 
-Migrations locais sao geradas com Drizzle, mas nao devem ser aplicadas contra banco real sem
-validacao humana explicita.
+Migrations locais sao versionadas em `drizzle/` com Drizzle Kit. Esta documentacao prepara
+execucao segura, mas nao autoriza migration real, banco real ou conexao remota sem aprovacao
+humana explicita.
 
 ## Scripts
 
 - `pnpm db:generate`: gera SQL local em `drizzle/` a partir de `src/db/schema.ts`.
 - `pnpm db:migrate`: exige `DATABASE_URL` e depois executa `drizzle-kit migrate`.
-- `pnpm db:studio`: abre Drizzle Studio para inspecao.
+- `pnpm db:studio`: abre Drizzle Studio para inspecao manual.
+- `pnpm ops:check-migrations`: faz leitura estatica das migrations e nao conecta banco.
 
-`scripts/db/require-database-url.mjs` bloqueia migrate sem alvo configurado e nao imprime secrets.
+`scripts/db/require-database-url.mjs` bloqueia migrate sem alvo configurado e nao imprime o
+valor da URL. A presenca de `DATABASE_URL` nao basta para executar: o alvo precisa ser
+confirmado por humano antes de qualquer banco real.
 
-## Fase 3
+## Ordem consolidada
 
-A migration local gerada foi `drizzle/0000_shallow_shinko_yamashiro.sql`.
+| Migration | Fase | Area principal | Risco operacional |
+|-----------|------|----------------|-------------------|
+| `0000_shallow_shinko_yamashiro.sql` | Fase 3 | Base catalogo, carrinho, pedidos, pagamentos, fiscal futuro, users | Base ampla; revisar antes de banco vazio real. |
+| `0001_curvy_blink.sql` | Fase 4 | Better Auth: accounts, sessions, verifications e campos de users | Depende da base `users`. |
+| `0002_tiny_enchantress.sql` | Fase 5 | Carrinho: snapshots, session, indices | Aditiva. |
+| `0003_elite_titanium_man.sql` | Fase 6 | Cupons aplicados ao carrinho | Aditiva. |
+| `0004_mute_ghost_rider.sql` | Fase 7 | Frete manual, cotacoes e selecao no carrinho | Aditiva com defaults. |
+| `0005_glossy_talisman.sql` | Fase 8 | Pedido pendente, snapshots e totais | Aditiva com unique de `orders.cart_id`. |
+| `0006_soft_mole_man.sql` | Fase 9 | PaymentIntent e eventos Stripe | Indices/idempotencia. |
+| `0007_outstanding_midnight.sql` | Fase 10 | Outbox de notificacoes pos-pagamento | Aditiva. |
 
-Revisao:
+## Checklist antes de migration real
 
-- cria enums, tabelas, FKs e indices iniciais;
-- inclui unique de `categories.slug`, `products.slug`, `products.sku`;
-- inclui unique N:N de `product_categories`;
-- inclui unique parcial de capa em `product_images`;
-- nao contem `DROP`, `TRUNCATE` ou operacao destrutiva.
+- [ ] Confirmar ambiente alvo: local-dev, preview/staging ou producao.
+- [ ] Confirmar projeto/branch Neon sem registrar string de conexao.
+- [ ] Rodar `pnpm ops:check-migrations` localmente.
+- [ ] Revisar SQL gerado/versionado e procurar DDL destrutivo.
+- [ ] Confirmar backup/restore ou branch de rollback.
+- [ ] Registrar aprovacao humana com comando e alvo.
+- [ ] Executar `pnpm db:migrate` somente apos a aprovacao.
+- [ ] Registrar resultado sem imprimir `DATABASE_URL`.
 
-Pendencia segura: aplicar essa migration exige banco Neon de desenvolvimento validado por humano.
-Preview/producao ficam fora desta fase.
+## Operacoes proibidas nesta fase
 
-## Fase 4
+- Rodar `pnpm db:migrate` contra Neon sem aprovacao explicita.
+- Rodar `drizzle-kit push` contra qualquer banco real.
+- Copiar `.env` ou colar `DATABASE_URL` em chat, docs ou logs.
+- Usar producao como primeiro alvo.
+- Migrar dados reais do Laravel legado.
 
-A Fase 4 adiciona migration local para `users`, `sessions`, `accounts` e `verifications`, preservando
-compatibilidade com o schema anterior. A regra continua a mesma:
+## Rollback
 
-- gerar localmente;
-- revisar SQL;
-- nao aplicar em banco real sem validacao humana;
-- nao conectar banco de producao;
-- nao expor credenciais.
-
-Migration local gerada: `drizzle/0001_curvy_blink.sql`.
+Rollback de app nao reverte banco. Para staging, preferir branch/restore Neon aprovado. Para
+producao futura, exigir janela, backup confirmado e plano de restauracao antes da migration.
