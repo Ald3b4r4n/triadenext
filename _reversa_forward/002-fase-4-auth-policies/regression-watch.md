@@ -12,6 +12,7 @@
 
 | Data | Evento | Observacao |
 |---|---|---|
+| 2026-07-01 | Re-extracao pos-Fase 12 | verde: mutacoes admin continuam protegidas por `requireAdminLike`; readiness operacional nao concede deploy, migration real ou banco real a ator da aplicacao. |
 | 2026-06-11 | Re-extracao pos-Fase 10 | verde: mutacoes e leituras administrativas continuam protegidas por `requireAdminLike`; status de notificacao nao e acessivel a customer/visitante. |
 
 ## Arquivadas

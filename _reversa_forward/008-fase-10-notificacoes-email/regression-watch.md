@@ -14,6 +14,18 @@
 
 ## Historico de re-extracoes
 
+### Re-extracao 2026-07-01 - Pos-Fase 12
+
+| ID | Veredito | Observacao |
+|---|---|---|
+| W001 | verde | Notificacao continua ocorrendo somente apos settlement confirmado. |
+| W002 | verde | Falha de notificacao nao reverte nem altera `usedCount`. |
+| W003 | verde | Falha de notificacao nao reverte nem altera estoque. |
+| W004 | verde | Chave idempotente continua impedindo segunda entrega efetiva. |
+| W005 | verde | Mock permanece restrito a dev/test; preview/producao sem provider falham seguro. |
+| W006 | verde | Status admin permanece protegido, mascarado e somente leitura. |
+| W007 | verde | WhatsApp, SMS, Bling, NF-e e fiscal permanecem ausentes da Fase 12. |
+
 ### Re-extracao 2026-06-11 - Pos-Fase 10
 
 | ID | Veredito | Observacao |

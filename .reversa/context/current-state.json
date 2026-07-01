@@ -5,34 +5,80 @@
     "isLegacyLaravel": false,
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
-  "updatedAt": "2026-06-11T00:00:00-03:00",
-  "scope": "Re-extracao Reversa pos-Fase 10 concluida",
+  "updatedAt": "2026-07-01T15:55:00-03:00",
+  "scope": "Re-extracao Reversa pos-Fase 12 concluida",
   "git": {
     "branch": "main",
     "statusBeforeReextraction": "main...origin/main [ahead 1]",
     "latestCommit": {
-      "short": "f1c2bf4",
-      "hash": "f1c2bf45df23184a9a862f11585eafe035529112",
-      "message": "feat: implement post-payment notifications"
+      "short": "ee26749",
+      "hash": "ee26749fb85c56b01f587ece296a91c380a592f4",
+      "message": "feat: prepare production migration readiness"
     },
-    "phase10CommitPushed": false,
+    "phase12CommitPushed": false,
     "workingTreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
-    {"phase": 1, "status": "completed", "summary": "Fundacao Next.js"},
-    {"phase": 2, "status": "completed", "summary": "Persistencia inicial"},
-    {"phase": 3, "status": "completed", "summary": "Catalogo publico"},
-    {"phase": 4, "status": "completed", "summary": "Auth, papeis e admin"},
-    {"phase": 5, "status": "completed", "summary": "Carrinho"},
-    {"phase": 6, "status": "completed", "summary": "Cupons"},
-    {"phase": 7, "status": "completed", "summary": "Frete manual"},
-    {"phase": 8, "status": "completed", "summary": "Checkout e pedido pendente"},
-    {"phase": 9, "status": "completed", "summary": "Stripe e settlement"},
+    {
+      "phase": 1,
+      "status": "completed",
+      "summary": "Fundacao Next.js"
+    },
+    {
+      "phase": 2,
+      "status": "completed",
+      "summary": "Persistencia inicial"
+    },
+    {
+      "phase": 3,
+      "status": "completed",
+      "summary": "Catalogo publico"
+    },
+    {
+      "phase": 4,
+      "status": "completed",
+      "summary": "Auth, papeis e admin"
+    },
+    {
+      "phase": 5,
+      "status": "completed",
+      "summary": "Carrinho"
+    },
+    {
+      "phase": 6,
+      "status": "completed",
+      "summary": "Cupons"
+    },
+    {
+      "phase": 7,
+      "status": "completed",
+      "summary": "Frete manual"
+    },
+    {
+      "phase": 8,
+      "status": "completed",
+      "summary": "Checkout e pedido pendente"
+    },
+    {
+      "phase": 9,
+      "status": "completed",
+      "summary": "Stripe e settlement"
+    },
     {
       "phase": 10,
       "status": "completed",
-      "summary": "Notificacoes pos-pagamento idempotentes",
-      "commit": "f1c2bf45df23184a9a862f11585eafe035529112"
+      "summary": "Notificacoes pos-pagamento idempotentes"
+    },
+    {
+      "phase": 11,
+      "status": "completed",
+      "summary": "QA visual, hardening frontend e checklist seguro de producao"
+    },
+    {
+      "phase": 12,
+      "status": "completed",
+      "summary": "Production migration readiness",
+      "commit": "ee26749fb85c56b01f587ece296a91c380a592f4"
     }
   ],
   "currentCapabilities": {
@@ -41,22 +87,39 @@
     "cart": "Carrinho com cupom, frete e conversao",
     "checkout": "Pedido pendente autenticado com snapshots",
     "payments": "Stripe PaymentIntent, webhook assinado/idempotente e settlement atomico",
-    "notifications": "Customer e admins notificados apos pagamento; historico admin somente leitura"
+    "notifications": "Customer e admins notificados apos pagamento; historico admin somente leitura",
+    "frontendReadiness": "Storefront endurecido com smoke visual e responsividade basica",
+    "productionReadiness": "Docs, checklists e scripts seguros para Neon, Vercel, Stripe test mode, Blob, env, migrations e smoke"
   },
-  "currentNotifications": {
-    "trigger": "after_confirmed_settlement",
-    "types": ["customer_order_paid", "admin_order_paid"],
-    "statuses": ["pending", "sending", "sent", "mocked", "failed", "skipped"],
-    "idempotency": "order_id + event_type + notification_type + normalized_recipient",
-    "duplicateEffectiveDelivery": false,
-    "adminRecipients": "explicit_configuration",
-    "noAdminRecipient": "skipped",
-    "mockDevTest": true,
-    "previewProductionWithoutProvider": "fail_safe_unavailable",
-    "failureChangesFinancialState": false,
-    "adminStatusRead": "admin_manager_only_masked_readonly",
-    "customerHistory": false,
-    "manualResend": false
+  "currentProductionReadiness": {
+    "environments": [
+      "local",
+      "preview/staging",
+      "production"
+    ],
+    "scripts": [
+      "ops:check-env",
+      "ops:check-migrations",
+      "ops:check-build",
+      "ops:check-smoke"
+    ],
+    "docs": [
+      "docs/operations/env.md",
+      "docs/operations/database-migrations.md",
+      "docs/operations/neon.md",
+      "docs/operations/vercel.md",
+      "docs/operations/stripe.md",
+      "docs/operations/blob.md",
+      "docs/operations/production-checklist.md",
+      "docs/operations/go-live-checklist.md"
+    ],
+    "safeDefaults": {
+      "noSecretValuesPrinted": true,
+      "noRealMigrationByDefault": true,
+      "noRealDatabaseConnectionByDefault": true,
+      "noDeployByDefault": true,
+      "noRealPaymentEmailOrUploadByDefault": true
+    }
   },
   "currentPersistence": {
     "migrations": [
@@ -69,47 +132,54 @@
       "drizzle/0006_soft_mole_man.sql",
       "drizzle/0007_outstanding_midnight.sql"
     ],
-    "phase10Migration": {
-      "file": "drizzle/0007_outstanding_midnight.sql",
-      "status": "generated_not_applied_to_real_database",
-      "summary": "notification_deliveries, enums, unique idempotency, foreign keys and indexes"
-    }
+    "phase12SchemaDelta": false,
+    "realMigrationApplied": false,
+    "readiness": "analise estatica de migrations, sem DATABASE_URL e sem conexao real"
   },
   "validations": {
-    "phase10": {
+    "phase12": {
       "pnpm lint": "passed",
       "pnpm typecheck": "passed",
-      "pnpm test": "passed - 32 files / 96 tests",
+      "pnpm test": "passed - 37 files / 108 tests",
       "pnpm build": "passed",
-      "pnpm test:e2e": "passed - 29 tests"
+      "pnpm test:e2e": "passed - 36 tests",
+      "pnpm ops:check-env": "passed",
+      "pnpm ops:check-migrations": "passed",
+      "pnpm ops:check-build": "passed",
+      "pnpm ops:check-smoke": "passed"
     }
   },
   "outOfScope": [
-    "anonymous_order",
-    "client_or_admin_paid_transition",
-    "refunds_and_disputes",
-    "mandatory_real_email_provider",
-    "manual_notification_resend",
-    "customer_notification_history",
-    "whatsapp_sms_bling_nfe_fiscal",
-    "real_shipping_provider_api",
-    "real_database_migration_application",
-    "deploy"
+    "deploy_real_automatico",
+    "migration_real_automatica",
+    "banco_real_sem_aprovacao",
+    "credenciais_reais_em_codigo",
+    "migracao_de_dados_reais_sem_aprovacao",
+    "bling",
+    "nf_e",
+    "rotinas_fiscais",
+    "whatsapp",
+    "sms",
+    "laravel_legado"
   ],
   "reversaArtifacts": {
     "sdd": [
       "_reversa_sdd/inventory.md",
       "_reversa_sdd/architecture.md",
+      "_reversa_sdd/code-analysis.md",
       "_reversa_sdd/domain.md",
       "_reversa_sdd/dependencies.md",
       "_reversa_sdd/data-dictionary.md",
       "_reversa_sdd/state-machines.md",
-      "_reversa_sdd/permissions.md"
+      "_reversa_sdd/permissions.md",
+      "_reversa_sdd/deployment.md",
+      "_reversa_sdd/traceability/spec-impact-matrix.md",
+      "_reversa_sdd/adrs/007-production-readiness-sem-operacao-real.md"
     ],
-    "forwardFeature": "_reversa_forward/008-fase-10-notificacoes-email"
+    "forwardFeature": "_reversa_forward/020-fase-12-production-readiness"
   },
   "nextStep": {
-    "recommendedCommand": "git commit dos artefatos Reversa pos-Fase 10, depois push dos commits locais",
-    "reason": "Conhecimento tecnico e de dominio atualizado apos a Fase 10"
+    "recommendedCommand": "commit documental dos artefatos Reversa pos-Fase 12 e push de main",
+    "reason": "Conhecimento tecnico, operacional e de dominio atualizado apos a Fase 12"
   }
 }

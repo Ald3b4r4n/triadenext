@@ -1,7 +1,7 @@
 # Architecture - Triade Essenza Next
 
-Atualizado em: 2026-06-11  
-Agente: Architect  
+Atualizado em: 2026-07-01
+Agente: Architect
 Nível: detalhado
 
 ## Visão Geral
@@ -9,6 +9,8 @@ Nível: detalhado
 🟢 **CONFIRMADO** A aplicação é um e-commerce Next.js App Router em TypeScript, com domínios organizados em `src/features`, persistência Drizzle/Postgres opcional, autenticação Better Auth, pagamentos Stripe, storage Vercel Blob e testes Vitest/Playwright.
 
 🟢 **CONFIRMADO** O fluxo comercial atual cobre catálogo público, carrinho, cupom, frete manual, checkout autenticado, pedido pendente, PaymentIntent, webhook, settlement e notificações pós-pagamento.
+
+🟢 **CONFIRMADO** A Fase 12 adicionou readiness operacional para ambiente real controlado: documentação de Neon, Vercel, Stripe test mode, Blob/upload, `.env.example`, checklists e scripts `ops:*` locais seguros.
 
 🟡 **INFERIDO** A arquitetura alvo segue fatias verticais por domínio, com Server Components/pages para leitura, Server Actions para mutação, Route Handlers para APIs/webhooks e repositories isolando Drizzle/fallback.
 
@@ -22,6 +24,7 @@ Nível: detalhado
 | Blob Storage | Vercel Blob | Imagens de produto e documentos futuros |
 | Stripe | Stripe API/Webhooks | PaymentIntent, Payment Element e eventos financeiros |
 | Email Provider | Mock/unavailable hoje; Resend/SMTP futuro | Entrega transacional |
+| Operational Readiness | Docs + scripts locais | Check-env, check-migrations, check-build e check-smoke sem secrets |
 
 ## Componentes Internos
 
@@ -38,6 +41,8 @@ Nível: detalhado
 - `src/features/uploads`: upload de imagem para Blob.
 - `src/db`: schema Drizzle e cliente condicional.
 - `src/lib`: env, runtime guardrails, dinheiro e slug.
+- `scripts/ops`: verificacoes locais seguras de env, migrations, build e smoke.
+- `docs/operations`: runbooks/checklists para Neon, Vercel, Stripe, Blob, migrations, env e go-live posterior.
 
 ## Fluxo Comercial Principal
 
@@ -58,6 +63,8 @@ Nível: detalhado
 | Stripe Webhook | Inbound | Implementado | Assinatura/eventId/idempotência |
 | Vercel Blob | Outbound | Service implementado; rota API ainda placeholder | Exige token e admin-like |
 | E-mail | Outbound | Mock/unavailable | Sem envio real obrigatório |
+| Neon | Deployment target | Readiness documental | Sem conexao real nesta re-extracao |
+| Vercel | Deployment target | Readiness documental | Sem deploy real nesta re-extracao |
 | Correios/Jadlog/Melhor Envio | Outbound futuro | Inativo | Sem chamada HTTP atual |
 | Bling/NF-e | Outbound futuro | Ausente funcionalmente | Planejado em Reversa Forward |
 
@@ -79,7 +86,7 @@ Os agregados críticos são:
 - 🔴 Fiscal/Bling/NF-e ainda é schema/roadmap, não feature funcional.
 - 🔴 Frete real e rastreamento ainda não existem.
 - 🔴 Estoque não tem movimentos auditáveis.
-- 🟡 Alguns placeholders administrativos/customer permanecem.
+- 🟡 Go-live real ainda depende de aprovacao humana, envs reais nos providers, backup e smoke manual controlado.
 - 🟡 Dependências em `latest` exigem lockfile como fonte efetiva.
 
 ## Guardrails
@@ -89,3 +96,5 @@ Os agregados críticos são:
 - 🟢 Pagamento só é confirmado por webhook assinado/idempotente.
 - 🟢 Notificação falha sem reverter settlement.
 - 🟢 Secrets são tratados por env e não devem aparecer em docs/logs.
+- 🟢 Scripts `ops:*` reportam apenas presenca/ausencia e nao imprimem valores.
+- 🟢 Readiness de migrations e build nao executa banco, deploy ou providers externos.

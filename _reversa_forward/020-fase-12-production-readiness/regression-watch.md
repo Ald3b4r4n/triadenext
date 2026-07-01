@@ -55,7 +55,11 @@ Watch items principais criados nesta rodada: 0.
 
 ## Historico de re-extracoes
 
-Vazio nesta primeira versao. Preencher apenas em futuras execucoes de `/reversa`.
+### Re-extracao 2026-07-01 - Pos-Fase 12
+
+| ID | Veredito | Observacao |
+|----|----------|------------|
+| - | verde | Sem watch principal; Fase 12 nao modificou regras verdes de dominio e o SDD registra readiness sem operacao real automatica. |
 
 ## Arquivadas
 

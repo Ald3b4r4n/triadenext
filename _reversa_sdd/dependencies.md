@@ -1,8 +1,8 @@
 # Dependencias Reversa - Triade Essenza Next
 
-Atualizado em: 2026-06-11
+Atualizado em: 2026-07-01
 Agente: Scout
-Escopo: dependencias declaradas em `package.json` e configuracoes principais.
+Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoes principais.
 
 ## Runtime e framework
 
@@ -72,6 +72,10 @@ Escopo: dependencias declaradas em `package.json` e configuracoes principais.
 - `typecheck`: `tsc --noEmit`.
 - `test`: `vitest run`.
 - `test:e2e`: `playwright test`.
+- `ops:check-env`: `node scripts/ops/check-env-readiness.mjs`.
+- `ops:check-migrations`: `node scripts/ops/check-migrations-readiness.mjs`.
+- `ops:check-build`: `node scripts/ops/check-build-readiness.mjs`.
+- `ops:check-smoke`: `node scripts/ops/check-smoke-readiness.mjs`.
 - `db:generate`: `drizzle-kit generate`.
 - `db:migrate`: `node scripts/db/require-database-url.mjs && drizzle-kit migrate`.
 - `db:studio`: `drizzle-kit studio`.
@@ -83,3 +87,5 @@ Escopo: dependencias declaradas em `package.json` e configuracoes principais.
 - Dependencias com `latest` exigem lockfile como fonte efetiva de versao.
 - `db:migrate` tem guarda de `DATABASE_URL`, mas nao deve ser executado contra banco real sem aprovacao.
 - Providers reais externos devem permanecer isolados por adapters e fakes em teste.
+- `pnpm-workspace.yaml` registra build dependencies aprovadas (`esbuild`, `sharp`, `unrs-resolver`) para evitar bloqueio local do pnpm.
+- Scripts `ops:*` sao checks locais de readiness; nao executam deploy, migration real, banco real, upload real, e-mail real ou pagamento real.

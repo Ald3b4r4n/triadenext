@@ -1,8 +1,15 @@
 # Data Dictionary - Triade Essenza Next
 
-Atualizado em: 2026-06-11  
+Atualizado em: 2026-07-01
 Agente: Archaeologist  
 Fonte principal: `src/db/schema.ts`, schemas Zod e tipos de domínio.
+
+## Delta Fase 12
+
+- 🟢 Nenhuma tabela, enum ou migration nova foi adicionada pela Fase 12.
+- 🟢 Migrations permanecem de `0000_shallow_shinko_yamashiro.sql` a `0007_outstanding_midnight.sql`.
+- 🟢 Readiness de migrations e banco e documental/estatico; nenhuma migration real foi executada nesta re-extracao.
+- 🟢 `.env.example`, scripts `ops:*` e docs operacionais nao alteram o contrato de dados persistido.
 
 ## Enums
 

@@ -33,14 +33,16 @@
     "scout_reversa_rerun_2026_06_11",
     "archaeologist_reversa_rerun_2026_06_11",
     "detective_reversa_rerun_2026_06_11",
-    "architect_reversa_rerun_2026_06_11"
+    "architect_reversa_rerun_2026_06_11",
+    "fase_11",
+    "fase_12",
+    "reextracao_pos_fase_12"
   ],
   "pending": [
-    "commit_reversa_pos_fase_10",
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "writer_rerun_checkout_snapshots_validacao_tasks_2026_06_11",
+  "last_checkpoint": "reextraction_after_phase_12_2026_07_01",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -1166,9 +1168,81 @@
       },
       "next_phase": "commit_reversa_pos_fase_10_e_push",
       "next_command": "git commit dos artefatos Reversa pos-Fase 10, depois push dos commits locais"
+    },
+    "reextraction_after_phase_12_2026_07_01": {
+      "completed_at": "2026-07-01T15:55:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD apos Fase 12 de production migration readiness.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "latest_commit": {
+          "short": "ee26749",
+          "hash": "ee26749fb85c56b01f587ece296a91c380a592f4",
+          "message": "feat: prepare production migration readiness"
+        },
+        "phase12_commit_pushed": false,
+        "working_tree_before_reextraction": "clean"
+      },
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/code-analysis.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_sdd/deployment.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/adrs/007-production-readiness-sem-operacao-real.md",
+        "_reversa_forward/*/regression-watch.md"
+      ],
+      "phase12_summary": {
+        "drizzle_migrations_consolidated": true,
+        "migration_readiness_static_only": true,
+        "neon_readiness_documented": true,
+        "vercel_readiness_documented": true,
+        "stripe_test_mode_readiness_documented": true,
+        "blob_upload_readiness_documented": true,
+        "env_example_reviewed_without_values": true,
+        "ops_scripts_safe": [
+          "ops:check-env",
+          "ops:check-migrations",
+          "ops:check-build",
+          "ops:check-smoke"
+        ],
+        "smoke_tests_production_ready": true,
+        "go_live_checklist_created": true,
+        "real_deploy_executed": false,
+        "real_migration_executed": false,
+        "real_database_connection": false,
+        "real_secrets_versioned_or_printed": false
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 37 files / 108 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 36 tests",
+        "pnpm ops:*": "passed"
+      },
+      "regression_watch": {
+        "features_checked": 9,
+        "latest_verdicts": {
+          "green": 33,
+          "yellow": 0,
+          "red": 0
+        },
+        "notes": "Fase 12 nao modificou regras verdes de dominio; watch items previos permanecem preservados no SDD atualizado.",
+        "watch_items_checked": 33
+      },
+      "next_phase": "commit_reversa_pos_fase_12_e_push",
+      "next_command": "git commit dos artefatos Reversa pos-Fase 12, depois push dos commits locais"
     }
   },
-  "next_reversa_command": "commit_reversa_pos_fase_10_then_push",
+  "next_reversa_command": "commit_reversa_pos_fase_12_then_push",
   "engines": [
     "claude-code",
     "codex",

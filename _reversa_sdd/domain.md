@@ -1,7 +1,7 @@
 # Domain - Triade Essenza Next
 
-Atualizado em: 2026-06-11  
-Agente: Detective  
+Atualizado em: 2026-07-01
+Agente: Detective
 Nível: detalhado
 
 ## Glossário
@@ -19,6 +19,7 @@ Nível: detalhado
 | PaymentIntent interno | Registro local da tentativa de pagamento Stripe/mock. | 🟢 |
 | Settlement | Efeito de confirmar pagamento: pedido pago, pagamento pago, estoque baixado e cupom consumido. | 🟢 |
 | Outbox de notificação | Registro idempotente de entrega transacional pós-pagamento. | 🟢 |
+| Readiness de produção | Conjunto documental e de scripts locais que prepara staging/producao sem executar deploy, migration real ou banco real automaticamente. | 🟢 |
 
 ## Regras de Domínio
 
@@ -94,9 +95,19 @@ Nível: detalhado
 - 🟢 Sem `BLOB_READ_WRITE_TOKEN`, upload real bloqueia.
 - 🟢 Secrets não são gravados nos artefatos nem expostos em mensagens.
 
+### Readiness Operacional
+
+- 🟢 `.env.example` descreve nomes de variaveis por ambiente, sem valores reais.
+- 🟢 `ops:check-env` mostra apenas presenca/ausencia e nao imprime secrets.
+- 🟢 `ops:check-migrations` analisa migrations Drizzle estaticamente e nao conecta banco.
+- 🟢 `ops:check-build` nao chama Vercel, banco, migration real ou provider externo.
+- 🟢 `ops:check-smoke` usa alvo local por padrao e nao executa pagamento/e-mail/upload real.
+- 🟢 Deploy, migration real, banco real, credenciais reais e go-live continuam dependentes de aprovacao humana explicita.
+
 ## Decisões Implícitas Extraídas do Git
 
 - 🟢 A migração avançou em fases verticais: persistência, auth, carrinho, cupons, frete, checkout, pagamento, notificações e storefront.
+- 🟢 A Fase 12 consolidou uma macrofase operacional antes do go-live para evitar microfeatures de producao.
 - 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
 - 🟢 O sistema prefere fallback explícito a falha silenciosa.
 - 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.
@@ -110,3 +121,4 @@ Nível: detalhado
 - 🔴 Frete externo real e rastreamento ainda não estão implementados.
 - 🔴 Estoque auditável por movimentos ainda não existe.
 - 🔴 Relatórios, analytics e admin operacional permanecem como features futuras.
+- 🔴 Deploy real, migration real em producao e migracao de dados reais ainda nao foram executados nem aprovados.

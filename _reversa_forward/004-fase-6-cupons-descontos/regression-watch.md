@@ -18,6 +18,7 @@ Feature: `004-fase-6-cupons-descontos`
 
 | Data | Re-extração | Veredito | Observações |
 |------|-------------|----------|-------------|
+| 2026-07-01T15:55:00-03:00 | Pós-Fase 12 | verde | Um cupom por carrinho, calculo server-side, ownership e consumo apenas no settlement permanecem; readiness operacional nao altera cupons. |
 | 2026-06-11T00:00:00-03:00 | Pós-Fase 10 | verde | Um cupom por carrinho, calculo server-side e ownership permanecem; apply/remove nao consome `usedCount`; consumo ocorre uma vez no settlement; notificacao nao altera cupom. |
 | 2026-06-08T22:45:00-03:00 | Pós-Fase 6 | 🟢 | SDD atualizado com `appliedCouponId`, calculo server-side de desconto/total parcial, admin protegido, `minimumSubtotalCents`, `usedCount` nao consumido e `free_shipping` sem frete real. |
 

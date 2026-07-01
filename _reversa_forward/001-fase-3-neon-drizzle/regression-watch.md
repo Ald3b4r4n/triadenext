@@ -12,6 +12,7 @@ modificada ou removida.
 
 | Data | Re-extracao | Veredito |
 |---|---|---|
+| 2026-07-01 | `_reversa_sdd/` atualizado apos Fase 12; production readiness nao alterou schema nem migrations. | verde: sem watch principal; fallback seguro, Drizzle/Neon e calculos em centavos permanecem documentados. |
 | 2026-06-11 | `_reversa_sdd/` atualizado apos Fase 10; schema inclui `notification_deliveries`. | verde: sem watch principal; catalogo em centavos e fallback seguro permanecem documentados. |
 | 2026-06-08 | `_reversa_sdd/` atualizado apos commit `3774c49` da Fase 3. | 🟢 Sem watch principal; regras preservadas seguem documentadas em `_reversa_sdd/domain.md`. |
 

@@ -1,15 +1,17 @@
 # Code Analysis - Triade Essenza Next
 
-Atualizado em: 2026-06-11  
-Agente: Archaeologist  
-Nível: detalhado  
-Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, `orders`, `payments`, `notifications`, `uploads`, `db` e `lib`.
+Atualizado em: 2026-07-01
+Agente: Archaeologist
+Nível: detalhado
+Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, `orders`, `payments`, `notifications`, `uploads`, `db`, `lib` e readiness operacional.
 
 ## Visão Geral
 
 🟢 **CONFIRMADO** O sistema é uma aplicação Next.js App Router em TypeScript, organizada em rotas `src/app`, domínios em `src/features`, persistência Drizzle/Postgres em `src/db` e guardrails de ambiente em `src/lib/runtime-mode.ts`.
 
 🟢 **CONFIRMADO** A arquitetura atual implementa storefront, auth, catálogo, carrinho, cupons, frete manual, checkout autenticado, pedidos pendentes, pagamento Stripe/Mock, settlement pós-webhook e notificações pós-pagamento.
+
+🟢 **CONFIRMADO** A Fase 12 adicionou scripts operacionais seguros em `scripts/ops`, docs em `docs/operations`, smoke tests production-ready e contrato de env revisado sem secrets.
 
 🟡 **INFERIDO** A estratégia dominante é domínio vertical por feature, com Server Actions para mutações, repositories para persistência real/fallback e componentes React para UI.
 
@@ -284,6 +286,27 @@ Regras:
 - 🟢 Produção/preview sem configuração real entram em modo indisponível seguro.
 - 🟢 Env parsing usa Zod com defaults vazios.
 
+### operations readiness
+
+Arquivos principais:
+
+- `scripts/ops/check-env-readiness.mjs`
+- `scripts/ops/check-migrations-readiness.mjs`
+- `scripts/ops/check-build-readiness.mjs`
+- `scripts/ops/check-smoke-readiness.mjs`
+
+Funções principais:
+
+- `check-env-readiness`: classifica variaveis obrigatorias/opcionais por ambiente e imprime apenas status.
+- `check-migrations-readiness`: lista migrations Drizzle e identifica padroes destrutivos de forma estatica.
+- `check-build-readiness`: confirma presenca de scripts locais e bloqueia sinais de deploy/migration automatica nos `ops:*`.
+- `check-smoke-readiness`: valida URL alvo segura com default local.
+
+Regras:
+
+- 🟢 Nenhum script `ops:*` conecta banco real, executa migration real, chama Vercel, envia e-mail, faz upload real ou imprime secret.
+- 🟢 Smoke production-ready E2E cobre fluxo publico e superficies protegidas sem acao destrutiva.
+
 ## Algoritmos Críticos
 
 1. 🟢 Filtro público de produto: `status=published`, `publishedAt <= now`, `stockQuantity > 0`.
@@ -291,6 +314,7 @@ Regras:
 3. 🟢 Checkout: transforma carrinho ativo em pedido pendente com snapshots imutáveis.
 4. 🟢 Settlement: confirma webhook, valida divergência, baixa estoque, consome cupom e marca pedido/pagamento.
 5. 🟢 Notificações: usa outbox/idempotência por pedido/evento/tipo/destinatário.
+6. 🟢 Readiness operacional: valida ambiente, migrations, build e smoke sem efeitos externos.
 
 ## Lacunas Técnicas
 
@@ -299,3 +323,4 @@ Regras:
 - 🔴 `fiscal_documents` existe no schema, mas a feature fiscal/Bling ainda não foi implementada.
 - 🔴 Provedores reais de frete estão declarados como futuros e inativos.
 - 🟡 Upload tem service real, mas rota API ainda retorna placeholder seguro.
+- 🟡 Go-live real ainda depende de configuracao externa aprovada em Neon/Vercel/Stripe/Blob.

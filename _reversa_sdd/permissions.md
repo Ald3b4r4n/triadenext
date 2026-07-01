@@ -1,6 +1,6 @@
 # Permissions - Triade Essenza Next
 
-Atualizado em: 2026-06-11  
+Atualizado em: 2026-07-01
 Agente: Detective
 
 ## Papéis
@@ -35,6 +35,7 @@ Agente: Detective
 | Receber notificação de pedido pago | Não | Sim | Configurado | Configurado | Dispara |
 | Reenviar notificação | Não | Não | Não | Não | Não |
 | Operar fiscal/Bling/NF-e | Não | Não | Não | Não | Não |
+| Executar deploy/migration real | Não | Não | Não | Não | Não |
 
 `*` Manager/Admin podem ter sessão com papel administrativo, mas carrinho continua resolvido por usuário/sessão própria; não há operação "editar carrinho de terceiro".
 
@@ -51,6 +52,8 @@ Agente: Detective
 - 🟢 Mutação real usa `assertCanMutateRealData`, liberando somente auth pronto em dev/test.
 - 🟢 Preview/produção sem provider externo real falham de forma segura.
 - 🟢 Mensagens de erro são controladas e não expõem secrets.
+- 🟢 Scripts `ops:*` podem ser executados localmente por operador humano, mas nao concedem permissao de deploy, migration real, banco real, pagamento real ou envio real.
+- 🟢 Deploy/migration real ficam fora das permissoes da aplicacao e exigem aprovacao humana operacional.
 
 ## Lacunas de Permissão
 

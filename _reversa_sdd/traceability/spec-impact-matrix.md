@@ -1,6 +1,6 @@
 # Spec Impact Matrix
 
-Atualizado em: 2026-06-11  
+Atualizado em: 2026-07-01
 Agente: Architect
 
 | Componente | Catálogo | Carrinho | Cupom | Frete | Checkout | Pedido | Pagamento | Notificação | Admin | Customer |
@@ -28,3 +28,15 @@ Agente: Architect
 - Alterar snapshots de pedido afeta pagamento, notificação, relatórios e migração de dados.
 - Alterar webhook/settlement afeta pedido, estoque, cupom e notificações.
 - Alterar `notification_deliveries.idempotency_key` afeta duplicidade de envio.
+
+## Impactos Operacionais Pos-Fase 12
+
+| Artefato | Env | Migrations | Deploy | Stripe | Blob | Smoke |
+| --- | --- | --- | --- | --- | --- | --- |
+| `docs/operations/*` | Crítico | Alto | Crítico | Alto | Alto | Alto |
+| `scripts/ops/check-env-readiness.mjs` | Crítico | Baixo | Baixo | Médio | Médio | Baixo |
+| `scripts/ops/check-migrations-readiness.mjs` | Baixo | Crítico | Baixo | Baixo | Baixo | Baixo |
+| `scripts/ops/check-build-readiness.mjs` | Médio | Médio | Alto | Baixo | Baixo | Médio |
+| `scripts/ops/check-smoke-readiness.mjs` | Médio | Baixo | Médio | Médio | Médio | Crítico |
+
+Guardrail: esses artefatos sao checks/documentacao; qualquer evolucao que passe a executar deploy, migration real, banco real ou provider externo deve exigir nova decisao humana.

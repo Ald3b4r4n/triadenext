@@ -1,6 +1,6 @@
 # State Machines - Triade Essenza Next
 
-Atualizado em: 2026-06-11  
+Atualizado em: 2026-07-01
 Agente: Detective
 
 ## Produto
@@ -155,3 +155,21 @@ stateDiagram-v2
 Regras:
 
 - 🔴 Enum existe; fluxo operacional ainda não foi implementado.
+
+## Readiness Operacional
+
+```mermaid
+stateDiagram-v2
+  [*] --> local_validado
+  local_validado --> staging_preparado: checklists/envs/providers configurados
+  staging_preparado --> go_live_aprovado: aprovacao humana + smoke controlado
+  staging_preparado --> rollback_planejado: falha em checklist/smoke
+  go_live_aprovado --> [*]
+  rollback_planejado --> [*]
+```
+
+Regras:
+
+- 🟢 Fase 12 concluiu `local_validado` com lint, typecheck, testes, build, E2E e `ops:*`.
+- 🟢 Transicao para staging/producao exige configuracao externa aprovada; nao e automatica.
+- 🟢 Migration real, banco real e deploy real permanecem fora da execucao automatica.

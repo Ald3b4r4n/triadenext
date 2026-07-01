@@ -1,8 +1,8 @@
 # Inventario tecnico Reversa - Triade Essenza Next
 
-Atualizado em: 2026-06-11
+Atualizado em: 2026-07-01
 Agente: Scout
-Escopo: mapeamento de superficie do projeto Next.js atual.
+Escopo: re-extracao pos-Fase 12, com foco no estado Next.js atual e readiness operacional.
 
 ## Contexto
 
@@ -20,13 +20,13 @@ Escopo contado: `src`, `drizzle`, `scripts`, `docs`.
 
 | Extensao | Arquivos |
 | --- | ---: |
-| `.ts` | 136 |
+| `.ts` | 143 |
 | `.tsx` | 55 |
-| `.md` | 31 |
+| `.md` | 33 |
 | `.sql` | 8 |
-| `.mjs` | 2 |
+| `.mjs` | 6 |
 
-Total observado nesse recorte: 242 arquivos.
+Total observado nesse recorte: 255 arquivos.
 
 ## Entry points
 
@@ -46,6 +46,10 @@ Total observado nesse recorte: 242 arquivos.
 | `src/app/api/health/route.ts` | Healthcheck |
 | `src/app/api/upload/route.ts` | Upload |
 | `src/app/api/webhooks/stripe/route.ts` | Webhook Stripe |
+| `scripts/ops/check-env-readiness.mjs` | Readiness seguro de variaveis |
+| `scripts/ops/check-migrations-readiness.mjs` | Readiness estatico de migrations |
+| `scripts/ops/check-build-readiness.mjs` | Readiness seguro de build |
+| `scripts/ops/check-smoke-readiness.mjs` | Readiness seguro de smoke |
 
 ## Modulos identificados
 
@@ -61,6 +65,7 @@ Total observado nesse recorte: 242 arquivos.
 - `uploads`: upload de imagens de produto.
 - `db`: schema Drizzle e cliente.
 - `lib`: utilitarios transversais.
+- `operations`: documentacao e scripts seguros para staging/producao sem deploy ou migration real automatica.
 
 ## Banco de dados
 
@@ -69,19 +74,27 @@ Total observado nesse recorte: 242 arquivos.
 - Migrations: `drizzle/0000_shallow_shinko_yamashiro.sql` ate `drizzle/0007_outstanding_midnight.sql`.
 - Metadados Drizzle: `drizzle/meta/*.json`.
 - Scripts DB: `scripts/db/seed.mjs`, `scripts/db/seed-admin-dev.ts`, `scripts/db/require-database-url.mjs`.
+- Readiness de migrations: `scripts/ops/check-migrations-readiness.mjs` faz leitura estatica de `drizzle/` e nao conecta banco.
 
 ## Testes
 
 - Unit/integration: `src/tests/unit/*.test.ts` e `src/tests/unit/*.test.tsx`.
 - E2E: `src/tests/e2e/*.spec.ts`.
+- Smoke production-ready: `src/tests/e2e/production-readiness-smoke.spec.ts` e `src/tests/e2e/production-readiness-payment.spec.ts`.
 - Configuracoes: `vitest.config.ts`, `playwright.config.ts`.
 - Frameworks: Vitest, Testing Library, Playwright.
 
 ## Artefatos Reversa/Forward existentes
 
-- `_reversa_forward/001-fase-3-neon-drizzle` ate `_reversa_forward/008-fase-10-notificacoes-email`.
+- `_reversa_forward/001-fase-3-neon-drizzle` ate `_reversa_forward/020-fase-12-production-readiness`.
 - Trilhas de migracao geral abertas: `_reversa_forward/009-*` ate `_reversa_forward/018-*`.
 - `_reversa_sdd/migration` e `_reversa_sdd/design-system` existem como planejamento.
+
+## Estado pos-Fase 12
+
+- Fase 11 endureceu UX/storefront e smoke visual.
+- Fase 12 consolidou readiness de producao controlada: Neon, Vercel, Stripe test mode, Blob/upload, variaveis, scripts ops e checklists.
+- Nenhum deploy real, migration real, conexao com banco real ou uso de credencial real foi executado nesta re-extracao.
 
 ## Organizacao sugerida
 

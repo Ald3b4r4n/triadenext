@@ -4,11 +4,13 @@
   "feature-id": "020",
   "short-name": "fase-12-production-readiness",
   "started-at": "2026-06-26T10:11:03-03:00",
-  "current-stage": "coding",
+  "current-stage": "done",
   "stages-completed": [
     "requirements",
     "plan",
-    "to-do"
+    "to-do",
+    "coding",
+    "reversa-reextraction"
   ],
   "paused-features": []
 }

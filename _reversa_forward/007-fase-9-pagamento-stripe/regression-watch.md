@@ -15,6 +15,19 @@
 
 ## Historico de re-extracoes
 
+### Re-extração 2026-07-01 - Pos-Fase 12
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | verde | Pedido continua virando `pago` somente por webhook assinado/idempotente. |
+| W002 | verde | Valor e moeda continuam derivados do snapshot server-side do pedido. |
+| W003 | verde | `usedCount` continua sendo consumido uma vez no settlement. |
+| W004 | verde | Estoque continua sendo baixado uma vez no settlement confirmado. |
+| W005 | verde | Admin/manager continuam sem mutacao financeira. |
+| W006 | verde | Assinatura e `eventId` unico permanecem documentados. |
+| W007 | verde | Mock/test permanece restrito a dev/test; readiness reforca Stripe test mode sem live keys. |
+| W008 | verde | Divergencia ou falha segue sem estado operacional parcial. |
+
 ### Re-extração 2026-06-11 - Pos-Fase 10
 
 | ID | Veredito | Observação |

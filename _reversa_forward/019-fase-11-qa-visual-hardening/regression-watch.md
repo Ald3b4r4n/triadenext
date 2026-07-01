@@ -34,6 +34,22 @@
 - Checklist de producao deve ser reexecutado manualmente antes de qualquer migration/deploy real.
 - Integracoes fiscais e canais externos continuam fora desta fase.
 
+## Historico de re-extracoes
+
+### Re-extracao 2026-07-01 - Pos-Fase 12
+
+| ID | Veredito | Observacao |
+|----|----------|------------|
+| W001 | verde | SDD e smoke E2E preservam storefront sem placeholders de reconstrucao. |
+| W002 | verde | Header/nav e footer seguem cobertos pelo hardening visual e smoke. |
+| W003 | verde | Catalogo, produto e carrinho seguem com CTAs/BRL/estados controlados nos testes. |
+| W004 | verde | Login, cadastro e areas protegidas seguem sem texto tecnico visivel em smoke. |
+| W005 | verde | Admin permanece protegido e com bloqueio amigavel sem auth real. |
+| W006 | verde | Mensagens e readiness nao expõem secrets, tokens, `DATABASE_URL` ou `client_secret`. |
+| W007 | verde | `ops:check-env` permanece local, sem valores e sem rede/banco/deploy. |
+| W008 | verde | Fase 12 nao criou migration nem alterou `drizzle/` funcionalmente. |
+| W009 | verde | Smoke responsivo segue passando nas rotas principais. |
+
 ## Ambiente e seguranca
 
 - `next-env.d.ts` permaneceu limpo apos build/testes.
@@ -41,4 +57,3 @@
 - Nenhum banco real foi conectado.
 - Nenhum e-mail real foi enviado.
 - Nenhum deploy ou push foi executado durante a fase.
-
