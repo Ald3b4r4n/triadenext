@@ -1,16 +1,15 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/020-fase-12-production-readiness",
-  "feature-id": "020",
-  "short-name": "fase-12-production-readiness",
-  "started-at": "2026-06-26T10:11:03-03:00",
-  "current-stage": "done",
+  "feature-dir": "_reversa_forward/021-fase-13-legacy-parity",
+  "feature-id": "021",
+  "short-name": "fase-13-legacy-parity",
+  "started-at": "2026-07-01T16:20:00-03:00",
+  "current-stage": "coding",
   "stages-completed": [
     "requirements",
     "plan",
     "to-do",
-    "coding",
-    "reversa-reextraction"
+    "audit"
   ],
   "paused-features": []
 }
