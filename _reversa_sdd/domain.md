@@ -20,6 +20,9 @@ Nível: detalhado
 | Settlement | Efeito de confirmar pagamento: pedido pago, pagamento pago, estoque baixado e cupom consumido. | 🟢 |
 | Outbox de notificação | Registro idempotente de entrega transacional pós-pagamento. | 🟢 |
 | Readiness de produção | Conjunto documental e de scripts locais que prepara staging/producao sem executar deploy, migration real ou banco real automaticamente. | 🟢 |
+| Paridade legado x Next | Evidencia comparativa de que um dominio do Laravel e substituido, parcial, ausente, fora do go-live, decisao humana ou bloqueador no Next. | 🟢 |
+| Dry-run de migracao | Ensaio controlado com fonte aprovada e ambiente isolado, sem importacao real em producao. | 🟢 |
+| Reconciliacao de dados | Conferencia de contagens, chaves comerciais, valores em centavos, status, amostras mascaradas e assets. | 🟢 |
 
 ## Regras de Domínio
 
@@ -104,10 +107,21 @@ Nível: detalhado
 - 🟢 `ops:check-smoke` usa alvo local por padrao e nao executa pagamento/e-mail/upload real.
 - 🟢 Deploy, migration real, banco real, credenciais reais e go-live continuam dependentes de aprovacao humana explicita.
 
+### Paridade e Migracao Controlada
+
+- 🟢 Laravel legado e fonte somente leitura para analise; nao deve ser alterado, migrado ou executado por comando com efeito colateral nesta fase.
+- 🟢 Catalogo real, imagens, precos, estoque, cupons ativos e frete minimo sao dados Must para go-live e exigem dry-run/reconciliacao aprovados.
+- 🟢 Divergencia financeira nao explicada em preco, desconto, frete ou total bloqueia avancar.
+- 🟢 Importacao real, migration real, conexao com banco real, upload real e deploy real exigem aprovacao humana explicita.
+- 🟢 Legado permanece base de rollback ate aceite formal pos-cutover.
+- 🟡 Clientes, enderecos e pedidos historicos podem ser migrados ou ficar em consulta temporaria no legado conforme decisao humana.
+- 🟡 Frete externo/rastreamento e fiscal/Bling/NF-e podem bloquear go-live apenas se negocio exigir no dia zero.
+
 ## Decisões Implícitas Extraídas do Git
 
 - 🟢 A migração avançou em fases verticais: persistência, auth, carrinho, cupons, frete, checkout, pagamento, notificações e storefront.
 - 🟢 A Fase 12 consolidou uma macrofase operacional antes do go-live para evitar microfeatures de producao.
+- 🟢 A Fase 13 consolidou uma macrofase de decisao de substituicao do Laravel, separando paridade, bloqueadores reais, decisoes humanas e rollback.
 - 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
 - 🟢 O sistema prefere fallback explícito a falha silenciosa.
 - 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.
@@ -122,3 +136,5 @@ Nível: detalhado
 - 🔴 Estoque auditável por movimentos ainda não existe.
 - 🔴 Relatórios, analytics e admin operacional permanecem como features futuras.
 - 🔴 Deploy real, migration real em producao e migracao de dados reais ainda nao foram executados nem aprovados.
+- 🔴 Dry-run/reconciliacao de dados reais ainda nao foi executado nem aprovado.
+- 🔴 Catalogo real, imagens, precos, estoque, cupons ativos e frete minimo ainda nao estao provados contra dados legados.

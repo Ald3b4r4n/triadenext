@@ -13,6 +13,8 @@ Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, 
 
 🟢 **CONFIRMADO** A Fase 12 adicionou scripts operacionais seguros em `scripts/ops`, docs em `docs/operations`, smoke tests production-ready e contrato de env revisado sem secrets.
 
+🟢 **CONFIRMADO** A Fase 13 nao alterou codigo funcional; adicionou artefatos Reversa Forward de paridade Laravel x Next, gap register, inventario legado, dry-run, reconciliacao, checklist go-live, rollback e regression-watch.
+
 🟡 **INFERIDO** A estratégia dominante é domínio vertical por feature, com Server Actions para mutações, repositories para persistência real/fallback e componentes React para UI.
 
 ## Módulos

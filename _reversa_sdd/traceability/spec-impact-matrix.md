@@ -40,3 +40,17 @@ Agente: Architect
 | `scripts/ops/check-smoke-readiness.mjs` | Médio | Baixo | Médio | Médio | Médio | Crítico |
 
 Guardrail: esses artefatos sao checks/documentacao; qualquer evolucao que passe a executar deploy, migration real, banco real ou provider externo deve exigir nova decisao humana.
+
+## Impactos de Paridade e Migracao Pos-Fase 13
+
+| Artefato | Catalogo Real | Imagens | Dados Historicos | Dry-run | Go-live | Rollback |
+| --- | --- | --- | --- | --- | --- | --- |
+| `_reversa_forward/021-fase-13-legacy-parity/legacy-parity-matrix.md` | Critico | Alto | Medio | Medio | Critico | Medio |
+| `_reversa_forward/021-fase-13-legacy-parity/legacy-gap-register.md` | Critico | Alto | Alto | Alto | Critico | Alto |
+| `_reversa_forward/021-fase-13-legacy-parity/legacy-data-inventory.md` | Critico | Alto | Alto | Critico | Alto | Medio |
+| `_reversa_forward/021-fase-13-legacy-parity/controlled-migration-plan.md` | Alto | Alto | Alto | Critico | Alto | Alto |
+| `_reversa_forward/021-fase-13-legacy-parity/dry-run-reconciliation.md` | Critico | Alto | Alto | Critico | Critico | Alto |
+| `_reversa_forward/021-fase-13-legacy-parity/go-live-substitution-checklist.md` | Critico | Alto | Alto | Alto | Critico | Critico |
+| `_reversa_forward/021-fase-13-legacy-parity/rollback-plan.md` | Medio | Medio | Alto | Alto | Critico | Critico |
+
+Guardrail: qualquer transformacao desses artefatos em script de import real, migration real, conexao com banco real ou deploy precisa de aprovacao humana explicita.

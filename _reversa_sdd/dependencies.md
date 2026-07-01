@@ -89,3 +89,5 @@ Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoe
 - Providers reais externos devem permanecer isolados por adapters e fakes em teste.
 - `pnpm-workspace.yaml` registra build dependencies aprovadas (`esbuild`, `sharp`, `unrs-resolver`) para evitar bloqueio local do pnpm.
 - Scripts `ops:*` sao checks locais de readiness; nao executam deploy, migration real, banco real, upload real, e-mail real ou pagamento real.
+- Fase 13 nao adicionou dependencias npm; a comparacao Laravel x Next e o plano de dry-run sao documentais.
+- Laravel legado e dependencia operacional de leitura para paridade e rollback, mas nao e dependencia runtime do Next.

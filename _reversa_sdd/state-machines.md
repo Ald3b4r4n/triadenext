@@ -173,3 +173,24 @@ Regras:
 - 🟢 Fase 12 concluiu `local_validado` com lint, typecheck, testes, build, E2E e `ops:*`.
 - 🟢 Transicao para staging/producao exige configuracao externa aprovada; nao e automatica.
 - 🟢 Migration real, banco real e deploy real permanecem fora da execucao automatica.
+
+## Paridade e Migracao Controlada
+
+```mermaid
+stateDiagram-v2
+  [*] --> paridade_documentada
+  paridade_documentada --> bloqueadores_identificados: gap register Fase 13
+  bloqueadores_identificados --> dry_run_aprovado: fonte de dados aprovada
+  dry_run_aprovado --> reconciliacao_aprovada: catalogo/imagens/precos/estoque/cupons/frete batem
+  reconciliacao_aprovada --> pronto_para_cutover_planejado: decisoes humanas fechadas
+  bloqueadores_identificados --> no_go: dados Must sem reconciliacao
+  dry_run_aprovado --> no_go: divergencia financeira/secret/dado cru
+  pronto_para_cutover_planejado --> rollback_planejado: smoke/cutover falha
+```
+
+Regras:
+
+- 🟢 Fase 13 concluiu `paridade_documentada` e `bloqueadores_identificados`.
+- 🔴 `dry_run_aprovado` ainda nao ocorreu; depende de fonte de dados aprovada.
+- 🟢 `no_go` e obrigatorio enquanto catalogo real, imagens, precos, estoque, cupons ativos e frete minimo nao forem reconciliados.
+- 🟢 `rollback_planejado` preserva o Laravel legado intacto ate aceite formal.

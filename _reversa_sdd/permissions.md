@@ -36,6 +36,7 @@ Agente: Detective
 | Reenviar notificação | Não | Não | Não | Não | Não |
 | Operar fiscal/Bling/NF-e | Não | Não | Não | Não | Não |
 | Executar deploy/migration real | Não | Não | Não | Não | Não |
+| Autorizar dry-run/import real/deploy real | Não | Não | Não | Não | Não |
 
 `*` Manager/Admin podem ter sessão com papel administrativo, mas carrinho continua resolvido por usuário/sessão própria; não há operação "editar carrinho de terceiro".
 
@@ -54,6 +55,7 @@ Agente: Detective
 - 🟢 Mensagens de erro são controladas e não expõem secrets.
 - 🟢 Scripts `ops:*` podem ser executados localmente por operador humano, mas nao concedem permissao de deploy, migration real, banco real, pagamento real ou envio real.
 - 🟢 Deploy/migration real ficam fora das permissoes da aplicacao e exigem aprovacao humana operacional.
+- 🟢 Dry-run com dados reais, importacao real, banco real e cutover tambem ficam fora das permissoes da aplicacao e exigem aprovacao humana explicita.
 
 ## Lacunas de Permissão
 
@@ -61,3 +63,4 @@ Agente: Detective
 - 🔴 Customer profile e endereços ainda não têm actions completas.
 - 🔴 Operações pós-pagamento administrativas ainda não foram implementadas.
 - 🔴 Fiscal/Bling/NF-e não possui superfície funcional autorizável.
+- 🔴 Aprovacao humana para migracao/cutover ainda nao esta modelada como fluxo de produto; permanece checklist operacional.

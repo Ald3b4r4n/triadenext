@@ -17,6 +17,19 @@
 
 ## Historico de re-extracoes
 
+### Re-extração 2026-07-01 17:45
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | Laravel read-only registrado em `_reversa_sdd/domain.md#Paridade-e-Migracao-Controlada` e rollback preservado. |
+| W002 | 🟢 verde | Guardrails de secrets preservados em `_reversa_sdd/domain.md#Guardrails-de-Ambiente` e deployment. |
+| W003 | 🟢 verde | Import real exige aprovacao humana em `_reversa_sdd/migration/data_migration_plan.md`. |
+| W004 | 🟢 verde | Banco real e migration real bloqueados em `_reversa_sdd/domain.md` e `_reversa_sdd/deployment.md`. |
+| W005 | 🟢 verde | Catalogo real sem reconciliacao permanece bloqueador em `_reversa_sdd/domain.md` e `deployment.md`. |
+| W006 | 🟢 verde | Bling, NF-e, rotinas fiscais, WhatsApp e SMS permanecem fora de escopo/decisao humana. |
+| W007 | 🟢 verde | Divergencia financeira nao explicada bloqueia avancar em `_reversa_sdd/domain.md`. |
+| W008 | 🟢 verde | Laravel legado permanece base de rollback em `_reversa_sdd/migration/cutover_plan.md`. |
+
 | Data | Comando | Resultado |
 |------|---------|-----------|
 

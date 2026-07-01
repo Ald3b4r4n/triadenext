@@ -5,18 +5,18 @@
     "isLegacyLaravel": false,
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
-  "updatedAt": "2026-07-01T15:55:00-03:00",
-  "scope": "Re-extracao Reversa pos-Fase 12 concluida",
+  "updatedAt": "2026-07-01T17:45:00-03:00",
+  "scope": "Re-extracao Reversa pos-Fase 13 concluida",
   "git": {
     "branch": "main",
     "statusBeforeReextraction": "main...origin/main [ahead 1]",
     "latestCommit": {
-      "short": "ee26749",
-      "hash": "ee26749fb85c56b01f587ece296a91c380a592f4",
-      "message": "feat: prepare production migration readiness"
+      "short": "9ad10b4",
+      "hash": "9ad10b449a582a0665af4f9e13cbe0de69bde3f3",
+      "message": "feat: add legacy parity and migration readiness"
     },
-    "phase12CommitPushed": false,
-    "workingTreeBeforeReextraction": "clean"
+    "phase13CommitPushed": false,
+    "workingTreeBeforeReextraction": "clean_after_next_env_restore"
   },
   "implementedPhases": [
     {
@@ -79,17 +79,38 @@
       "status": "completed",
       "summary": "Production migration readiness",
       "commit": "ee26749fb85c56b01f587ece296a91c380a592f4"
+    },
+    {
+      "phase": 13,
+      "status": "completed",
+      "summary": "Legacy parity and controlled data migration readiness",
+      "commit": "9ad10b449a582a0665af4f9e13cbe0de69bde3f3"
     }
   ],
   "currentCapabilities": {
-    "catalog": "Catalogo publico e estoque baixado somente no settlement",
+    "catalog": "Catalogo publico e estoque baixado somente no settlement; catalogo real ainda precisa dry-run/reconciliacao",
     "auth": "Papeis customer/admin/manager e ownership server-side",
     "cart": "Carrinho com cupom, frete e conversao",
     "checkout": "Pedido pendente autenticado com snapshots",
     "payments": "Stripe PaymentIntent, webhook assinado/idempotente e settlement atomico",
     "notifications": "Customer e admins notificados apos pagamento; historico admin somente leitura",
     "frontendReadiness": "Storefront endurecido com smoke visual e responsividade basica",
-    "productionReadiness": "Docs, checklists e scripts seguros para Neon, Vercel, Stripe test mode, Blob, env, migrations e smoke"
+    "productionReadiness": "Docs, checklists e scripts seguros para Neon, Vercel, Stripe test mode, Blob, env, migrations e smoke",
+    "legacyParityReadiness": "Matriz Laravel x Next, gap register, inventario legado, dry-run, reconciliacao, checklist go-live e rollback"
+  },
+  "currentLegacyParity": {
+    "centralCommerceFlow": "substituido_com_dados_corretos",
+    "blockers": [
+      "catalogo_real_imagens_precos_estoque_cupons_ativos_frete_minimo_precisam_dry_run_reconciliacao",
+      "dry_run_controlado_precisa_fonte_de_dados_aprovada"
+    ],
+    "humanDecisions": [
+      "urls_legadas_redirects_privacidade",
+      "frete_externo_rastreamento",
+      "clientes_e_pedidos_historicos",
+      "fiscal_bling_nfe"
+    ],
+    "rollback": "laravel_legado_intacto_ate_aceite_formal_pos_cutover"
   },
   "currentProductionReadiness": {
     "environments": [
@@ -103,21 +124,12 @@
       "ops:check-build",
       "ops:check-smoke"
     ],
-    "docs": [
-      "docs/operations/env.md",
-      "docs/operations/database-migrations.md",
-      "docs/operations/neon.md",
-      "docs/operations/vercel.md",
-      "docs/operations/stripe.md",
-      "docs/operations/blob.md",
-      "docs/operations/production-checklist.md",
-      "docs/operations/go-live-checklist.md"
-    ],
     "safeDefaults": {
       "noSecretValuesPrinted": true,
       "noRealMigrationByDefault": true,
       "noRealDatabaseConnectionByDefault": true,
       "noDeployByDefault": true,
+      "noRealImportByDefault": true,
       "noRealPaymentEmailOrUploadByDefault": true
     }
   },
@@ -132,21 +144,18 @@
       "drizzle/0006_soft_mole_man.sql",
       "drizzle/0007_outstanding_midnight.sql"
     ],
-    "phase12SchemaDelta": false,
+    "phase13SchemaDelta": false,
     "realMigrationApplied": false,
-    "readiness": "analise estatica de migrations, sem DATABASE_URL e sem conexao real"
+    "realImportApplied": false,
+    "readiness": "migracao de dados e apenas documental ate dry-run aprovado"
   },
   "validations": {
-    "phase12": {
+    "phase13": {
       "pnpm lint": "passed",
       "pnpm typecheck": "passed",
       "pnpm test": "passed - 37 files / 108 tests",
       "pnpm build": "passed",
-      "pnpm test:e2e": "passed - 36 tests",
-      "pnpm ops:check-env": "passed",
-      "pnpm ops:check-migrations": "passed",
-      "pnpm ops:check-build": "passed",
-      "pnpm ops:check-smoke": "passed"
+      "pnpm test:e2e": "passed - 36 tests"
     }
   },
   "outOfScope": [
@@ -155,12 +164,13 @@
     "banco_real_sem_aprovacao",
     "credenciais_reais_em_codigo",
     "migracao_de_dados_reais_sem_aprovacao",
+    "importacao_real_automatica",
     "bling",
     "nf_e",
     "rotinas_fiscais",
     "whatsapp",
     "sms",
-    "laravel_legado"
+    "alterar_laravel_legado"
   ],
   "reversaArtifacts": {
     "sdd": [
@@ -174,12 +184,14 @@
       "_reversa_sdd/permissions.md",
       "_reversa_sdd/deployment.md",
       "_reversa_sdd/traceability/spec-impact-matrix.md",
-      "_reversa_sdd/adrs/007-production-readiness-sem-operacao-real.md"
+      "_reversa_sdd/migration/data_migration_plan.md",
+      "_reversa_sdd/migration/cutover_plan.md",
+      "_reversa_sdd/adrs/008-legacy-parity-e-migracao-controlada.md"
     ],
-    "forwardFeature": "_reversa_forward/020-fase-12-production-readiness"
+    "forwardFeature": "_reversa_forward/021-fase-13-legacy-parity"
   },
   "nextStep": {
-    "recommendedCommand": "commit documental dos artefatos Reversa pos-Fase 12 e push de main",
-    "reason": "Conhecimento tecnico, operacional e de dominio atualizado apos a Fase 12"
+    "recommendedCommand": "commit documental dos artefatos Reversa pos-Fase 13 e push de main",
+    "reason": "Conhecimento de paridade, bloqueadores, dry-run, rollback e watch atualizado apos a Fase 13"
   }
 }

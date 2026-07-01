@@ -12,6 +12,8 @@ Nível: detalhado
 
 🟢 **CONFIRMADO** A Fase 12 adicionou readiness operacional para ambiente real controlado: documentação de Neon, Vercel, Stripe test mode, Blob/upload, `.env.example`, checklists e scripts `ops:*` locais seguros.
 
+🟢 **CONFIRMADO** A Fase 13 adicionou readiness de substituicao do legado: matriz de paridade Laravel x Next, gap register, inventario de dados legados, estrategia de dry-run, reconciliacao, checklist de go-live e rollback sem alterar o Laravel.
+
 🟡 **INFERIDO** A arquitetura alvo segue fatias verticais por domínio, com Server Components/pages para leitura, Server Actions para mutação, Route Handlers para APIs/webhooks e repositories isolando Drizzle/fallback.
 
 ## Containers
@@ -25,6 +27,7 @@ Nível: detalhado
 | Stripe | Stripe API/Webhooks | PaymentIntent, Payment Element e eventos financeiros |
 | Email Provider | Mock/unavailable hoje; Resend/SMTP futuro | Entrega transacional |
 | Operational Readiness | Docs + scripts locais | Check-env, check-migrations, check-build e check-smoke sem secrets |
+| Legacy Parity Readiness | Artefatos Reversa Forward | Paridade Laravel x Next, dry-run, reconciliacao e decisao go/no-go |
 
 ## Componentes Internos
 
@@ -43,6 +46,7 @@ Nível: detalhado
 - `src/lib`: env, runtime guardrails, dinheiro e slug.
 - `scripts/ops`: verificacoes locais seguras de env, migrations, build e smoke.
 - `docs/operations`: runbooks/checklists para Neon, Vercel, Stripe, Blob, migrations, env e go-live posterior.
+- `_reversa_forward/021-fase-13-legacy-parity`: evidencias de paridade, lacunas, migracao controlada, rollback e watch items.
 
 ## Fluxo Comercial Principal
 
@@ -68,6 +72,17 @@ Nível: detalhado
 | Correios/Jadlog/Melhor Envio | Outbound futuro | Inativo | Sem chamada HTTP atual |
 | Bling/NF-e | Outbound futuro | Ausente funcionalmente | Planejado em Reversa Forward |
 
+## Paridade Legado x Next
+
+| Dominio | Estado pos-Fase 13 | Classificacao |
+| --- | --- | --- |
+| Storefront/home/catalogo/produto | Next cobre a superficie principal; URLs legadas e privacidade exigem decisao | Parcial/decisao humana |
+| Catalogo/dados reais | Schema/admin/storefront existem; dados reais ainda nao migrados/reconciliados | Bloqueador |
+| Imagens | Produto-imagem e Blob existem; assets legados precisam mapeamento e capa/fallback | Bloqueador se sem cobertura |
+| Carrinho/cupom/frete manual/checkout/pedido/pagamento | Fluxo central substitui comportamento comercial | Substituido com smoke controlado |
+| Cliente/admin | Next cobre minimo operacional; Laravel tem backoffice mais amplo | Parcial/decisao humana |
+| Frete externo, fiscal/Bling/NF-e, analytics | Nao implementados funcionalmente no Next | Fora de escopo ou pos-go-live |
+
 ## Dados
 
 Os agregados críticos são:
@@ -86,6 +101,7 @@ Os agregados críticos são:
 - 🔴 Fiscal/Bling/NF-e ainda é schema/roadmap, não feature funcional.
 - 🔴 Frete real e rastreamento ainda não existem.
 - 🔴 Estoque não tem movimentos auditáveis.
+- 🔴 Go-live real permanece bloqueado ate dry-run/reconciliacao de dados Must e decisoes humanas de corte.
 - 🟡 Go-live real ainda depende de aprovacao humana, envs reais nos providers, backup e smoke manual controlado.
 - 🟡 Dependências em `latest` exigem lockfile como fonte efetiva.
 
@@ -98,3 +114,4 @@ Os agregados críticos são:
 - 🟢 Secrets são tratados por env e não devem aparecer em docs/logs.
 - 🟢 Scripts `ops:*` reportam apenas presenca/ausencia e nao imprimem valores.
 - 🟢 Readiness de migrations e build nao executa banco, deploy ou providers externos.
+- 🟢 Paridade legado x Next e documental; nao executa importacao real, migration real, banco real, deploy ou escrita no Laravel.

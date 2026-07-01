@@ -2,7 +2,7 @@
 
 Atualizado em: 2026-07-01
 Agente: Scout
-Escopo: re-extracao pos-Fase 12, com foco no estado Next.js atual e readiness operacional.
+Escopo: re-extracao pos-Fase 13, com foco no estado Next.js atual, readiness operacional e paridade Laravel x Next.
 
 ## Contexto
 
@@ -95,6 +95,15 @@ Total observado nesse recorte: 255 arquivos.
 - Fase 11 endureceu UX/storefront e smoke visual.
 - Fase 12 consolidou readiness de producao controlada: Neon, Vercel, Stripe test mode, Blob/upload, variaveis, scripts ops e checklists.
 - Nenhum deploy real, migration real, conexao com banco real ou uso de credencial real foi executado nesta re-extracao.
+
+## Estado pos-Fase 13
+
+- Fase 13 criou matriz de paridade Laravel x Next em `_reversa_forward/021-fase-13-legacy-parity/legacy-parity-matrix.md`.
+- O Next substitui o fluxo comercial central quando alimentado por dados corretos: home, catalogo, produto, carrinho, cupom, frete manual, checkout autenticado, pedido, Stripe PaymentIntent/webhook e notificacoes pos-pagamento.
+- Bloqueadores de go-live real registrados: catalogo real, imagens, precos, estoque, cupons ativos e frete minimo precisam de dry-run/reconciliacao aprovados; dry-run controlado ainda precisa ser executado em etapa futura com fonte de dados aprovada.
+- Decisoes humanas pendentes: redirects/URLs legadas, pagina de privacidade, frete externo/rastreamento, clientes e pedidos historicos, fiscal/Bling/NF-e.
+- Artefatos novos principais: gap register, inventario legado, plano de dry-run, reconciliacao, checklist go-live, rollback, legacy-impact e regression-watch.
+- Nenhuma alteracao funcional, deploy real, migration real, conexao com banco real, importacao real, secrets ou alteracao no Laravel legado foi executada nesta re-extracao.
 
 ## Organizacao sugerida
 

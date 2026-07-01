@@ -36,13 +36,15 @@
     "architect_reversa_rerun_2026_06_11",
     "fase_11",
     "fase_12",
-    "reextracao_pos_fase_12"
+    "reextracao_pos_fase_12",
+    "fase_13",
+    "reextracao_pos_fase_13"
   ],
   "pending": [
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "reextraction_after_phase_12_2026_07_01",
+  "last_checkpoint": "reextraction_after_phase_13_2026_07_01",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -1240,9 +1242,82 @@
       },
       "next_phase": "commit_reversa_pos_fase_12_e_push",
       "next_command": "git commit dos artefatos Reversa pos-Fase 12, depois push dos commits locais"
+    },
+    "reextraction_after_phase_13_2026_07_01": {
+      "completed_at": "2026-07-01T17:45:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD apos Fase 13 de legacy parity and controlled data migration.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "latest_commit": {
+          "short": "9ad10b4",
+          "hash": "9ad10b449a582a0665af4f9e13cbe0de69bde3f3",
+          "message": "feat: add legacy parity and migration readiness"
+        },
+        "phase13_commit_pushed": false,
+        "working_tree_before_reextraction": "clean_after_next_env_restore"
+      },
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/code-analysis.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_sdd/deployment.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/migration/data_migration_plan.md",
+        "_reversa_sdd/migration/cutover_plan.md",
+        "_reversa_sdd/adrs/008-legacy-parity-e-migracao-controlada.md",
+        "_reversa_forward/021-fase-13-legacy-parity/regression-watch.md"
+      ],
+      "phase13_summary": {
+        "legacy_parity_matrix": true,
+        "gap_register": true,
+        "legacy_data_inventory": true,
+        "controlled_dry_run_plan": true,
+        "reconciliation_plan": true,
+        "go_live_checklist": true,
+        "rollback_plan": true,
+        "central_commerce_flow_substituted_with_correct_data": true,
+        "blockers": [
+          "catalogo_real_imagens_precos_estoque_cupons_ativos_frete_minimo_precisam_dry_run_reconciliacao",
+          "dry_run_controlado_precisa_fonte_de_dados_aprovada"
+        ],
+        "real_deploy_executed": false,
+        "real_migration_executed": false,
+        "real_database_connection": false,
+        "real_import_executed": false,
+        "real_secrets_versioned_or_printed": false,
+        "laravel_legacy_modified": false
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 37 files / 108 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 36 tests"
+      },
+      "regression_watch": {
+        "features_checked": 1,
+        "feature": "_reversa_forward/021-fase-13-legacy-parity",
+        "latest_verdicts": {
+          "green": 8,
+          "yellow": 0,
+          "red": 0
+        },
+        "notes": "Watch items da Fase 13 preservados no SDD atualizado.",
+        "watch_items_checked": 8
+      },
+      "next_phase": "commit_reversa_pos_fase_13_e_push",
+      "next_command": "git commit dos artefatos Reversa pos-Fase 13, depois push dos commits locais"
     }
   },
-  "next_reversa_command": "commit_reversa_pos_fase_12_then_push",
+  "next_reversa_command": "commit_reversa_pos_fase_13_then_push",
   "engines": [
     "claude-code",
     "codex",

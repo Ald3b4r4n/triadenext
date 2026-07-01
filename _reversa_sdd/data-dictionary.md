@@ -11,6 +11,29 @@ Fonte principal: `src/db/schema.ts`, schemas Zod e tipos de domínio.
 - 🟢 Readiness de migrations e banco e documental/estatico; nenhuma migration real foi executada nesta re-extracao.
 - 🟢 `.env.example`, scripts `ops:*` e docs operacionais nao alteram o contrato de dados persistido.
 
+## Delta Fase 13
+
+- 🟢 Nenhuma tabela, enum ou migration nova foi adicionada pela Fase 13.
+- 🟢 O delta de dados e conceitual/documental: mapeia origem Laravel, destino Next, obrigatoriedade, transformacao e reconciliacao.
+- 🟢 Entidades Must para go-live: categorias, produtos, imagens, precos, estoque, cupons ativos e frete minimo.
+- 🟡 Entidades de decisao humana: clientes, enderecos, pedidos historicos, pagamentos/status historicos e dados administrativos.
+- 🔴 Importacao real, migration real e conexao com banco real nao foram executadas nem aprovadas.
+
+## Mapa de Migracao Controlada Pos-Fase 13
+
+| Entidade | Origem Laravel candidata | Destino Next | Obrigatoriedade | Reconciliacao |
+| --- | --- | --- | --- | --- |
+| Categorias | catalogo/admin/migrations | `categories`, `product_categories` | Must | contagem, slug, nome |
+| Produtos | catalog actions/admin | `products` | Must | SKU, slug, preco, status, estoque |
+| Imagens | `product_images`, `public/products`, `Imagens` | `product_images`, Blob futuro | Must | contagem por produto, capa, arquivo/fallback |
+| Cupons ativos | coupons/admin | `coupons` | Must se ativo | codigo, tipo, valor, vigencia |
+| Frete minimo | shipping rules/providers | `shipping_rules` | Must | UF/CEP, preco, prazo |
+| Clientes | users/profiles | `users`, `customer_profiles` | Decisao humana | contagem, email mascarado |
+| Enderecos | addresses | `addresses` | Decisao humana | contagem por cliente, CEP/UF |
+| Pedidos historicos | orders/items | `orders`, `order_items`, `order_events` | Decisao humana | numero, status, itens, total |
+| Pagamentos/status | payments/stripe | `payment_intents`, `payment_events` | Decisao humana | status, provider ref, valor |
+| Fiscal/Bling | fiscal/Bling tables | `fiscal_documents` parcial | Fora de escopo/decisao | relatorio de lacuna |
+
 ## Enums
 
 | Enum | Valores | Confiança |
