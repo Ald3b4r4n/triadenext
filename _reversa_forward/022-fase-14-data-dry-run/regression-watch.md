@@ -19,8 +19,24 @@
 
 ## Historico de re-extracoes
 
+### Re-extração 2026-07-02
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | Laravel legado registrado como somente leitura em `_reversa_sdd/domain.md`, `architecture.md` e `migration/cutover_plan.md`. |
+| W002 | 🟢 verde | `data/dry-run/input/` e `data/dry-run/output/` documentados como seguros/ignorados em `_reversa_sdd/inventory.md` e `data-dictionary.md`. |
+| W003 | 🟢 verde | Scanner `UNSAFE_INPUT` descrito em `_reversa_sdd/code-analysis.md`, `domain.md` e `migration/data_migration_plan.md`. |
+| W004 | 🟢 verde | Restrição de entrada dentro de `data/dry-run/input/` refletida em `_reversa_sdd/architecture.md` e `domain.md`. |
+| W005 | 🟢 verde | Dry-run em memória e sem import real registrado em `_reversa_sdd/code-analysis.md` e ADR 009. |
+| W006 | 🟢 verde | Ausência de migration, deploy, upload e provider externo registrada em `deployment.md`, `domain.md` e ADR 009. |
+| W007 | 🟢 verde | Produto publicado sem capa/fallback segue bloqueador em `_reversa_sdd/domain.md` e `data-dictionary.md`. |
+| W008 | 🟢 verde | Frete mínimo ativo com preço positivo segue bloqueador em `_reversa_sdd/domain.md` e `state-machines.md`. |
+| W009 | 🟢 verde | Divergência `CRITICAL`/`HIGH` continua bloqueadora em `_reversa_sdd/code-analysis.md`, `data_migration_plan.md` e `cutover_plan.md`. |
+| W010 | 🟢 verde | Importação real futura exige checklist humano e permanece separada da Fase 14 em `_reversa_sdd/domain.md` e ADR 009. |
+
 | Data | Comando | Resultado |
 |------|---------|-----------|
+| 2026-07-02 | `/reversa` pós-Fase 14 | 10 verdes, 0 amarelos, 0 vermelhos |
 
 ## Arquivadas
 

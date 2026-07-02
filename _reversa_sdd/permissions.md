@@ -1,6 +1,6 @@
 # Permissions - Triade Essenza Next
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Detective
 
 ## Papéis
@@ -36,7 +36,7 @@ Agente: Detective
 | Reenviar notificação | Não | Não | Não | Não | Não |
 | Operar fiscal/Bling/NF-e | Não | Não | Não | Não | Não |
 | Executar deploy/migration real | Não | Não | Não | Não | Não |
-| Autorizar dry-run/import real/deploy real | Não | Não | Não | Não | Não |
+| Autorizar import real/deploy real | Não | Não | Não | Não | Não |
 
 `*` Manager/Admin podem ter sessão com papel administrativo, mas carrinho continua resolvido por usuário/sessão própria; não há operação "editar carrinho de terceiro".
 
@@ -54,8 +54,10 @@ Agente: Detective
 - 🟢 Preview/produção sem provider externo real falham de forma segura.
 - 🟢 Mensagens de erro são controladas e não expõem secrets.
 - 🟢 Scripts `ops:*` podem ser executados localmente por operador humano, mas nao concedem permissao de deploy, migration real, banco real, pagamento real ou envio real.
+- 🟢 `ops:check-data-dry-run` pode ser executado localmente por operador humano sobre exemplos ou fonte local aprovada, mas nao concede permissao de importacao real.
 - 🟢 Deploy/migration real ficam fora das permissoes da aplicacao e exigem aprovacao humana operacional.
 - 🟢 Dry-run com dados reais, importacao real, banco real e cutover tambem ficam fora das permissoes da aplicacao e exigem aprovacao humana explicita.
+- 🟢 Aprovacao humana para importacao futura fica em checklist operacional, nao em papel de usuario da aplicacao.
 
 ## Lacunas de Permissão
 

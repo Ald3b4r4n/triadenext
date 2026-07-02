@@ -1,6 +1,6 @@
 # Dependencias Reversa - Triade Essenza Next
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Scout
 Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoes principais.
 
@@ -76,6 +76,7 @@ Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoe
 - `ops:check-migrations`: `node scripts/ops/check-migrations-readiness.mjs`.
 - `ops:check-build`: `node scripts/ops/check-build-readiness.mjs`.
 - `ops:check-smoke`: `node scripts/ops/check-smoke-readiness.mjs`.
+- `ops:check-data-dry-run`: `node scripts/ops/check-data-dry-run-readiness.mjs`.
 - `db:generate`: `drizzle-kit generate`.
 - `db:migrate`: `node scripts/db/require-database-url.mjs && drizzle-kit migrate`.
 - `db:studio`: `drizzle-kit studio`.
@@ -90,4 +91,6 @@ Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoe
 - `pnpm-workspace.yaml` registra build dependencies aprovadas (`esbuild`, `sharp`, `unrs-resolver`) para evitar bloqueio local do pnpm.
 - Scripts `ops:*` sao checks locais de readiness; nao executam deploy, migration real, banco real, upload real, e-mail real ou pagamento real.
 - Fase 13 nao adicionou dependencias npm; a comparacao Laravel x Next e o plano de dry-run sao documentais.
+- Fase 14 nao adicionou dependencias npm; reutiliza `tsx` ja existente para executar a CLI TypeScript do dry-run.
+- `ops:check-data-dry-run` le apenas arquivos locais permitidos e nao le `.env`, nao conecta banco, nao importa dados, nao faz upload real e nao executa deploy.
 - Laravel legado e dependencia operacional de leitura para paridade e rollback, mas nao e dependencia runtime do Next.

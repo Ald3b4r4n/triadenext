@@ -1,6 +1,6 @@
 # Spec Impact Matrix
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Architect
 
 | Componente | Catálogo | Carrinho | Cupom | Frete | Checkout | Pedido | Pagamento | Notificação | Admin | Customer |
@@ -19,6 +19,7 @@ Agente: Architect
 | `features/payments` | Baixo | Baixo | Alto | Baixo | Médio | Crítico | Crítico | Alto | Médio | Alto |
 | `features/notifications` | Baixo | Baixo | Baixo | Baixo | Baixo | Alto | Alto | Crítico | Alto | Médio |
 | `features/uploads` | Alto | Baixo | Baixo | Baixo | Baixo | Baixo | Baixo | Baixo | Alto | Baixo |
+| `features/data-dry-run` | Crítico | Baixo | Alto | Alto | Baixo | Baixo | Baixo | Baixo | Médio | Baixo |
 | `src/db/schema.ts` | Crítico | Crítico | Crítico | Crítico | Crítico | Crítico | Crítico | Crítico | Alto | Alto |
 
 ## Impactos Críticos
@@ -38,6 +39,7 @@ Agente: Architect
 | `scripts/ops/check-migrations-readiness.mjs` | Baixo | Crítico | Baixo | Baixo | Baixo | Baixo |
 | `scripts/ops/check-build-readiness.mjs` | Médio | Médio | Alto | Baixo | Baixo | Médio |
 | `scripts/ops/check-smoke-readiness.mjs` | Médio | Baixo | Médio | Médio | Médio | Crítico |
+| `scripts/ops/check-data-dry-run-readiness.mjs` | Baixo | Baixo | Baixo | Baixo | Baixo | Médio |
 
 Guardrail: esses artefatos sao checks/documentacao; qualquer evolucao que passe a executar deploy, migration real, banco real ou provider externo deve exigir nova decisao humana.
 
@@ -54,3 +56,16 @@ Guardrail: esses artefatos sao checks/documentacao; qualquer evolucao que passe 
 | `_reversa_forward/021-fase-13-legacy-parity/rollback-plan.md` | Medio | Medio | Alto | Alto | Critico | Critico |
 
 Guardrail: qualquer transformacao desses artefatos em script de import real, migration real, conexao com banco real ou deploy precisa de aprovacao humana explicita.
+
+## Impactos de Dry-run Controlado Pos-Fase 14
+
+| Artefato | Catalogo Real | Imagens | Cupons | Frete | Reconciliacao | Privacidade | Import Futuro |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `src/features/data-dry-run/input-contracts.ts` | Critico | Alto | Alto | Alto | Alto | Medio | Alto |
+| `src/features/data-dry-run/normalizers/*` | Critico | Critico | Critico | Critico | Alto | Baixo | Alto |
+| `src/features/data-dry-run/reconciliation.ts` | Critico | Critico | Alto | Alto | Critico | Alto | Critico |
+| `src/features/data-dry-run/safety.ts` | Alto | Alto | Alto | Alto | Alto | Critico | Critico |
+| `scripts/ops/check-data-dry-run-readiness.mjs` | Alto | Alto | Alto | Alto | Critico | Critico | Alto |
+| `_reversa_forward/022-fase-14-data-dry-run/future-import-approval-checklist.md` | Alto | Alto | Alto | Alto | Alto | Alto | Critico |
+
+Guardrail: a Fase 14 prova o pipeline com exemplos sinteticos; qualquer uso de fonte real, importacao real, upload real, migration real, banco real ou deploy continua dependendo de aprovacao humana explicita.

@@ -38,13 +38,15 @@
     "fase_12",
     "reextracao_pos_fase_12",
     "fase_13",
-    "reextracao_pos_fase_13"
+    "reextracao_pos_fase_13",
+    "fase_14",
+    "reextracao_pos_fase_14"
   ],
   "pending": [
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "reextraction_after_phase_13_2026_07_01",
+  "last_checkpoint": "reextraction_after_phase_14_2026_07_02",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -1315,9 +1317,91 @@
       },
       "next_phase": "commit_reversa_pos_fase_13_e_push",
       "next_command": "git commit dos artefatos Reversa pos-Fase 13, depois push dos commits locais"
+    },
+    "reextraction_after_phase_14_2026_07_02": {
+      "completed_at": "2026-07-02T00:00:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD apos Fase 14 de controlled data dry-run and reconciliation.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "latest_commit": {
+          "short": "cc19f27",
+          "hash": "cc19f2762d4c7039ad3de565a24c08a229b67e31",
+          "message": "feat: add controlled data dry-run readiness"
+        },
+        "phase14_commit_pushed": false,
+        "working_tree_before_reextraction": "clean"
+      },
+      "files_updated": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/code-analysis.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_sdd/deployment.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/migration/data_migration_plan.md",
+        "_reversa_sdd/migration/cutover_plan.md",
+        "_reversa_sdd/adrs/009-dry-run-controlado-por-arquivos-locais.md",
+        "_reversa_forward/022-fase-14-data-dry-run/regression-watch.md"
+      ],
+      "phase14_summary": {
+        "safe_data_dry_run_structure": true,
+        "synthetic_examples": true,
+        "local_csv_json_contracts": true,
+        "data_dry_run_module": true,
+        "security_scanner": true,
+        "catalog_coupon_shipping_image_normalizers": true,
+        "reconciliation_report": true,
+        "divergence_taxonomy": [
+          "UNSAFE_INPUT",
+          "INPUT_MISSING",
+          "INVALID_HEADER",
+          "INVALID_VALUE",
+          "DUPLICATE_KEY",
+          "UNKNOWN_REFERENCE",
+          "IMAGE_MISSING",
+          "SHIPPING_COVERAGE_MISSING"
+        ],
+        "human_import_approval_checklist": true,
+        "synthetic_dry_run_result": "go_0_blockers_0_warnings",
+        "real_deploy_executed": false,
+        "real_migration_executed": false,
+        "real_database_connection": false,
+        "real_import_executed": false,
+        "real_upload_executed": false,
+        "real_secrets_versioned_or_printed": false,
+        "laravel_legacy_modified": false
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 43 files / 121 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 36 tests",
+        "pnpm ops:check-data-dry-run": "passed - examples go / 0 blockers / 0 warnings"
+      },
+      "regression_watch": {
+        "features_checked": 1,
+        "feature": "_reversa_forward/022-fase-14-data-dry-run",
+        "latest_verdicts": {
+          "green": 10,
+          "yellow": 0,
+          "red": 0
+        },
+        "notes": "Watch items da Fase 14 preservados no SDD atualizado.",
+        "watch_items_checked": 10
+      },
+      "next_phase": "commit_reversa_pos_fase_14_e_push",
+      "next_command": "git commit dos artefatos Reversa pos-Fase 14, depois push dos commits locais"
     }
   },
-  "next_reversa_command": "commit_reversa_pos_fase_13_then_push",
+  "next_reversa_command": "commit_reversa_pos_fase_14_then_push",
   "engines": [
     "claude-code",
     "codex",

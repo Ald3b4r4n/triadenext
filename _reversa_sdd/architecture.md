@@ -1,6 +1,6 @@
 # Architecture - Triade Essenza Next
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Architect
 Nível: detalhado
 
@@ -14,6 +14,8 @@ Nível: detalhado
 
 🟢 **CONFIRMADO** A Fase 13 adicionou readiness de substituicao do legado: matriz de paridade Laravel x Next, gap register, inventario de dados legados, estrategia de dry-run, reconciliacao, checklist de go-live e rollback sem alterar o Laravel.
 
+🟢 **CONFIRMADO** A Fase 14 transformou o dry-run planejado em trilha executavel local: contratos CSV/JSON, normalizadores, scanner de seguranca, relatorio de reconciliacao e script `ops:check-data-dry-run`, sem importacao real, banco real, upload real, migration real ou deploy.
+
 🟡 **INFERIDO** A arquitetura alvo segue fatias verticais por domínio, com Server Components/pages para leitura, Server Actions para mutação, Route Handlers para APIs/webhooks e repositories isolando Drizzle/fallback.
 
 ## Containers
@@ -26,8 +28,8 @@ Nível: detalhado
 | Blob Storage | Vercel Blob | Imagens de produto e documentos futuros |
 | Stripe | Stripe API/Webhooks | PaymentIntent, Payment Element e eventos financeiros |
 | Email Provider | Mock/unavailable hoje; Resend/SMTP futuro | Entrega transacional |
-| Operational Readiness | Docs + scripts locais | Check-env, check-migrations, check-build e check-smoke sem secrets |
-| Legacy Parity Readiness | Artefatos Reversa Forward | Paridade Laravel x Next, dry-run, reconciliacao e decisao go/no-go |
+| Operational Readiness | Docs + scripts locais | Check-env, check-migrations, check-build, check-smoke e check-data-dry-run sem secrets |
+| Legacy Parity Readiness | Artefatos Reversa Forward + `src/features/data-dry-run` | Paridade Laravel x Next, dry-run controlado, reconciliacao e decisao go/no-go |
 
 ## Componentes Internos
 
@@ -42,11 +44,13 @@ Nível: detalhado
 - `src/features/payments`: PaymentIntent, webhook e settlement.
 - `src/features/notifications`: outbox e e-mail pós-pagamento.
 - `src/features/uploads`: upload de imagem para Blob.
+- `src/features/data-dry-run`: leitura de CSV/JSON locais, normalizacao em memoria, scanner de seguranca e relatorio de reconciliacao.
 - `src/db`: schema Drizzle e cliente condicional.
 - `src/lib`: env, runtime guardrails, dinheiro e slug.
-- `scripts/ops`: verificacoes locais seguras de env, migrations, build e smoke.
+- `scripts/ops`: verificacoes locais seguras de env, migrations, build, smoke e dry-run de dados.
 - `docs/operations`: runbooks/checklists para Neon, Vercel, Stripe, Blob, migrations, env e go-live posterior.
 - `_reversa_forward/021-fase-13-legacy-parity`: evidencias de paridade, lacunas, migracao controlada, rollback e watch items.
+- `_reversa_forward/022-fase-14-data-dry-run`: contratos, checklist humano, guia operacional, validação, impacto e watch do dry-run controlado.
 
 ## Fluxo Comercial Principal
 
@@ -74,14 +78,26 @@ Nível: detalhado
 
 ## Paridade Legado x Next
 
-| Dominio | Estado pos-Fase 13 | Classificacao |
+| Dominio | Estado pos-Fase 14 | Classificacao |
 | --- | --- | --- |
 | Storefront/home/catalogo/produto | Next cobre a superficie principal; URLs legadas e privacidade exigem decisao | Parcial/decisao humana |
-| Catalogo/dados reais | Schema/admin/storefront existem; dados reais ainda nao migrados/reconciliados | Bloqueador |
-| Imagens | Produto-imagem e Blob existem; assets legados precisam mapeamento e capa/fallback | Bloqueador se sem cobertura |
+| Catalogo/dados reais | Schema/admin/storefront existem; dry-run seguro por arquivo existe; dados reais ainda precisam fonte aprovada e reconciliacao | Bloqueador ate dry-run real aprovado |
+| Imagens | Produto-imagem e Blob existem; Fase 14 valida referencias/capa/fallback sem copiar binarios | Bloqueador se sem cobertura |
 | Carrinho/cupom/frete manual/checkout/pedido/pagamento | Fluxo central substitui comportamento comercial | Substituido com smoke controlado |
 | Cliente/admin | Next cobre minimo operacional; Laravel tem backoffice mais amplo | Parcial/decisao humana |
 | Frete externo, fiscal/Bling/NF-e, analytics | Nao implementados funcionalmente no Next | Fora de escopo ou pos-go-live |
+
+## Dry-run Controlado de Dados
+
+| Camada | Artefato | Garantia |
+| --- | --- | --- |
+| Entrada | `data/dry-run/input/` | Apenas arquivos locais dentro da pasta permitida; exemplos sinteticos versionados; dados reais ignorados pelo Git |
+| Parser | `src/features/data-dry-run/input-contracts.ts` | CSV/JSON sem dependencia nova obrigatoria, com cabecalhos/campos previstos por entidade |
+| Segurança | `src/features/data-dry-run/safety.ts` | Bloqueia `.env`, secrets, tokens, URLs reais de banco e credenciais como `UNSAFE_INPUT` |
+| Normalizacao | `src/features/data-dry-run/normalizers/*` | Categorias, produtos, imagens por referencia, cupons e frete minimo em modelo intermediario |
+| Reconciliacao | `src/features/data-dry-run/reconciliation.ts` | Contagens, chaves, dinheiro, assets, cupons, frete, privacidade e divergencias |
+| Saida | `data/dry-run/output/` | Relatorios JSON/Markdown locais ignorados pelo Git |
+| Operacao | `pnpm ops:check-data-dry-run` | Nao conecta banco, nao importa dados, nao roda migration, nao faz upload e nao faz deploy |
 
 ## Dados
 
@@ -101,7 +117,7 @@ Os agregados críticos são:
 - 🔴 Fiscal/Bling/NF-e ainda é schema/roadmap, não feature funcional.
 - 🔴 Frete real e rastreamento ainda não existem.
 - 🔴 Estoque não tem movimentos auditáveis.
-- 🔴 Go-live real permanece bloqueado ate dry-run/reconciliacao de dados Must e decisoes humanas de corte.
+- 🔴 Go-live real permanece bloqueado ate dry-run/reconciliacao de dados Must com fonte real aprovada e decisoes humanas de corte.
 - 🟡 Go-live real ainda depende de aprovacao humana, envs reais nos providers, backup e smoke manual controlado.
 - 🟡 Dependências em `latest` exigem lockfile como fonte efetiva.
 
@@ -115,3 +131,4 @@ Os agregados críticos são:
 - 🟢 Scripts `ops:*` reportam apenas presenca/ausencia e nao imprimem valores.
 - 🟢 Readiness de migrations e build nao executa banco, deploy ou providers externos.
 - 🟢 Paridade legado x Next e documental; nao executa importacao real, migration real, banco real, deploy ou escrita no Laravel.
+- 🟢 Dry-run controlado da Fase 14 processa arquivos locais em memoria e nao executa importacao real, upload real, migration real, banco real ou deploy.

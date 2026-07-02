@@ -1,6 +1,6 @@
 # State Machines - Triade Essenza Next
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Detective
 
 ## Produto
@@ -180,17 +180,19 @@ Regras:
 stateDiagram-v2
   [*] --> paridade_documentada
   paridade_documentada --> bloqueadores_identificados: gap register Fase 13
-  bloqueadores_identificados --> dry_run_aprovado: fonte de dados aprovada
-  dry_run_aprovado --> reconciliacao_aprovada: catalogo/imagens/precos/estoque/cupons/frete batem
+  bloqueadores_identificados --> dry_run_sintetico_validado: Fase 14 exemplos/contratos
+  dry_run_sintetico_validado --> dry_run_fonte_real_aprovada: fonte local aprovada
+  dry_run_fonte_real_aprovada --> reconciliacao_aprovada: catalogo/imagens/precos/estoque/cupons/frete batem
   reconciliacao_aprovada --> pronto_para_cutover_planejado: decisoes humanas fechadas
   bloqueadores_identificados --> no_go: dados Must sem reconciliacao
-  dry_run_aprovado --> no_go: divergencia financeira/secret/dado cru
+  dry_run_fonte_real_aprovada --> no_go: divergencia financeira/secret/dado cru
   pronto_para_cutover_planejado --> rollback_planejado: smoke/cutover falha
 ```
 
 Regras:
 
 - 🟢 Fase 13 concluiu `paridade_documentada` e `bloqueadores_identificados`.
-- 🔴 `dry_run_aprovado` ainda nao ocorreu; depende de fonte de dados aprovada.
-- 🟢 `no_go` e obrigatorio enquanto catalogo real, imagens, precos, estoque, cupons ativos e frete minimo nao forem reconciliados.
+- 🟢 Fase 14 concluiu `dry_run_sintetico_validado` com exemplos locais, contratos CSV/JSON e `ops:check-data-dry-run`.
+- 🔴 `dry_run_fonte_real_aprovada` ainda nao ocorreu; depende de fonte de dados real aprovada manualmente.
+- 🟢 `no_go` e obrigatorio enquanto catalogo real, imagens, precos, estoque, cupons ativos e frete minimo nao forem reconciliados com fonte real.
 - 🟢 `rollback_planejado` preserva o Laravel legado intacto ate aceite formal.

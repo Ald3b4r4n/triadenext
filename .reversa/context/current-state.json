@@ -5,75 +5,31 @@
     "isLegacyLaravel": false,
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
-  "updatedAt": "2026-07-01T17:45:00-03:00",
-  "scope": "Re-extracao Reversa pos-Fase 13 concluida",
+  "updatedAt": "2026-07-02T00:00:00-03:00",
+  "scope": "Re-extracao Reversa pos-Fase 14 concluida",
   "git": {
     "branch": "main",
     "statusBeforeReextraction": "main...origin/main [ahead 1]",
     "latestCommit": {
-      "short": "9ad10b4",
-      "hash": "9ad10b449a582a0665af4f9e13cbe0de69bde3f3",
-      "message": "feat: add legacy parity and migration readiness"
+      "short": "cc19f27",
+      "hash": "cc19f27",
+      "message": "feat: add controlled data dry-run readiness"
     },
-    "phase13CommitPushed": false,
-    "workingTreeBeforeReextraction": "clean_after_next_env_restore"
+    "phase14CommitPushed": false,
+    "workingTreeBeforeReextraction": "clean"
   },
   "implementedPhases": [
-    {
-      "phase": 1,
-      "status": "completed",
-      "summary": "Fundacao Next.js"
-    },
-    {
-      "phase": 2,
-      "status": "completed",
-      "summary": "Persistencia inicial"
-    },
-    {
-      "phase": 3,
-      "status": "completed",
-      "summary": "Catalogo publico"
-    },
-    {
-      "phase": 4,
-      "status": "completed",
-      "summary": "Auth, papeis e admin"
-    },
-    {
-      "phase": 5,
-      "status": "completed",
-      "summary": "Carrinho"
-    },
-    {
-      "phase": 6,
-      "status": "completed",
-      "summary": "Cupons"
-    },
-    {
-      "phase": 7,
-      "status": "completed",
-      "summary": "Frete manual"
-    },
-    {
-      "phase": 8,
-      "status": "completed",
-      "summary": "Checkout e pedido pendente"
-    },
-    {
-      "phase": 9,
-      "status": "completed",
-      "summary": "Stripe e settlement"
-    },
-    {
-      "phase": 10,
-      "status": "completed",
-      "summary": "Notificacoes pos-pagamento idempotentes"
-    },
-    {
-      "phase": 11,
-      "status": "completed",
-      "summary": "QA visual, hardening frontend e checklist seguro de producao"
-    },
+    { "phase": 1, "status": "completed", "summary": "Fundacao Next.js" },
+    { "phase": 2, "status": "completed", "summary": "Persistencia inicial" },
+    { "phase": 3, "status": "completed", "summary": "Catalogo publico" },
+    { "phase": 4, "status": "completed", "summary": "Auth, papeis e admin" },
+    { "phase": 5, "status": "completed", "summary": "Carrinho" },
+    { "phase": 6, "status": "completed", "summary": "Cupons" },
+    { "phase": 7, "status": "completed", "summary": "Frete manual" },
+    { "phase": 8, "status": "completed", "summary": "Checkout e pedido pendente" },
+    { "phase": 9, "status": "completed", "summary": "Stripe e settlement" },
+    { "phase": 10, "status": "completed", "summary": "Notificacoes pos-pagamento idempotentes" },
+    { "phase": 11, "status": "completed", "summary": "QA visual, hardening frontend e checklist seguro de producao" },
     {
       "phase": 12,
       "status": "completed",
@@ -85,10 +41,16 @@
       "status": "completed",
       "summary": "Legacy parity and controlled data migration readiness",
       "commit": "9ad10b449a582a0665af4f9e13cbe0de69bde3f3"
+    },
+    {
+      "phase": 14,
+      "status": "completed",
+      "summary": "Controlled data dry-run and reconciliation readiness",
+      "commit": "cc19f27"
     }
   ],
   "currentCapabilities": {
-    "catalog": "Catalogo publico e estoque baixado somente no settlement; catalogo real ainda precisa dry-run/reconciliacao",
+    "catalog": "Catalogo publico e estoque baixado somente no settlement; catalogo real ainda precisa dry-run/reconciliacao com fonte real aprovada",
     "auth": "Papeis customer/admin/manager e ownership server-side",
     "cart": "Carrinho com cupom, frete e conversao",
     "checkout": "Pedido pendente autenticado com snapshots",
@@ -96,33 +58,33 @@
     "notifications": "Customer e admins notificados apos pagamento; historico admin somente leitura",
     "frontendReadiness": "Storefront endurecido com smoke visual e responsividade basica",
     "productionReadiness": "Docs, checklists e scripts seguros para Neon, Vercel, Stripe test mode, Blob, env, migrations e smoke",
-    "legacyParityReadiness": "Matriz Laravel x Next, gap register, inventario legado, dry-run, reconciliacao, checklist go-live e rollback"
+    "legacyParityReadiness": "Matriz Laravel x Next, gap register, inventario legado, checklist go-live e rollback",
+    "controlledDataDryRun": "CSV/JSON local, normalizadores, scanner de seguranca, reconciliacao e relatorio go/no-go sem escrita real"
   },
   "currentLegacyParity": {
     "centralCommerceFlow": "substituido_com_dados_corretos",
+    "dryRunPipeline": "validado_com_exemplos_sinteticos",
     "blockers": [
-      "catalogo_real_imagens_precos_estoque_cupons_ativos_frete_minimo_precisam_dry_run_reconciliacao",
-      "dry_run_controlado_precisa_fonte_de_dados_aprovada"
+      "catalogo_real_imagens_precos_estoque_cupons_ativos_frete_minimo_precisam_dry_run_com_fonte_real_aprovada",
+      "reconciliacao_real_precisa_resultado_go_ou_excecoes_humanas_formais"
     ],
     "humanDecisions": [
       "urls_legadas_redirects_privacidade",
       "frete_externo_rastreamento",
       "clientes_e_pedidos_historicos",
-      "fiscal_bling_nfe"
+      "fiscal_bling_nfe",
+      "aprovacao_de_fonte_real_para_dry_run"
     ],
     "rollback": "laravel_legado_intacto_ate_aceite_formal_pos_cutover"
   },
   "currentProductionReadiness": {
-    "environments": [
-      "local",
-      "preview/staging",
-      "production"
-    ],
+    "environments": ["local", "preview/staging", "production"],
     "scripts": [
       "ops:check-env",
       "ops:check-migrations",
       "ops:check-build",
-      "ops:check-smoke"
+      "ops:check-smoke",
+      "ops:check-data-dry-run"
     ],
     "safeDefaults": {
       "noSecretValuesPrinted": true,
@@ -144,18 +106,43 @@
       "drizzle/0006_soft_mole_man.sql",
       "drizzle/0007_outstanding_midnight.sql"
     ],
-    "phase13SchemaDelta": false,
+    "phase14SchemaDelta": false,
     "realMigrationApplied": false,
     "realImportApplied": false,
-    "readiness": "migracao de dados e apenas documental ate dry-run aprovado"
+    "realUploadApplied": false,
+    "readiness": "dry-run por arquivos locais validado com exemplos; dados reais ainda dependem de fonte aprovada e reconciliacao"
+  },
+  "dataDryRun": {
+    "inputRoot": "data/dry-run/input",
+    "exampleInput": "data/dry-run/input/examples",
+    "outputRoot": "data/dry-run/output",
+    "script": "pnpm ops:check-data-dry-run",
+    "entities": ["categories", "products", "productImages", "coupons", "shippingRules"],
+    "divergenceCodes": [
+      "UNSAFE_INPUT",
+      "INPUT_MISSING",
+      "INVALID_HEADER",
+      "INVALID_VALUE",
+      "DUPLICATE_KEY",
+      "UNKNOWN_REFERENCE",
+      "IMAGE_MISSING",
+      "SHIPPING_COVERAGE_MISSING"
+    ],
+    "syntheticRun": {
+      "source": "data/dry-run/input/examples",
+      "goNoGo": "go",
+      "blockers": 0,
+      "warnings": 0
+    }
   },
   "validations": {
-    "phase13": {
+    "phase14": {
       "pnpm lint": "passed",
       "pnpm typecheck": "passed",
-      "pnpm test": "passed - 37 files / 108 tests",
+      "pnpm test": "passed - 43 files / 121 tests",
       "pnpm build": "passed",
-      "pnpm test:e2e": "passed - 36 tests"
+      "pnpm test:e2e": "passed - 36 tests",
+      "pnpm ops:check-data-dry-run": "passed - examples go / 0 blockers / 0 warnings"
     }
   },
   "outOfScope": [
@@ -165,6 +152,7 @@
     "credenciais_reais_em_codigo",
     "migracao_de_dados_reais_sem_aprovacao",
     "importacao_real_automatica",
+    "upload_real_automatico",
     "bling",
     "nf_e",
     "rotinas_fiscais",
@@ -186,12 +174,12 @@
       "_reversa_sdd/traceability/spec-impact-matrix.md",
       "_reversa_sdd/migration/data_migration_plan.md",
       "_reversa_sdd/migration/cutover_plan.md",
-      "_reversa_sdd/adrs/008-legacy-parity-e-migracao-controlada.md"
+      "_reversa_sdd/adrs/009-dry-run-controlado-por-arquivos-locais.md"
     ],
-    "forwardFeature": "_reversa_forward/021-fase-13-legacy-parity"
+    "forwardFeature": "_reversa_forward/022-fase-14-data-dry-run"
   },
   "nextStep": {
-    "recommendedCommand": "commit documental dos artefatos Reversa pos-Fase 13 e push de main",
-    "reason": "Conhecimento de paridade, bloqueadores, dry-run, rollback e watch atualizado apos a Fase 13"
+    "recommendedCommand": "commit documental dos artefatos Reversa pos-Fase 14 e push de main",
+    "reason": "Conhecimento de dry-run, reconciliacao, divergencias, checklist humano e watch atualizado apos a Fase 14"
   }
 }

@@ -1,8 +1,8 @@
 # Inventario tecnico Reversa - Triade Essenza Next
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Scout
-Escopo: re-extracao pos-Fase 13, com foco no estado Next.js atual, readiness operacional e paridade Laravel x Next.
+Escopo: re-extracao pos-Fase 14, com foco no estado Next.js atual, dry-run controlado de dados, readiness operacional e paridade Laravel x Next.
 
 ## Contexto
 
@@ -20,13 +20,15 @@ Escopo contado: `src`, `drizzle`, `scripts`, `docs`.
 
 | Extensao | Arquivos |
 | --- | ---: |
-| `.ts` | 143 |
+| `.ts` | 165 |
 | `.tsx` | 55 |
 | `.md` | 33 |
 | `.sql` | 8 |
-| `.mjs` | 6 |
+| `.mjs` | 7 |
+| `.csv` | 11 |
+| `.json` | 9 |
 
-Total observado nesse recorte: 255 arquivos.
+Total observado nesse recorte: 290 arquivos.
 
 ## Entry points
 
@@ -50,6 +52,7 @@ Total observado nesse recorte: 255 arquivos.
 | `scripts/ops/check-migrations-readiness.mjs` | Readiness estatico de migrations |
 | `scripts/ops/check-build-readiness.mjs` | Readiness seguro de build |
 | `scripts/ops/check-smoke-readiness.mjs` | Readiness seguro de smoke |
+| `scripts/ops/check-data-dry-run-readiness.mjs` | Dry-run seguro de dados por arquivos locais |
 
 ## Modulos identificados
 
@@ -63,9 +66,10 @@ Total observado nesse recorte: 255 arquivos.
 - `payments`: Stripe PaymentIntent, webhook e settlement.
 - `notifications`: notificacoes pos-pagamento e providers.
 - `uploads`: upload de imagens de produto.
+- `data-dry-run`: contratos CSV/JSON, normalizacao em memoria, reconciliacao e relatorio seguro para dados Must.
 - `db`: schema Drizzle e cliente.
 - `lib`: utilitarios transversais.
-- `operations`: documentacao e scripts seguros para staging/producao sem deploy ou migration real automatica.
+- `operations`: documentacao e scripts seguros para staging/producao/dry-run sem deploy, migration real, banco real, import real ou upload real automatico.
 
 ## Banco de dados
 
@@ -86,7 +90,7 @@ Total observado nesse recorte: 255 arquivos.
 
 ## Artefatos Reversa/Forward existentes
 
-- `_reversa_forward/001-fase-3-neon-drizzle` ate `_reversa_forward/020-fase-12-production-readiness`.
+- `_reversa_forward/001-fase-3-neon-drizzle` ate `_reversa_forward/022-fase-14-data-dry-run`.
 - Trilhas de migracao geral abertas: `_reversa_forward/009-*` ate `_reversa_forward/018-*`.
 - `_reversa_sdd/migration` e `_reversa_sdd/design-system` existem como planejamento.
 
@@ -104,6 +108,17 @@ Total observado nesse recorte: 255 arquivos.
 - Decisoes humanas pendentes: redirects/URLs legadas, pagina de privacidade, frete externo/rastreamento, clientes e pedidos historicos, fiscal/Bling/NF-e.
 - Artefatos novos principais: gap register, inventario legado, plano de dry-run, reconciliacao, checklist go-live, rollback, legacy-impact e regression-watch.
 - Nenhuma alteracao funcional, deploy real, migration real, conexao com banco real, importacao real, secrets ou alteracao no Laravel legado foi executada nesta re-extracao.
+
+## Estado pos-Fase 14
+
+- Commit funcional de referencia: `cc19f27 feat: add controlled data dry-run readiness`.
+- Fase 14 criou a estrutura segura `data/dry-run/input/`, com `.gitkeep` e exemplos sinteticos CSV versionados.
+- Fase 14 adicionou `src/features/data-dry-run`, com descoberta segura de entrada, parser CSV/JSON, scanner de seguranca, normalizadores de categorias/produtos/imagens/cupons/frete e reconciliacao.
+- O script `pnpm ops:check-data-dry-run` roda por padrao sobre `data/dry-run/input/examples`, escreve relatorios em `data/dry-run/output/` e retorna `go/no-go` sem persistir dados.
+- Divergencias classificadas: `UNSAFE_INPUT`, `INPUT_MISSING`, `INVALID_HEADER`, `INVALID_VALUE`, `DUPLICATE_KEY`, `UNKNOWN_REFERENCE`, `IMAGE_MISSING` e `SHIPPING_COVERAGE_MISSING`.
+- Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (43 arquivos / 121 testes), `pnpm build`, `pnpm test:e2e` (36 testes) e `pnpm ops:check-data-dry-run`.
+- Dry-run com exemplos sinteticos passou com `go`, 0 bloqueadores e 0 avisos; dry-run com fonte real aprovada ainda nao foi executado.
+- Nenhuma importacao real, upload real, migration real, conexao com banco real, deploy, segredo exposto ou alteracao no Laravel legado foi executada.
 
 ## Organizacao sugerida
 

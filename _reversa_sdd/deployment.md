@@ -1,6 +1,6 @@
 # Deployment - Triade Essenza Next
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Architect
 
 ## Estado Detectado
@@ -54,6 +54,7 @@ flowchart TB
 | `pnpm ops:check-migrations` | Analisa `drizzle/*.sql` estaticamente | Nao executa migration e nao le `DATABASE_URL` |
 | `pnpm ops:check-build` | Confirma scripts locais esperados | Nao chama Vercel, banco, migration ou provider externo |
 | `pnpm ops:check-smoke` | Valida alvo de smoke seguro | Default local e sem pagamento/e-mail/upload real |
+| `pnpm ops:check-data-dry-run` | Valida CSV/JSON locais para dados Must | Nao conecta banco, nao importa dados, nao faz upload e nao le `.env` |
 
 ## Guardrails Operacionais
 
@@ -62,6 +63,7 @@ flowchart TB
 - 🟢 Stripe mock só deve existir em dev/test.
 - 🟢 Preview/produção sem provider real falham de modo seguro.
 - 🟢 Deploy/migration real permanecem dependentes de aprovação humana explícita.
+- 🟢 Dry-run de dados roda por arquivo local controlado e nao substitui aprovacao humana para import real.
 - 🔴 Deploy automático não está configurado neste repositório nem foi executado nesta re-extração.
 
 ## Estado Pos-Fase 12
@@ -77,3 +79,12 @@ flowchart TB
 - Go-live real permanece bloqueado por dados: catalogo real, imagens, precos, estoque, cupons ativos e frete minimo precisam de dry-run/reconciliacao aprovados.
 - Dry-run controlado ainda depende de fonte de dados aprovada e ambiente isolado; import real, migration real, banco real e deploy continuam proibidos sem aprovacao humana explicita.
 - Rollback: Laravel legado deve permanecer intacto e disponivel para consulta/retorno operacional ate aceite formal pos-cutover.
+
+## Estado Pos-Fase 14
+
+- Commit funcional de referencia: `cc19f27 feat: add controlled data dry-run readiness`.
+- Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (43 arquivos / 121 testes), `pnpm build`, `pnpm test:e2e` (36 testes) e `pnpm ops:check-data-dry-run`.
+- `ops:check-data-dry-run` passou com exemplos sinteticos: fonte `data/dry-run/input/examples`, resultado `go`, 0 bloqueadores e 0 avisos.
+- A pasta `data/dry-run/input/` fica preparada para arquivos locais aprovados, mas dados reais sensiveis nao devem ser versionados.
+- A pasta `data/dry-run/output/` recebe relatorios locais e fica ignorada pelo Git.
+- Go-live real permanece bloqueado ate dry-run/reconciliacao com fonte real aprovada, checklist humano e decisao de corte.

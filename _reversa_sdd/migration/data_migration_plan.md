@@ -6,6 +6,7 @@
 - Storage público de imagens.
 - Configurações comerciais e administrativas.
 - Histórico de pedidos, clientes e cupons.
+- Arquivos locais aprovados CSV/JSON em `data/dry-run/input/` para ensaio inicial.
 
 ## Ordem de migração
 
@@ -34,6 +35,28 @@
 | Pedidos historicos | Decisao humana | Pode ficar para pos-go-live se aceito. |
 | Fiscal/Bling/NF-e | Fora de escopo/decisao | Fase futura se obrigatorio no dia zero. |
 
+## Estado Pos-Fase 14
+
+- O dry-run controlado agora possui implementacao local segura via `pnpm ops:check-data-dry-run`.
+- A fonte inicial aprovada para ensaio e arquivo local CSV/JSON dentro de `data/dry-run/input/`.
+- A Fase 14 versiona apenas `.gitkeep`, exemplos sinteticos e contratos; dados reais continuam fora do Git.
+- A reconciliacao gera relatorios JSON/Markdown em `data/dry-run/output/`, ignorados pelo Git.
+- A execucao com exemplos sinteticos retornou `go`, 0 bloqueadores e 0 avisos.
+- A execucao com fonte real aprovada ainda precisa ocorrer em etapa futura antes de qualquer importacao real.
+
+## Divergencias Bloqueadoras do Dry-run
+
+| Codigo | Condicao | Impacto |
+| --- | --- | --- |
+| `UNSAFE_INPUT` | `.env`, secret, token, URL real de banco ou credencial em caminho/campo/valor | Bloqueia qualquer avanço |
+| `INPUT_MISSING` | Arquivo Must ausente | Bloqueia reconciliacao |
+| `INVALID_HEADER` | Campo fora do contrato CSV/JSON | Bloqueia mapeamento |
+| `INVALID_VALUE` | Valor nao normalizavel ou regra invalida | Bloqueia entidade afetada |
+| `DUPLICATE_KEY` | SKU, slug, codigo de cupom ou regra duplicada | Bloqueia import futuro |
+| `UNKNOWN_REFERENCE` | Produto sem categoria ou imagem sem produto | Bloqueia integridade |
+| `IMAGE_MISSING` | Produto publicado sem capa nem fallback aprovado | Bloqueia catalogo vendavel |
+| `SHIPPING_COVERAGE_MISSING` | Nenhuma regra ativa de frete minimo com preco positivo | Bloqueia checkout |
+
 ## Estratégia
 
 - Criar exporters read-only no legado ou dump controlado.
@@ -43,6 +66,7 @@
 - Repetir dry-run até divergência aceitável ser zero nos domínios críticos.
 - Separar relatorios versionaveis de arquivos com dados pessoais/secretos; relatorios devem usar amostras mascaradas.
 - Exigir aprovacao humana antes de banco legado, export real, import real ou migration real.
+- Executar primeiro `ops:check-data-dry-run` com exemplos sinteticos e depois com pasta local real aprovada, sem usar `.env`.
 
 ## Não fazer nesta etapa
 
@@ -52,3 +76,4 @@
 - Não alterar dados do legado.
 - Não importar dados reais automaticamente.
 - Não imprimir dados pessoais crus ou URLs reais de banco.
+- Não copiar binários reais de imagem nem fazer upload real durante o dry-run.

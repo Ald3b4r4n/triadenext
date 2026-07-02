@@ -1,9 +1,9 @@
 # Code Analysis - Triade Essenza Next
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Archaeologist
 Nível: detalhado
-Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, `orders`, `payments`, `notifications`, `uploads`, `db`, `lib` e readiness operacional.
+Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, `orders`, `payments`, `notifications`, `uploads`, `data-dry-run`, `db`, `lib` e readiness operacional.
 
 ## Visão Geral
 
@@ -14,6 +14,8 @@ Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, 
 🟢 **CONFIRMADO** A Fase 12 adicionou scripts operacionais seguros em `scripts/ops`, docs em `docs/operations`, smoke tests production-ready e contrato de env revisado sem secrets.
 
 🟢 **CONFIRMADO** A Fase 13 nao alterou codigo funcional; adicionou artefatos Reversa Forward de paridade Laravel x Next, gap register, inventario legado, dry-run, reconciliacao, checklist go-live, rollback e regression-watch.
+
+🟢 **CONFIRMADO** A Fase 14 adicionou codigo operacional seguro em `src/features/data-dry-run` e `scripts/ops/check-data-dry-run-readiness.mjs`, sem alterar regras funcionais de compra/pagamento/estoque/cupons/frete/pedidos/notificacoes.
 
 🟡 **INFERIDO** A estratégia dominante é domínio vertical por feature, com Server Actions para mutações, repositories para persistência real/fallback e componentes React para UI.
 
@@ -244,6 +246,41 @@ Regras:
 - 🟢 Sem `BLOB_READ_WRITE_TOKEN`, upload real bloqueia.
 - 🟡 Rota `src/app/api/upload/route.ts` ainda é placeholder seguro.
 
+### data-dry-run
+
+Arquivos principais:
+
+- `src/features/data-dry-run/input-discovery.ts`
+- `src/features/data-dry-run/input-contracts.ts`
+- `src/features/data-dry-run/safety.ts`
+- `src/features/data-dry-run/normalize.ts`
+- `src/features/data-dry-run/normalizers/*.ts`
+- `src/features/data-dry-run/reconciliation.ts`
+- `src/features/data-dry-run/report-writer.ts`
+- `src/features/data-dry-run/run-dry-run.ts`
+- `src/features/data-dry-run/cli.ts`
+
+Funções principais:
+
+- `resolveSafeInputDir()`: aceita apenas pastas dentro de `data/dry-run/input/`.
+- `loadDryRunInput()`: descobre arquivos CSV/JSON locais, aplica contratos e agrega issues.
+- `parseInputFile()`: interpreta CSV/JSON sem nova dependencia obrigatoria.
+- `scanRecordsForUnsafeValues()`: detecta `.env`, secrets, tokens, URL real de banco e credenciais sem imprimir valores crus.
+- `normalizeDryRunDataset()`: agrega normalizadores de categorias, produtos, imagens, cupons e frete.
+- `reconcileDryRunData()`: gera contagens, chaves, dinheiro, assets, frete, cupons, divergencias e privacidade.
+- `writeReconciliationReport()`: escreve JSON/Markdown em pasta de saida permitida.
+- `runDataDryRun()`: encadeia leitura, normalizacao, reconciliacao e relatorio sem persistencia real.
+
+Regras:
+
+- 🟢 Entrada padrao usa exemplos sinteticos em `data/dry-run/input/examples`.
+- 🟢 Entrada real futura precisa ficar dentro de `data/dry-run/input/` e ser aprovada manualmente.
+- 🟢 Saida fica em `data/dry-run/output/`, ignorada pelo Git.
+- 🟢 `goNoGo` vira `no-go` se houver divergencia bloqueadora, severidade `CRITICAL`/`HIGH`, secret ou dado inseguro.
+- 🟢 Produtos publicados exigem referencia de imagem com capa ou fallback aprovado.
+- 🟢 Frete minimo exige ao menos uma regra ativa com preco positivo.
+- 🟢 O modulo nao conecta banco, nao roda migration, nao importa dados, nao copia binarios, nao faz upload, nao faz deploy e nao toca no Laravel legado.
+
 ### db
 
 Arquivos principais:
@@ -296,6 +333,7 @@ Arquivos principais:
 - `scripts/ops/check-migrations-readiness.mjs`
 - `scripts/ops/check-build-readiness.mjs`
 - `scripts/ops/check-smoke-readiness.mjs`
+- `scripts/ops/check-data-dry-run-readiness.mjs`
 
 Funções principais:
 
@@ -303,11 +341,13 @@ Funções principais:
 - `check-migrations-readiness`: lista migrations Drizzle e identifica padroes destrutivos de forma estatica.
 - `check-build-readiness`: confirma presenca de scripts locais e bloqueia sinais de deploy/migration automatica nos `ops:*`.
 - `check-smoke-readiness`: valida URL alvo segura com default local.
+- `check-data-dry-run`: executa dry-run seguro sobre arquivos locais controlados, por padrao exemplos sinteticos.
 
 Regras:
 
 - 🟢 Nenhum script `ops:*` conecta banco real, executa migration real, chama Vercel, envia e-mail, faz upload real ou imprime secret.
 - 🟢 Smoke production-ready E2E cobre fluxo publico e superficies protegidas sem acao destrutiva.
+- 🟢 `ops:check-data-dry-run` nao importa dados reais, nao executa upload real e nao le `.env`.
 
 ## Algoritmos Críticos
 
@@ -317,6 +357,7 @@ Regras:
 4. 🟢 Settlement: confirma webhook, valida divergência, baixa estoque, consome cupom e marca pedido/pagamento.
 5. 🟢 Notificações: usa outbox/idempotência por pedido/evento/tipo/destinatário.
 6. 🟢 Readiness operacional: valida ambiente, migrations, build e smoke sem efeitos externos.
+7. 🟢 Dry-run controlado: le arquivos locais, normaliza dados Must e gera reconciliacao sem escrita real.
 
 ## Lacunas Técnicas
 
@@ -326,3 +367,4 @@ Regras:
 - 🔴 Provedores reais de frete estão declarados como futuros e inativos.
 - 🟡 Upload tem service real, mas rota API ainda retorna placeholder seguro.
 - 🟡 Go-live real ainda depende de configuracao externa aprovada em Neon/Vercel/Stripe/Blob.
+- 🟡 Dry-run com exemplos sinteticos passou; dry-run com fonte real aprovada ainda precisa ser executado e reconciliado antes do go-live.

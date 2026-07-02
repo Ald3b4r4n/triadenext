@@ -1,6 +1,6 @@
 # Domain - Triade Essenza Next
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 Agente: Detective
 Nível: detalhado
 
@@ -21,8 +21,10 @@ Nível: detalhado
 | Outbox de notificação | Registro idempotente de entrega transacional pós-pagamento. | 🟢 |
 | Readiness de produção | Conjunto documental e de scripts locais que prepara staging/producao sem executar deploy, migration real ou banco real automaticamente. | 🟢 |
 | Paridade legado x Next | Evidencia comparativa de que um dominio do Laravel e substituido, parcial, ausente, fora do go-live, decisao humana ou bloqueador no Next. | 🟢 |
-| Dry-run de migracao | Ensaio controlado com fonte aprovada e ambiente isolado, sem importacao real em producao. | 🟢 |
+| Dry-run de migracao | Ensaio controlado por arquivos locais aprovados, sem importacao real em producao. | 🟢 |
 | Reconciliacao de dados | Conferencia de contagens, chaves comerciais, valores em centavos, status, amostras mascaradas e assets. | 🟢 |
+| Fonte local aprovada | Pasta dentro de `data/dry-run/input/`, preenchida manualmente com CSV/JSON autorizados para ensaio. | 🟢 |
+| Divergencia bloqueadora | Issue `CRITICAL`/`HIGH` ou `goLiveImpact=bloqueador` que impede avancar para importacao real futura. | 🟢 |
 
 ## Regras de Domínio
 
@@ -117,11 +119,24 @@ Nível: detalhado
 - 🟡 Clientes, enderecos e pedidos historicos podem ser migrados ou ficar em consulta temporaria no legado conforme decisao humana.
 - 🟡 Frete externo/rastreamento e fiscal/Bling/NF-e podem bloquear go-live apenas se negocio exigir no dia zero.
 
+### Dry-run Controlado de Dados
+
+- 🟢 A entrada do dry-run da Fase 14 precisa estar dentro de `data/dry-run/input/`.
+- 🟢 O padrao seguro usa exemplos sinteticos em `data/dry-run/input/examples`.
+- 🟢 Saidas de dry-run ficam em `data/dry-run/output/` e nao devem ser versionadas quando contiverem dados reais.
+- 🟢 O script `ops:check-data-dry-run` nao conecta banco, nao importa dados, nao roda migration, nao faz upload, nao faz deploy e nao le `.env`.
+- 🟢 Arquivos, campos ou valores com aparencia de `.env`, secret, token, URL real de banco ou credencial viram `UNSAFE_INPUT`.
+- 🟢 Produto publicado sem categoria valida, preco positivo, estoque positivo, `published_at` valido, capa ou fallback aprovado bloqueia avancar.
+- 🟢 Frete minimo exige pelo menos uma regra ativa com preco positivo.
+- 🟢 Importacao real futura depende de checklist humano separado, backup/rollback e fonte real aprovada.
+- 🟡 O dry-run sintetico da Fase 14 prova o pipeline; nao prova ainda os dados reais legados.
+
 ## Decisões Implícitas Extraídas do Git
 
 - 🟢 A migração avançou em fases verticais: persistência, auth, carrinho, cupons, frete, checkout, pagamento, notificações e storefront.
 - 🟢 A Fase 12 consolidou uma macrofase operacional antes do go-live para evitar microfeatures de producao.
 - 🟢 A Fase 13 consolidou uma macrofase de decisao de substituicao do Laravel, separando paridade, bloqueadores reais, decisoes humanas e rollback.
+- 🟢 A Fase 14 consolidou uma macrofase de dry-run controlado por arquivo, com reconciliacao executavel e guardrails contra operacao real.
 - 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
 - 🟢 O sistema prefere fallback explícito a falha silenciosa.
 - 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.
@@ -136,5 +151,5 @@ Nível: detalhado
 - 🔴 Estoque auditável por movimentos ainda não existe.
 - 🔴 Relatórios, analytics e admin operacional permanecem como features futuras.
 - 🔴 Deploy real, migration real em producao e migracao de dados reais ainda nao foram executados nem aprovados.
-- 🔴 Dry-run/reconciliacao de dados reais ainda nao foi executado nem aprovado.
-- 🔴 Catalogo real, imagens, precos, estoque, cupons ativos e frete minimo ainda nao estao provados contra dados legados.
+- 🔴 Dry-run/reconciliacao com fonte real aprovada ainda nao foi executado nem aprovado.
+- 🔴 Catalogo real, imagens, precos, estoque, cupons ativos e frete minimo ainda nao estao provados contra dados legados reais.
