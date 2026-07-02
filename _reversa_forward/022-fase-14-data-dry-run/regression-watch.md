@@ -19,6 +19,25 @@
 
 ## Historico de re-extracoes
 
+### Re-extração 2026-07-02 - Pos-Fase 15
+
+| ID | Veredito | Observação |
+|----|----------|------------|
+| W001 | 🟢 verde | Laravel legado permanece somente leitura nos artefatos pos-Fase 15; `primeira-execucao` nao copia nem le dados do legado automaticamente. |
+| W002 | 🟢 verde | `_reversa_sdd/inventory.md`, `deployment.md` e ADR 010 mantem `data/dry-run/input/primeira-execucao/` e `data/dry-run/output/` fora do Git. |
+| W003 | 🟢 verde | `UNSAFE_INPUT` e scanner de secrets seguem documentados em `_reversa_sdd/code-analysis.md` e `migration/data_migration_plan.md`. |
+| W004 | 🟢 verde | Restricao de entrada dentro de `data/dry-run/input/` preservada em `_reversa_sdd/architecture.md`, `domain.md` e ADR 010. |
+| W005 | 🟢 verde | Dry-run em memoria preservado; inventario da Fase 15 nao importa dados nem escreve em banco. |
+| W006 | 🟢 verde | Ausencia de migration, deploy, upload e provider externo preservada em `_reversa_sdd/deployment.md` e ADR 010. |
+| W007 | 🟢 verde | Produto publicado sem capa/fallback segue bloqueador; Fase 15 apenas troca o nome primario para `product_images.*`. |
+| W008 | 🟢 verde | Frete minimo ativo com preco positivo segue bloqueador; Fase 15 usa `shipping.*` e preserva `shipping-rules.*` como alias. |
+| W009 | 🟢 verde | Divergencias `CRITICAL`/`HIGH` continuam bloqueadoras e agora tambem carregam origem. |
+| W010 | 🟢 verde | Importacao real futura continua dependente de checklist humano; `pending-input` nao autoriza importacao. |
+
+| Data | Comando | Resultado |
+|------|---------|-----------|
+| 2026-07-02 | `/reversa` pós-Fase 15 | 10 verdes, 0 amarelos, 0 vermelhos |
+
 ### Re-extração 2026-07-02
 
 | ID | Veredito | Observação |

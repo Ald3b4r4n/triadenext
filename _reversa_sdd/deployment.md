@@ -88,3 +88,12 @@ flowchart TB
 - A pasta `data/dry-run/input/` fica preparada para arquivos locais aprovados, mas dados reais sensiveis nao devem ser versionados.
 - A pasta `data/dry-run/output/` recebe relatorios locais e fica ignorada pelo Git.
 - Go-live real permanece bloqueado ate dry-run/reconciliacao com fonte real aprovada, checklist humano e decisao de corte.
+
+## Estado Pos-Fase 15
+
+- Commit funcional de referencia: `9c2b77d feat: implement approved data dry run`.
+- A execucao aprovada inicial e `data/dry-run/input/primeira-execucao/`.
+- Sem arquivos reais/exportados nessa pasta, o comando seguro retorna `pending-input`, gera relatorio de pendencia e preserva exit code de sucesso operacional.
+- Com arquivos aprovados presentes, o mesmo comando executa dry-run em memoria, gera relatorios em `data/dry-run/output/<execucao>-<status>/` e classifica divergencias por origem.
+- `data/dry-run/input/primeira-execucao/` e `data/dry-run/output/` permanecem ignorados pelo Git para evitar versionar dados reais ou relatorios brutos.
+- Nenhum deploy, migration real, conexao com banco real, importacao real, upload real, segredo ou alteracao no Laravel legado foi executado.

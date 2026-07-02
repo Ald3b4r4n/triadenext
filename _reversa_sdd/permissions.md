@@ -55,6 +55,7 @@ Agente: Detective
 - 🟢 Mensagens de erro são controladas e não expõem secrets.
 - 🟢 Scripts `ops:*` podem ser executados localmente por operador humano, mas nao concedem permissao de deploy, migration real, banco real, pagamento real ou envio real.
 - 🟢 `ops:check-data-dry-run` pode ser executado localmente por operador humano sobre exemplos ou fonte local aprovada, mas nao concede permissao de importacao real.
+- 🟢 `ops:check-data-dry-run -- --input data/dry-run/input/primeira-execucao --format both` pode retornar `pending-input` quando faltam arquivos reais; isso nao autoriza copiar dados, conectar banco ou importar.
 - 🟢 Deploy/migration real ficam fora das permissoes da aplicacao e exigem aprovacao humana operacional.
 - 🟢 Dry-run com dados reais, importacao real, banco real e cutover tambem ficam fora das permissoes da aplicacao e exigem aprovacao humana explicita.
 - 🟢 Aprovacao humana para importacao futura fica em checklist operacional, nao em papel de usuario da aplicacao.

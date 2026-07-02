@@ -40,13 +40,15 @@
     "fase_13",
     "reextracao_pos_fase_13",
     "fase_14",
-    "reextracao_pos_fase_14"
+    "reextracao_pos_fase_14",
+    "fase_15",
+    "reextracao_pos_fase_15"
   ],
   "pending": [
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "reextraction_after_phase_14_2026_07_02",
+  "last_checkpoint": "reextraction_after_phase_15_2026_07_02",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -1399,6 +1401,88 @@
       },
       "next_phase": "commit_reversa_pos_fase_14_e_push",
       "next_command": "git commit dos artefatos Reversa pos-Fase 14, depois push dos commits locais"
+    },
+    "reextraction_after_phase_15_2026_07_02": {
+      "completed_at": "2026-07-02T00:00:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD apos Fase 15 de approved data dry-run execution.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "latest_commit": {
+          "short": "9c2b77d",
+          "hash": "9c2b77da5d03c0228203f22151bf0f4af528fe29",
+          "message": "feat: implement approved data dry run"
+        },
+        "worktree_before_reextraction": "clean"
+      },
+      "files": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/code-analysis.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_sdd/deployment.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/migration/data_migration_plan.md",
+        "_reversa_sdd/migration/cutover_plan.md",
+        "_reversa_sdd/adrs/010-primeira-execucao-pending-input.md",
+        "_reversa_forward/022-fase-14-data-dry-run/regression-watch.md",
+        "_reversa_forward/023-fase-15-approved-data-dry-run/regression-watch.md"
+      ],
+      "phase15_summary": {
+        "approved_execution": "data/dry-run/input/primeira-execucao/",
+        "absent_real_files_status": "pending-input",
+        "expected_files": [
+          "products.csv/json",
+          "categories.csv/json",
+          "product_images.csv/json",
+          "inventory.csv/json",
+          "coupons.csv/json",
+          "shipping.csv/json"
+        ],
+        "preserved_aliases": [
+          "product-images.csv/json",
+          "shipping-rules.csv/json"
+        ],
+        "inventory_reconciliation": "in-memory only",
+        "divergence_origins": [
+          "dados",
+          "next",
+          "mapeamento",
+          "humana"
+        ],
+        "reports": "data/dry-run/output/ ignored by Git",
+        "real_import": false,
+        "real_upload": false,
+        "real_migration": false,
+        "real_database_connection": false,
+        "deploy": false,
+        "legacy_laravel_changed": false
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 45 files / 128 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 36 tests",
+        "pnpm ops:check-data-dry-run": "passed - examples go / primeira-execucao pending-input"
+      },
+      "regression_watch": {
+        "features_checked": [
+          "_reversa_forward/022-fase-14-data-dry-run",
+          "_reversa_forward/023-fase-15-approved-data-dry-run"
+        ],
+        "green": 13,
+        "yellow": 0,
+        "red": 0,
+        "notes": "Guardrails de dry-run e pending-input preservados no SDD atualizado."
+      },
+      "next_command": "git commit dos artefatos Reversa pos-Fase 15, depois push dos commits locais"
     }
   },
   "next_reversa_command": "commit_reversa_pos_fase_14_then_push",

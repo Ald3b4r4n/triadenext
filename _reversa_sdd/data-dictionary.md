@@ -28,6 +28,16 @@ Fonte principal: `src/db/schema.ts`, schemas Zod e tipos de domínio.
 - 🟢 Relatorios gerados ficam em `data/dry-run/output/`, ignorados pelo Git.
 - 🔴 Importacao real, upload real, migration real e conexao com banco real nao foram executadas nem aprovadas.
 
+## Delta Fase 15
+
+- 🟢 Nenhuma tabela, enum ou migration nova foi adicionada pela Fase 15.
+- 🟢 O delta de dados permanece intermediario/em memoria: a primeira execucao aprovada usa `data/dry-run/input/primeira-execucao/`.
+- 🟢 Quando arquivos reais/exportados nao existem, o relatorio retorna `pending-input` e lista os arquivos esperados sem inventar dados.
+- 🟢 `product_images.csv/json`, `inventory.csv/json` e `shipping.csv/json` sao nomes primarios da Fase 15; aliases `product-images.*` e `shipping-rules.*` seguem aceitos.
+- 🟢 `inventory.*` normaliza estoque disponivel por SKU em memoria e nao cria tabela, migration, seed, importacao real ou conexao de banco.
+- 🟢 Divergencias incluem origem `dados`, `next`, `mapeamento` ou `humana`, alem de indicacao se sao corrigiveis no Next.
+- 🔴 Importacao real, upload real, migration real, conexao com banco real e deploy nao foram executados nem aprovados.
+
 ## Mapa de Migracao Controlada Pos-Fase 13
 
 | Entidade | Origem Laravel candidata | Destino Next | Obrigatoriedade | Reconciliacao |
@@ -43,28 +53,31 @@ Fonte principal: `src/db/schema.ts`, schemas Zod e tipos de domínio.
 | Pagamentos/status | payments/stripe | `payment_intents`, `payment_events` | Decisao humana | status, provider ref, valor |
 | Fiscal/Bling | fiscal/Bling tables | `fiscal_documents` parcial | Fora de escopo/decisao | relatorio de lacuna |
 
-## Contratos de Dry-run Pos-Fase 14
+## Contratos de Dry-run Pos-Fase 15
 
 | Entidade dry-run | Arquivo CSV/JSON | Chave principal | Normalizacao | Bloqueios principais |
 | --- | --- | --- | --- | --- |
 | `categories` | `categories.csv` / `categories.json` | `slug` | slug normalizado, hierarquia por `parent_slug`, ativo e ordenacao | campo obrigatorio ausente, slug duplicado |
 | `products` | `products.csv` / `products.json` | `sku` e `slug` | preco em centavos, status `draft/published/inactive`, estoque inteiro, categoria por slug | publicado sem preco/estoque/data/categoria, SKU/slug duplicado |
-| `productImages` | `product-images.csv` / `product-images.json` | `product_sku` + `reference` | referencia textual, alt, ordem, capa e fallback aprovado | produto publicado sem capa/fallback, imagem apontando produto ausente |
+| `productImages` | `product_images.csv` / `product_images.json` | `product_sku` + `reference` | referencia textual, alt, ordem, capa e fallback aprovado | produto publicado sem capa/fallback, imagem apontando produto ausente |
+| `inventory` | `inventory.csv` / `inventory.json` | `product_sku` ou `sku` | estoque total, reservado, disponivel e flag de disponibilidade em memoria | SKU ausente/desconhecido, publicado sem estoque disponivel |
 | `coupons` | `coupons.csv` / `coupons.json` | `code` | uppercase, tipo `percentage/fixed_amount/free_shipping`, valor, vigencia, limite, subtotal minimo | cupom ativo invalido, valor divergente, codigo duplicado |
-| `shippingRules` | `shipping-rules.csv` / `shipping-rules.json` | `rule_code` | UF uppercase ou faixa CEP de 8 digitos, preco em centavos, prazo e prioridade | ausencia de regra ativa com preco positivo, cobertura invalida |
+| `shippingRules` | `shipping.csv` / `shipping.json` | `rule_code` | UF uppercase ou faixa CEP de 8 digitos, preco em centavos, prazo e prioridade | ausencia de regra ativa com preco positivo, cobertura invalida |
 
-## Relatorio de Reconciliacao Pos-Fase 14
+Aliases aceitos para compatibilidade com a Fase 14: `product-images.csv/json` e `shipping-rules.csv/json`.
+
+## Relatorio de Reconciliacao Pos-Fase 15
 
 | Secao | Conteudo | Uso |
 | --- | --- | --- |
-| `summary` | `go`, `conditional-go` ou `no-go`, bloqueadores e avisos | Decisao de avancar/pausar |
+| `summary` | `pending-input`, `go` ou `no-go`, bloqueadores, avisos e contagem por origem | Decisao de avancar/pausar |
 | `counts` | origem, normalizado e diferenca por entidade | Conferencia de volume |
 | `keys` | chaves comerciais normalizadas | Duplicidade e rastreabilidade |
 | `money` | preco, cupom e frete em centavos | Divergencia financeira |
 | `assets` | imagens por produto, capa e fallback | Cobertura visual |
 | `shipping` | cobertura por UF/CEP, preco e status | Frete minimo |
 | `coupons` | codigo, tipo, ativo e status | Campanhas ativas |
-| `divergences` | codigo, severidade, impacto go-live e acao recomendada | Plano de correcao |
+| `divergences` | codigo, severidade, impacto go-live, origem, acao recomendada e `nextFixable` | Plano de correcao |
 | `privacy` | deteccao de secret e dado cru | Guardrail de seguranca |
 
 ## Enums

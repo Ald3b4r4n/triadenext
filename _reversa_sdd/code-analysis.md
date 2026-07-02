@@ -17,6 +17,8 @@ Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, 
 
 🟢 **CONFIRMADO** A Fase 14 adicionou codigo operacional seguro em `src/features/data-dry-run` e `scripts/ops/check-data-dry-run-readiness.mjs`, sem alterar regras funcionais de compra/pagamento/estoque/cupons/frete/pedidos/notificacoes.
 
+🟢 **CONFIRMADO** A Fase 15 refinou o mesmo modulo para a execucao aprovada `primeira-execucao`: deteccao de entrada ausente como `pending-input`, contratos `product_images.*`, `inventory.*` e `shipping.*`, inventario normalizado em memoria e divergencias classificadas por origem.
+
 🟡 **INFERIDO** A estratégia dominante é domínio vertical por feature, com Server Actions para mutações, repositories para persistência real/fallback e componentes React para UI.
 
 ## Módulos
@@ -263,21 +265,30 @@ Arquivos principais:
 Funções principais:
 
 - `resolveSafeInputDir()`: aceita apenas pastas dentro de `data/dry-run/input/`.
+- `resolveApprovedDryRunInputDir()`: resolve a pasta aprovada `data/dry-run/input/primeira-execucao/`.
+- `inspectDryRunInput()`: diferencia entrada pronta de `pending-input` quando a pasta aprovada nao existe, esta vazia ou nao contem arquivos Must.
 - `loadDryRunInput()`: descobre arquivos CSV/JSON locais, aplica contratos e agrega issues.
 - `parseInputFile()`: interpreta CSV/JSON sem nova dependencia obrigatoria.
 - `scanRecordsForUnsafeValues()`: detecta `.env`, secrets, tokens, URL real de banco e credenciais sem imprimir valores crus.
-- `normalizeDryRunDataset()`: agrega normalizadores de categorias, produtos, imagens, cupons e frete.
-- `reconcileDryRunData()`: gera contagens, chaves, dinheiro, assets, frete, cupons, divergencias e privacidade.
-- `writeReconciliationReport()`: escreve JSON/Markdown em pasta de saida permitida.
+- `normalizeInventory()`: normaliza `inventory.csv/json` por SKU, estoque reservado/disponivel e disponibilidade sem persistencia.
+- `normalizeDryRunDataset()`: agrega normalizadores de categorias, produtos, inventario, imagens, cupons e frete.
+- `reconcileDryRunData()`: gera contagens, chaves, dinheiro, inventario, assets, frete, cupons, divergencias por origem e privacidade.
+- `createPendingInputReport()`: gera relatorio seguro quando a primeira execucao ainda nao recebeu arquivos reais/exportados.
+- `writeReconciliationReport()`: escreve JSON/Markdown e resumo sanitizado em pasta de saida permitida, segmentada por execucao/status.
 - `runDataDryRun()`: encadeia leitura, normalizacao, reconciliacao e relatorio sem persistencia real.
 
 Regras:
 
 - 🟢 Entrada padrao usa exemplos sinteticos em `data/dry-run/input/examples`.
-- 🟢 Entrada real futura precisa ficar dentro de `data/dry-run/input/` e ser aprovada manualmente.
+- 🟢 Primeira entrada aprovada fica em `data/dry-run/input/primeira-execucao/`.
+- 🟢 Se a primeira entrada aprovada estiver ausente/incompleta, o resultado e `pending-input`, nao `go` nem `no-go`.
+- 🟢 Nomes primarios aceitos na Fase 15: `product_images.csv/json`, `inventory.csv/json` e `shipping.csv/json`.
+- 🟢 Aliases da Fase 14 continuam aceitos: `product-images.csv/json` e `shipping-rules.csv/json`.
 - 🟢 Saida fica em `data/dry-run/output/`, ignorada pelo Git.
 - 🟢 `goNoGo` vira `no-go` se houver divergencia bloqueadora, severidade `CRITICAL`/`HIGH`, secret ou dado inseguro.
+- 🟢 Divergencias carregam origem `dados`, `next`, `mapeamento` ou `humana`; somente origem `next`/`mapeamento` pode ser marcada como corrigivel no Next.
 - 🟢 Produtos publicados exigem referencia de imagem com capa ou fallback aprovado.
+- 🟢 Produtos publicados exigem estoque reconciliado pelo inventario quando `inventory.*` estiver presente; compatibilidade com `products.stock_quantity` e apenas transicional.
 - 🟢 Frete minimo exige ao menos uma regra ativa com preco positivo.
 - 🟢 O modulo nao conecta banco, nao roda migration, nao importa dados, nao copia binarios, nao faz upload, nao faz deploy e nao toca no Laravel legado.
 
@@ -367,4 +378,4 @@ Regras:
 - 🔴 Provedores reais de frete estão declarados como futuros e inativos.
 - 🟡 Upload tem service real, mas rota API ainda retorna placeholder seguro.
 - 🟡 Go-live real ainda depende de configuracao externa aprovada em Neon/Vercel/Stripe/Blob.
-- 🟡 Dry-run com exemplos sinteticos passou; dry-run com fonte real aprovada ainda precisa ser executado e reconciliado antes do go-live.
+- 🟡 Dry-run com exemplos sinteticos passou; primeira execucao aprovada sem arquivos retorna `pending-input`; dry-run com fonte real aprovada ainda precisa ser executado e reconciliado antes do go-live.

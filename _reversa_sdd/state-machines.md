@@ -181,7 +181,9 @@ stateDiagram-v2
   [*] --> paridade_documentada
   paridade_documentada --> bloqueadores_identificados: gap register Fase 13
   bloqueadores_identificados --> dry_run_sintetico_validado: Fase 14 exemplos/contratos
-  dry_run_sintetico_validado --> dry_run_fonte_real_aprovada: fonte local aprovada
+  dry_run_sintetico_validado --> primeira_execucao_pending_input: Fase 15 sem arquivos reais
+  primeira_execucao_pending_input --> dry_run_fonte_real_aprovada: arquivos CSV/JSON aprovados presentes
+  dry_run_sintetico_validado --> dry_run_fonte_real_aprovada: fonte local aprovada completa
   dry_run_fonte_real_aprovada --> reconciliacao_aprovada: catalogo/imagens/precos/estoque/cupons/frete batem
   reconciliacao_aprovada --> pronto_para_cutover_planejado: decisoes humanas fechadas
   bloqueadores_identificados --> no_go: dados Must sem reconciliacao
@@ -193,6 +195,7 @@ Regras:
 
 - 🟢 Fase 13 concluiu `paridade_documentada` e `bloqueadores_identificados`.
 - 🟢 Fase 14 concluiu `dry_run_sintetico_validado` com exemplos locais, contratos CSV/JSON e `ops:check-data-dry-run`.
-- 🔴 `dry_run_fonte_real_aprovada` ainda nao ocorreu; depende de fonte de dados real aprovada manualmente.
+- 🟢 Fase 15 introduziu `primeira_execucao_pending_input`: a pasta aprovada existe conceitualmente, mas sem arquivos reais/exportados o resultado seguro e `pending-input`.
+- 🔴 `dry_run_fonte_real_aprovada` ainda nao ocorreu; depende de arquivos CSV/JSON reais aprovados em `data/dry-run/input/primeira-execucao/`.
 - 🟢 `no_go` e obrigatorio enquanto catalogo real, imagens, precos, estoque, cupons ativos e frete minimo nao forem reconciliados com fonte real.
 - 🟢 `rollback_planejado` preserva o Laravel legado intacto ate aceite formal.

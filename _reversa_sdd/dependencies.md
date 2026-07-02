@@ -93,4 +93,5 @@ Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoe
 - Fase 13 nao adicionou dependencias npm; a comparacao Laravel x Next e o plano de dry-run sao documentais.
 - Fase 14 nao adicionou dependencias npm; reutiliza `tsx` ja existente para executar a CLI TypeScript do dry-run.
 - `ops:check-data-dry-run` le apenas arquivos locais permitidos e nao le `.env`, nao conecta banco, nao importa dados, nao faz upload real e nao executa deploy.
+- Fase 15 nao adicionou dependencias npm; ampliou o dry-run aprovado com `pending-input`, inventario em memoria, contratos primarios `product_images.*`/`inventory.*`/`shipping.*` e relatorios sanitizados usando os mesmos scripts existentes.
 - Laravel legado e dependencia operacional de leitura para paridade e rollback, mas nao e dependencia runtime do Next.

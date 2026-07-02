@@ -44,6 +44,17 @@
 - A execucao com exemplos sinteticos retornou `go`, 0 bloqueadores e 0 avisos.
 - A execucao com fonte real aprovada ainda precisa ocorrer em etapa futura antes de qualquer importacao real.
 
+## Estado Pos-Fase 15
+
+- A primeira execucao aprovada foi nomeada como `data/dry-run/input/primeira-execucao/`.
+- Se essa pasta nao tiver arquivos reais/exportados Must, o dry-run retorna `pending-input` e lista pendencias humanas sem inventar dados reais.
+- Arquivos esperados para a primeira execucao aprovada: `products.csv/json`, `categories.csv/json`, `product_images.csv/json`, `inventory.csv/json`, `coupons.csv/json` e `shipping.csv/json`.
+- Aliases da Fase 14 continuam aceitos para compatibilidade: `product-images.csv/json` e `shipping-rules.csv/json`.
+- O inventario e reconciliado em memoria por SKU e nao cria migration, tabela, seed, importacao ou conexao com banco.
+- Divergencias passam a indicar origem `dados`, `next`, `mapeamento` ou `humana`; problemas de dados/exportacao devem voltar para a fonte, problemas `next`/`mapeamento` podem gerar correcao futura no projeto.
+- Smoke reportado: exemplos sinteticos retornaram `go`; `primeira-execucao` sem arquivos retornou `pending-input` com 5 pendencias humanas.
+- A execucao com fonte real aprovada ainda precisa ocorrer antes de qualquer importacao real futura.
+
 ## Divergencias Bloqueadoras do Dry-run
 
 | Codigo | Condicao | Impacto |
@@ -57,6 +68,15 @@
 | `IMAGE_MISSING` | Produto publicado sem capa nem fallback aprovado | Bloqueia catalogo vendavel |
 | `SHIPPING_COVERAGE_MISSING` | Nenhuma regra ativa de frete minimo com preco positivo | Bloqueia checkout |
 
+## Origem das Divergencias Pos-Fase 15
+
+| Origem | Significado | Encaminhamento |
+| --- | --- | --- |
+| `dados` | Export/fonte contem valor ausente, invalido, duplicado ou referencia inexistente. | Corrigir origem/export e repetir dry-run. |
+| `next` | Bug no parser, normalizador, reconciliacao, relatorio ou mensagem operacional do Next. | Corrigir codigo em fase aprovada e repetir validacoes. |
+| `mapeamento` | Contrato CSV/JSON nao representa corretamente o dado legado aprovado. | Ajustar contrato/mapping com decisao humana. |
+| `humana` | Falta entrada aprovada, excecao formal ou decisao de go-live. | Registrar aprovacao/decisao antes de avancar. |
+
 ## Estratégia
 
 - Criar exporters read-only no legado ou dump controlado.
@@ -66,7 +86,7 @@
 - Repetir dry-run até divergência aceitável ser zero nos domínios críticos.
 - Separar relatorios versionaveis de arquivos com dados pessoais/secretos; relatorios devem usar amostras mascaradas.
 - Exigir aprovacao humana antes de banco legado, export real, import real ou migration real.
-- Executar primeiro `ops:check-data-dry-run` com exemplos sinteticos e depois com pasta local real aprovada, sem usar `.env`.
+- Executar primeiro `ops:check-data-dry-run` com exemplos sinteticos e depois com `data/dry-run/input/primeira-execucao`, sem usar `.env`.
 
 ## Não fazer nesta etapa
 

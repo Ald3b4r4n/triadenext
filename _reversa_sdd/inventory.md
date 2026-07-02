@@ -2,7 +2,7 @@
 
 Atualizado em: 2026-07-02
 Agente: Scout
-Escopo: re-extracao pos-Fase 14, com foco no estado Next.js atual, dry-run controlado de dados, readiness operacional e paridade Laravel x Next.
+Escopo: re-extracao pos-Fase 15, com foco no estado Next.js atual, dry-run aprovado/pending-input, readiness operacional e paridade Laravel x Next.
 
 ## Contexto
 
@@ -16,11 +16,12 @@ Escopo: re-extracao pos-Fase 14, com foco no estado Next.js atual, dry-run contr
 
 ## Contagem superficial de arquivos
 
-Escopo contado: `src`, `drizzle`, `scripts`, `docs`.
+Escopo contado: `src`, `drizzle`, `scripts`, `docs` e exemplos sinteticos versionados de `data/dry-run/input/examples`.
 
 | Extensao | Arquivos |
 | --- | ---: |
-| `.ts` | 165 |
+| `.css` | 1 |
+| `.ts` | 168 |
 | `.tsx` | 55 |
 | `.md` | 33 |
 | `.sql` | 8 |
@@ -28,7 +29,7 @@ Escopo contado: `src`, `drizzle`, `scripts`, `docs`.
 | `.csv` | 11 |
 | `.json` | 9 |
 
-Total observado nesse recorte: 290 arquivos.
+Total observado nesse recorte: 292 arquivos.
 
 ## Entry points
 
@@ -66,7 +67,7 @@ Total observado nesse recorte: 290 arquivos.
 - `payments`: Stripe PaymentIntent, webhook e settlement.
 - `notifications`: notificacoes pos-pagamento e providers.
 - `uploads`: upload de imagens de produto.
-- `data-dry-run`: contratos CSV/JSON, normalizacao em memoria, reconciliacao e relatorio seguro para dados Must.
+- `data-dry-run`: contratos CSV/JSON, normalizacao em memoria, reconciliacao de inventario e relatorio seguro para dados Must.
 - `db`: schema Drizzle e cliente.
 - `lib`: utilitarios transversais.
 - `operations`: documentacao e scripts seguros para staging/producao/dry-run sem deploy, migration real, banco real, import real ou upload real automatico.
@@ -90,7 +91,7 @@ Total observado nesse recorte: 290 arquivos.
 
 ## Artefatos Reversa/Forward existentes
 
-- `_reversa_forward/001-fase-3-neon-drizzle` ate `_reversa_forward/022-fase-14-data-dry-run`.
+- `_reversa_forward/001-fase-3-neon-drizzle` ate `_reversa_forward/023-fase-15-approved-data-dry-run`.
 - Trilhas de migracao geral abertas: `_reversa_forward/009-*` ate `_reversa_forward/018-*`.
 - `_reversa_sdd/migration` e `_reversa_sdd/design-system` existem como planejamento.
 
@@ -119,6 +120,19 @@ Total observado nesse recorte: 290 arquivos.
 - Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (43 arquivos / 121 testes), `pnpm build`, `pnpm test:e2e` (36 testes) e `pnpm ops:check-data-dry-run`.
 - Dry-run com exemplos sinteticos passou com `go`, 0 bloqueadores e 0 avisos; dry-run com fonte real aprovada ainda nao foi executado.
 - Nenhuma importacao real, upload real, migration real, conexao com banco real, deploy, segredo exposto ou alteracao no Laravel legado foi executada.
+
+## Estado pos-Fase 15
+
+- Commit funcional de referencia: `9c2b77d feat: implement approved data dry run`.
+- A Fase 15 preparou a execucao aprovada `data/dry-run/input/primeira-execucao/` sem versionar dados reais.
+- Quando os arquivos reais/exportados nao existem, o dry-run retorna `pending-input`, gera relatorio de pendencia e nao falha como `no-go`.
+- Contratos primarios da execucao aprovada: `product_images.csv/json`, `inventory.csv/json` e `shipping.csv/json`, preservando aliases da Fase 14 (`product-images.*` e `shipping-rules.*`).
+- A reconciliacao de inventario ocorre em memoria; nao cria migration, tabela, seed, importacao real ou conexao com banco.
+- Divergencias passam a carregar origem `dados`, `next`, `mapeamento` ou `humana`, alem de flag para item corrigivel no Next.
+- Relatorios continuam em `data/dry-run/output/`, ignorados pelo Git, com resumo sanitizado separado de saidas brutas.
+- Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (45 arquivos / 128 testes), `pnpm build`, `pnpm test:e2e` (36 testes) e `pnpm ops:check-data-dry-run`.
+- Smoke com exemplos sinteticos retornou `go`; smoke da `primeira-execucao` sem arquivos retornou `pending-input` com 5 pendencias humanas.
+- Nenhuma importacao real, upload real, migration real, conexao com banco real, deploy, segredo exposto, alteracao funcional adicional ou alteracao no Laravel legado foi executada nesta re-extracao.
 
 ## Organizacao sugerida
 

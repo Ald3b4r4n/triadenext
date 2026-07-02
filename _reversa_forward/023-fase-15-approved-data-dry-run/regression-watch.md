@@ -23,7 +23,13 @@ Nenhum watch item principal foi criado nesta rodada, porque nenhuma regra verde 
 
 ## Historico de re-extracoes
 
-Vazio ate a proxima execucao de `/reversa`.
+### Re-extracao 2026-07-02 - Pos-Fase 15
+
+| ID | Veredito | Observacao |
+| --- | --- | --- |
+| O001 | 🟢 verde | `pending-input` esta registrado em `_reversa_sdd/domain.md`, `state-machines.md`, `data-dictionary.md` e ADR 010 como estado seguro quando faltam arquivos reais. |
+| O002 | 🟢 verde | Relatorios em `data/dry-run/output/` continuam documentados como ignorados pelo Git em `_reversa_sdd/inventory.md`, `deployment.md` e ADR 010. |
+| O003 | 🟢 verde | Origem de divergencia `dados`, `next`, `mapeamento` e `humana` esta registrada em `_reversa_sdd/domain.md` e `migration/data_migration_plan.md`. |
 
 ## Arquivadas
 

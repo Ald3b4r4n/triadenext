@@ -24,6 +24,8 @@ Nível: detalhado
 | Dry-run de migracao | Ensaio controlado por arquivos locais aprovados, sem importacao real em producao. | 🟢 |
 | Reconciliacao de dados | Conferencia de contagens, chaves comerciais, valores em centavos, status, amostras mascaradas e assets. | 🟢 |
 | Fonte local aprovada | Pasta dentro de `data/dry-run/input/`, preenchida manualmente com CSV/JSON autorizados para ensaio. | 🟢 |
+| Primeira execucao aprovada | Pasta `data/dry-run/input/primeira-execucao/`, nomeada pela Fase 15 para o primeiro dry-run real/controlado. | 🟢 |
+| Pending input | Resultado seguro quando a primeira execucao aprovada ainda nao contem os arquivos reais/exportados Must. | 🟢 |
 | Divergencia bloqueadora | Issue `CRITICAL`/`HIGH` ou `goLiveImpact=bloqueador` que impede avancar para importacao real futura. | 🟢 |
 
 ## Regras de Domínio
@@ -123,11 +125,17 @@ Nível: detalhado
 
 - 🟢 A entrada do dry-run da Fase 14 precisa estar dentro de `data/dry-run/input/`.
 - 🟢 O padrao seguro usa exemplos sinteticos em `data/dry-run/input/examples`.
+- 🟢 A primeira execucao aprovada da Fase 15 usa `data/dry-run/input/primeira-execucao/`.
+- 🟢 Se a primeira execucao aprovada nao tiver arquivos reais/exportados suficientes, o resultado correto e `pending-input`, com relatorio de pendencias e sem falha indevida.
+- 🟢 Arquivos primarios da Fase 15: `products.*`, `categories.*`, `product_images.*`, `inventory.*`, `coupons.*` e `shipping.*`.
+- 🟢 Aliases da Fase 14 para imagens e frete permanecem aceitos: `product-images.*` e `shipping-rules.*`.
 - 🟢 Saidas de dry-run ficam em `data/dry-run/output/` e nao devem ser versionadas quando contiverem dados reais.
 - 🟢 O script `ops:check-data-dry-run` nao conecta banco, nao importa dados, nao roda migration, nao faz upload, nao faz deploy e nao le `.env`.
 - 🟢 Arquivos, campos ou valores com aparencia de `.env`, secret, token, URL real de banco ou credencial viram `UNSAFE_INPUT`.
 - 🟢 Produto publicado sem categoria valida, preco positivo, estoque positivo, `published_at` valido, capa ou fallback aprovado bloqueia avancar.
+- 🟢 Inventario da Fase 15 e reconciliado em memoria: `inventory.csv/json` sobrescreve a disponibilidade normalizada para dry-run sem persistir nada.
 - 🟢 Frete minimo exige pelo menos uma regra ativa com preco positivo.
+- 🟢 Divergencias devem manter origem `dados`, `next`, `mapeamento` ou `humana`, separando correcao de export/fonte de correcao de codigo Next.
 - 🟢 Importacao real futura depende de checklist humano separado, backup/rollback e fonte real aprovada.
 - 🟡 O dry-run sintetico da Fase 14 prova o pipeline; nao prova ainda os dados reais legados.
 
@@ -137,6 +145,7 @@ Nível: detalhado
 - 🟢 A Fase 12 consolidou uma macrofase operacional antes do go-live para evitar microfeatures de producao.
 - 🟢 A Fase 13 consolidou uma macrofase de decisao de substituicao do Laravel, separando paridade, bloqueadores reais, decisoes humanas e rollback.
 - 🟢 A Fase 14 consolidou uma macrofase de dry-run controlado por arquivo, com reconciliacao executavel e guardrails contra operacao real.
+- 🟢 A Fase 15 consolidou a primeira execucao aprovada e o estado `pending-input` para nao mascarar ausencia de dados reais como sucesso.
 - 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
 - 🟢 O sistema prefere fallback explícito a falha silenciosa.
 - 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.
@@ -153,3 +162,4 @@ Nível: detalhado
 - 🔴 Deploy real, migration real em producao e migracao de dados reais ainda nao foram executados nem aprovados.
 - 🔴 Dry-run/reconciliacao com fonte real aprovada ainda nao foi executado nem aprovado.
 - 🔴 Catalogo real, imagens, precos, estoque, cupons ativos e frete minimo ainda nao estao provados contra dados legados reais.
+- 🔴 A pasta `data/dry-run/input/primeira-execucao/` ainda precisa receber arquivos reais/exportados aprovados para sair de `pending-input`.

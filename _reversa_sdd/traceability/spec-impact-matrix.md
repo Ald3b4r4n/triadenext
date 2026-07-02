@@ -69,3 +69,18 @@ Guardrail: qualquer transformacao desses artefatos em script de import real, mig
 | `_reversa_forward/022-fase-14-data-dry-run/future-import-approval-checklist.md` | Alto | Alto | Alto | Alto | Alto | Alto | Critico |
 
 Guardrail: a Fase 14 prova o pipeline com exemplos sinteticos; qualquer uso de fonte real, importacao real, upload real, migration real, banco real ou deploy continua dependendo de aprovacao humana explicita.
+
+## Impactos de Dry-run Aprovado Pos-Fase 15
+
+| Artefato | Primeira Execucao | Pending Input | Inventario | Divergencias | Relatorios | Git Safety |
+| --- | --- | --- | --- | --- | --- | --- |
+| `src/features/data-dry-run/input-discovery.ts` | Critico | Critico | Baixo | Medio | Medio | Alto |
+| `src/features/data-dry-run/input-contracts.ts` | Critico | Alto | Critico | Alto | Medio | Medio |
+| `src/features/data-dry-run/normalizers/inventory.ts` | Medio | Baixo | Critico | Alto | Baixo | Baixo |
+| `src/features/data-dry-run/normalize.ts` | Alto | Baixo | Critico | Alto | Baixo | Baixo |
+| `src/features/data-dry-run/divergences.ts` | Medio | Alto | Medio | Critico | Alto | Baixo |
+| `src/features/data-dry-run/reconciliation.ts` | Alto | Critico | Critico | Critico | Alto | Medio |
+| `src/features/data-dry-run/report-writer.ts` | Alto | Critico | Medio | Alto | Critico | Critico |
+| `_reversa_forward/023-fase-15-approved-data-dry-run/human-approval-checklist.md` | Critico | Alto | Alto | Critico | Alto | Alto |
+
+Guardrail: `pending-input` e estado operacional seguro, nao aprovacao de dados. A saida em `data/dry-run/output/` e a entrada real em `data/dry-run/input/primeira-execucao/` permanecem ignoradas pelo Git; qualquer importacao real, upload real, banco real, migration real ou deploy continua fora do escopo sem aprovacao humana explicita.
