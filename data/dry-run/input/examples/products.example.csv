@@ -1,0 +1,3 @@
+sku,slug,name,category_slug,price_cents,stock_quantity,status,published_at,description,brand
+TRI-001,aurora-floral,Aurora Floral,perfumes-femininos,12990,12,published,2026-01-01T00:00:00-03:00,Exemplo sintetico de perfume floral,Triade
+TRI-002,noite-amadeirada,Noite Amadeirada,perfumes,15990,4,published,2026-01-01T00:00:00-03:00,Exemplo sintetico de perfume amadeirado,Triade

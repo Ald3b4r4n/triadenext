@@ -18,3 +18,10 @@ yarn-error.log*
 pnpm-debug.log*
 .DS_Store
 Thumbs.db
+
+# Controlled data dry-run
+data/dry-run/input/*
+!data/dry-run/input/.gitkeep
+!data/dry-run/input/examples/
+!data/dry-run/input/examples/**
+data/dry-run/output/

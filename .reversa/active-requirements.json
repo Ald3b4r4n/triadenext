@@ -1,15 +1,17 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/021-fase-13-legacy-parity",
-  "feature-id": "021",
-  "short-name": "fase-13-legacy-parity",
-  "started-at": "2026-07-01T16:20:00-03:00",
+  "feature-dir": "_reversa_forward/022-fase-14-data-dry-run",
+  "feature-id": "022",
+  "short-name": "fase-14-data-dry-run",
+  "started-at": "2026-07-02T00:00:00-03:00",
   "current-stage": "coding",
   "stages-completed": [
     "requirements",
+    "clarify",
     "plan",
     "to-do",
-    "audit"
+    "audit",
+    "coding"
   ],
   "paused-features": []
 }

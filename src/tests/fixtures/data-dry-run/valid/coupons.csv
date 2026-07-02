@@ -1,0 +1,2 @@
+code,type,value,starts_at,ends_at,max_uses,used_count,minimum_subtotal_cents,is_active
+TESTE10,percentage,10,2026-01-01T00:00:00-03:00,,10,0,1000,true

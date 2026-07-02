@@ -1,0 +1,3 @@
+rule_code,name,uf,postal_code_start,postal_code_end,price_cents,estimated_days,is_active,priority
+SP-CAPITAL,Entrega SP Capital,SP,01000000,05999999,1290,3,true,10
+BR-MINIMO,Entrega Brasil,,00000000,99999999,2490,7,true,1

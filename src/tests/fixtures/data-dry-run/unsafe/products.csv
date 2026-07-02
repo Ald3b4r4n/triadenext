@@ -1,0 +1,2 @@
+sku,slug,name,category_slug,price_cents,stock_quantity,status,published_at,description,brand
+SKU-SAFE,produto-safe,Produto Seguro,perfumes,10990,5,published,2026-01-01T00:00:00-03:00,DATABASE_URL=REDACTED_TEST_ONLY,Triade
