@@ -1,8 +1,8 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/022-fase-14-data-dry-run",
-  "feature-id": "022",
-  "short-name": "fase-14-data-dry-run",
+  "feature-dir": "_reversa_forward/023-fase-15-approved-data-dry-run",
+  "feature-id": "023",
+  "short-name": "fase-15-approved-data-dry-run",
   "started-at": "2026-07-02T00:00:00-03:00",
   "current-stage": "coding",
   "stages-completed": [
@@ -10,7 +10,6 @@
     "clarify",
     "plan",
     "to-do",
-    "audit",
     "coding"
   ],
   "paused-features": []

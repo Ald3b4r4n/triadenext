@@ -1,18 +1,34 @@
-export type DryRunEntity = "categories" | "products" | "productImages" | "coupons" | "shippingRules";
+export type DryRunEntity = "categories" | "products" | "productImages" | "inventory" | "coupons" | "shippingRules";
 
 export type Severity = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
 
 export type GoLiveImpact = "bloqueador" | "decisao-humana" | "pos-go-live" | "fora-de-escopo";
 
-export type GoNoGo = "go" | "conditional-go" | "no-go";
+export type GoNoGo = "pending-input" | "go" | "no-go";
+
+export type DryRunInputStatus = "ready" | "pending-input";
 
 export type ReportFormat = "json" | "markdown" | "both";
+
+export type DivergenceOrigin = "dados" | "next" | "mapeamento" | "humana";
+
+export interface DryRunExpectedFile {
+  entity: DryRunEntity;
+  label: string;
+  required: boolean;
+  candidates: string[];
+  matchedFile: string | null;
+  status: "present" | "missing";
+}
 
 export interface SourceMetadata {
   type: "local-files";
   pathLabel: string;
   approvedBy: "manual";
   containsSensitiveData: boolean;
+  executionName?: string;
+  inputStatus?: DryRunInputStatus;
+  expectedFiles?: DryRunExpectedFile[];
 }
 
 export interface ParsedRecord {
@@ -75,6 +91,15 @@ export interface NormalizedProductImage {
   fallbackApproved: boolean;
 }
 
+export interface NormalizedInventoryItem {
+  productSku: string;
+  stockQuantity: number;
+  reservedQuantity: number;
+  availableQuantity: number;
+  isAvailable: boolean;
+  updatedAt: string | null;
+}
+
 export interface NormalizedCoupon {
   code: string;
   type: "percentage" | "fixed_amount" | "free_shipping";
@@ -103,6 +128,7 @@ export interface NormalizedDryRunData {
   categories: NormalizedCategory[];
   products: NormalizedProduct[];
   productImages: NormalizedProductImage[];
+  inventory: NormalizedInventoryItem[];
   coupons: NormalizedCoupon[];
   shippingRules: NormalizedShippingRule[];
   issues: DryRunIssue[];
@@ -146,6 +172,8 @@ export interface ReconciliationDivergence {
   goLiveImpact: GoLiveImpact;
   message: string;
   recommendedAction: DryRunIssue["recommendedAction"];
+  origin: DivergenceOrigin;
+  nextFixable: boolean;
 }
 
 export interface ReconciliationReport {
@@ -156,6 +184,7 @@ export interface ReconciliationReport {
     goNoGo: GoNoGo;
     blockers: number;
     warnings: number;
+    byOrigin: Record<DivergenceOrigin, number>;
   };
   counts: ReconciliationCount[];
   keys: ReconciliationKeyCheck[];

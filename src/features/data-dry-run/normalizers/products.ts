@@ -13,7 +13,17 @@ import type { NormalizationResult, NormalizedProduct, ParsedRecord } from "../ty
 
 const productStatuses = new Set(["draft", "published", "inactive"]);
 
-export function normalizeProducts(records: ParsedRecord[]): NormalizationResult<NormalizedProduct> {
+export interface NormalizeProductsOptions {
+  requireStockQuantity?: boolean;
+  validatePublishedStock?: boolean;
+}
+
+export function normalizeProducts(
+  records: ParsedRecord[],
+  options: NormalizeProductsOptions = {}
+): NormalizationResult<NormalizedProduct> {
+  const requireStockQuantity = options.requireStockQuantity ?? true;
+  const validatePublishedStock = options.validatePublishedStock ?? true;
   const normalized: NormalizedProduct[] = [];
   const issues: NormalizationResult<NormalizedProduct>["issues"] = [];
   const seenSku = new Set<string>();
@@ -25,7 +35,10 @@ export function normalizeProducts(records: ParsedRecord[]): NormalizationResult<
     const name = requiredText(record, "name", "products", "Nome do produto");
     const categorySlug = requiredText(record, "category_slug", "products", "Slug da categoria");
     const price = parseCentsField(record, "products", "price_cents", "price");
-    const stock = parseIntegerField(record, "stock_quantity", "products", "Estoque", { required: true, min: 0 });
+    const stock = parseIntegerField(record, "stock_quantity", "products", "Estoque", {
+      required: requireStockQuantity,
+      min: 0
+    });
     const publishedAt = parseIsoDate(record, "published_at", "products");
 
     for (const issue of [
@@ -71,7 +84,7 @@ export function normalizeProducts(records: ParsedRecord[]): NormalizationResult<
       if (price.value <= 0) {
         issues.push(blockingProductIssue("Preco de produto publicado precisa ser positivo.", "price_cents", record.lineNumber, sku.value));
       }
-      if (stock.value <= 0) {
+      if (validatePublishedStock && stock.value <= 0) {
         issues.push(blockingProductIssue("Produto publicado precisa ter estoque positivo.", "stock_quantity", record.lineNumber, sku.value));
       }
       if (!publishedAt.value) {

@@ -50,6 +50,7 @@ describe("data dry-run image references", () => {
         }
       ],
       productImages: [],
+      inventory: [],
       coupons: [],
       shippingRules: [{ ruleCode: "BR", name: "Brasil", uf: null, postalCodeStart: "00000000", postalCodeEnd: "99999999", priceCents: 1000, estimatedDays: 5, isActive: true, priority: 1 }],
       issues: []

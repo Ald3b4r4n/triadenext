@@ -2,22 +2,33 @@ import { createIssue, recordsContainUnsafeValues } from "./safety";
 import { issuesToDivergences, isBlockingDivergence } from "./divergences";
 import type {
   DryRunEntity,
+  DryRunExpectedFile,
   NormalizedDryRunData,
   ParsedInputDataset,
   ReconciliationAssetCheck,
-  ReconciliationReport
+  ReconciliationDivergence,
+  ReconciliationReport,
+  SourceMetadata
 } from "./types";
 
 const countEntities: Array<{ entity: DryRunEntity; label: keyof NormalizedDryRunData }> = [
   { entity: "categories", label: "categories" },
   { entity: "products", label: "products" },
   { entity: "productImages", label: "productImages" },
+  { entity: "inventory", label: "inventory" },
   { entity: "coupons", label: "coupons" },
   { entity: "shippingRules", label: "shippingRules" }
 ];
 
 export function reconcileDryRunData(dataset: ParsedInputDataset, data: NormalizedDryRunData): ReconciliationReport {
-  const issues = [...data.issues, ...catalogRelationshipIssues(data), ...assetIssues(data), ...shippingCoverageIssues(data)];
+  const issues = [
+    ...data.issues,
+    ...catalogRelationshipIssues(data),
+    ...inventoryRelationshipIssues(data),
+    ...inventoryPublicationIssues(data),
+    ...assetIssues(data),
+    ...shippingCoverageIssues(data)
+  ];
   const divergences = issuesToDivergences(issues);
   const blockers = divergences.filter(isBlockingDivergence).length;
   const warnings = divergences.length - blockers;
@@ -28,9 +39,10 @@ export function reconcileDryRunData(dataset: ParsedInputDataset, data: Normalize
     generatedAt: new Date().toISOString(),
     source: dataset.source,
     summary: {
-      goNoGo: blockers > 0 ? "no-go" : warnings > 0 ? "conditional-go" : "go",
+      goNoGo: blockers > 0 ? "no-go" : "go",
       blockers,
-      warnings
+      warnings,
+      byOrigin: summarizeDivergenceOrigins(divergences)
     },
     counts: countEntities.map(({ entity, label }) => {
       const source = dataset.records[entity]?.length ?? 0;
@@ -80,6 +92,52 @@ export function reconcileDryRunData(dataset: ParsedInputDataset, data: Normalize
     divergences,
     privacy: {
       secretsDetected: recordsContainUnsafeValues(sourceRecords),
+      rawPersonalDataInReport: false
+    }
+  };
+}
+
+export function createPendingInputReport(source: SourceMetadata, expectedFiles: DryRunExpectedFile[]): ReconciliationReport {
+  const issues = expectedFiles
+    .filter((file) => file.required && file.status === "missing")
+    .map((file) =>
+      createIssue({
+        code: "INPUT_PENDING",
+        entity: file.entity,
+        severity: "LOW",
+        goLiveImpact: "decisao-humana",
+        message: `Arquivo aprovado pendente para ${file.label}.`,
+        field: file.candidates.join(" ou "),
+        recommendedAction: "nova-fase"
+      })
+    );
+  const divergences = issuesToDivergences(issues);
+
+  return {
+    schemaVersion: 1,
+    generatedAt: new Date().toISOString(),
+    source,
+    summary: {
+      goNoGo: "pending-input",
+      blockers: 0,
+      warnings: divergences.length,
+      byOrigin: summarizeDivergenceOrigins(divergences)
+    },
+    counts: countEntities.map(({ entity }) => ({
+      entity,
+      source: 0,
+      normalized: 0,
+      difference: 0,
+      note: "entrada aprovada pendente"
+    })),
+    keys: [],
+    money: [],
+    assets: [],
+    shipping: [],
+    coupons: [],
+    divergences,
+    privacy: {
+      secretsDetected: false,
       rawPersonalDataInReport: false
     }
   };
@@ -156,6 +214,51 @@ function assetIssues(data: NormalizedDryRunData) {
   return issues;
 }
 
+function inventoryRelationshipIssues(data: NormalizedDryRunData) {
+  const issues = [];
+  const productSkus = new Set(data.products.map((product) => product.sku));
+
+  for (const item of data.inventory) {
+    if (!productSkus.has(item.productSku)) {
+      issues.push(
+        createIssue({
+          code: "UNKNOWN_REFERENCE",
+          entity: "inventory",
+          severity: "HIGH",
+          goLiveImpact: "bloqueador",
+          message: "Inventario referencia produto ausente.",
+          field: "product_sku",
+          entityKey: item.productSku,
+          recommendedAction: "corrigir-origem"
+        })
+      );
+    }
+  }
+
+  return issues;
+}
+
+function inventoryPublicationIssues(data: NormalizedDryRunData) {
+  if (data.inventory.length === 0) {
+    return [];
+  }
+
+  return data.products
+    .filter((product) => product.status === "published" && product.stockQuantity <= 0)
+    .map((product) =>
+      createIssue({
+        code: "INVALID_VALUE",
+        entity: "inventory",
+        severity: "HIGH",
+        goLiveImpact: "bloqueador",
+        message: "Produto publicado precisa reconciliar estoque positivo no inventario.",
+        field: "stock_quantity",
+        entityKey: product.sku,
+        recommendedAction: "corrigir-origem"
+      })
+    );
+}
+
 function shippingCoverageIssues(data: NormalizedDryRunData) {
   if (data.shippingRules.some((rule) => rule.isActive && rule.priceCents > 0)) {
     return [];
@@ -181,9 +284,20 @@ function buildKeyChecks(data: NormalizedDryRunData) {
       { domain: "products", key: product.sku, status: "ok" as const },
       { domain: "products", key: product.slug, status: "ok" as const }
     ]),
+    ...data.inventory.map((item) => ({ domain: "inventory", key: item.productSku, status: "ok" as const })),
     ...data.coupons.map((coupon) => ({ domain: "coupons", key: coupon.code, status: "ok" as const })),
     ...data.shippingRules.map((rule) => ({ domain: "shipping", key: rule.ruleCode, status: "ok" as const }))
   ];
+}
+
+function summarizeDivergenceOrigins(divergences: ReconciliationDivergence[]) {
+  return divergences.reduce(
+    (summary, divergence) => {
+      summary[divergence.origin] += 1;
+      return summary;
+    },
+    { dados: 0, next: 0, mapeamento: 0, humana: 0 }
+  );
 }
 
 function buildAssetChecks(data: NormalizedDryRunData): ReconciliationAssetCheck[] {

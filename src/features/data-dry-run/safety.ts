@@ -25,6 +25,10 @@ export function hasUnsafeValue(value: unknown) {
   return unsafeValuePatterns.some((pattern) => pattern.test(text));
 }
 
+export function redactUnsafeValue(value: string) {
+  return hasUnsafeValue(value) ? "[REDACTED_UNSAFE_VALUE]" : value;
+}
+
 export function scanPathForUnsafeValue(pathLabel: string): DryRunIssue[] {
   if (!hasUnsafeValue(pathLabel)) {
     return [];

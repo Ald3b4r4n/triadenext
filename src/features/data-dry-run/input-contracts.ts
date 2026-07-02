@@ -7,6 +7,7 @@ export interface InputFileSpec {
   entity: DryRunEntity;
   label: string;
   required: boolean;
+  requiredForApprovedInput: boolean;
   candidates: string[];
   fields: string[];
 }
@@ -16,6 +17,7 @@ export const inputFileSpecs: InputFileSpec[] = [
     entity: "categories",
     label: "Categorias",
     required: true,
+    requiredForApprovedInput: true,
     candidates: ["categories.csv", "categories.json", "categories.example.csv", "categories.example.json"],
     fields: ["name", "slug", "parent_slug", "description", "is_active", "sort_order"]
   },
@@ -23,6 +25,7 @@ export const inputFileSpecs: InputFileSpec[] = [
     entity: "products",
     label: "Produtos",
     required: true,
+    requiredForApprovedInput: true,
     candidates: ["products.csv", "products.json", "products.example.csv", "products.example.json"],
     fields: [
       "sku",
@@ -42,7 +45,10 @@ export const inputFileSpecs: InputFileSpec[] = [
     entity: "productImages",
     label: "Imagens",
     required: true,
+    requiredForApprovedInput: true,
     candidates: [
+      "product_images.csv",
+      "product_images.json",
       "product-images.csv",
       "product-images.json",
       "product-images.example.csv",
@@ -51,9 +57,18 @@ export const inputFileSpecs: InputFileSpec[] = [
     fields: ["product_sku", "reference", "alt_text", "sort_order", "is_cover", "fallback_approved"]
   },
   {
+    entity: "inventory",
+    label: "Estoque",
+    required: false,
+    requiredForApprovedInput: true,
+    candidates: ["inventory.csv", "inventory.json"],
+    fields: ["product_sku", "sku", "stock_quantity", "reserved_quantity", "is_available", "updated_at"]
+  },
+  {
     entity: "coupons",
     label: "Cupons",
     required: false,
+    requiredForApprovedInput: false,
     candidates: ["coupons.csv", "coupons.json", "coupons.example.csv", "coupons.example.json"],
     fields: [
       "code",
@@ -71,7 +86,10 @@ export const inputFileSpecs: InputFileSpec[] = [
     entity: "shippingRules",
     label: "Frete",
     required: true,
+    requiredForApprovedInput: true,
     candidates: [
+      "shipping.csv",
+      "shipping.json",
       "shipping-rules.csv",
       "shipping-rules.json",
       "shipping-rules.example.csv",
