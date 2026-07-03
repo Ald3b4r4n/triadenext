@@ -150,6 +150,20 @@ Total observado nesse recorte: 324 arquivos, excluindo `.gitkeep`.
 - Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (48 arquivos / 138 testes), `pnpm build` e `pnpm test:e2e` (36 passed / 1 skipped esperado sem `STAGING_IMPORT_SMOKE_URL`).
 - Nenhum codigo funcional novo foi alterado nesta re-extracao; nenhuma producao, deploy, migration real, banco real, segredo exposto ou alteracao no Laravel legado foi executada.
 
+## Estado pos-Fase 17 e identidade visual
+
+- Commits funcionais de referencia: `c8b752f feat: implement staging smoke readiness` e `547146a feat: apply triade visual identity`.
+- A Fase 17 adicionou readiness de smoke real em staging/preview com `pnpm ops:check-staging-smoke`.
+- Ausencia de `STAGING_SMOKE_URL`, envs remotas ou webhook de teste deve retornar `pending-config`, gerar relatorio de pendencia e nao quebrar lint/test/build/e2e locais.
+- Ausencia de arquivos aprovados para import staging smoke permanece `pending-input`, sem importar, sem conectar banco e sem deploy.
+- Producao e Stripe live mode ficam bloqueados; smoke real exige URL aprovada, configuracao externa e aprovacao humana.
+- Cobertura de smoke planejada: home, catalogo, produto, carrinho, checkout teste, pedido, admin, notificacoes/outbox e import staging smoke opcional.
+- A identidade visual publica foi aplicada com logo horizontal, paleta verde profundo/dourado, hero com frasco premium e vitrine com `Essenza Gold`, `Amber Imperial` e `Noir Absolu`.
+- Textos fixture/provisorios visiveis e placeholder de reconstrucao foram removidos do storefront; admin saiu da navegacao publica para usuarios comuns.
+- Itens locais de trabalho `.codex-remote-attachments/` e `identidade visual/` foram mantidos fora do versionamento via `.git/info/exclude`.
+- Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (50 arquivos / 144 testes), `pnpm build` e `pnpm test:e2e` (36 passed / 2 skipped esperados para checks dependentes de URL staging).
+- Nenhum codigo funcional foi alterado nesta re-extracao; nenhum deploy, migration real, banco real, segredo exposto ou alteracao no Laravel legado foi executado.
+
 ## Organizacao sugerida
 
 Sugestao do Scout: `hybrid`.

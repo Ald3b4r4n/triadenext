@@ -47,6 +47,7 @@ flowchart TB
 - `EMAIL_FROM`
 - `STAGING_DATABASE_URL` (somente staging/dev remoto; nunca imprimir valor)
 - `STAGING_IMPORT_SMOKE_URL` (somente smoke staging aprovado)
+- `STAGING_SMOKE_URL` (somente smoke staging/preview aprovado; ausencia deve virar `pending-config`)
 
 ## Scripts Operacionais Seguros
 
@@ -59,6 +60,7 @@ flowchart TB
 | `pnpm ops:check-data-dry-run` | Valida CSV/JSON locais para dados Must | Nao conecta banco, nao importa dados, nao faz upload e nao le `.env` |
 | `pnpm ops:import-staging` | Prepara/executa importacao staging/dev remoto aprovada | Bloqueia producao, exige preflight verde, aprovacao humana e nao imprime URL/secret |
 | `pnpm ops:check-staging-import-smoke` | Smoke pos-importacao em URL staging aprovada | Sem URL retorna skipped esperado; nao faz deploy, migration ou import |
+| `pnpm ops:check-staging-smoke` | Smoke real de staging/preview e go-live readiness | Sem URL/env/webhook retorna `pending-config`; bloqueia producao e Stripe live mode |
 
 ## Guardrails Operacionais
 
@@ -113,3 +115,16 @@ flowchart TB
 - `pnpm ops:check-staging-import-smoke` cobre smoke pos-importacao; sem `STAGING_IMPORT_SMOKE_URL`, o E2E fica com 1 skipped esperado.
 - Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (48 arquivos / 138 testes), `pnpm build` e `pnpm test:e2e` (36 passed / 1 skipped).
 - Nenhuma producao, deploy, migration real, banco real, segredo, push automatico ou alteracao no Laravel legado foi executada por este estado.
+
+## Estado Pos-Fase 17
+
+- Commit funcional de referencia: `c8b752f feat: implement staging smoke readiness`.
+- `pnpm ops:check-staging-smoke` prepara smoke real de staging/preview e readiness de go-live sem executar deploy final.
+- Ausencia de `STAGING_SMOKE_URL`, envs remotas ou Stripe test webhook retorna `pending-config`, com relatorio de pendencia e sem depender de credenciais reais para validacoes locais.
+- Ausencia de arquivos aprovados para import staging smoke retorna `pending-input`, sem conectar banco e sem importacao.
+- O smoke cobre home, catalogo, produto, carrinho, checkout em modo teste, pedido, admin e notificacoes/outbox quando houver ambiente aprovado.
+- Producao, Stripe live mode, migration em producao, banco de producao e go-live definitivo continuam fora do fluxo e devem ser bloqueados.
+- Commit visual de referencia: `547146a feat: apply triade visual identity`.
+- O storefront publico foi alinhado ao manual Triade com paleta verde profundo/dourado, logo horizontal, hero com frasco premium, rodape institucional e vitrine de tres perfumes sinteticos.
+- Validacoes reportadas apos identidade visual: `pnpm lint`, `pnpm typecheck`, `pnpm test` (50 arquivos / 144 testes), `pnpm build` e `pnpm test:e2e` (36 passed / 2 skipped esperados).
+- Nenhum deploy, migration real, banco real, segredo, push automatico ou alteracao no Laravel legado foi executado nesta re-extracao.

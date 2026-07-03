@@ -6,10 +6,12 @@
 - Display: `"Baskerville", "Garamond", "Palatino Linotype", Georgia, serif`.
 - Admin: `"Aptos Display", "Bahnschrift", "Segoe UI", sans-serif`.
 
-## Next atual
+## Next atual apos identidade visual
 
-- Base: `"Segoe UI", Arial, sans-serif`.
-- Display em hero e títulos: `Georgia, "Times New Roman", serif`.
+- Marca/display: `"Cinzel Decorative", "Cinzel", Georgia, serif`.
+- Assinatura/script: `"Signature", "Great Vibes", "Allura", cursive` quando disponivel.
+- Base/interface: `"Avenir Next", "Segoe UI", Arial, sans-serif`.
+- Texto editorial: `Georgia, "Times New Roman", serif` como fallback elegante.
 
 ## Escala observada
 
@@ -22,4 +24,4 @@
 
 ## Direção
 
-Preservar contraste entre serif elegante para marca/produto e sans legível para operação, formulários e admin.
+Preservar a assinatura premium da marca com Cinzel Decorative em logo, chamadas e detalhes de vitrine. Usar a fonte de assinatura apenas como acento controlado, nunca em texto longo. Manter sans legivel para operacao, formularios, admin e mensagens transacionais.

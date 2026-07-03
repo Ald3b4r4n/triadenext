@@ -44,13 +44,16 @@
     "fase_15",
     "reextracao_pos_fase_15",
     "fase_16",
-    "reextracao_pos_fase_16"
+    "reextracao_pos_fase_16",
+    "fase_17",
+    "identidade_visual_triade",
+    "reextracao_pos_fase_17"
   ],
   "pending": [
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "reextraction_after_phase_16_2026_07_03",
+  "last_checkpoint": "reextraction_after_phase_17_2026_07_03",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -1571,9 +1574,115 @@
         "notes": "Guardrails de staging import, bloqueio de producao, pending-input e reset protegido preservados no SDD atualizado."
       },
       "next_command": "git commit dos artefatos Reversa pos-Fase 16, depois push dos commits locais"
+    },
+    "reextraction_after_phase_17_2026_07_03": {
+      "completed_at": "2026-07-03T00:00:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD apos Fase 17 de staging smoke readiness e aplicacao da identidade visual Triade.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main",
+        "commits_confirmed": [
+          {
+            "short": "c8b752f",
+            "message": "feat: implement staging smoke readiness"
+          },
+          {
+            "short": "547146a",
+            "message": "feat: apply triade visual identity"
+          }
+        ],
+        "worktree_before_reextraction": "clean",
+        "local_untracked_handling": [
+          ".codex-remote-attachments/ ignored via .git/info/exclude",
+          "identidade visual/ ignored via .git/info/exclude"
+        ]
+      },
+      "files": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/deployment.md",
+        "_reversa_sdd/design-system/color-palette.md",
+        "_reversa_sdd/design-system/design-system.md",
+        "_reversa_sdd/design-system/tokens.md",
+        "_reversa_sdd/design-system/typography.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/adrs/012-staging-smoke-e-identidade-visual.md",
+        "_reversa_forward/025-fase-17-staging-smoke/regression-watch.md"
+      ],
+      "phase17_summary": {
+        "module": "src/features/staging-smoke/",
+        "script": "pnpm ops:check-staging-smoke",
+        "target": "staging/preview real quando STAGING_SMOKE_URL e envs externas forem fornecidas",
+        "missing_url_env_or_webhook_status": "pending-config",
+        "missing_approved_files_status": "pending-input",
+        "production_blocked": true,
+        "stripe_live_mode_blocked": true,
+        "smoke_coverage": [
+          "home",
+          "catalogo",
+          "produto",
+          "carrinho",
+          "checkout teste",
+          "pedido",
+          "admin",
+          "notificacoes/outbox",
+          "import staging smoke opcional"
+        ],
+        "local_builds_require_real_credentials": false
+      },
+      "visual_identity_summary": {
+        "brand": "Triade Essenza Parfum",
+        "logo": "horizontal dourada sobre verde profundo",
+        "palette": [
+          "verde profundo",
+          "dourado",
+          "preto premium",
+          "off-white editorial"
+        ],
+        "hero": "frasco premium com linguagem visual alinhada ao manual de identidade",
+        "showcase_products": [
+          "Essenza Gold",
+          "Amber Imperial",
+          "Noir Absolu"
+        ],
+        "public_navigation": "admin removido da navegacao publica para usuarios comuns",
+        "removed_public_texts": [
+          "textos fixture/provisorios com tom amador",
+          "placeholder de reconstrucao",
+          "mensagens tecnicas ao usuario final"
+        ]
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 50 files / 144 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 36 passed / 2 skipped expected for staging URL-dependent checks"
+      },
+      "guardrails": {
+        "functional_code_changed_during_reextraction": false,
+        "deploy": false,
+        "real_migration": false,
+        "real_database_connection": false,
+        "secrets_exposed": false,
+        "legacy_laravel_changed": false
+      },
+      "regression_watch": {
+        "features_checked": [
+          "_reversa_forward/025-fase-17-staging-smoke"
+        ],
+        "green": 10,
+        "yellow": 0,
+        "red": 0,
+        "notes": "Pending-config, pending-input, bloqueio de producao/Stripe live e identidade visual publica registrados sem alterar codigo funcional."
+      },
+      "next_command": "push dos artefatos Reversa pos-Fase 17; proxima decisao pode tratar staging real configurado ou go-live readiness final"
     }
   },
-  "next_reversa_command": "push_concluido_pos_fase_16_planejar_proxima_macrofase",
+  "next_reversa_command": "push_concluido_pos_fase_17_planejar_staging_real_ou_go_live_readiness_final",
   "engines": [
     "claude-code",
     "codex",

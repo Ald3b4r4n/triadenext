@@ -21,19 +21,23 @@
 | state-error | `#963b32` | Erro |
 | state-info | `#245d63` | Informação |
 
-## Next atual
+## Next atual apos identidade visual
 
 | Token | Valor |
 | --- | --- |
-| background | `#f8f5ef` |
-| foreground | `#211b18` |
-| muted | `#6c625c` |
-| border | `#ded4c8` |
-| accent | `#7b2639` |
-| accent-dark | `#531724` |
-| cream | `#efe4d3` |
-| ink | `#161211` |
+| brand-green | `#0f2318` |
+| brand-green-deep | `#09120d` |
+| brand-green-soft | `#182f22` |
+| brand-gold | `#caa35a` |
+| brand-gold-light | `#f1d48a` |
+| brand-gold-dark | `#8e6828` |
+| background | `#fbfaf6` |
+| foreground | `#171512` |
+| muted | `#6f685d` |
+| border | `#ded6c8` |
+| surface | `#ffffff` |
+| ink | `#080b09` |
 
 ## Direção
 
-Usar o vinho/accent do Next como assinatura de e-commerce e recuperar o champagne do legado para microdestaques, selos e estados premium.
+Usar verde profundo como base premium da marca e dourado como assinatura de luxo para logo, divisorias, CTAs e iconografia. O off-white deve aparecer em secoes editoriais claras, como a vitrine "Perfumes selecionados", sempre com contraste e refinamento.

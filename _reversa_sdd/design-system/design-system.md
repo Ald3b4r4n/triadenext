@@ -2,7 +2,7 @@
 
 ## Identidade
 
-Tríade Essenza Parfum usa uma estética premium, quente e editorial: fundos creme, tipografia serifada para desejo/produto, vinho escuro para ação e champagne como acento de luxo.
+Tríade Essenza Parfum usa uma estética premium, escura e elegante: verde profundo como base institucional, dourado como assinatura de luxo, preto premium para contraste e off-white para secoes editoriais claras. A marca publica deve comunicar venda de perfumes com sofisticação, nao nicho unico de perfumes arabes.
 
 ## Componentes base
 
@@ -26,6 +26,8 @@ Tríade Essenza Parfum usa uma estética premium, quente e editorial: fundos cre
 ## Critérios de aceite
 
 - Nenhuma tela pública deve parecer placeholder.
+- A home publica deve manter logo horizontal, hero premium com frasco e linguagem visual Triade.
+- Painel admin nao deve aparecer na navegacao publica para visitantes ou clientes comuns.
 - Mobile deve ser primeira classe.
 - Estados vazios e erros devem ser explícitos e seguros.
 - Componentes administrativos devem priorizar clareza operacional.

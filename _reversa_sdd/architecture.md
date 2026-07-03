@@ -127,6 +127,26 @@ Regras arquiteturais da Fase 16:
 - 🟢 Reset/limpeza e opt-in destrutivo protegido, nao comportamento padrao.
 - 🟢 Producao, deploy, migration real, upload real e alteracao do Laravel legado permanecem fora do fluxo.
 
+## Staging Smoke e Identidade Visual Pos-Fase 17
+
+| Camada | Arquivo/artefato | Responsabilidade |
+| --- | --- | --- |
+| Smoke staging | `src/features/staging-smoke/` | Preparar smoke real de staging/preview sem depender de credenciais locais |
+| Script operacional | `pnpm ops:check-staging-smoke` | Retornar `pending-config` quando URL/env/webhook nao existem e bloquear producao/Stripe live |
+| E2E staging | `src/tests/e2e/*staging*` | Manter checks remotos opt-in; ausencia de URL aprovada vira skipped/pending esperado |
+| Storefront visual | `src/components/storefront/storefront-home.tsx` | Home publica com identidade Triade, hero premium e vitrine de perfumes |
+| Layout publico | `src/app/layout.tsx` | Header/footer consistentes; admin visivel apenas para contas admin/manager logadas |
+| Assets publicos | `public/brand/*` | Logo horizontal, hero e imagens de produtos sinteticas/premium versionadas |
+
+Regras arquiteturais da Fase 17:
+
+- 🟢 `pending-config` e estado operacional seguro para URL, envs ou webhook de teste ausentes.
+- 🟢 `pending-input` continua estado seguro para arquivos aprovados ausentes.
+- 🟢 Smoke real exige URL staging aprovada, configuracao externa e aprovacao humana; nao inventa URL.
+- 🟢 Producao, Stripe live mode, deploy final, migration em producao e banco de producao continuam bloqueados.
+- 🟢 Identidade visual nao altera regras de catalogo, carrinho, cupom, frete, checkout, pedido, pagamento ou notificacao.
+- 🟢 Navegacao publica nao deve expor painel admin a usuarios comuns.
+
 ## Dados
 
 Os agregados críticos são:

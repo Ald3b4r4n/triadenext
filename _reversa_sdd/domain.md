@@ -153,6 +153,18 @@ Nível: detalhado
 - 🟢 `pnpm ops:check-staging-import-smoke` valida home, catalogo, produto, carrinho, checkout teste, admin, pedidos e outbox/notificacoes quando houver URL staging aprovada; sem URL, o skipped e esperado.
 - 🟢 Nenhuma regra de pagamento, estoque, cupom, frete, pedido ou notificacao muda por causa da importacao staging.
 
+### Staging Smoke e Storefront Triade
+
+- 🟢 `pnpm ops:check-staging-smoke` deve validar smoke real somente contra staging/preview/dev remoto aprovado; sem URL/env/webhook retorna `pending-config`.
+- 🟢 Stripe live mode e qualquer indicador de producao devem bloquear o smoke antes de requisicao externa.
+- 🟢 Arquivos aprovados ausentes para import staging smoke retornam `pending-input`; o fluxo nao conecta banco, nao importa dados e nao executa deploy.
+- 🟢 O storefront publico comunica venda de perfumes, nao apenas perfumes arabes.
+- 🟢 A home publica usa identidade visual Triade Essenza Parfum: logo horizontal, verde profundo/dourado, hero premium e vitrine editorial.
+- 🟢 Produtos de vitrine sintetica atual: `Essenza Gold`, `Amber Imperial` e `Noir Absolu`; eles existem para demonstracao visual e nao substituem reconciliacao de catalogo real.
+- 🟢 Textos fixture/provisorios e mensagens tecnicas nao devem ficar visiveis ao usuario final.
+- 🟢 Painel admin deve ficar fora da navegacao publica para visitantes e clientes comuns, aparecendo apenas a contas admin/manager autenticadas.
+- 🟢 Rodape publico deve conter central de atendimento por e-mail, menu, formas de pagamento aceitas e credito de desenvolvimento da AR Software Development.
+
 ## Decisões Implícitas Extraídas do Git
 
 - 🟢 A migração avançou em fases verticais: persistência, auth, carrinho, cupons, frete, checkout, pagamento, notificações e storefront.
@@ -161,6 +173,7 @@ Nível: detalhado
 - 🟢 A Fase 14 consolidou uma macrofase de dry-run controlado por arquivo, com reconciliacao executavel e guardrails contra operacao real.
 - 🟢 A Fase 15 consolidou a primeira execucao aprovada e o estado `pending-input` para nao mascarar ausencia de dados reais como sucesso.
 - 🟢 A Fase 16 consolidou a ponte entre dry-run local e staging/dev remoto, mantendo producao bloqueada e operacoes destrutivas atras de backup, flag e aprovacao humana.
+- 🟢 A Fase 17 consolidou smoke staging real opt-in e identidade visual publica sem mudar regras de negocio.
 - 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
 - 🟢 O sistema prefere fallback explícito a falha silenciosa.
 - 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.

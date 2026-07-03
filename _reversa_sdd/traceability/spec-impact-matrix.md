@@ -101,3 +101,16 @@ Guardrail: `pending-input` e estado operacional seguro, nao aprovacao de dados. 
 | `scripts/ops/check-staging-import-smoke.mjs` | Médio | Baixo | Baixo | Baixo | Médio | Crítico |
 
 Guardrail: staging import e etapa controlada antes de go-live. Qualquer permissao para producao, deploy, migration real, conexao com producao, segredo em log ou reset sem backup/aprovacao deve ser tratada como regressao critica.
+
+## Impactos de Staging Smoke e Identidade Visual Pos-Fase 17
+
+| Artefato | Pending Config | Pending Input | Producao Guard | Stripe Live | Storefront Visual | Admin Publico |
+| --- | --- | --- | --- | --- | --- | --- |
+| `src/features/staging-smoke/*` | Crítico | Alto | Crítico | Crítico | Médio | Baixo |
+| `scripts/ops/check-staging-smoke.mjs` | Crítico | Alto | Crítico | Crítico | Médio | Baixo |
+| `src/tests/e2e/staging-smoke*.spec.ts` | Alto | Médio | Alto | Alto | Alto | Médio |
+| `src/components/storefront/storefront-home.tsx` | Baixo | Baixo | Baixo | Baixo | Crítico | Alto |
+| `src/app/layout.tsx` | Baixo | Baixo | Médio | Baixo | Alto | Crítico |
+| `public/brand/*` | Baixo | Baixo | Baixo | Baixo | Alto | Baixo |
+
+Guardrail: Fase 17 nao autoriza go-live definitivo. `pending-config` e `pending-input` sao estados seguros, nao falhas a esconder. Qualquer exposicao de admin para usuario comum, retorno a placeholder, permissao de Stripe live ou tentativa de producao deve ser tratada como regressao critica.

@@ -6,18 +6,24 @@
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
   "updatedAt": "2026-07-03T00:00:00-03:00",
-  "scope": "Re-extracao Reversa pos-Fase 16 concluida",
+  "scope": "Re-extracao Reversa pos-Fase 17 e identidade visual concluida",
   "git": {
     "branch": "main",
-    "statusBeforeReextraction": "main...origin/main [ahead 1]",
+    "statusBeforeReextraction": "main...origin/main",
     "latestCommit": {
-      "short": "b7f871b",
-      "hash": "b7f871b11d04658344ee51cb206af9bd229d948d",
-      "message": "feat: implement approved staging import"
+      "short": "547146a",
+      "hash": "547146ae2f2c5a8ad2bbaba20210487e619de5f2",
+      "message": "feat: apply triade visual identity"
     },
     "phase15CommitPushed": true,
+    "phase16CommitPushed": true,
+    "phase17AndVisualIdentityCommitsPushed": true,
     "workingTreeBeforeReextraction": "clean",
-    "phase16CommitPushedAfterReextraction": "planned_in_same_flow"
+    "localUntrackedHandling": [
+      ".codex-remote-attachments/ excluded via .git/info/exclude",
+      "identidade visual/ excluded via .git/info/exclude"
+    ],
+    "documentalCommitAfterReextraction": "planned_in_same_flow"
   },
   "implementedPhases": [
     {
@@ -104,6 +110,12 @@
       "status": "completed",
       "summary": "Approved staging import readiness and guarded staging upsert",
       "commit": "b7f871b11d04658344ee51cb206af9bd229d948d"
+    },
+    {
+      "phase": 17,
+      "status": "completed",
+      "summary": "Staging smoke readiness, pending-config/pending-input guards and go-live checklist",
+      "commit": "c8b752f"
     }
   ],
   "currentCapabilities": {
@@ -118,7 +130,9 @@
     "legacyParityReadiness": "Matriz Laravel x Next, gap register, inventario legado, checklist go-live e rollback",
     "controlledDataDryRun": "CSV/JSON local, normalizadores, scanner de seguranca, reconciliacao e relatorio go/no-go sem escrita real",
     "approvedDataDryRun": "Primeira execucao aprovada em data/dry-run/input/primeira-execucao com pending-input seguro, inventario em memoria e divergencias por origem.",
-    "approvedStagingImport": "Importacao staging/dev remoto preparada com bloqueio de producao, preflight, upsert seguro, reset protegido, relatorios e smoke pos-importacao."
+    "approvedStagingImport": "Importacao staging/dev remoto preparada com bloqueio de producao, preflight, upsert seguro, reset protegido, relatorios e smoke pos-importacao.",
+    "stagingSmokeReadiness": "Smoke real de staging/preview preparado com pending-config para URL/env/webhook ausentes, pending-input para arquivos aprovados ausentes, bloqueio de producao e Stripe live mode.",
+    "visualIdentity": "Storefront publico alinhado a identidade Triade: logo horizontal, paleta verde profundo/dourado, hero com frasco premium, vitrine Essenza Gold/Amber Imperial/Noir Absolu e admin oculto para usuarios comuns."
   },
   "currentLegacyParity": {
     "centralCommerceFlow": "substituido_com_dados_corretos",
@@ -155,7 +169,8 @@
       "ops:check-smoke",
       "ops:check-data-dry-run",
       "ops:import-staging",
-      "ops:check-staging-import-smoke"
+      "ops:check-staging-import-smoke",
+      "ops:check-staging-smoke"
     ],
     "safeDefaults": {
       "noSecretValuesPrinted": true,
@@ -165,7 +180,9 @@
       "noRealImportByDefault": true,
       "noRealPaymentEmailOrUploadByDefault": true,
       "noProductionConnectionByDefault": true,
-      "noProductionImportByDefault": true
+      "noProductionImportByDefault": true,
+      "noStripeLiveModeByDefault": true,
+      "noRemoteSmokeWithoutApprovedUrlByDefault": true
     }
   },
   "currentPersistence": {
@@ -280,6 +297,13 @@
       "pnpm test": "passed - 48 files / 138 tests",
       "pnpm build": "passed",
       "pnpm test:e2e": "passed - 36 passed / 1 skipped expected without STAGING_IMPORT_SMOKE_URL"
+    },
+    "phase17AndVisualIdentity": {
+      "pnpm lint": "passed",
+      "pnpm typecheck": "passed",
+      "pnpm test": "passed - 50 files / 144 tests",
+      "pnpm build": "passed",
+      "pnpm test:e2e": "passed - 36 passed / 2 skipped expected for staging URL-dependent checks"
     }
   },
   "outOfScope": [
@@ -308,20 +332,25 @@
       "_reversa_sdd/state-machines.md",
       "_reversa_sdd/permissions.md",
       "_reversa_sdd/deployment.md",
+      "_reversa_sdd/design-system/color-palette.md",
+      "_reversa_sdd/design-system/design-system.md",
+      "_reversa_sdd/design-system/tokens.md",
+      "_reversa_sdd/design-system/typography.md",
       "_reversa_sdd/traceability/spec-impact-matrix.md",
       "_reversa_sdd/migration/data_migration_plan.md",
       "_reversa_sdd/migration/cutover_plan.md",
       "_reversa_sdd/adrs/010-primeira-execucao-pending-input.md",
-      "_reversa_sdd/adrs/011-importacao-staging-controlada.md"
+      "_reversa_sdd/adrs/011-importacao-staging-controlada.md",
+      "_reversa_sdd/adrs/012-staging-smoke-e-identidade-visual.md"
     ],
-    "forwardFeature": "_reversa_forward/024-fase-16-staging-import",
+    "forwardFeature": "_reversa_forward/025-fase-17-staging-smoke",
     "regressionWatchUpdated": [
-      "_reversa_forward/024-fase-16-staging-import/regression-watch.md"
+      "_reversa_forward/025-fase-17-staging-smoke/regression-watch.md"
     ]
   },
   "nextStep": {
-    "recommendedCommand": "push dos commits pos-Fase 16 concluido; proxima macrofase pode tratar execucao staging aprovada quando houver ambiente/arquivos",
-    "reason": "Conhecimento de staging import, bloqueio de producao, pending-input, upsert seguro, reset protegido e smoke atualizado apos a Fase 16"
+    "recommendedCommand": "push documental pos-Fase 17; depois decidir configuracao externa para smoke staging real ou preparar go-live final",
+    "reason": "Conhecimento de staging smoke, pending-config, pending-input, bloqueio de producao/Stripe live e identidade visual Triade registrado sem alterar codigo funcional"
   },
   "stagingImport": {
     "module": "src/features/staging-import",
@@ -358,5 +387,58 @@
     "noDeploy": true,
     "noRealMigration": true,
     "noSecretsPrinted": true
+  },
+  "stagingSmoke": {
+    "module": "src/features/staging-smoke",
+    "script": "pnpm ops:check-staging-smoke",
+    "target": "staging/preview/dev remoto controlado",
+    "urlEnv": "STAGING_SMOKE_URL",
+    "databaseEnvPresenceOnly": "STAGING_DATABASE_URL",
+    "stripeMode": "test mode only",
+    "missingUrlEnvOrWebhookStatus": "pending-config",
+    "missingApprovedFilesStatus": "pending-input",
+    "productionBlocked": true,
+    "stripeLiveModeBlocked": true,
+    "requiresHumanApprovalForRealSmoke": true,
+    "smokeCoverage": [
+      "home",
+      "catalogo",
+      "produto",
+      "carrinho",
+      "checkout teste",
+      "pedido",
+      "admin",
+      "notificacoes/outbox",
+      "import staging smoke opcional"
+    ],
+    "noDeploy": true,
+    "noProductionMigration": true,
+    "noProductionDatabaseConnection": true,
+    "noSecretsPrinted": true
+  },
+  "visualIdentity": {
+    "commit": "547146a feat: apply triade visual identity",
+    "brand": "Triade Essenza Parfum",
+    "logo": "horizontal dourada em verde profundo",
+    "palette": [
+      "verde profundo",
+      "dourado",
+      "preto premium",
+      "off-white editorial"
+    ],
+    "hero": "frasco premium com logomarca Triade e atmosfera de perfumaria importada",
+    "productShowcase": [
+      "Essenza Gold",
+      "Amber Imperial",
+      "Noir Absolu"
+    ],
+    "publicNavigation": "admin visivel somente para contas admin/manager logadas",
+    "footer": "central de atendimento por e-mail, menu, formas de pagamento e desenvolvimento por AR Software Development",
+    "removedPublicCopy": [
+      "Curadoria com personalidade",
+      "Compra simples e segura",
+      "Detalhes que permanecem",
+      "textos tecnicos ou provisorios ao usuario final"
+    ]
   }
 }

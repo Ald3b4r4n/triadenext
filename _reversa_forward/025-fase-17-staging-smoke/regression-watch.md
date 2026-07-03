@@ -18,7 +18,14 @@ Nenhum watch item principal foi criado nesta rodada, pois nenhuma regra verde de
 
 ## Histórico de re-extrações
 
-Vazio. A proxima re-extracao via `/reversa` deve preencher este historico.
+### 2026-07-03 - Re-extracao pos-Fase 17 e identidade visual
+
+- Contexto validado: `c8b752f feat: implement staging smoke readiness` e `547146a feat: apply triade visual identity` ja estavam em `main`.
+- `pnpm ops:check-staging-smoke` registrado como smoke staging/preview opt-in, com `pending-config` para URL/env/webhook ausentes.
+- `pending-input` preservado para arquivos aprovados ausentes em import staging smoke.
+- Producao e Stripe live mode permanecem bloqueados antes de qualquer requisicao externa.
+- Storefront publico atualizado como baseline visual Triade: logo horizontal, paleta verde profundo/dourado, hero com frasco premium, vitrine Essenza Gold/Amber Imperial/Noir Absolu e admin oculto para usuarios comuns.
+- Nenhuma regra de pagamento, estoque, cupom, frete, checkout, pedido ou notificacao foi marcada como alterada nesta re-extracao.
 
 ## Arquivadas
 
