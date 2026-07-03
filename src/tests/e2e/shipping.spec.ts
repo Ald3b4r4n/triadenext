@@ -43,7 +43,7 @@ test("postal code without coverage shows controlled error", async ({ page }) => 
 
 async function addPublishedProductToCart(page: Page) {
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    await page.goto("/produto/produto-publicado-de-exemplo", { waitUntil: "commit" });
+    await page.goto("/produto/essenza-gold", { waitUntil: "commit" });
     const button = page.getByRole("button", { name: "Adicionar ao carrinho" });
     if (await button.count()) {
       await button.click();

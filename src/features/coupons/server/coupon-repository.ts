@@ -46,7 +46,7 @@ function createFallbackCouponRepository(): CouponRepository {
         status: "dev_fallback",
         coupon,
         message:
-          "Cupom validado para teste local. A gravação definitiva depende da configuração de produção."
+          "Cupom validado em modo demonstrativo seguro. A gravação definitiva depende da configuração de produção."
       };
     },
     async updateCoupon(id, input) {
@@ -60,7 +60,7 @@ function createFallbackCouponRepository(): CouponRepository {
         status: "dev_fallback",
         coupon,
         message:
-          "Cupom atualizado para teste local. A gravação definitiva depende da configuração de produção."
+          "Cupom atualizado em modo demonstrativo seguro. A gravação definitiva depende da configuração de produção."
       };
     },
     async incrementUsedCount(id) {

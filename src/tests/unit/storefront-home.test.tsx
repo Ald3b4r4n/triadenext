@@ -15,17 +15,17 @@ describe("StorefrontHome", () => {
     expect(screen.queryByText(/^Storefront$/)).not.toBeInTheDocument();
     expect(screen.getByText("Tríade Essenza Parfum")).toBeInTheDocument();
     expect(screen.getByText("Perfumaria árabe contemporânea")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ver produtos" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Comprar agora" })).toHaveAttribute(
       "href",
       "/produtos"
     );
-    expect(screen.getByText("Produto publicado de exemplo")).toBeInTheDocument();
+    expect(screen.getByText("Essenza Gold")).toBeInTheDocument();
     expect(screen.getByText(/R\$\s*159,90/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ver detalhes" })).toHaveAttribute(
       "href",
-      "/produto/produto-publicado-de-exemplo"
+      "/produto/essenza-gold"
     );
-    expect(screen.queryByText("Produto sem estoque de exemplo")).not.toBeInTheDocument();
+    expect(screen.queryByText("Amber Nuit")).not.toBeInTheDocument();
   });
 
   it("renders a safe empty state when no products are available", () => {

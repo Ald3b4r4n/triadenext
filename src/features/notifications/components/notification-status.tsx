@@ -30,7 +30,7 @@ function notificationStatusLabel(status: NotificationDelivery["status"]) {
     pending: "pendente",
     sending: "em envio",
     sent: "enviada",
-    mocked: "teste local",
+    mocked: "modo seguro",
     failed: "falhou",
     skipped: "não aplicável"
   };

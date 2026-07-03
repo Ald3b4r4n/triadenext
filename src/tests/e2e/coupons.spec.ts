@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("visitor applies a valid coupon and sees discount in fallback mode", async ({ page }) => {
-  await page.goto("/produto/produto-publicado-de-exemplo", { waitUntil: "commit" });
+  await page.goto("/produto/essenza-gold", { waitUntil: "commit" });
   await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await page.waitForLoadState("networkidle");
   await page.goto("/carrinho", { waitUntil: "commit" });
@@ -16,7 +16,7 @@ test("visitor applies a valid coupon and sees discount in fallback mode", async 
 });
 
 test("invalid coupon shows controlled error", async ({ page }) => {
-  await page.goto("/produto/produto-publicado-de-exemplo", { waitUntil: "commit" });
+  await page.goto("/produto/essenza-gold", { waitUntil: "commit" });
   await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await page.waitForLoadState("networkidle");
   await page.goto("/carrinho", { waitUntil: "commit" });
@@ -28,7 +28,7 @@ test("invalid coupon shows controlled error", async ({ page }) => {
 });
 
 test("coupon can be removed", async ({ page }) => {
-  await page.goto("/produto/produto-publicado-de-exemplo", { waitUntil: "commit" });
+  await page.goto("/produto/essenza-gold", { waitUntil: "commit" });
   await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await page.waitForLoadState("networkidle");
   await page.goto("/carrinho", { waitUntil: "commit" });
@@ -44,7 +44,7 @@ test("coupon can be removed", async ({ page }) => {
 });
 
 test("minimum subtotal coupon is blocked", async ({ page }) => {
-  await page.goto("/produto/produto-publicado-de-exemplo", { waitUntil: "commit" });
+  await page.goto("/produto/essenza-gold", { waitUntil: "commit" });
   await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await page.waitForLoadState("networkidle");
   await page.goto("/carrinho", { waitUntil: "commit" });

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("visitor clicks cart checkout CTA and is instructed to login", async ({ page }) => {
-  await page.goto("/produto/produto-publicado-de-exemplo", { waitUntil: "commit" });
+  await page.goto("/produto/essenza-gold", { waitUntil: "commit" });
   await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await page.waitForLoadState("networkidle");
   await page.goto("/carrinho", { waitUntil: "commit" });

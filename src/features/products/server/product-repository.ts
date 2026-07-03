@@ -97,7 +97,7 @@ function createFixtureProductRepository(): ProductRepository {
         status: "dev_fallback",
         imageId: null,
         message:
-          "Imagem validada para teste local. A gravação definitiva depende da configuração de produção."
+          "Imagem validada em modo demonstrativo seguro. A gravação definitiva depende da configuração de produção."
       };
     },
     async createProduct(input: ProductMutationInput) {

@@ -18,14 +18,14 @@ export function StorefrontHome({
           <div className="storefront-hero__copy">
             <p className="storefront-hero__brand">Tríade Essenza Parfum</p>
             <p className="eyebrow">Perfumaria árabe contemporânea</p>
-            <h1>Presença que começa antes da primeira palavra.</h1>
+            <h1>Perfumes que vestem presença.</h1>
             <p className="storefront-hero__lead">
-              Fragrâncias marcantes, design sofisticado e uma curadoria pensada para transformar
-              cada escolha em assinatura.
+              Uma vitrine elegante de fragrâncias intensas, com acordes orientais, assinatura
+              marcante e compra guiada para escolher sem pressa.
             </p>
             <div className="action-row">
               <Link className="primary-action" href="/produtos">
-                Ver produtos
+                Comprar agora
               </Link>
               <Link className="hero-text-link" href="/carrinho">
                 Ir para o carrinho
@@ -50,8 +50,8 @@ export function StorefrontHome({
       <section className="page-shell storefront-section" aria-labelledby="storefront-products">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Escolhas em destaque</p>
-            <h2 id="storefront-products">Encontre sua próxima assinatura</h2>
+            <p className="eyebrow">Vitrine da loja</p>
+            <h2 id="storefront-products">Destaques para uma assinatura marcante</h2>
           </div>
           <Link className="section-link" href="/produtos">
             Explorar catálogo

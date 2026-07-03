@@ -66,7 +66,7 @@ describe("checkout service", () => {
     expect(result.status).toBe("fallback");
     expect(result.status === "fallback" && result.order.status).toBe("aguardando_pagamento");
     expect(result.status === "fallback" && result.order.items[0]?.nameSnapshot).toBe(
-      "Produto publicado de exemplo"
+      "Essenza Gold"
     );
     expect(result.status === "fallback" && result.order.customerSnapshot.email).toBe(
       "checkout-snapshot@example.com"

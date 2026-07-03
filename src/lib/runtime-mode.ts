@@ -2,11 +2,11 @@ import { sensitiveRuntimeEnv } from "./env";
 
 export const runtimeMessages = {
   databaseMissing:
-    "Ambiente local sem persistência real. Os dados exibidos podem vir de exemplos seguros.",
+    "Catálogo em modo demonstrativo seguro enquanto a base definitiva não está conectada.",
   devFallbackCreate:
-    "Produto validado para teste local. A gravação definitiva depende da configuração de produção.",
+    "Produto validado em modo demonstrativo seguro. A gravação definitiva depende da configuração de produção.",
   devFallbackUpdate:
-    "Produto validado para teste local. A atualização definitiva depende da configuração de produção.",
+    "Produto validado em modo demonstrativo seguro. A atualização definitiva depende da configuração de produção.",
   blockedMutation:
     "Alteração bloqueada neste ambiente. Acesso administrativo real é obrigatório para gravar dados.",
   authNotReady:
@@ -21,7 +21,7 @@ export const runtimeMessages = {
   imageMetadataPersisted: "Metadata de imagem persistida em Neon/Drizzle."
   ,
   cartFallbackNotPersisted:
-    "Carrinho ativo apenas para teste local; as interações não representam uma compra real.",
+    "Carrinho em modo seguro de demonstração; revise tudo antes de finalizar um pedido real.",
   cartUnavailable:
     "Carrinho temporariamente indisponível neste ambiente.",
   cartProductUnavailable: "Produto indisponivel para compra.",
@@ -32,7 +32,7 @@ export const runtimeMessages = {
   checkoutUnavailable:
     "Checkout indisponível neste ambiente. Nenhum pedido real foi criado.",
   checkoutFallback:
-    "Pedido pendente criado apenas para teste local, sem persistência real.",
+    "Pedido pendente criado em modo demonstrativo seguro.",
   checkoutValidationError: "Nao foi possivel criar o pedido pendente com os dados informados.",
   orderForbidden: "Pedido indisponivel para este usuario.",
   orderReadUnavailable: "Leitura de pedidos temporariamente indisponível neste ambiente."

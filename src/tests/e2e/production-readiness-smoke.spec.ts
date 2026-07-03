@@ -9,12 +9,12 @@ test("production readiness smoke keeps the storefront flow safe and navigable", 
     0
   );
 
-  await page.getByRole("link", { name: "Ver produtos" }).first().click();
+  await page.getByRole("link", { name: "Comprar agora" }).first().click();
   await expect(page).toHaveURL(/\/produtos/);
-  await expect(page.getByRole("link", { name: "Produto publicado de exemplo", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Essenza Gold", exact: true })).toBeVisible();
 
-  await page.getByRole("link", { name: "Produto publicado de exemplo", exact: true }).click();
-  await expect(page).toHaveURL(/\/produto\/produto-publicado-de-exemplo/);
+  await page.getByRole("link", { name: "Essenza Gold", exact: true }).click();
+  await expect(page).toHaveURL(/\/produto\/essenza-gold/);
   await expect(page.getByRole("button", { name: "Adicionar ao carrinho" })).toBeVisible();
 
   await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
@@ -22,7 +22,7 @@ test("production readiness smoke keeps the storefront flow safe and navigable", 
   await page.goto("/carrinho", { waitUntil: "commit" });
 
   await expect(page.getByRole("heading", { name: "Carrinho" })).toBeVisible();
-  await expect(page.getByText("Produto publicado de exemplo")).toBeVisible();
+  await expect(page.getByText("Essenza Gold")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Resumo" })).toBeVisible();
   await expect(page.getByText(/secret|token|DATABASE_URL/i)).toHaveCount(0);
 });

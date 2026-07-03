@@ -44,14 +44,14 @@ describe("product persistence fallback", () => {
     expect(mode.hasDatabase).toBe(false);
     expect(mode.databaseNotice).toBe(runtimeMessages.databaseMissing);
     expect(products.some((item) => item.id === "prod-example-published")).toBe(true);
-    expect(product?.slug).toBe("produto-publicado-de-exemplo");
+    expect(product?.slug).toBe("essenza-gold");
   });
 
   it("returns dev_fallback for admin mutation without exposing technical env names", async () => {
     const result = await createAdminProduct(validProductInput);
 
     expect(result.status).toBe("dev_fallback");
-    expect(result.message).toContain("teste local");
+    expect(result.message).toContain("modo demonstrativo seguro");
     expect(result.message).not.toMatch(/DATABASE_URL|secret|token/i);
   });
 

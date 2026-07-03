@@ -5,12 +5,12 @@ export default async function ProdutosPage() {
   const products = await listPublicProducts();
 
   return (
-    <main className="page-shell">
+    <main className="page-shell catalog-page">
       <section className="page-intro">
         <p className="muted">Catálogo</p>
         <h1>Produtos</h1>
         <p>
-          Fragrâncias disponíveis para compra, com estoque e publicação ativos.
+          Vitrine da loja com fragrâncias selecionadas, preços em BRL e disponibilidade atual.
         </p>
       </section>
       <ProductGrid products={products} />
