@@ -9,7 +9,7 @@ test("production readiness smoke keeps the storefront flow safe and navigable", 
     0
   );
 
-  await page.getByRole("link", { name: "Comprar agora" }).first().click();
+  await page.getByRole("link", { name: "Ver coleções" }).first().click();
   await expect(page).toHaveURL(/\/produtos/);
   await expect(page.getByRole("link", { name: "Essenza Gold", exact: true })).toBeVisible();
 
@@ -19,7 +19,11 @@ test("production readiness smoke keeps the storefront flow safe and navigable", 
 
   await page.getByRole("button", { name: "Adicionar ao carrinho" }).click();
   await page.waitForLoadState("networkidle");
-  await page.goto("/carrinho", { waitUntil: "commit" });
+  await page
+    .getByRole("navigation", { name: "Navegação principal" })
+    .getByRole("link", { name: "Carrinho", exact: true })
+    .click();
+  await expect(page).toHaveURL(/\/carrinho/);
 
   await expect(page.getByRole("heading", { name: "Carrinho" })).toBeVisible();
   await expect(page.getByText("Essenza Gold")).toBeVisible();

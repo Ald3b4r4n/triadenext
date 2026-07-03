@@ -1,78 +1,146 @@
 import type { Metadata } from "next";
+import { Cinzel_Decorative, Great_Vibes } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
-import { LayoutDashboard, LogIn, Search, ShoppingBag, UserRound } from "lucide-react";
+import {
+  LockKeyhole,
+  Search,
+  ShieldCheck,
+  ShoppingBag,
+  Truck,
+  UserRound
+} from "lucide-react";
+import { getCurrentSession } from "@/features/auth/server/session";
 import "./globals.css";
+
+const cinzelDecorative = Cinzel_Decorative({
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  variable: "--font-cinzel-decorative"
+});
+
+const signature = Great_Vibes({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-signature"
+});
 
 export const metadata: Metadata = {
   title: "Tríade Essenza Parfum",
-  description: "Perfumaria árabe contemporânea, fragrâncias marcantes e design sofisticado."
+  description: "Loja online de perfumes, fragrâncias marcantes e design sofisticado."
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getCurrentSession();
+  const canSeeAdmin =
+    session.status === "authenticated" && (session.role === "admin" || session.role === "manager");
+
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${cinzelDecorative.variable} ${signature.variable}`}>
       <body>
         <header className="site-header">
+          <div className="identity-topbar" aria-label="Diferenciais da loja">
+            <div className="page-shell identity-topbar__content">
+              <span>
+                <Truck aria-hidden="true" size={13} />
+                Envio para todo o Brasil
+              </span>
+              <span>
+                <ShieldCheck aria-hidden="true" size={13} />
+                Produtos 100% originais
+              </span>
+              <span>
+                <LockKeyhole aria-hidden="true" size={13} />
+                Compra segura
+              </span>
+            </div>
+          </div>
           <div className="page-shell site-header__content">
             <Link className="site-brand" href="/" aria-label="Tríade Essenza Parfum">
-              <Image src="/brand/triade.png" alt="" width={220} height={122} priority />
+              <Image
+                src="/brand/triade-logo-horizontal-transparent.png"
+                alt=""
+                width={535}
+                height={134}
+                priority
+              />
               <span className="sr-only">Tríade Essenza Parfum</span>
             </Link>
-            <form className="site-search" action="/produtos" role="search">
-              <Search aria-hidden="true" size={18} />
-              <label className="sr-only" htmlFor="site-search">
-                Buscar produtos
-              </label>
-              <input id="site-search" name="q" type="search" placeholder="Buscar fragrância" />
-              <button type="submit">Buscar</button>
-            </form>
+            <nav className="site-category-nav" aria-label="Categorias">
+              <Link href="/" aria-current="page">
+                Início
+              </Link>
+              <Link href="/produtos">Masculinos</Link>
+              <Link href="/produtos">Femininos</Link>
+              <Link href="/produtos">Nichos</Link>
+              <Link href="/produtos">Kit&apos;s</Link>
+              <Link href="/produtos">Promoções</Link>
+            </nav>
             <nav className="site-actions" aria-label="Navegação principal">
-              <Link href="/admin">
-                <LayoutDashboard aria-hidden="true" size={18} />
-                Painel admin
-              </Link>
-              <Link href="/minha-conta">
+              {canSeeAdmin ? (
+                <Link className="site-action-text" href="/admin">
+                  Admin
+                </Link>
+              ) : null}
+              <form className="site-search" action="/produtos" role="search">
+                <label className="sr-only" htmlFor="site-search">
+                  Buscar produtos
+                </label>
+                <input id="site-search" name="q" type="search" placeholder="Buscar" />
+                <button type="submit" aria-label="Buscar">
+                  <Search aria-hidden="true" size={18} />
+                </button>
+              </form>
+              <Link className="site-action-icon" href="/minha-conta" aria-label="Minha conta">
                 <UserRound aria-hidden="true" size={18} />
-                Minha conta
               </Link>
-              <Link href="/login">
-                <LogIn aria-hidden="true" size={18} />
-                Entrar
-              </Link>
-              <Link className="site-actions__cart" href="/carrinho">
+              <Link className="site-action-icon site-actions__cart" href="/carrinho" aria-label="Carrinho">
                 <ShoppingBag aria-hidden="true" size={18} />
-                Carrinho
               </Link>
             </nav>
           </div>
-          <nav className="site-category-nav" aria-label="Categorias">
-            <div className="page-shell site-category-nav__content">
-              <Link href="/produtos">Catálogo</Link>
-              <Link href="/produtos">Masculinos</Link>
-              <Link href="/produtos">Femininos</Link>
-              <Link href="/produtos">Destaques</Link>
-            </div>
-          </nav>
         </header>
         {children}
         <footer className="site-footer">
           <div className="page-shell site-footer__content">
-            <div>
-              <strong>Tríade Essenza Parfum</strong>
-              <p>Perfumes importados e inspirados na elegância árabe, com curadoria comercial e compra guiada.</p>
+            <div className="site-footer__column">
+              <h2>Central de atendimento</h2>
+              <p>
+                <a href="mailto:suporte@triadeessenzaparfum.com.br">
+                  suporte@triadeessenzaparfum.com.br
+                </a>
+              </p>
             </div>
-            <nav className="site-footer__nav" aria-label="Links do rodapé">
+            <nav className="site-footer__nav" aria-label="Menu do rodapé">
+              <h2>Menu</h2>
+              <Link href="/">Início</Link>
               <Link href="/produtos">Catálogo</Link>
               <Link href="/carrinho">Carrinho</Link>
-              <Link href="/admin">Painel admin</Link>
-              <Link href="/login">Entrar</Link>
               <Link href="/minha-conta">Minha conta</Link>
+              <Link href="/login">Entrar</Link>
             </nav>
+            <div className="site-footer__column">
+              <h2>Pagamento</h2>
+              <ul className="payment-list" aria-label="Formas de pagamento aceitas">
+                <li>Cartões de crédito</li>
+                <li>Cartões de débito</li>
+                <li>Pix</li>
+                <li>Boleto</li>
+              </ul>
+            </div>
+            <div className="site-footer__column site-footer__credit">
+              <h2>Desenvolvimento</h2>
+              <p>
+                Desenvolvido por{" "}
+                <a href="https://www.arsoftwaredevelopment.com.br/" rel="noreferrer" target="_blank">
+                  AR Software Development
+                </a>
+              </p>
+            </div>
           </div>
         </footer>
       </body>

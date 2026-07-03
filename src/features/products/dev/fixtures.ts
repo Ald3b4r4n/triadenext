@@ -6,9 +6,9 @@ const futureDate = new Date("2099-01-10T12:00:00.000Z");
 export const devCategories: Category[] = [
   {
     id: "cat-example-active",
-    name: "Perfumes Árabes",
-    slug: "perfumes-arabes",
-    description: "Curadoria de fragrâncias intensas para a vitrine pública.",
+    name: "Perfumes",
+    slug: "perfumes",
+    description: "Fragrâncias selecionadas para a vitrine pública.",
     parentId: null,
     sortOrder: 10,
     isActive: true,
@@ -28,17 +28,24 @@ export const devCategories: Category[] = [
   }
 ];
 
-function imageFor(productId: string, id: string, sortOrder: number, isCover = false): ProductImage {
+function imageFor(
+  productId: string,
+  id: string,
+  sortOrder: number,
+  isCover = false,
+  assetPath?: string,
+  altText = "Frasco de perfume Tríade Essenza"
+): ProductImage {
   return {
     id,
     productId,
-    blobUrl: `fixture://${productId}`,
-    pathname: `dev-fixtures/products/${productId}/${id}.png`,
-    altText: "Frasco de perfume Tríade Essenza",
+    blobUrl: assetPath ?? `fixture://${productId}`,
+    pathname: assetPath?.replace(/^\//, "") ?? `dev-fixtures/products/${productId}/${id}.png`,
+    altText,
     sortOrder,
     isCover,
-    width: 900,
-    height: 1100,
+    width: assetPath ? 1024 : 900,
+    height: assetPath ? 1024 : 1100,
     sizeBytes: 120000,
     contentType: "image/png",
     createdAt: pastDate
@@ -71,8 +78,86 @@ export const devProducts: Product[] = [
     seoDescription: "Perfume Essenza Gold da Tríade Essenza Parfum.",
     categories: [devCategories[0]],
     images: [
-      imageFor("prod-example-published", "img-published-gallery", 20),
-      imageFor("prod-example-published", "img-published-cover", 10, true)
+      imageFor(
+        "prod-example-published",
+        "img-published-cover",
+        10,
+        true,
+        "/brand/triade-product-essenza-gold.png",
+        "Frasco verde escuro do perfume Essenza Gold"
+      )
+    ],
+    createdAt: pastDate,
+    updatedAt: pastDate
+  },
+  {
+    id: "prod-example-amber-imperial",
+    name: "Amber Imperial",
+    slug: "amber-imperial",
+    shortDescription: "Âmbar intenso, especiarias quentes e elegância noturna.",
+    description: "Perfume de rastro envolvente para momentos marcantes ao anoitecer.",
+    brand: "Tríade Essenza",
+    inspirationName: null,
+    gender: "unissex",
+    concentration: "Eau de Parfum",
+    volumeMl: 50,
+    sku: "DEV-PUBLISHED-002",
+    priceCents: 17990,
+    compareAtPriceCents: 21990,
+    costPriceCents: null,
+    stockQuantity: 6,
+    lowStockThreshold: 2,
+    status: "published",
+    isFeatured: true,
+    publishedAt: pastDate,
+    seoTitle: null,
+    seoDescription: null,
+    categories: [devCategories[0]],
+    images: [
+      imageFor(
+        "prod-example-amber-imperial",
+        "img-amber-cover",
+        10,
+        true,
+        "/brand/triade-product-amber-nuit.png",
+        "Frasco âmbar do perfume Amber Imperial"
+      )
+    ],
+    createdAt: pastDate,
+    updatedAt: pastDate
+  },
+  {
+    id: "prod-example-noir-absolu",
+    name: "Noir Absolu",
+    slug: "noir-absolu",
+    shortDescription: "Madeiras escuras, couro suave e presença sofisticada.",
+    description: "Uma assinatura intensa com acabamento seco, elegante e memorável.",
+    brand: "Tríade Essenza",
+    inspirationName: null,
+    gender: "unissex",
+    concentration: "Eau de Parfum",
+    volumeMl: 100,
+    sku: "DEV-PUBLISHED-003",
+    priceCents: 18990,
+    compareAtPriceCents: 22990,
+    costPriceCents: null,
+    stockQuantity: 7,
+    lowStockThreshold: 1,
+    status: "published",
+    isFeatured: true,
+    publishedAt: pastDate,
+    seoTitle: null,
+    seoDescription: null,
+    categories: [devCategories[0]],
+    images: [
+      imageFor(
+        "prod-example-noir-absolu",
+        "img-noir-cover",
+        10,
+        true,
+        "/brand/triade-product-noir-absolu.png",
+        "Frasco preto fosco do perfume Noir Absolu"
+      )
     ],
     createdAt: pastDate,
     updatedAt: pastDate

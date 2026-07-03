@@ -58,7 +58,11 @@ describe("product persistence fallback", () => {
   it("keeps storefront public rules while using fixtures", async () => {
     const products = await listPublicProducts(new Date("2026-06-08T12:00:00.000Z"));
 
-    expect(products.map((product) => product.id)).toEqual(["prod-example-published"]);
+    expect(products.map((product) => product.id)).toEqual([
+      "prod-example-published",
+      "prod-example-amber-imperial",
+      "prod-example-noir-absolu"
+    ]);
   });
 
   it("blocks real mutations outside development/local-dev guardrail", () => {

@@ -14,14 +14,17 @@ describe("StorefrontHome", () => {
     expect(screen.queryByText(/Placeholder funcional/)).not.toBeInTheDocument();
     expect(screen.queryByText(/^Storefront$/)).not.toBeInTheDocument();
     expect(screen.getByText("Tríade Essenza Parfum")).toBeInTheDocument();
-    expect(screen.getByText("Perfumaria árabe contemporânea")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Comprar agora" })).toHaveAttribute(
+    expect(screen.getByText("Seu momento. Sua essência.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Perfumes importados que marcam presença." })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ver coleções" })).toHaveAttribute(
       "href",
       "/produtos"
     );
     expect(screen.getByText("Essenza Gold")).toBeInTheDocument();
+    expect(screen.getByText("Amber Imperial")).toBeInTheDocument();
+    expect(screen.getByText("Noir Absolu")).toBeInTheDocument();
     expect(screen.getByText(/R\$\s*159,90/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Ver detalhes" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Essenza Gold" })).toHaveAttribute(
       "href",
       "/produto/essenza-gold"
     );
