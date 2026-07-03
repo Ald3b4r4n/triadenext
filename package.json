@@ -16,6 +16,8 @@
     "ops:check-build": "node scripts/ops/check-build-readiness.mjs",
     "ops:check-smoke": "node scripts/ops/check-smoke-readiness.mjs",
     "ops:check-data-dry-run": "node scripts/ops/check-data-dry-run-readiness.mjs",
+    "ops:import-staging": "node scripts/ops/import-staging.mjs",
+    "ops:check-staging-import-smoke": "node scripts/ops/check-staging-import-smoke.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node scripts/db/require-database-url.mjs && drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
