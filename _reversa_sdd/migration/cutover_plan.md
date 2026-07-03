@@ -4,6 +4,8 @@
 
 - Congelar escopo funcional por domínio.
 - Executar `pnpm ops:check-data-dry-run -- --input data/dry-run/input/primeira-execucao --format both` com arquivos reais/exportados aprovados.
+- Executar `pnpm ops:import-staging` somente contra staging/dev remoto aprovado, apos dry-run `go`, backup/snapshot e aprovacao humana.
+- Executar `pnpm ops:check-staging-import-smoke` com `STAGING_IMPORT_SMOKE_URL` de staging aprovado; sem URL, manter skipped como pendencia operacional.
 - Manter relatorios reais em `data/dry-run/output/` fora do Git.
 - Validar contagem de produtos, clientes, pedidos, cupons, endereços e imagens.
 - Validar checkout e pagamento em sandbox.
@@ -48,3 +50,12 @@
 - Secret/dado pessoal cru em log ou relatorio.
 - Necessidade de frete externo/fiscal no dia zero sem implementacao aprovada.
 - Relatorio real versionado por engano em Git.
+
+## No-go Pos-Fase 16
+
+- Tentativa de importacao staging contra producao ou ambiente que pareca producao.
+- `STAGING_DATABASE_URL` ausente, impresso em log ou versionado por engano.
+- Import staging sem dry-run `go` aprovado ou com `pending-input`.
+- Reset/limpeza sem backup/snapshot confirmado, flag explicita e aprovacao humana.
+- Relatorio de staging com secret, URL sensivel ou dado pessoal cru.
+- Smoke pos-importacao nao executado ou skipped sem decisao humana para avancar.

@@ -1,6 +1,6 @@
 # Dependencias Reversa - Triade Essenza Next
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Scout
 Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoes principais.
 
@@ -77,6 +77,8 @@ Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoe
 - `ops:check-build`: `node scripts/ops/check-build-readiness.mjs`.
 - `ops:check-smoke`: `node scripts/ops/check-smoke-readiness.mjs`.
 - `ops:check-data-dry-run`: `node scripts/ops/check-data-dry-run-readiness.mjs`.
+- `ops:import-staging`: `node scripts/ops/import-staging.mjs`.
+- `ops:check-staging-import-smoke`: `node scripts/ops/check-staging-import-smoke.mjs`.
 - `db:generate`: `drizzle-kit generate`.
 - `db:migrate`: `node scripts/db/require-database-url.mjs && drizzle-kit migrate`.
 - `db:studio`: `drizzle-kit studio`.
@@ -94,4 +96,7 @@ Escopo: dependencias declaradas em `package.json`, workspace pnpm e configuracoe
 - Fase 14 nao adicionou dependencias npm; reutiliza `tsx` ja existente para executar a CLI TypeScript do dry-run.
 - `ops:check-data-dry-run` le apenas arquivos locais permitidos e nao le `.env`, nao conecta banco, nao importa dados, nao faz upload real e nao executa deploy.
 - Fase 15 nao adicionou dependencias npm; ampliou o dry-run aprovado com `pending-input`, inventario em memoria, contratos primarios `product_images.*`/`inventory.*`/`shipping.*` e relatorios sanitizados usando os mesmos scripts existentes.
+- Fase 16 nao adicionou dependencias npm; reutiliza Drizzle/Neon/tsx ja presentes para preparar importacao staging controlada.
+- `ops:import-staging` exige ambiente staging/dev remoto aprovado e bloqueia producao antes de abrir conexao; nao deve imprimir `STAGING_DATABASE_URL` nem qualquer segredo.
+- `ops:check-staging-import-smoke` depende somente de URL staging aprovada; sem `STAGING_IMPORT_SMOKE_URL`, o skipped e esperado e nao representa falha de build.
 - Laravel legado e dependencia operacional de leitura para paridade e rollback, mas nao e dependencia runtime do Next.

@@ -10,7 +10,7 @@
 
 ## Histórico de re-extrações
 
-Vazio. Deve ser preenchido pelo agente reverso quando `/reversa` for executado novamente.
+- 2026-07-03: re-extracao_pos_fase_16 registrou `src/features/staging-import`, preflight staging/dev remoto, bloqueio de producao, `pending-input`, upsert seguro, reset protegido, relatorios e smoke pos-importacao. Watch principal segue sem regressao funcional; regras de pagamento, estoque, cupons, frete, pedidos, notificacoes e checkout permanecem intactas.
 
 ## Arquivadas
 

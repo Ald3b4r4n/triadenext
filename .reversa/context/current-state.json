@@ -5,18 +5,19 @@
     "isLegacyLaravel": false,
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
-  "updatedAt": "2026-07-02T00:00:00-03:00",
-  "scope": "Re-extracao Reversa pos-Fase 15 concluida",
+  "updatedAt": "2026-07-03T00:00:00-03:00",
+  "scope": "Re-extracao Reversa pos-Fase 16 concluida",
   "git": {
     "branch": "main",
     "statusBeforeReextraction": "main...origin/main [ahead 1]",
     "latestCommit": {
-      "short": "9c2b77d",
-      "hash": "9c2b77da5d03c0228203f22151bf0f4af528fe29",
-      "message": "feat: implement approved data dry run"
+      "short": "b7f871b",
+      "hash": "b7f871b11d04658344ee51cb206af9bd229d948d",
+      "message": "feat: implement approved staging import"
     },
-    "phase15CommitPushed": false,
-    "workingTreeBeforeReextraction": "clean"
+    "phase15CommitPushed": true,
+    "workingTreeBeforeReextraction": "clean",
+    "phase16CommitPushedAfterReextraction": "planned_in_same_flow"
   },
   "implementedPhases": [
     {
@@ -97,6 +98,12 @@
       "status": "completed",
       "summary": "Approved data dry-run execution and blocker readiness",
       "commit": "9c2b77da5d03c0228203f22151bf0f4af528fe29"
+    },
+    {
+      "phase": 16,
+      "status": "completed",
+      "summary": "Approved staging import readiness and guarded staging upsert",
+      "commit": "b7f871b11d04658344ee51cb206af9bd229d948d"
     }
   ],
   "currentCapabilities": {
@@ -110,15 +117,17 @@
     "productionReadiness": "Docs, checklists e scripts seguros para Neon, Vercel, Stripe test mode, Blob, env, migrations e smoke",
     "legacyParityReadiness": "Matriz Laravel x Next, gap register, inventario legado, checklist go-live e rollback",
     "controlledDataDryRun": "CSV/JSON local, normalizadores, scanner de seguranca, reconciliacao e relatorio go/no-go sem escrita real",
-    "approvedDataDryRun": "Primeira execucao aprovada em data/dry-run/input/primeira-execucao com pending-input seguro, inventario em memoria e divergencias por origem."
+    "approvedDataDryRun": "Primeira execucao aprovada em data/dry-run/input/primeira-execucao com pending-input seguro, inventario em memoria e divergencias por origem.",
+    "approvedStagingImport": "Importacao staging/dev remoto preparada com bloqueio de producao, preflight, upsert seguro, reset protegido, relatorios e smoke pos-importacao."
   },
   "currentLegacyParity": {
     "centralCommerceFlow": "substituido_com_dados_corretos",
-    "dryRunPipeline": "validado_com_exemplos_sinteticos_e_primeira_execucao_pending_input",
+    "dryRunPipeline": "validado_com_exemplos_sinteticos_e_primeira_execucao_pending_input; staging_import_preparado_bloqueado_sem_entrada_aprovada",
     "blockers": [
       "arquivos_reais_exportados_ainda_precisam_ser_colocados_em_data_dry_run_input_primeira_execucao",
       "catalogo_real_imagens_precos_estoque_cupons_ativos_frete_minimo_precisam_reconciliacao_go_ou_excecoes_humanas",
-      "importacao_real_futura_precisa_aprovacao_humana_backup_rollback_e_smoke"
+      "importacao_real_futura_precisa_aprovacao_humana_backup_rollback_e_smoke",
+      "importacao_staging_real_depende_de_arquivos_aprovados_dry_run_go_staging_database_url_aprovacao_humana_e_backup"
     ],
     "humanDecisions": [
       "preparar_export_aprovado_primeira_execucao",
@@ -126,7 +135,10 @@
       "urls_legadas_redirects_privacidade",
       "frete_externo_rastreamento",
       "clientes_e_pedidos_historicos",
-      "fiscal_bling_nfe"
+      "fiscal_bling_nfe",
+      "aprovar_ambiente_staging_dev_remoto",
+      "aprovar_backup_snapshot_para_reset_staging",
+      "aprovar_smoke_pos_importacao_staging"
     ],
     "rollback": "laravel_legado_intacto_ate_aceite_formal_pos_cutover"
   },
@@ -141,7 +153,9 @@
       "ops:check-migrations",
       "ops:check-build",
       "ops:check-smoke",
-      "ops:check-data-dry-run"
+      "ops:check-data-dry-run",
+      "ops:import-staging",
+      "ops:check-staging-import-smoke"
     ],
     "safeDefaults": {
       "noSecretValuesPrinted": true,
@@ -149,7 +163,9 @@
       "noRealDatabaseConnectionByDefault": true,
       "noDeployByDefault": true,
       "noRealImportByDefault": true,
-      "noRealPaymentEmailOrUploadByDefault": true
+      "noRealPaymentEmailOrUploadByDefault": true,
+      "noProductionConnectionByDefault": true,
+      "noProductionImportByDefault": true
     }
   },
   "currentPersistence": {
@@ -167,8 +183,9 @@
     "realMigrationApplied": false,
     "realImportApplied": false,
     "realUploadApplied": false,
-    "readiness": "primeira-execucao preparada; sem arquivos reais retorna pending-input; reconciliacao real ainda pendente",
-    "phase15SchemaDelta": false
+    "readiness": "primeira-execucao preparada; staging import preparado; sem arquivos reais ou sem aprovacao retorna pending-input/bloqueio sem conectar producao",
+    "phase15SchemaDelta": false,
+    "phase16SchemaDelta": false
   },
   "dataDryRun": {
     "inputRoot": "data/dry-run/input",
@@ -256,6 +273,13 @@
       "pnpm build": "passed",
       "pnpm test:e2e": "passed - 36 tests",
       "pnpm ops:check-data-dry-run": "passed - examples go / primeira-execucao pending-input"
+    },
+    "phase16": {
+      "pnpm lint": "passed",
+      "pnpm typecheck": "passed",
+      "pnpm test": "passed - 48 files / 138 tests",
+      "pnpm build": "passed",
+      "pnpm test:e2e": "passed - 36 passed / 1 skipped expected without STAGING_IMPORT_SMOKE_URL"
     }
   },
   "outOfScope": [
@@ -287,16 +311,52 @@
       "_reversa_sdd/traceability/spec-impact-matrix.md",
       "_reversa_sdd/migration/data_migration_plan.md",
       "_reversa_sdd/migration/cutover_plan.md",
-      "_reversa_sdd/adrs/010-primeira-execucao-pending-input.md"
+      "_reversa_sdd/adrs/010-primeira-execucao-pending-input.md",
+      "_reversa_sdd/adrs/011-importacao-staging-controlada.md"
     ],
-    "forwardFeature": "_reversa_forward/023-fase-15-approved-data-dry-run",
+    "forwardFeature": "_reversa_forward/024-fase-16-staging-import",
     "regressionWatchUpdated": [
-      "_reversa_forward/022-fase-14-data-dry-run/regression-watch.md",
-      "_reversa_forward/023-fase-15-approved-data-dry-run/regression-watch.md"
+      "_reversa_forward/024-fase-16-staging-import/regression-watch.md"
     ]
   },
   "nextStep": {
-    "recommendedCommand": "commit documental dos artefatos Reversa pos-Fase 15 e push de main",
-    "reason": "Conhecimento de pending-input, contratos Fase 15, inventario em memoria, divergencias por origem e watch atualizado apos a Fase 15"
+    "recommendedCommand": "push dos commits pos-Fase 16 concluido; proxima macrofase pode tratar execucao staging aprovada quando houver ambiente/arquivos",
+    "reason": "Conhecimento de staging import, bloqueio de producao, pending-input, upsert seguro, reset protegido e smoke atualizado apos a Fase 16"
+  },
+  "stagingImport": {
+    "module": "src/features/staging-import",
+    "scripts": [
+      "pnpm ops:import-staging",
+      "pnpm ops:check-staging-import-smoke"
+    ],
+    "target": "staging/dev remoto",
+    "productionBlocked": true,
+    "approvedInput": "data/dry-run/input/primeira-execucao",
+    "missingInputStatus": "pending-input",
+    "requires": [
+      "approved files",
+      "dry-run go or no critical blockers",
+      "STAGING_DATABASE_URL presence only",
+      "human approval",
+      "backup/snapshot for reset"
+    ],
+    "defaultWriteMode": "upsert-safe",
+    "resetGuard": [
+      "backup/snapshot",
+      "explicit flag",
+      "human approval",
+      "non-production environment"
+    ],
+    "smoke": "36 passed / 1 skipped expected without STAGING_IMPORT_SMOKE_URL",
+    "reports": [
+      "before-after",
+      "divergences",
+      "rollback",
+      "human checklist"
+    ],
+    "noProduction": true,
+    "noDeploy": true,
+    "noRealMigration": true,
+    "noSecretsPrinted": true
   }
 }

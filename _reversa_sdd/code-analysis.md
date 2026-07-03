@@ -1,9 +1,9 @@
 # Code Analysis - Triade Essenza Next
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Archaeologist
 Nível: detalhado
-Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, `orders`, `payments`, `notifications`, `uploads`, `data-dry-run`, `db`, `lib` e readiness operacional.
+Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, `orders`, `payments`, `notifications`, `uploads`, `data-dry-run`, `staging-import`, `db`, `lib` e readiness operacional.
 
 ## Visão Geral
 
@@ -18,6 +18,8 @@ Escopo: módulos `auth`, `products`, `cart`, `coupons`, `shipping`, `checkout`, 
 🟢 **CONFIRMADO** A Fase 14 adicionou codigo operacional seguro em `src/features/data-dry-run` e `scripts/ops/check-data-dry-run-readiness.mjs`, sem alterar regras funcionais de compra/pagamento/estoque/cupons/frete/pedidos/notificacoes.
 
 🟢 **CONFIRMADO** A Fase 15 refinou o mesmo modulo para a execucao aprovada `primeira-execucao`: deteccao de entrada ausente como `pending-input`, contratos `product_images.*`, `inventory.*` e `shipping.*`, inventario normalizado em memoria e divergencias classificadas por origem.
+
+🟢 **CONFIRMADO** A Fase 16 adicionou `src/features/staging-import` e scripts `ops:import-staging`/`ops:check-staging-import-smoke`, preparando importacao staging/dev remoto com bloqueio de producao, preflight, upsert seguro, reset protegido e relatorios sem imprimir secrets.
 
 🟡 **INFERIDO** A estratégia dominante é domínio vertical por feature, com Server Actions para mutações, repositories para persistência real/fallback e componentes React para UI.
 
@@ -287,6 +289,45 @@ Regras:
 - 🟢 Saida fica em `data/dry-run/output/`, ignorada pelo Git.
 - 🟢 `goNoGo` vira `no-go` se houver divergencia bloqueadora, severidade `CRITICAL`/`HIGH`, secret ou dado inseguro.
 - 🟢 Divergencias carregam origem `dados`, `next`, `mapeamento` ou `humana`; somente origem `next`/`mapeamento` pode ser marcada como corrigivel no Next.
+
+### staging-import
+
+Arquivos principais:
+
+- `src/features/staging-import/environment.ts`
+- `src/features/staging-import/production-guard.ts`
+- `src/features/staging-import/preflight.ts`
+- `src/features/staging-import/input.ts`
+- `src/features/staging-import/dry-run-gate.ts`
+- `src/features/staging-import/import-plan.ts`
+- `src/features/staging-import/importer.ts`
+- `src/features/staging-import/staging-db.ts`
+- `src/features/staging-import/upsert-catalog.ts`
+- `src/features/staging-import/upsert-assets-inventory.ts`
+- `src/features/staging-import/upsert-commercial.ts`
+- `src/features/staging-import/reset-guard.ts`
+- `src/features/staging-import/reset-plan.ts`
+- `src/features/staging-import/report-writer.ts`
+- `src/features/staging-import/smoke-target.ts`
+- `src/features/staging-import/cli.ts`
+
+Funcoes e responsabilidades principais:
+
+- `environment`: normaliza o alvo remoto e rejeita producao/prod por padrao.
+- `production-guard`: bloqueia qualquer tentativa de usar URL/ambiente produtivo antes de abrir conexao.
+- `preflight`: valida arquivos aprovados, status do dry-run, aprovacao humana, backup/snapshot e modo de escrita.
+- `dry-run-gate`: transforma `pending-input`, `no-go` ou divergencias criticas em bloqueio operacional.
+- `import-plan`/`importer`: constroem e executam plano de upsert seguro somente quando todos os gates estao verdes.
+- `reset-guard`/`reset-plan`: isolam reset/limpeza como caminho protegido por flag, backup e aprovacao.
+- `report-writer`: produz relatorios antes/depois, divergencias e rollback sem valores sensiveis.
+- `smoke-target`: valida URL staging para smoke pos-importacao; sem URL, E2E fica skipped esperado.
+
+Regras:
+
+- 🟢 Ausencia de arquivos aprovados retorna `pending-input`/bloqueio e nao conecta banco.
+- 🟢 `STAGING_DATABASE_URL` e lida apenas como presenca/ausencia; valor nao deve aparecer em log, relatorio ou SDD.
+- 🟢 Escrita padrao e upsert staging; reset/limpeza depende de backup confirmado, flag explicita, aprovacao humana e ambiente nao produtivo.
+- 🟢 Producao, deploy, migration real, upload real e Laravel legado ficam fora do modulo.
 - 🟢 Produtos publicados exigem referencia de imagem com capa ou fallback aprovado.
 - 🟢 Produtos publicados exigem estoque reconciliado pelo inventario quando `inventory.*` estiver presente; compatibilidade com `products.stock_quantity` e apenas transicional.
 - 🟢 Frete minimo exige ao menos uma regra ativa com preco positivo.
@@ -345,6 +386,8 @@ Arquivos principais:
 - `scripts/ops/check-build-readiness.mjs`
 - `scripts/ops/check-smoke-readiness.mjs`
 - `scripts/ops/check-data-dry-run-readiness.mjs`
+- `scripts/ops/import-staging.mjs`
+- `scripts/ops/check-staging-import-smoke.mjs`
 
 Funções principais:
 
@@ -353,18 +396,22 @@ Funções principais:
 - `check-build-readiness`: confirma presenca de scripts locais e bloqueia sinais de deploy/migration automatica nos `ops:*`.
 - `check-smoke-readiness`: valida URL alvo segura com default local.
 - `check-data-dry-run`: executa dry-run seguro sobre arquivos locais controlados, por padrao exemplos sinteticos.
+- `import-staging`: prepara/aciona importacao staging controlada, bloqueando producao e exigindo preflight verde.
+- `check-staging-import-smoke`: valida smoke pos-importacao quando `STAGING_IMPORT_SMOKE_URL` existe; sem URL, retorna skipped esperado.
 
 Regras:
 
 - 🟢 Nenhum script `ops:*` conecta banco real, executa migration real, chama Vercel, envia e-mail, faz upload real ou imprime secret.
 - 🟢 Smoke production-ready E2E cobre fluxo publico e superficies protegidas sem acao destrutiva.
 - 🟢 `ops:check-data-dry-run` nao importa dados reais, nao executa upload real e nao le `.env`.
+- 🟢 `ops:import-staging` pode conectar apenas staging/dev remoto aprovado e deve bloquear producao; `ops:check-staging-import-smoke` nao faz deploy e pode ficar skipped sem URL.
 
 ## Algoritmos Críticos
 
 1. 🟢 Filtro público de produto: `status=published`, `publishedAt <= now`, `stockQuantity > 0`.
 2. 🟢 Recálculo de carrinho: valida itens, estoque, cupom, frete e totais derivados.
 3. 🟢 Checkout: transforma carrinho ativo em pedido pendente com snapshots imutáveis.
+4. 🟢 Importacao staging: aplica gates de ambiente, entrada aprovada, dry-run, aprovacao humana e backup antes de qualquer upsert staging.
 4. 🟢 Settlement: confirma webhook, valida divergência, baixa estoque, consome cupom e marca pedido/pagamento.
 5. 🟢 Notificações: usa outbox/idempotência por pedido/evento/tipo/destinatário.
 6. 🟢 Readiness operacional: valida ambiente, migrations, build e smoke sem efeitos externos.

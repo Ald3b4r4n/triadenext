@@ -1,6 +1,6 @@
 # Data Dictionary - Triade Essenza Next
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Archaeologist  
 Fonte principal: `src/db/schema.ts`, schemas Zod e tipos de domínio.
 
@@ -37,6 +37,25 @@ Fonte principal: `src/db/schema.ts`, schemas Zod e tipos de domínio.
 - 🟢 `inventory.*` normaliza estoque disponivel por SKU em memoria e nao cria tabela, migration, seed, importacao real ou conexao de banco.
 - 🟢 Divergencias incluem origem `dados`, `next`, `mapeamento` ou `humana`, alem de indicacao se sao corrigiveis no Next.
 - 🔴 Importacao real, upload real, migration real, conexao com banco real e deploy nao foram executados nem aprovados.
+
+## Delta Fase 16
+
+- 🟢 Nenhuma tabela, enum ou migration nova foi adicionada pela Fase 16.
+- 🟢 O delta e operacional: `src/features/staging-import` prepara upsert seguro em staging/dev remoto sobre tabelas existentes.
+- 🟢 `STAGING_DATABASE_URL` e variavel operacional de staging/dev remoto; seu valor nao deve ser versionado, impresso ou documentado.
+- 🟢 Relatorios de importacao staging antes/depois, divergencias e rollback sao artefatos operacionais, nao novo schema persistido.
+- 🟢 Reset/limpeza de staging nao e padrao e exige backup/snapshot, flag explicita, aprovacao humana e ambiente nao produtivo.
+- 🔴 Producao, migration real em producao, deploy real, banco real de producao e alteracao no Laravel legado nao foram executados nem aprovados.
+
+## Contratos de Importacao Staging Pos-Fase 16
+
+| Contrato | Origem | Destino/uso | Persistencia |
+| --- | --- | --- | --- |
+| `data/dry-run/input/primeira-execucao/` | Arquivos aprovados CSV/JSON | Fonte do plano staging quando dry-run estiver `go` | Fora do Git para dados reais |
+| Resultado dry-run | `src/features/data-dry-run` | Gate go/no-go/pending-input | Relatorio local em `data/dry-run/output/` |
+| Plano de importacao | `src/features/staging-import/import-plan.ts` | Lista upserts por categoria, produto, imagem, estoque, cupom e frete | Em memoria/relatorio |
+| Relatorio staging | `src/features/staging-import/report-writer.ts` | Antes/depois, divergencias e rollback | Saida operacional sem secrets |
+| Smoke staging | `src/features/staging-import/smoke-target.ts` | URL staging aprovada | Sem persistencia de banco |
 
 ## Mapa de Migracao Controlada Pos-Fase 13
 

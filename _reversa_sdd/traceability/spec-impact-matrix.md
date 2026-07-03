@@ -1,6 +1,6 @@
 # Spec Impact Matrix
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Architect
 
 | Componente | Catálogo | Carrinho | Cupom | Frete | Checkout | Pedido | Pagamento | Notificação | Admin | Customer |
@@ -20,6 +20,7 @@ Agente: Architect
 | `features/notifications` | Baixo | Baixo | Baixo | Baixo | Baixo | Alto | Alto | Crítico | Alto | Médio |
 | `features/uploads` | Alto | Baixo | Baixo | Baixo | Baixo | Baixo | Baixo | Baixo | Alto | Baixo |
 | `features/data-dry-run` | Crítico | Baixo | Alto | Alto | Baixo | Baixo | Baixo | Baixo | Médio | Baixo |
+| `features/staging-import` | Crítico | Baixo | Alto | Alto | Baixo | Baixo | Baixo | Baixo | Médio | Baixo |
 | `src/db/schema.ts` | Crítico | Crítico | Crítico | Crítico | Crítico | Crítico | Crítico | Crítico | Alto | Alto |
 
 ## Impactos Críticos
@@ -84,3 +85,19 @@ Guardrail: a Fase 14 prova o pipeline com exemplos sinteticos; qualquer uso de f
 | `_reversa_forward/023-fase-15-approved-data-dry-run/human-approval-checklist.md` | Critico | Alto | Alto | Critico | Alto | Alto |
 
 Guardrail: `pending-input` e estado operacional seguro, nao aprovacao de dados. A saida em `data/dry-run/output/` e a entrada real em `data/dry-run/input/primeira-execucao/` permanecem ignoradas pelo Git; qualquer importacao real, upload real, banco real, migration real ou deploy continua fora do escopo sem aprovacao humana explicita.
+
+## Impactos de Importacao Staging Pos-Fase 16
+
+| Artefato | Producao Guard | Staging DB | Upsert | Reset | Relatorios | Smoke |
+| --- | --- | --- | --- | --- | --- | --- |
+| `src/features/staging-import/environment.ts` | Crítico | Alto | Baixo | Médio | Baixo | Médio |
+| `src/features/staging-import/production-guard.ts` | Crítico | Crítico | Alto | Crítico | Médio | Médio |
+| `src/features/staging-import/preflight.ts` | Crítico | Crítico | Crítico | Crítico | Alto | Médio |
+| `src/features/staging-import/dry-run-gate.ts` | Alto | Crítico | Crítico | Médio | Médio | Baixo |
+| `src/features/staging-import/import-plan.ts` | Médio | Alto | Crítico | Médio | Alto | Baixo |
+| `src/features/staging-import/importer.ts` | Alto | Crítico | Crítico | Crítico | Alto | Baixo |
+| `src/features/staging-import/reset-guard.ts` | Crítico | Alto | Médio | Crítico | Alto | Baixo |
+| `scripts/ops/import-staging.mjs` | Crítico | Crítico | Crítico | Crítico | Alto | Baixo |
+| `scripts/ops/check-staging-import-smoke.mjs` | Médio | Baixo | Baixo | Baixo | Médio | Crítico |
+
+Guardrail: staging import e etapa controlada antes de go-live. Qualquer permissao para producao, deploy, migration real, conexao com producao, segredo em log ou reset sem backup/aprovacao deve ser tratada como regressao critica.

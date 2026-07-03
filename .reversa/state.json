@@ -42,13 +42,15 @@
     "fase_14",
     "reextracao_pos_fase_14",
     "fase_15",
-    "reextracao_pos_fase_15"
+    "reextracao_pos_fase_15",
+    "fase_16",
+    "reextracao_pos_fase_16"
   ],
   "pending": [
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "reextraction_after_phase_15_2026_07_02",
+  "last_checkpoint": "reextraction_after_phase_16_2026_07_03",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -1483,9 +1485,95 @@
         "notes": "Guardrails de dry-run e pending-input preservados no SDD atualizado."
       },
       "next_command": "git commit dos artefatos Reversa pos-Fase 15, depois push dos commits locais"
+    },
+    "reextraction_after_phase_16_2026_07_03": {
+      "completed_at": "2026-07-03T00:00:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD apos Fase 16 de approved staging import.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "latest_commit": {
+          "short": "b7f871b",
+          "hash": "b7f871b11d04658344ee51cb206af9bd229d948d",
+          "message": "feat: implement approved staging import"
+        },
+        "worktree_before_reextraction": "clean"
+      },
+      "files": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/code-analysis.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/data-dictionary.md",
+        "_reversa_sdd/dependencies.md",
+        "_reversa_sdd/state-machines.md",
+        "_reversa_sdd/permissions.md",
+        "_reversa_sdd/deployment.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/migration/data_migration_plan.md",
+        "_reversa_sdd/migration/cutover_plan.md",
+        "_reversa_sdd/adrs/011-importacao-staging-controlada.md",
+        "_reversa_forward/024-fase-16-staging-import/regression-watch.md"
+      ],
+      "phase16_summary": {
+        "module": "src/features/staging-import/",
+        "target": "staging/dev remoto, nunca producao",
+        "scripts": [
+          "pnpm ops:import-staging",
+          "pnpm ops:check-staging-import-smoke"
+        ],
+        "approved_input": "data/dry-run/input/primeira-execucao/",
+        "absent_files_status": "pending-input",
+        "production_blocked": true,
+        "default_write_mode": "safe upsert in staging",
+        "reset_requires": [
+          "backup/snapshot",
+          "explicit flag",
+          "human approval",
+          "non-production environment"
+        ],
+        "blocks_without": [
+          "approved files",
+          "dry-run go/no critical blockers",
+          "STAGING_DATABASE_URL",
+          "human approval",
+          "backup when reset is requested"
+        ],
+        "reports": [
+          "importacao staging",
+          "before/after",
+          "divergencias",
+          "rollback/checklist humano"
+        ],
+        "real_production_import": false,
+        "real_migration": false,
+        "production_database_connection": false,
+        "deploy": false,
+        "secrets_exposed": false,
+        "legacy_laravel_changed": false
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 48 files / 138 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 36 passed / 1 skipped expected without STAGING_IMPORT_SMOKE_URL"
+      },
+      "regression_watch": {
+        "features_checked": [
+          "_reversa_forward/024-fase-16-staging-import"
+        ],
+        "green": 9,
+        "yellow": 0,
+        "red": 0,
+        "notes": "Guardrails de staging import, bloqueio de producao, pending-input e reset protegido preservados no SDD atualizado."
+      },
+      "next_command": "git commit dos artefatos Reversa pos-Fase 16, depois push dos commits locais"
     }
   },
-  "next_reversa_command": "commit_reversa_pos_fase_14_then_push",
+  "next_reversa_command": "push_concluido_pos_fase_16_planejar_proxima_macrofase",
   "engines": [
     "claude-code",
     "codex",

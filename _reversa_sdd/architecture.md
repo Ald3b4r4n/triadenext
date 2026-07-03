@@ -1,6 +1,6 @@
 # Architecture - Triade Essenza Next
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Architect
 Nível: detalhado
 
@@ -18,6 +18,8 @@ Nível: detalhado
 
 🟢 **CONFIRMADO** A Fase 15 especializou a primeira execucao aprovada em `data/dry-run/input/primeira-execucao/`, com status `pending-input` quando os arquivos reais ainda nao existem, contratos `product_images.*`, `inventory.*` e `shipping.*`, aliases da Fase 14 preservados e divergencias com origem `dados`, `next`, `mapeamento` ou `humana`.
 
+🟢 **CONFIRMADO** A Fase 16 adicionou importacao controlada para staging/dev remoto em `src/features/staging-import`, com preflight, bloqueio tecnico contra producao, dry-run gate, upsert seguro, reset protegido, relatorios e smoke pos-importacao sem deploy, migration real ou conexao com producao.
+
 🟡 **INFERIDO** A arquitetura alvo segue fatias verticais por domínio, com Server Components/pages para leitura, Server Actions para mutação, Route Handlers para APIs/webhooks e repositories isolando Drizzle/fallback.
 
 ## Containers
@@ -30,8 +32,8 @@ Nível: detalhado
 | Blob Storage | Vercel Blob | Imagens de produto e documentos futuros |
 | Stripe | Stripe API/Webhooks | PaymentIntent, Payment Element e eventos financeiros |
 | Email Provider | Mock/unavailable hoje; Resend/SMTP futuro | Entrega transacional |
-| Operational Readiness | Docs + scripts locais | Check-env, check-migrations, check-build, check-smoke e check-data-dry-run sem secrets |
-| Legacy Parity Readiness | Artefatos Reversa Forward + `src/features/data-dry-run` | Paridade Laravel x Next, dry-run controlado, reconciliacao e decisao go/no-go |
+| Operational Readiness | Docs + scripts locais | Check-env, check-migrations, check-build, check-smoke, check-data-dry-run e staging-import sem secrets |
+| Legacy Parity Readiness | Artefatos Reversa Forward + `src/features/data-dry-run` + `src/features/staging-import` | Paridade Laravel x Next, dry-run controlado, importacao staging, reconciliacao e decisao go/no-go |
 
 ## Componentes Internos
 
@@ -47,6 +49,7 @@ Nível: detalhado
 - `src/features/notifications`: outbox e e-mail pós-pagamento.
 - `src/features/uploads`: upload de imagem para Blob.
 - `src/features/data-dry-run`: leitura de CSV/JSON locais, normalizacao em memoria, scanner de seguranca e relatorio de reconciliacao.
+- `src/features/staging-import`: preflight staging/dev remoto, bloqueio de producao, dry-run gate, upsert seguro, reset protegido, relatorios e smoke pos-importacao.
 - `src/db`: schema Drizzle e cliente condicional.
 - `src/lib`: env, runtime guardrails, dinheiro e slug.
 - `scripts/ops`: verificacoes locais seguras de env, migrations, build, smoke e dry-run de dados.
@@ -54,6 +57,7 @@ Nível: detalhado
 - `_reversa_forward/021-fase-13-legacy-parity`: evidencias de paridade, lacunas, migracao controlada, rollback e watch items.
 - `_reversa_forward/022-fase-14-data-dry-run`: contratos, checklist humano, guia operacional, validação, impacto e watch do dry-run controlado.
 - `_reversa_forward/023-fase-15-approved-data-dry-run`: execucao aprovada `primeira-execucao`, relatorio `pending-input`, checklist humano e watch da classificacao de divergencias.
+- `_reversa_forward/024-fase-16-staging-import`: prechecks, bloqueio de producao, import staging, reset protegido, relatorios, smoke e rollback/checklist humano.
 
 ## Fluxo Comercial Principal
 
@@ -84,7 +88,7 @@ Nível: detalhado
 | Dominio | Estado pos-Fase 15 | Classificacao |
 | --- | --- | --- |
 | Storefront/home/catalogo/produto | Next cobre a superficie principal; URLs legadas e privacidade exigem decisao | Parcial/decisao humana |
-| Catalogo/dados reais | Schema/admin/storefront existem; dry-run aprovado aponta para `primeira-execucao`; sem arquivos reais o estado correto e `pending-input` | Bloqueador ate dry-run real aprovado |
+| Catalogo/dados reais | Schema/admin/storefront existem; dry-run aprovado aponta para `primeira-execucao`; importacao staging fica bloqueada enquanto entrada aprovada ou dry-run `go` nao existirem | Bloqueador ate dry-run real e staging import aprovados |
 | Imagens | Produto-imagem e Blob existem; Fase 15 valida `product_images.*` por referencia, preserva alias `product-images.*` e nao copia binarios | Bloqueador se sem cobertura |
 | Carrinho/cupom/frete manual/checkout/pedido/pagamento | Fluxo central substitui comportamento comercial | Substituido com smoke controlado |
 | Cliente/admin | Next cobre minimo operacional; Laravel tem backoffice mais amplo | Parcial/decisao humana |
@@ -101,6 +105,27 @@ Nível: detalhado
 | Reconciliacao | `src/features/data-dry-run/reconciliation.ts` | Contagens, chaves, dinheiro, inventario, assets, cupons, frete, privacidade, origem de divergencia e flag `nextFixable` |
 | Saida | `data/dry-run/output/` | Relatorios JSON/Markdown locais ignorados pelo Git, segmentados por execucao/status |
 | Operacao | `pnpm ops:check-data-dry-run` | Nao conecta banco, nao importa dados, nao roda migration, nao faz upload e nao faz deploy |
+
+## Importacao Staging Controlada
+
+| Camada | Arquivo/artefato | Responsabilidade |
+| --- | --- | --- |
+| Ambiente | `src/features/staging-import/environment.ts` | Classifica alvo staging/dev remoto e impede producao |
+| Guardrail | `src/features/staging-import/production-guard.ts` | Bloqueia qualquer tentativa contra producao antes de conexao |
+| Preflight | `src/features/staging-import/preflight.ts` | Exige arquivos aprovados, dry-run aceitavel, aprovacao humana e backup quando necessario |
+| Gate de dry-run | `src/features/staging-import/dry-run-gate.ts` | Reaproveita resultado go/no-go/pending-input para permitir ou bloquear import staging |
+| Import plan | `src/features/staging-import/import-plan.ts` | Monta plano de upsert sem sobrescrita destrutiva por padrao |
+| Persistencia staging | `src/features/staging-import/staging-db.ts` e `upsert-*.ts` | Executa upsert seguro somente em staging/dev remoto autorizado |
+| Reset protegido | `src/features/staging-import/reset-guard.ts` e `reset-plan.ts` | Exige backup, flag explicita, aprovacao humana e alvo nao produtivo |
+| Relatorios | `src/features/staging-import/report-*.ts` | Gera antes/depois, divergencias, rollback e checklist sem secrets |
+| Smoke | `scripts/ops/check-staging-import-smoke.mjs` | Verifica URL staging autorizada; sem URL retorna skipped esperado |
+
+Regras arquiteturais da Fase 16:
+
+- 🟢 `pending-input` continua estado seguro e nao abre conexao remota.
+- 🟢 `STAGING_DATABASE_URL` e exigida para execucao real, mas seu valor nunca deve ser impresso.
+- 🟢 Reset/limpeza e opt-in destrutivo protegido, nao comportamento padrao.
+- 🟢 Producao, deploy, migration real, upload real e alteracao do Laravel legado permanecem fora do fluxo.
 
 ## Dados
 
@@ -136,3 +161,4 @@ Os agregados críticos são:
 - 🟢 Paridade legado x Next e documental; nao executa importacao real, migration real, banco real, deploy ou escrita no Laravel.
 - 🟢 Dry-run controlado da Fase 14 processa arquivos locais em memoria e nao executa importacao real, upload real, migration real, banco real ou deploy.
 - 🟢 Dry-run aprovado da Fase 15 preserva `pending-input` como estado seguro quando faltam arquivos reais e continua sem importacao real, upload real, migration real, banco real ou deploy.
+- 🟢 Importacao staging da Fase 16 bloqueia producao, exige aprovacao humana e backup para operacoes destrutivas, nao imprime `DATABASE_URL` e nao executa deploy ou migration real.

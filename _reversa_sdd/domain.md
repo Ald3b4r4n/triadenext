@@ -1,6 +1,6 @@
 # Domain - Triade Essenza Next
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Detective
 Nível: detalhado
 
@@ -26,6 +26,9 @@ Nível: detalhado
 | Fonte local aprovada | Pasta dentro de `data/dry-run/input/`, preenchida manualmente com CSV/JSON autorizados para ensaio. | 🟢 |
 | Primeira execucao aprovada | Pasta `data/dry-run/input/primeira-execucao/`, nomeada pela Fase 15 para o primeiro dry-run real/controlado. | 🟢 |
 | Pending input | Resultado seguro quando a primeira execucao aprovada ainda nao contem os arquivos reais/exportados Must. | 🟢 |
+| Importacao staging controlada | Ensaio de escrita em staging/dev remoto autorizado, com upsert seguro, producao bloqueada e relatorios antes/depois. | 🟢 |
+| Preflight staging | Verificacao previa de ambiente nao produtivo, arquivos aprovados, dry-run aceitavel, aprovacao humana e backup/snapshot quando necessario. | 🟢 |
+| Reset protegido | Limpeza de staging permitida somente com backup confirmado, flag explicita, aprovacao humana e ambiente nao produtivo. | 🟢 |
 | Divergencia bloqueadora | Issue `CRITICAL`/`HIGH` ou `goLiveImpact=bloqueador` que impede avancar para importacao real futura. | 🟢 |
 
 ## Regras de Domínio
@@ -117,6 +120,8 @@ Nível: detalhado
 - 🟢 Catalogo real, imagens, precos, estoque, cupons ativos e frete minimo sao dados Must para go-live e exigem dry-run/reconciliacao aprovados.
 - 🟢 Divergencia financeira nao explicada em preco, desconto, frete ou total bloqueia avancar.
 - 🟢 Importacao real, migration real, conexao com banco real, upload real e deploy real exigem aprovacao humana explicita.
+- 🟢 Importacao staging da Fase 16 e restrita a staging/dev remoto, deve bloquear producao por padrao e nunca imprimir `DATABASE_URL` ou secrets.
+- 🟢 Upsert staging e o modo padrao; reset/limpeza nao pode ocorrer sem backup/snapshot, flag explicita, aprovacao humana e confirmacao de ambiente nao produtivo.
 - 🟢 Legado permanece base de rollback ate aceite formal pos-cutover.
 - 🟡 Clientes, enderecos e pedidos historicos podem ser migrados ou ficar em consulta temporaria no legado conforme decisao humana.
 - 🟡 Frete externo/rastreamento e fiscal/Bling/NF-e podem bloquear go-live apenas se negocio exigir no dia zero.
@@ -139,6 +144,15 @@ Nível: detalhado
 - 🟢 Importacao real futura depende de checklist humano separado, backup/rollback e fonte real aprovada.
 - 🟡 O dry-run sintetico da Fase 14 prova o pipeline; nao prova ainda os dados reais legados.
 
+### Importacao Staging Controlada
+
+- 🟢 O alvo inicial e staging/dev remoto, preferencialmente Neon dev/staging separado; producao e proibida nesta fase.
+- 🟢 A execucao real de `pnpm ops:import-staging` exige arquivos aprovados em `data/dry-run/input/primeira-execucao/` e dry-run anterior `go` ou sem bloqueios criticos.
+- 🟢 Sem arquivos aprovados, sem `STAGING_DATABASE_URL`, sem aprovacao humana ou sem backup exigido, o resultado correto e bloqueio operacional/pending-input, nao tentativa de importar.
+- 🟢 O script deve gerar relatorios antes/depois e divergencias sem imprimir valores sensiveis.
+- 🟢 `pnpm ops:check-staging-import-smoke` valida home, catalogo, produto, carrinho, checkout teste, admin, pedidos e outbox/notificacoes quando houver URL staging aprovada; sem URL, o skipped e esperado.
+- 🟢 Nenhuma regra de pagamento, estoque, cupom, frete, pedido ou notificacao muda por causa da importacao staging.
+
 ## Decisões Implícitas Extraídas do Git
 
 - 🟢 A migração avançou em fases verticais: persistência, auth, carrinho, cupons, frete, checkout, pagamento, notificações e storefront.
@@ -146,6 +160,7 @@ Nível: detalhado
 - 🟢 A Fase 13 consolidou uma macrofase de decisao de substituicao do Laravel, separando paridade, bloqueadores reais, decisoes humanas e rollback.
 - 🟢 A Fase 14 consolidou uma macrofase de dry-run controlado por arquivo, com reconciliacao executavel e guardrails contra operacao real.
 - 🟢 A Fase 15 consolidou a primeira execucao aprovada e o estado `pending-input` para nao mascarar ausencia de dados reais como sucesso.
+- 🟢 A Fase 16 consolidou a ponte entre dry-run local e staging/dev remoto, mantendo producao bloqueada e operacoes destrutivas atras de backup, flag e aprovacao humana.
 - 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
 - 🟢 O sistema prefere fallback explícito a falha silenciosa.
 - 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.
@@ -163,3 +178,4 @@ Nível: detalhado
 - 🔴 Dry-run/reconciliacao com fonte real aprovada ainda nao foi executado nem aprovado.
 - 🔴 Catalogo real, imagens, precos, estoque, cupons ativos e frete minimo ainda nao estao provados contra dados legados reais.
 - 🔴 A pasta `data/dry-run/input/primeira-execucao/` ainda precisa receber arquivos reais/exportados aprovados para sair de `pending-input`.
+- 🔴 Importacao staging real ainda depende de ambiente staging/dev remoto aprovado, `STAGING_DATABASE_URL` configurada fora do Git, backup/snapshot e dry-run `go`.

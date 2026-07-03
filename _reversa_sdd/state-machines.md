@@ -1,6 +1,6 @@
 # State Machines - Triade Essenza Next
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Detective
 
 ## Produto
@@ -185,9 +185,12 @@ stateDiagram-v2
   primeira_execucao_pending_input --> dry_run_fonte_real_aprovada: arquivos CSV/JSON aprovados presentes
   dry_run_sintetico_validado --> dry_run_fonte_real_aprovada: fonte local aprovada completa
   dry_run_fonte_real_aprovada --> reconciliacao_aprovada: catalogo/imagens/precos/estoque/cupons/frete batem
-  reconciliacao_aprovada --> pronto_para_cutover_planejado: decisoes humanas fechadas
+  reconciliacao_aprovada --> importacao_staging_planejada: Fase 16 preflight staging
+  importacao_staging_planejada --> importacao_staging_executada: upsert staging aprovado
+  importacao_staging_executada --> pronto_para_cutover_planejado: smoke staging aprovado + decisoes humanas fechadas
   bloqueadores_identificados --> no_go: dados Must sem reconciliacao
   dry_run_fonte_real_aprovada --> no_go: divergencia financeira/secret/dado cru
+  importacao_staging_planejada --> no_go: producao, sem backup, sem aprovacao ou sem STAGING_DATABASE_URL
   pronto_para_cutover_planejado --> rollback_planejado: smoke/cutover falha
 ```
 
@@ -196,6 +199,32 @@ Regras:
 - 🟢 Fase 13 concluiu `paridade_documentada` e `bloqueadores_identificados`.
 - 🟢 Fase 14 concluiu `dry_run_sintetico_validado` com exemplos locais, contratos CSV/JSON e `ops:check-data-dry-run`.
 - 🟢 Fase 15 introduziu `primeira_execucao_pending_input`: a pasta aprovada existe conceitualmente, mas sem arquivos reais/exportados o resultado seguro e `pending-input`.
+- 🟢 Fase 16 introduziu `importacao_staging_planejada` e `importacao_staging_executada`: somente staging/dev remoto aprovado, com producao bloqueada, upsert seguro e reset protegido.
 - 🔴 `dry_run_fonte_real_aprovada` ainda nao ocorreu; depende de arquivos CSV/JSON reais aprovados em `data/dry-run/input/primeira-execucao/`.
 - 🟢 `no_go` e obrigatorio enquanto catalogo real, imagens, precos, estoque, cupons ativos e frete minimo nao forem reconciliados com fonte real.
 - 🟢 `rollback_planejado` preserva o Laravel legado intacto ate aceite formal.
+
+## Importacao Staging Controlada
+
+```mermaid
+stateDiagram-v2
+  [*] --> preflight
+  preflight --> pending_input: arquivos aprovados ausentes
+  preflight --> blocked: producao, sem aprovacao, sem backup exigido ou sem STAGING_DATABASE_URL
+  preflight --> planned: staging/dev remoto aprovado + dry-run go
+  planned --> upserting: upsert seguro
+  planned --> reset_requested: flag reset explicita
+  reset_requested --> blocked: sem backup/aprovacao/ambiente nao produtivo
+  reset_requested --> upserting: reset protegido aprovado
+  upserting --> reported: relatorios antes/depois e divergencias
+  reported --> smoke_skipped: sem STAGING_IMPORT_SMOKE_URL
+  reported --> smoke_passed: URL staging aprovada
+  reported --> smoke_failed: divergencia pos-importacao
+```
+
+Regras:
+
+- 🟢 `pending_input` e seguro e nao abre conexao remota.
+- 🟢 `blocked` impede escrita e deve explicar a precondicao ausente sem imprimir secrets.
+- 🟢 `upserting` so ocorre contra staging/dev remoto aprovado.
+- 🟢 `smoke_skipped` sem URL e esperado na suite E2E local; nao autoriza go-live.

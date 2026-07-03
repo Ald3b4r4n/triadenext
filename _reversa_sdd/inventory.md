@@ -1,8 +1,8 @@
 # Inventario tecnico Reversa - Triade Essenza Next
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Scout
-Escopo: re-extracao pos-Fase 15, com foco no estado Next.js atual, dry-run aprovado/pending-input, readiness operacional e paridade Laravel x Next.
+Escopo: re-extracao pos-Fase 16, com foco no estado Next.js atual, dry-run aprovado/pending-input, importacao staging controlada, readiness operacional e paridade Laravel x Next.
 
 ## Contexto
 
@@ -21,15 +21,15 @@ Escopo contado: `src`, `drizzle`, `scripts`, `docs` e exemplos sinteticos versio
 | Extensao | Arquivos |
 | --- | ---: |
 | `.css` | 1 |
-| `.ts` | 168 |
+| `.ts` | 195 |
 | `.tsx` | 55 |
-| `.md` | 33 |
+| `.md` | 36 |
 | `.sql` | 8 |
-| `.mjs` | 7 |
+| `.mjs` | 9 |
 | `.csv` | 11 |
 | `.json` | 9 |
 
-Total observado nesse recorte: 292 arquivos.
+Total observado nesse recorte: 324 arquivos, excluindo `.gitkeep`.
 
 ## Entry points
 
@@ -54,6 +54,8 @@ Total observado nesse recorte: 292 arquivos.
 | `scripts/ops/check-build-readiness.mjs` | Readiness seguro de build |
 | `scripts/ops/check-smoke-readiness.mjs` | Readiness seguro de smoke |
 | `scripts/ops/check-data-dry-run-readiness.mjs` | Dry-run seguro de dados por arquivos locais |
+| `scripts/ops/import-staging.mjs` | Importacao controlada staging/dev remoto |
+| `scripts/ops/check-staging-import-smoke.mjs` | Smoke pos-importacao staging/dev remoto |
 
 ## Modulos identificados
 
@@ -68,9 +70,10 @@ Total observado nesse recorte: 292 arquivos.
 - `notifications`: notificacoes pos-pagamento e providers.
 - `uploads`: upload de imagens de produto.
 - `data-dry-run`: contratos CSV/JSON, normalizacao em memoria, reconciliacao de inventario e relatorio seguro para dados Must.
+- `staging-import`: preflight staging/dev remoto, bloqueio de producao, dry-run gate, upsert seguro, reset protegido, relatorios e smoke pos-importacao.
 - `db`: schema Drizzle e cliente.
 - `lib`: utilitarios transversais.
-- `operations`: documentacao e scripts seguros para staging/producao/dry-run sem deploy, migration real, banco real, import real ou upload real automatico.
+- `operations`: documentacao e scripts seguros para staging/producao/dry-run/import staging sem deploy, migration real, banco real de producao, import producao ou upload real automatico.
 
 ## Banco de dados
 
@@ -86,12 +89,13 @@ Total observado nesse recorte: 292 arquivos.
 - Unit/integration: `src/tests/unit/*.test.ts` e `src/tests/unit/*.test.tsx`.
 - E2E: `src/tests/e2e/*.spec.ts`.
 - Smoke production-ready: `src/tests/e2e/production-readiness-smoke.spec.ts` e `src/tests/e2e/production-readiness-payment.spec.ts`.
+- Smoke staging import: `src/tests/e2e/staging-import-smoke.spec.ts`.
 - Configuracoes: `vitest.config.ts`, `playwright.config.ts`.
 - Frameworks: Vitest, Testing Library, Playwright.
 
 ## Artefatos Reversa/Forward existentes
 
-- `_reversa_forward/001-fase-3-neon-drizzle` ate `_reversa_forward/023-fase-15-approved-data-dry-run`.
+- `_reversa_forward/001-fase-3-neon-drizzle` ate `_reversa_forward/024-fase-16-staging-import`.
 - Trilhas de migracao geral abertas: `_reversa_forward/009-*` ate `_reversa_forward/018-*`.
 - `_reversa_sdd/migration` e `_reversa_sdd/design-system` existem como planejamento.
 
@@ -133,6 +137,18 @@ Total observado nesse recorte: 292 arquivos.
 - Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (45 arquivos / 128 testes), `pnpm build`, `pnpm test:e2e` (36 testes) e `pnpm ops:check-data-dry-run`.
 - Smoke com exemplos sinteticos retornou `go`; smoke da `primeira-execucao` sem arquivos retornou `pending-input` com 5 pendencias humanas.
 - Nenhuma importacao real, upload real, migration real, conexao com banco real, deploy, segredo exposto, alteracao funcional adicional ou alteracao no Laravel legado foi executada nesta re-extracao.
+
+## Estado pos-Fase 16
+
+- Commit funcional de referencia: `b7f871b feat: implement approved staging import`.
+- A Fase 16 adicionou `src/features/staging-import/` para preparar importacao controlada em staging/dev remoto, mantendo producao bloqueada.
+- O preflight exige ambiente staging/dev remoto, `STAGING_DATABASE_URL` presente sem imprimir valor, aprovacao humana, backup/snapshot quando aplicavel e dry-run anterior em `go` ou sem bloqueio critico.
+- Ausencia dos arquivos aprovados em `data/dry-run/input/primeira-execucao/` permanece estado seguro `pending-input`, sem conectar banco e sem tentar importar.
+- A escrita padrao planejada e upsert seguro em staging; reset/limpeza so e permitido com backup confirmado, flag explicita, aprovacao humana e ambiente nao produtivo.
+- Scripts operacionais adicionados: `pnpm ops:import-staging` e `pnpm ops:check-staging-import-smoke`.
+- Relatorios de importacao/staging, divergencias, rollback e checklist humano ficam voltados a ambiente controlado, sem versionar dados reais sensiveis.
+- Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (48 arquivos / 138 testes), `pnpm build` e `pnpm test:e2e` (36 passed / 1 skipped esperado sem `STAGING_IMPORT_SMOKE_URL`).
+- Nenhum codigo funcional novo foi alterado nesta re-extracao; nenhuma producao, deploy, migration real, banco real, segredo exposto ou alteracao no Laravel legado foi executada.
 
 ## Organizacao sugerida
 

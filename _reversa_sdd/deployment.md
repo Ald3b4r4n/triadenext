@@ -1,6 +1,6 @@
 # Deployment - Triade Essenza Next
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 Agente: Architect
 
 ## Estado Detectado
@@ -45,6 +45,8 @@ flowchart TB
 - `ORDER_NOTIFICATION_RECIPIENTS`
 - `EMAIL_PROVIDER`
 - `EMAIL_FROM`
+- `STAGING_DATABASE_URL` (somente staging/dev remoto; nunca imprimir valor)
+- `STAGING_IMPORT_SMOKE_URL` (somente smoke staging aprovado)
 
 ## Scripts Operacionais Seguros
 
@@ -55,6 +57,8 @@ flowchart TB
 | `pnpm ops:check-build` | Confirma scripts locais esperados | Nao chama Vercel, banco, migration ou provider externo |
 | `pnpm ops:check-smoke` | Valida alvo de smoke seguro | Default local e sem pagamento/e-mail/upload real |
 | `pnpm ops:check-data-dry-run` | Valida CSV/JSON locais para dados Must | Nao conecta banco, nao importa dados, nao faz upload e nao le `.env` |
+| `pnpm ops:import-staging` | Prepara/executa importacao staging/dev remoto aprovada | Bloqueia producao, exige preflight verde, aprovacao humana e nao imprime URL/secret |
+| `pnpm ops:check-staging-import-smoke` | Smoke pos-importacao em URL staging aprovada | Sem URL retorna skipped esperado; nao faz deploy, migration ou import |
 
 ## Guardrails Operacionais
 
@@ -64,6 +68,8 @@ flowchart TB
 - 🟢 Preview/produção sem provider real falham de modo seguro.
 - 🟢 Deploy/migration real permanecem dependentes de aprovação humana explícita.
 - 🟢 Dry-run de dados roda por arquivo local controlado e nao substitui aprovacao humana para import real.
+- 🟢 Importacao staging e restrita a staging/dev remoto; producao deve ser bloqueada tecnicamente.
+- 🟢 Reset de staging exige backup/snapshot, flag explicita, aprovacao humana e ambiente nao produtivo.
 - 🔴 Deploy automático não está configurado neste repositório nem foi executado nesta re-extração.
 
 ## Estado Pos-Fase 12
@@ -97,3 +103,13 @@ flowchart TB
 - Com arquivos aprovados presentes, o mesmo comando executa dry-run em memoria, gera relatorios em `data/dry-run/output/<execucao>-<status>/` e classifica divergencias por origem.
 - `data/dry-run/input/primeira-execucao/` e `data/dry-run/output/` permanecem ignorados pelo Git para evitar versionar dados reais ou relatorios brutos.
 - Nenhum deploy, migration real, conexao com banco real, importacao real, upload real, segredo ou alteracao no Laravel legado foi executado.
+
+## Estado Pos-Fase 16
+
+- Commit funcional de referencia: `b7f871b feat: implement approved staging import`.
+- `pnpm ops:import-staging` prepara importacao controlada em staging/dev remoto com preflight de arquivos aprovados, dry-run go/no-go, aprovacao humana e backup/snapshot quando necessario.
+- Sem arquivos aprovados, sem `STAGING_DATABASE_URL`, sem aprovacao humana ou sem backup exigido, a operacao fica bloqueada/pending-input e nao conecta banco.
+- O modo padrao e upsert seguro; reset/limpeza de staging so com backup confirmado, flag explicita, aprovacao humana e alvo nao produtivo.
+- `pnpm ops:check-staging-import-smoke` cobre smoke pos-importacao; sem `STAGING_IMPORT_SMOKE_URL`, o E2E fica com 1 skipped esperado.
+- Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (48 arquivos / 138 testes), `pnpm build` e `pnpm test:e2e` (36 passed / 1 skipped).
+- Nenhuma producao, deploy, migration real, banco real, segredo, push automatico ou alteracao no Laravel legado foi executada por este estado.

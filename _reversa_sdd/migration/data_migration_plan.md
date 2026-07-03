@@ -55,6 +55,15 @@
 - Smoke reportado: exemplos sinteticos retornaram `go`; `primeira-execucao` sem arquivos retornou `pending-input` com 5 pendencias humanas.
 - A execucao com fonte real aprovada ainda precisa ocorrer antes de qualquer importacao real futura.
 
+## Estado Pos-Fase 16
+
+- A Fase 16 preparou importacao controlada para staging/dev remoto via `pnpm ops:import-staging`.
+- A importacao staging so pode avancar se houver arquivos aprovados em `data/dry-run/input/primeira-execucao/`, dry-run anterior `go` ou sem bloqueio critico, `STAGING_DATABASE_URL` configurada fora do Git, aprovacao humana e backup/snapshot quando necessario.
+- Sem arquivos aprovados, sem ambiente staging/dev remoto ou sem aprovacao, o resultado esperado e `pending-input`/bloqueio operacional; nao ha conexao com banco.
+- O modo padrao e upsert seguro em staging; reset/limpeza exige backup confirmado, flag explicita, aprovacao humana e ambiente nao produtivo.
+- Relatorios antes/depois, divergencias e rollback/checklist humano registram a execucao sem imprimir secrets.
+- Producao, deploy, migration real, banco real de producao, upload real e alteracao do Laravel legado continuam fora do escopo.
+
 ## Divergencias Bloqueadoras do Dry-run
 
 | Codigo | Condicao | Impacto |
@@ -87,6 +96,7 @@
 - Separar relatorios versionaveis de arquivos com dados pessoais/secretos; relatorios devem usar amostras mascaradas.
 - Exigir aprovacao humana antes de banco legado, export real, import real ou migration real.
 - Executar primeiro `ops:check-data-dry-run` com exemplos sinteticos e depois com `data/dry-run/input/primeira-execucao`, sem usar `.env`.
+- Depois de dry-run `go` aprovado, executar `ops:import-staging` somente contra staging/dev remoto autorizado, com backup/snapshot e aprovacao humana registrados.
 
 ## Não fazer nesta etapa
 
@@ -97,3 +107,4 @@
 - Não importar dados reais automaticamente.
 - Não imprimir dados pessoais crus ou URLs reais de banco.
 - Não copiar binários reais de imagem nem fazer upload real durante o dry-run.
+- Não usar `ops:import-staging` contra producao nem contra ambiente sem backup/aprovacao quando houver reset/limpeza.
