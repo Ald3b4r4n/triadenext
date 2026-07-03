@@ -1,9 +1,9 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/024-fase-16-staging-import",
-  "feature-id": "024",
-  "short-name": "fase-16-staging-import",
-  "started-at": "2026-07-02T00:00:00-03:00",
+  "feature-dir": "_reversa_forward/025-fase-17-staging-smoke",
+  "feature-id": "025",
+  "short-name": "fase-17-staging-smoke",
+  "started-at": "2026-07-03T00:00:00-03:00",
   "current-stage": "coding",
   "stages-completed": [
     "requirements",
