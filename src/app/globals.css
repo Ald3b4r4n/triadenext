@@ -643,6 +643,10 @@ a {
   grid-template-columns: minmax(220px, 1fr) minmax(180px, 240px) 120px 100px 100px;
 }
 
+.admin-table__row--users {
+  grid-template-columns: minmax(220px, 1fr) 120px minmax(220px, 1fr) minmax(220px, 280px);
+}
+
 .admin-table__row:first-child {
   border-top: 0;
 }
@@ -658,6 +662,36 @@ a {
   display: block;
   margin-top: 4px;
   color: var(--muted);
+}
+
+.admin-role-form {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-role-form select,
+.admin-role-form button {
+  min-height: 38px;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.admin-role-form select {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--foreground);
+  padding: 0 10px;
+}
+
+.admin-role-form button {
+  border: 1px solid var(--triade-gold);
+  background: var(--triade-gold);
+  color: var(--triade-black);
+  cursor: pointer;
+  font-weight: 800;
+  padding: 0 14px;
 }
 
 .status-badge {
@@ -1172,8 +1206,13 @@ a {
   .admin-table__row--categories,
   .admin-table__row--coupons,
   .admin-table__row--shipping,
+  .admin-table__row--users,
   .form-grid,
   .image-manager-item {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-role-form {
     grid-template-columns: 1fr;
   }
 

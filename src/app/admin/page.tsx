@@ -17,6 +17,7 @@ export default function AdminPage() {
         <AdminCard href="/admin/cupons" title="Cupons" text="Descontos globais do carrinho." />
         <AdminCard href="/admin/frete" title="Frete" text="Regras manuais por UF ou CEP." />
         <AdminCard href="/admin/pedidos" title="Pedidos" text="Status de pedido, pagamento e notificações." />
+        <AdminCard href="/admin/usuarios" title="Usuários" text="Roles e permissões master." />
       </section>
     </main>
   );
