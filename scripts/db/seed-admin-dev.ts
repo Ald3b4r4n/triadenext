@@ -30,42 +30,50 @@ main().catch(() => {
 });
 
 async function main() {
-  const [{ neon }, { drizzle }, { eq }, { auth }, { users }] = await Promise.all([
-    import("@neondatabase/serverless"),
-    import("drizzle-orm/neon-http"),
+  const [{ default: pg }, { drizzle }, { eq }, { createAuth }, { users }] = await Promise.all([
+    import("pg"),
+    import("drizzle-orm/node-postgres"),
     import("drizzle-orm"),
-    import("../../src/features/auth/server/auth"),
+    import("../../src/features/auth/server/create-auth"),
     import("../../src/db/schema")
   ]);
 
-  const sql = neon(process.env.DATABASE_URL as string);
-  const db = drizzle(sql);
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL as string,
+    allowExitOnIdle: true
+  });
+  const db = drizzle(pool);
+  const auth = createAuth({ useNextCookies: false });
 
-  const [existingUser] = await db.select().from(users).where(eq(users.email, adminEmail)).limit(1);
+  try {
+    const [existingUser] = await db.select().from(users).where(eq(users.email, adminEmail)).limit(1);
 
-  if (!existingUser) {
-    await auth.api.signUpEmail({
-      body: {
-        name: "Admin Dev",
-        email: adminEmail,
-        password: adminPassword
-      }
-    });
+    if (!existingUser) {
+      await auth.api.signUpEmail({
+        body: {
+          name: "Admin Dev",
+          email: adminEmail,
+          password: adminPassword
+        }
+      });
+    }
+
+    const [adminUser] = await db.select().from(users).where(eq(users.email, adminEmail)).limit(1);
+
+    if (!adminUser) {
+      fail("Seed admin dev nao confirmou usuario criado.");
+    }
+
+    await db
+      .update(users)
+      .set({
+        role: "admin",
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, adminUser.id));
+  } finally {
+    await pool.end();
   }
-
-  const [adminUser] = await db.select().from(users).where(eq(users.email, adminEmail)).limit(1);
-
-  if (!adminUser) {
-    fail("Seed admin dev nao confirmou usuario criado.");
-  }
-
-  await db
-    .update(users)
-    .set({
-      role: "admin",
-      updatedAt: new Date()
-    })
-    .where(eq(users.id, adminUser.id));
 
   console.log("Seed admin dev concluido com usuario administrativo local.");
 }

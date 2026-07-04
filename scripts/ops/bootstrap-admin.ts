@@ -25,16 +25,17 @@ main().catch(() => {
 });
 
 async function main() {
-  const [{ neon }, { drizzle }, { eq }, { auth }, { users }] = await Promise.all([
-    import("@neondatabase/serverless"),
-    import("drizzle-orm/neon-http"),
+  const [{ default: pg }, { drizzle }, { eq }, { createAuth }, { users }] = await Promise.all([
+    import("pg"),
+    import("drizzle-orm/node-postgres"),
     import("drizzle-orm"),
-    import("../../src/features/auth/server/auth"),
+    import("../../src/features/auth/server/create-auth"),
     import("../../src/db/schema")
   ]);
 
-  const sql = neon(databaseUrl);
-  const db = drizzle(sql);
+  const pool = new pg.Pool({ connectionString: databaseUrl, allowExitOnIdle: true });
+  const db = drizzle(pool);
+  const auth = createAuth({ useNextCookies: false });
   const summary = {
     created: 0,
     promoted: 0,
@@ -42,48 +43,52 @@ async function main() {
     skippedMissingPassword: 0
   };
 
-  for (const email of masterEmails) {
-    const [existingUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    let user = existingUser;
+  try {
+    for (const email of masterEmails) {
+      const [existingUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      let user = existingUser;
 
-    if (!user) {
-      if (!password) {
+      if (!user) {
+        if (!password) {
+          summary.skippedMissingPassword += 1;
+          continue;
+        }
+
+        await auth.api.signUpEmail({
+          body: {
+            name: "Admin Master",
+            email,
+            password
+          }
+        });
+
+        const [createdUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+        user = createdUser;
+        summary.created += 1;
+      }
+
+      if (!user) {
         summary.skippedMissingPassword += 1;
         continue;
       }
 
-      await auth.api.signUpEmail({
-        body: {
-          name: "Admin Master",
-          email,
-          password
-        }
-      });
+      if (user.role === "admin") {
+        summary.unchanged += 1;
+        continue;
+      }
 
-      const [createdUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-      user = createdUser;
-      summary.created += 1;
+      await db
+        .update(users)
+        .set({
+          role: "admin",
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, user.id));
+
+      summary.promoted += 1;
     }
-
-    if (!user) {
-      summary.skippedMissingPassword += 1;
-      continue;
-    }
-
-    if (user.role === "admin") {
-      summary.unchanged += 1;
-      continue;
-    }
-
-    await db
-      .update(users)
-      .set({
-        role: "admin",
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, user.id));
-
-    summary.promoted += 1;
+  } finally {
+    await pool.end();
   }
 
   console.log("Bootstrap admin concluido.");

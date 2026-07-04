@@ -1,7 +1,7 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle as drizzleNodePostgres } from "drizzle-orm/node-postgres";
 import { inArray } from "drizzle-orm";
 import { boolean, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import pg from "pg";
 import {
   assertNonProductionEnvironment,
   fail,
@@ -54,14 +54,15 @@ async function run() {
     return;
   }
 
-  const db = drizzle(neon(process.env.DATABASE_URL));
+  const { db, close } = createSafeDb(process.env.DATABASE_URL);
   const rows = await db
     .select({
       email: usersTable.email,
       role: usersTable.role
     })
     .from(usersTable)
-    .where(inArray(usersTable.email, masterEmails));
+    .where(inArray(usersTable.email, masterEmails))
+    .finally(close);
 
   const admins = rows.filter((row) => row.role === "admin").length;
   const managers = rows.filter((row) => row.role === "manager").length;
@@ -89,3 +90,11 @@ run().catch((error) => {
 
   fail("Check admin local falhou de forma controlada.");
 });
+
+function createSafeDb(connectionString) {
+  const pool = new pg.Pool({ connectionString, allowExitOnIdle: true });
+  return {
+    db: drizzleNodePostgres(pool),
+    close: () => pool.end()
+  };
+}
