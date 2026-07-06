@@ -49,11 +49,18 @@ const optional = [
 ];
 
 const allKnown = Array.from(
-  new Set([...productionRequired, ...previewRequired, ...localRecommended, ...optional])
+  new Set([
+    ...productionRequired,
+    ...previewRequired,
+    ...localRecommended,
+    ...optional
+  ])
 );
 
 function resolveEnvironment(args) {
-  const explicit = args.find((arg) => arg.startsWith("--environment="))?.split("=")[1];
+  const explicit = args
+    .find((arg) => arg.startsWith("--environment="))
+    ?.split("=")[1];
   const alias = args.includes("--production")
     ? "production"
     : args.includes("--preview") || args.includes("--staging")
@@ -61,11 +68,14 @@ function resolveEnvironment(args) {
       : args.includes("--local")
         ? "local"
         : null;
-  const value = explicit ?? alias ?? process.env.READINESS_ENVIRONMENT ?? "local";
+  const value =
+    explicit ?? alias ?? process.env.READINESS_ENVIRONMENT ?? "local";
   const normalized = value.toLowerCase();
 
   if (!["local", "preview", "staging", "production"].includes(normalized)) {
-    throw new Error("Ambiente invalido. Use local, preview, staging ou production.");
+    throw new Error(
+      "Ambiente inválido. Use local, preview, staging ou production."
+    );
   }
 
   return normalized === "staging" ? "preview" : normalized;
@@ -138,6 +148,10 @@ function run(args = process.argv.slice(2), env = process.env) {
 try {
   run();
 } catch (error) {
-  console.error(error instanceof Error ? error.message : "Falha desconhecida no check de env.");
+  console.error(
+    error instanceof Error
+      ? error.message
+      : "Falha desconhecida no check de env."
+  );
   process.exitCode = 1;
 }

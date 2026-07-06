@@ -1,6 +1,14 @@
 import { createCheck } from "./result";
-import { createRemoteSmokeContext, inspectHtml, type StagingSmokeExecutionOptions } from "./storefront-smoke";
-import type { StagingSmokeCheck, StagingSmokeIssue, StagingSmokePreflight } from "./types";
+import {
+  createRemoteSmokeContext,
+  inspectHtml,
+  type StagingSmokeExecutionOptions
+} from "./storefront-smoke";
+import type {
+  StagingSmokeCheck,
+  StagingSmokeIssue,
+  StagingSmokePreflight
+} from "./types";
 
 export async function runNotificationOutboxSmoke(
   preflight: StagingSmokePreflight,
@@ -23,7 +31,9 @@ export async function runNotificationOutboxSmoke(
     };
   }
 
-  const adminOrders = await context.fetcher(new URL("/admin/pedidos", context.baseUrl));
+  const adminOrders = await context.fetcher(
+    new URL("/admin/pedidos", context.baseUrl)
+  );
   const issues = inspectHtml(adminOrders, {
     forbidden: ["DATABASE_URL", "STRIPE_SECRET", "WHATSAPP", "SMS"],
     category: "notifications"
@@ -39,7 +49,7 @@ export async function runNotificationOutboxSmoke(
         status: issues.length > 0 ? "failed" : "passed",
         summary:
           issues.length > 0
-            ? "Area de pedidos/notificacoes falhou ou expos conteudo proibido."
+            ? "Área de pedidos/notificações falhou ou expôs conteúdo proibido."
             : "Area de pedidos/notificacoes respondeu sem envio real e sem canal externo proibido.",
         issues
       })

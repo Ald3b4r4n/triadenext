@@ -1,8 +1,17 @@
 import { createCheck, pendingConfigIssue } from "./result";
-import type { StagingSmokeCheck, StagingSmokeIssue, StagingSmokePreflight } from "./types";
+import type {
+  StagingSmokeCheck,
+  StagingSmokeIssue,
+  StagingSmokePreflight
+} from "./types";
 
-export function runOrderStatusSmoke(preflight: StagingSmokePreflight): { checks: StagingSmokeCheck[]; issues: StagingSmokeIssue[] } {
-  const webhookPending = preflight.issues.some((issue) => issue.code === "STRIPE_TEST_WEBHOOK_PENDING");
+export function runOrderStatusSmoke(preflight: StagingSmokePreflight): {
+  checks: StagingSmokeCheck[];
+  issues: StagingSmokeIssue[];
+} {
+  const webhookPending = preflight.issues.some(
+    (issue) => issue.code === "STRIPE_TEST_WEBHOOK_PENDING"
+  );
   const issues: StagingSmokeIssue[] = [];
 
   if (webhookPending) {
@@ -10,7 +19,8 @@ export function runOrderStatusSmoke(preflight: StagingSmokePreflight): { checks:
       pendingConfigIssue({
         code: "ORDER_STATUS_WEBHOOK_PENDING",
         category: "orders",
-        message: "Verificacao pos-pagamento fica pending-config sem webhook Stripe test."
+        message:
+          "Verificação pós-pagamento fica pending-config sem webhook Stripe test."
       })
     );
   }
@@ -20,13 +30,13 @@ export function runOrderStatusSmoke(preflight: StagingSmokePreflight): { checks:
     checks: [
       createCheck({
         id: "order-status",
-        label: "Pedido pos-pagamento",
+        label: "Pedido pós-pagamento",
         category: "orders",
         status: issues.length > 0 ? "pending-config" : "passed",
         summary:
           issues.length > 0
-            ? "Status de pedido pos-pagamento nao foi confirmado sem webhook test."
-            : "Status de pedido pos-pagamento esta liberado para smoke staging aprovado.",
+            ? "Status de pedido pós-pagamento não foi confirmado sem webhook test."
+            : "Status de pedido pós-pagamento está liberado para smoke staging aprovado.",
         issues
       })
     ]

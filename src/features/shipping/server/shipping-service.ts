@@ -1,7 +1,12 @@
 import "server-only";
 
 import { getRuntimeMode } from "@/lib/runtime-mode";
-import { createShippingQuote, buildManualShippingOptions, validatePostalCode, isQuoteExpired } from "../domain";
+import {
+  createShippingQuote,
+  buildManualShippingOptions,
+  validatePostalCode,
+  isQuoteExpired
+} from "../domain";
 import type { ShippingQuoteResult } from "../types";
 import { createShippingRepository } from "./shipping-repository";
 import { devShippingRules } from "./shipping-fixtures";
@@ -27,7 +32,10 @@ export async function quoteShippingForCart(input: {
   });
 
   if (options.length === 0) {
-    return { status: "not_found", message: "Não há cobertura manual para este CEP." };
+    return {
+      status: "not_found",
+      message: "Não há cobertura manual para este CEP."
+    };
   }
 
   const quote = createShippingQuote({
@@ -35,13 +43,22 @@ export async function quoteShippingForCart(input: {
     cartHash: input.cartHash,
     postalCode: validation.postalCode,
     options,
-    source: options.some((option) => option.source === "fixture") ? "fixture" : "manual"
+    source: options.some((option) => option.source === "fixture")
+      ? "fixture"
+      : "manual"
   });
 
-  return { status: "success", quote: await shippingRepository.createQuote(quote), message: "Cotação de frete calculada." };
+  return {
+    status: "success",
+    quote: await shippingRepository.createQuote(quote),
+    message: "Cotação de frete calculada."
+  };
 }
 
-export async function selectShippingQuoteOption(input: { quoteId: string; optionId: string }) {
+export async function selectShippingQuoteOption(input: {
+  quoteId: string;
+  optionId: string;
+}) {
   const quote = await shippingRepository.findQuoteById(input.quoteId);
   if (!quote) {
     return { status: "not_found" as const, message: "Cotação não encontrada." };
@@ -53,12 +70,22 @@ export async function selectShippingQuoteOption(input: { quoteId: string; option
 
   const option = quote.options.find((item) => item.id === input.optionId);
   if (!option) {
-    return { status: "validation_error" as const, message: "Opcao de frete invalida." };
+    return {
+      status: "validation_error" as const,
+      message: "Opção de frete inválida."
+    };
   }
 
-  const updated = await shippingRepository.selectQuoteOption(quote.id, option.id);
+  const updated = await shippingRepository.selectQuoteOption(
+    quote.id,
+    option.id
+  );
   return updated
-    ? { status: "success" as const, quote: updated, message: "Frete selecionado." }
+    ? {
+        status: "success" as const,
+        quote: updated,
+        message: "Frete selecionado."
+      }
     : { status: "not_found" as const, message: "Cotação não encontrada." };
 }
 
@@ -76,5 +103,7 @@ export async function removeShippingQuoteSelection(input: { quoteId: string }) {
 
 export function shippingRuntimeSummary() {
   const mode = getRuntimeMode();
-  return mode.hasDatabase ? "frete manual persistido" : "frete manual em fallback dev/test";
+  return mode.hasDatabase
+    ? "frete manual persistido"
+    : "frete manual em fallback dev/test";
 }

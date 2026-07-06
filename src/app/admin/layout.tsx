@@ -1,10 +1,19 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import type { ReactNode } from "react";
-import { policyMessage, requireAdminLike } from "@/features/auth/server/policies";
+import { getCurrentSession } from "@/features/auth/server/session";
+import {
+  policyMessage,
+  requireAdminLike
+} from "@/features/auth/server/policies";
+import { AdminShell } from "./admin-shell";
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
-  const policy = await requireAdminLike();
+export default async function AdminLayout({
+  children
+}: {
+  children: ReactNode;
+}) {
+  const session = await getCurrentSession();
+  const policy = await requireAdminLike(Promise.resolve(session));
 
   if (policy.status === "unauthenticated") {
     redirect("/login?returnTo=/admin");
@@ -22,19 +31,12 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     );
   }
 
+  const userEmail =
+    session.status === "authenticated" ? session.email : "admin@triade";
+
   return (
-    <>
-      <nav className="admin-nav" aria-label="Navegação administrativa">
-        <div className="page-shell admin-nav__content">
-          <Link href="/admin">Painel</Link>
-          <Link href="/admin/produtos">Produtos</Link>
-          <Link href="/admin/cupons">Cupons</Link>
-          <Link href="/admin/frete">Frete</Link>
-          <Link href="/admin/pedidos">Pedidos</Link>
-          <Link href="/admin/usuarios">Usuários</Link>
-        </div>
-      </nav>
+    <AdminShell userEmail={userEmail} userRole={policy.role}>
       {children}
-    </>
+    </AdminShell>
   );
 }

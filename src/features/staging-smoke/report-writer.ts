@@ -1,12 +1,17 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { sanitizeForStagingSmokeReport } from "./safety";
-import type { StagingSmokeChecklist, StagingSmokeSummary } from "./report-types";
+import type {
+  StagingSmokeChecklist,
+  StagingSmokeSummary
+} from "./report-types";
 import type { StagingSmokeReport, StagingSmokeRunResult } from "./types";
 
 export const STAGING_SMOKE_OUTPUT_ROOT = "data/dry-run/output";
 
-export function createStagingSmokeReport(result: StagingSmokeRunResult): StagingSmokeReport {
+export function createStagingSmokeReport(
+  result: StagingSmokeRunResult
+): StagingSmokeReport {
   return {
     schemaVersion: 1,
     runId: `staging-smoke-${Date.now()}`,
@@ -23,19 +28,27 @@ export function createStagingSmokeReport(result: StagingSmokeRunResult): Staging
   };
 }
 
-export function summarizeStagingSmoke(report: StagingSmokeReport): StagingSmokeSummary {
+export function summarizeStagingSmoke(
+  report: StagingSmokeReport
+): StagingSmokeSummary {
   return {
     status: report.overallStatus,
     goNoGo: report.goNoGo,
     checks: report.checks.length,
     blockers: report.issues.filter((issue) => issue.blocksGoLive).length,
-    pendingConfig: report.checks.filter((check) => check.status === "pending-config").length,
-    pendingInput: report.checks.filter((check) => check.status === "pending-input").length,
+    pendingConfig: report.checks.filter(
+      (check) => check.status === "pending-config"
+    ).length,
+    pendingInput: report.checks.filter(
+      (check) => check.status === "pending-input"
+    ).length,
     failed: report.checks.filter((check) => check.status === "failed").length
   };
 }
 
-export function createGoLiveChecklist(report: StagingSmokeReport): StagingSmokeChecklist {
+export function createGoLiveChecklist(
+  report: StagingSmokeReport
+): StagingSmokeChecklist {
   const summary = summarizeStagingSmoke(report);
   const status =
     report.goNoGo === "go"
@@ -51,8 +64,8 @@ export function createGoLiveChecklist(report: StagingSmokeReport): StagingSmokeC
     feature: "025-fase-17-staging-smoke",
     status,
     requiredBeforeGoLive: [
-      "Aprovacao humana explicita para qualquer avanco real.",
-      "STAGING_SMOKE_URL configurada para ambiente nao produtivo.",
+      "Aprovação humana explícita para qualquer avanço real.",
+      "STAGING_SMOKE_URL configurada para ambiente não produtivo.",
       "Neon staging/dev validado sem imprimir DATABASE_URL.",
       "Stripe test mode e webhook test validados sem live mode.",
       "Smoke storefront, checkout, admin e outbox sem bloqueadores.",
@@ -60,7 +73,7 @@ export function createGoLiveChecklist(report: StagingSmokeReport): StagingSmokeC
       `Resumo atual: ${summary.blockers} bloqueadores, ${summary.pendingConfig} pending-config, ${summary.pendingInput} pending-input.`
     ],
     abortCriteria: [
-      "Qualquer sinal de producao no alvo ou runtime.",
+      "Qualquer sinal de produção no alvo ou runtime.",
       "Stripe live mode detectado.",
       "DATABASE_URL, token, chave Stripe ou secret aparecendo em saida operacional.",
       "Migration ou deploy tentando rodar durante a Fase 17.",
@@ -75,11 +88,21 @@ export function writeStagingSmokeReports(
 ) {
   const report = createStagingSmokeReport(result);
   const checklist = createGoLiveChecklist(report);
-  const dir = ensureStagingSmokeReportDir(options.cwd ?? process.cwd(), report.overallStatus, options.outputDir);
+  const dir = ensureStagingSmokeReportDir(
+    options.cwd ?? process.cwd(),
+    report.overallStatus,
+    options.outputDir
+  );
   const files = [
-    [join(dir, "staging-smoke-report.json"), JSON.stringify(sanitizeForStagingSmokeReport(report), null, 2)],
+    [
+      join(dir, "staging-smoke-report.json"),
+      JSON.stringify(sanitizeForStagingSmokeReport(report), null, 2)
+    ],
     [join(dir, "staging-smoke-report.md"), renderStagingSmokeMarkdown(report)],
-    [join(dir, "go-live-checklist.md"), renderGoLiveChecklistMarkdown(checklist)]
+    [
+      join(dir, "go-live-checklist.md"),
+      renderGoLiveChecklistMarkdown(checklist)
+    ]
   ] as const;
 
   for (const [file, content] of files) {
@@ -89,7 +112,11 @@ export function writeStagingSmokeReports(
   return files.map(([file]) => file);
 }
 
-export function ensureStagingSmokeReportDir(cwd: string, status: string, outputDir = STAGING_SMOKE_OUTPUT_ROOT) {
+export function ensureStagingSmokeReportDir(
+  cwd: string,
+  status: string,
+  outputDir = STAGING_SMOKE_OUTPUT_ROOT
+) {
   const root = resolveStagingSmokeOutputRoot(cwd, outputDir);
   const dir = join(root, `staging-smoke-${sanitizeSegment(status)}`);
 
@@ -101,12 +128,16 @@ export function ensureStagingSmokeReportDir(cwd: string, status: string, outputD
 }
 
 function resolveStagingSmokeOutputRoot(cwd: string, outputDir: string) {
-  const resolved = isAbsolute(outputDir) ? resolve(outputDir) : resolve(cwd, outputDir);
+  const resolved = isAbsolute(outputDir)
+    ? resolve(outputDir)
+    : resolve(cwd, outputDir);
   const allowedRoot = resolve(cwd, STAGING_SMOKE_OUTPUT_ROOT);
   const rel = relative(allowedRoot, resolved);
 
   if (rel.startsWith("..") || isAbsolute(rel)) {
-    throw new Error("Relatorios staging smoke precisam ficar dentro de data/dry-run/output/.");
+    throw new Error(
+      "Relatórios staging smoke precisam ficar dentro de data/dry-run/output/."
+    );
   }
 
   return resolved;
@@ -127,9 +158,11 @@ function renderStagingSmokeMarkdown(report: StagingSmokeReport) {
     "",
     "| Check | Status | Resumo |",
     "| --- | --- | --- |",
-    ...report.checks.map((check) => `| ${check.label} | ${check.status} | ${check.summary} |`),
+    ...report.checks.map(
+      (check) => `| ${check.label} | ${check.status} | ${check.summary} |`
+    ),
     "",
-    "Nenhum valor de secret, DATABASE_URL, token ou credencial e impresso neste relatorio."
+    "Nenhum valor de secret, DATABASE_URL, token ou credencial é impresso neste relatório."
   ].join("\n");
 }
 

@@ -2,11 +2,15 @@ import { execFileSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 
 function runSmokeCheck(args: string[] = []) {
-  return execFileSync(process.execPath, ["scripts/ops/check-smoke-readiness.mjs", ...args], {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"]
-  });
+  return execFileSync(
+    process.execPath,
+    ["scripts/ops/check-smoke-readiness.mjs", ...args],
+    {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"]
+    }
+  );
 }
 
 describe("smoke readiness script", () => {
@@ -15,7 +19,7 @@ describe("smoke readiness script", () => {
 
     expect(output).toContain("Readiness de smoke production-ready");
     expect(output).toContain("http://127.0.0.1:3000");
-    expect(output).toContain("nao executa pagamento real");
+    expect(output).toContain("não executa pagamento real");
   });
 
   it("accepts a clean approved URL without printing secrets", () => {
@@ -26,8 +30,8 @@ describe("smoke readiness script", () => {
   });
 
   it("rejects URLs with querystrings because they may carry secrets", () => {
-    expect(() => runSmokeCheck(["--url=https://preview.example.test?token=secret"])).toThrow(
-      /querystring/
-    );
+    expect(() =>
+      runSmokeCheck(["--url=https://preview.example.test?token=secret"])
+    ).toThrow(/querystring/);
   });
 });

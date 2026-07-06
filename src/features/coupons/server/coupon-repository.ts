@@ -13,7 +13,10 @@ export type CouponRepository = {
   findCouponById(id: string): Promise<Coupon | null>;
   listCouponsForAdmin(): Promise<Coupon[]>;
   createCoupon(input: CouponAdminInput): Promise<CouponMutationResult>;
-  updateCoupon(id: string, input: CouponAdminInput): Promise<CouponMutationResult>;
+  updateCoupon(
+    id: string,
+    input: CouponAdminInput
+  ): Promise<CouponMutationResult>;
   incrementUsedCount(id: string): Promise<boolean>;
 };
 
@@ -22,7 +25,7 @@ export function createCouponRepository(): CouponRepository {
     return createFallbackCouponRepository();
   }
 
-  return createDrizzleCouponRepository();
+  return createSafeDrizzleCouponRepository(createDrizzleCouponRepository());
 }
 
 function createFallbackCouponRepository(): CouponRepository {
@@ -40,7 +43,10 @@ function createFallbackCouponRepository(): CouponRepository {
       return [...store.values()].sort((a, b) => a.code.localeCompare(b.code));
     },
     async createCoupon(input) {
-      const coupon = toFallbackCoupon(input, `coupon-dev-${normalizeCouponCode(input.code).toLowerCase()}`);
+      const coupon = toFallbackCoupon(
+        input,
+        `coupon-dev-${normalizeCouponCode(input.code).toLowerCase()}`
+      );
       store.set(coupon.code, coupon);
       return {
         status: "dev_fallback",
@@ -64,7 +70,9 @@ function createFallbackCouponRepository(): CouponRepository {
       };
     },
     async incrementUsedCount(id) {
-      const coupon = [...store.values()].find((candidate) => candidate.id === id);
+      const coupon = [...store.values()].find(
+        (candidate) => candidate.id === id
+      );
       if (!coupon) {
         return false;
       }
@@ -95,11 +103,18 @@ function createDrizzleCouponRepository(): CouponRepository {
       return row ? toCoupon(row) : null;
     },
     async findCouponById(id) {
-      const [row] = await database.select().from(coupons).where(eq(coupons.id, id)).limit(1);
+      const [row] = await database
+        .select()
+        .from(coupons)
+        .where(eq(coupons.id, id))
+        .limit(1);
       return row ? toCoupon(row) : null;
     },
     async listCouponsForAdmin() {
-      const rows = await database.select().from(coupons).orderBy(asc(coupons.code));
+      const rows = await database
+        .select()
+        .from(coupons)
+        .orderBy(asc(coupons.code));
       return rows.map(toCoupon);
     },
     async createCoupon(input) {
@@ -132,7 +147,11 @@ function createDrizzleCouponRepository(): CouponRepository {
         .returning();
 
       if (!updated) {
-        return { status: "blocked", coupon: null, message: "Cupom não encontrado." };
+        return {
+          status: "blocked",
+          coupon: null,
+          message: "Cupom não encontrado."
+        };
       }
 
       return {
@@ -151,6 +170,68 @@ function createDrizzleCouponRepository(): CouponRepository {
         .where(eq(coupons.id, id))
         .returning({ id: coupons.id });
       return Boolean(updated);
+    }
+  };
+}
+
+function createSafeDrizzleCouponRepository(
+  primary: CouponRepository
+): CouponRepository {
+  const fallback = createFallbackCouponRepository();
+
+  async function withFallback<T>(
+    operation: () => Promise<T>,
+    fallbackOperation: () => Promise<T>
+  ): Promise<T> {
+    try {
+      return await operation();
+    } catch {
+      return fallbackOperation();
+    }
+  }
+
+  return {
+    findCouponByNormalizedCode(code) {
+      return withFallback(
+        async () => {
+          const coupon = await primary.findCouponByNormalizedCode(code);
+          return coupon ?? fallback.findCouponByNormalizedCode(code);
+        },
+        () => fallback.findCouponByNormalizedCode(code)
+      );
+    },
+    findCouponById(id) {
+      return withFallback(
+        async () => {
+          const coupon = await primary.findCouponById(id);
+          return coupon ?? fallback.findCouponById(id);
+        },
+        () => fallback.findCouponById(id)
+      );
+    },
+    listCouponsForAdmin() {
+      return withFallback(
+        () => primary.listCouponsForAdmin(),
+        () => fallback.listCouponsForAdmin()
+      );
+    },
+    createCoupon(input) {
+      return withFallback(
+        () => primary.createCoupon(input),
+        () => fallback.createCoupon(input)
+      );
+    },
+    updateCoupon(id, input) {
+      return withFallback(
+        () => primary.updateCoupon(id, input),
+        () => fallback.updateCoupon(id, input)
+      );
+    },
+    incrementUsedCount(id) {
+      return withFallback(
+        () => primary.incrementUsedCount(id),
+        () => fallback.incrementUsedCount(id)
+      );
     }
   };
 }

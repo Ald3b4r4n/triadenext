@@ -8,11 +8,17 @@ import {
   requiredText
 } from "./common";
 import { createIssue } from "../safety";
-import type { NormalizationResult, NormalizedCoupon, ParsedRecord } from "../types";
+import type {
+  NormalizationResult,
+  NormalizedCoupon,
+  ParsedRecord
+} from "../types";
 
 const couponTypes = new Set(["percentage", "fixed_amount", "free_shipping"]);
 
-export function normalizeCoupons(records: ParsedRecord[]): NormalizationResult<NormalizedCoupon> {
+export function normalizeCoupons(
+  records: ParsedRecord[]
+): NormalizationResult<NormalizedCoupon> {
   const normalized: NormalizedCoupon[] = [];
   const issues: NormalizationResult<NormalizedCoupon>["issues"] = [];
   const seen = new Set<string>();
@@ -20,15 +26,39 @@ export function normalizeCoupons(records: ParsedRecord[]): NormalizationResult<N
   for (const record of records) {
     const codeRaw = requiredText(record, "code", "coupons", "Codigo do cupom");
     const typeRaw = requiredText(record, "type", "coupons", "Tipo do cupom");
-    const value = parseIntegerField(record, "value", "coupons", "Valor do cupom", { required: true, min: 0 });
+    const value = parseIntegerField(
+      record,
+      "value",
+      "coupons",
+      "Valor do cupom",
+      { required: true, min: 0 }
+    );
     const startsAt = parseIsoDate(record, "starts_at", "coupons");
     const endsAt = parseIsoDate(record, "ends_at", "coupons");
-    const maxUses = parseIntegerField(record, "max_uses", "coupons", "Limite de uso", { defaultValue: 0, min: 0 });
-    const usedCount = parseIntegerField(record, "used_count", "coupons", "Uso atual", { defaultValue: 0, min: 0 });
-    const minimumSubtotal = parseIntegerField(record, "minimum_subtotal_cents", "coupons", "Subtotal minimo", {
-      defaultValue: 0,
-      min: 0
-    });
+    const maxUses = parseIntegerField(
+      record,
+      "max_uses",
+      "coupons",
+      "Limite de uso",
+      { defaultValue: 0, min: 0 }
+    );
+    const usedCount = parseIntegerField(
+      record,
+      "used_count",
+      "coupons",
+      "Uso atual",
+      { defaultValue: 0, min: 0 }
+    );
+    const minimumSubtotal = parseIntegerField(
+      record,
+      "minimum_subtotal_cents",
+      "coupons",
+      "Subtotal minimo",
+      {
+        defaultValue: 0,
+        min: 0
+      }
+    );
 
     for (const issue of [
       codeRaw.issue,
@@ -53,27 +83,52 @@ export function normalizeCoupons(records: ParsedRecord[]): NormalizationResult<N
     seen.add(code);
 
     if (!couponTypes.has(type)) {
-      issues.push(couponIssue("Tipo de cupom invalido.", "type", record.lineNumber, code, "corrigir-mapeamento"));
+      issues.push(
+        couponIssue(
+          "Tipo de cupom inválido.",
+          "type",
+          record.lineNumber,
+          code,
+          "corrigir-mapeamento"
+        )
+      );
     }
 
     if (isActive) {
       if (type === "percentage" && (value.value < 1 || value.value > 100)) {
-        issues.push(couponIssue("Percentual de cupom ativo precisa ficar entre 1 e 100.", "value", record.lineNumber, code));
+        issues.push(
+          couponIssue(
+            "Percentual de cupom ativo precisa ficar entre 1 e 100.",
+            "value",
+            record.lineNumber,
+            code
+          )
+        );
       }
       if (type === "fixed_amount" && value.value <= 0) {
-        issues.push(couponIssue("Cupom de valor fixo ativo precisa ter valor positivo.", "value", record.lineNumber, code));
+        issues.push(
+          couponIssue(
+            "Cupom de valor fixo ativo precisa ter valor positivo.",
+            "value",
+            record.lineNumber,
+            code
+          )
+        );
       }
     }
 
     normalized.push({
       code,
-      type: couponTypes.has(type) ? (type as NormalizedCoupon["type"]) : "fixed_amount",
+      type: couponTypes.has(type)
+        ? (type as NormalizedCoupon["type"])
+        : "fixed_amount",
       value: value.value,
       startsAt: startsAt.value,
       endsAt: endsAt.value,
       maxUses: maxUses.value > 0 ? maxUses.value : null,
       usedCount: usedCount.value,
-      minimumSubtotalCents: minimumSubtotal.value > 0 ? minimumSubtotal.value : null,
+      minimumSubtotalCents:
+        minimumSubtotal.value > 0 ? minimumSubtotal.value : null,
       isActive
     });
   }
@@ -86,7 +141,9 @@ function couponIssue(
   field: string,
   row: number,
   code: string,
-  recommendedAction: "corrigir-origem" | "corrigir-mapeamento" = "corrigir-origem"
+  recommendedAction:
+    | "corrigir-origem"
+    | "corrigir-mapeamento" = "corrigir-origem"
 ) {
   return createIssue({
     code: "INVALID_VALUE",

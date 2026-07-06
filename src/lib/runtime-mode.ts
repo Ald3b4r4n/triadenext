@@ -9,33 +9,32 @@ export const runtimeMessages = {
     "Produto validado em modo demonstrativo seguro. A atualização definitiva depende da configuração de produção.",
   blockedMutation:
     "Alteração bloqueada neste ambiente. Acesso administrativo real é obrigatório para gravar dados.",
-  authNotReady:
-    "Autenticação administrativa real indisponível neste ambiente.",
-  unauthenticated: "Sessao ausente ou expirada. Faca login para continuar.",
-  forbidden: "Acesso negado para esta operacao.",
+  authNotReady: "Autenticação administrativa real indisponível neste ambiente.",
+  unauthenticated: "Sessão ausente ou expirada. Faça login para continuar.",
+  forbidden: "Acesso negado para esta operação.",
   adminWithoutAuth:
-    "Painel protegido por auth/policies reais. Mutacoes exigem sessao admin ou manager.",
+    "Painel protegido por auth/policies reais. Mutações exigem sessão admin ou manager.",
   blobMissing: "Upload definitivo indisponível neste ambiente.",
   persistedCreate: "Produto criado em Neon/Drizzle.",
   persistedUpdate: "Produto atualizado em Neon/Drizzle.",
-  imageMetadataPersisted: "Metadata de imagem persistida em Neon/Drizzle."
-  ,
+  imageMetadataPersisted: "Metadata de imagem persistida em Neon/Drizzle.",
   cartFallbackNotPersisted:
     "Carrinho em modo seguro de demonstração; revise tudo antes de finalizar um pedido real.",
-  cartUnavailable:
-    "Carrinho temporariamente indisponível neste ambiente.",
-  cartProductUnavailable: "Produto indisponivel para compra.",
-  cartInsufficientStock: "Quantidade solicitada acima do estoque disponivel.",
+  cartUnavailable: "Carrinho temporariamente indisponível neste ambiente.",
+  cartProductUnavailable: "Produto indisponível para compra.",
+  cartInsufficientStock: "Quantidade solicitada acima do estoque disponível.",
   cartForbidden: "Acesso negado ao carrinho solicitado.",
   cartUpdated: "Carrinho atualizado.",
-  checkoutUnauthenticated: "Faca login ou crie sua conta para iniciar o checkout.",
+  checkoutUnauthenticated:
+    "Faça login ou crie sua conta para iniciar o checkout.",
   checkoutUnavailable:
     "Checkout indisponível neste ambiente. Nenhum pedido real foi criado.",
-  checkoutFallback:
-    "Pedido pendente criado em modo demonstrativo seguro.",
-  checkoutValidationError: "Nao foi possivel criar o pedido pendente com os dados informados.",
-  orderForbidden: "Pedido indisponivel para este usuario.",
-  orderReadUnavailable: "Leitura de pedidos temporariamente indisponível neste ambiente."
+  checkoutFallback: "Pedido pendente criado em modo demonstrativo seguro.",
+  checkoutValidationError:
+    "Não foi possível criar o pedido pendente com os dados informados.",
+  orderForbidden: "Pedido indisponível para este usuário.",
+  orderReadUnavailable:
+    "Leitura de pedidos temporariamente indisponível neste ambiente."
 } as const;
 
 export type RuntimeMode = {
@@ -52,9 +51,12 @@ export type RuntimeMode = {
 
 export function getRuntimeMode(): RuntimeMode {
   const appEnvironment = resolveAppEnvironment();
-  const isAuthReady = sensitiveRuntimeEnv.hasDatabaseUrl && sensitiveRuntimeEnv.hasBetterAuthSecret;
+  const isAuthReady =
+    sensitiveRuntimeEnv.hasDatabaseUrl &&
+    sensitiveRuntimeEnv.hasBetterAuthSecret;
   const canMutateRealData =
-    isAuthReady && (appEnvironment === "development" || appEnvironment === "test");
+    isAuthReady &&
+    (appEnvironment === "development" || appEnvironment === "test");
 
   return {
     hasDatabase: sensitiveRuntimeEnv.hasDatabaseUrl,
@@ -64,8 +66,12 @@ export function getRuntimeMode(): RuntimeMode {
     appEnvironment,
     canMutateRealData,
     isFallbackMode: !sensitiveRuntimeEnv.hasDatabaseUrl,
-    databaseNotice: sensitiveRuntimeEnv.hasDatabaseUrl ? null : runtimeMessages.databaseMissing,
-    adminAuthNotice: isAuthReady ? runtimeMessages.adminWithoutAuth : runtimeMessages.authNotReady
+    databaseNotice: sensitiveRuntimeEnv.hasDatabaseUrl
+      ? null
+      : runtimeMessages.databaseMissing,
+    adminAuthNotice: isAuthReady
+      ? runtimeMessages.adminWithoutAuth
+      : runtimeMessages.authNotReady
   };
 }
 
@@ -86,7 +92,10 @@ export function assertCanMutateRealData() {
 }
 
 function resolveAppEnvironment(): RuntimeMode["appEnvironment"] {
-  if (process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production") {
+  if (
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production"
+  ) {
     return "production";
   }
 

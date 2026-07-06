@@ -13,17 +13,19 @@ export function renderCustomerOrderPaidEmail(
     .join("\n");
   const shippingText = input.shipping
     ? `${input.shipping.label} - ${formatNotificationMoney(input.shipping.amountCents)}${
-        input.shipping.estimatedDays ? ` - ate ${input.shipping.estimatedDays} dias` : ""
+        input.shipping.estimatedDays
+          ? ` - até ${input.shipping.estimatedDays} dias`
+          : ""
       }`
     : "Frete não informado";
   const subject = `Pedido ${input.orderNumber} pago`;
   const text = [
-    `Seu pedido ${input.orderNumber} esta pago.`,
+    `Seu pedido ${input.orderNumber} está pago.`,
     `Total: ${formatNotificationMoney(input.totalCents)}`,
     itemsText,
     `Frete: ${shippingText}`,
     `Entrega: ${input.addressSummary}`,
-    "A Triade Essenza Parfum dara sequencia ao processamento do pedido."
+    "A Tríade Essenza Parfum dará sequência ao processamento do pedido."
   ].join("\n");
   const html = `<h1>Pedido ${escapeHtml(input.orderNumber)} pago</h1>
 <p>Total: ${escapeHtml(formatNotificationMoney(input.totalCents))}</p>
@@ -37,7 +39,7 @@ export function renderCustomerOrderPaidEmail(
     .join("")}</ul>
 <p>Frete: ${escapeHtml(shippingText)}</p>
 <p>Entrega: ${escapeHtml(input.addressSummary)}</p>
-<p>A Triade Essenza Parfum dara sequencia ao processamento do pedido.</p>`;
+<p>A Tríade Essenza Parfum dará sequência ao processamento do pedido.</p>`;
 
   assertSafeRenderedEmail(`${subject}\n${text}\n${html}`);
   return { subject, text, html };

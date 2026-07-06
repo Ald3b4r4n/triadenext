@@ -17,7 +17,9 @@ if (!databaseUrl) {
 }
 
 if (password && !isStrongEnoughPassword(password)) {
-  fail("Bootstrap admin bloqueado: DEV_ADMIN_PASSWORD nao atende a politica minima.");
+  fail(
+    "Bootstrap admin bloqueado: DEV_ADMIN_PASSWORD não atende à política mínima."
+  );
 }
 
 main().catch(() => {
@@ -25,15 +27,19 @@ main().catch(() => {
 });
 
 async function main() {
-  const [{ default: pg }, { drizzle }, { eq }, { createAuth }, { users }] = await Promise.all([
-    import("pg"),
-    import("drizzle-orm/node-postgres"),
-    import("drizzle-orm"),
-    import("../../src/features/auth/server/create-auth"),
-    import("../../src/db/schema")
-  ]);
+  const [{ default: pg }, { drizzle }, { eq }, { createAuth }, { users }] =
+    await Promise.all([
+      import("pg"),
+      import("drizzle-orm/node-postgres"),
+      import("drizzle-orm"),
+      import("../../src/features/auth/server/create-auth"),
+      import("../../src/db/schema")
+    ]);
 
-  const pool = new pg.Pool({ connectionString: databaseUrl, allowExitOnIdle: true });
+  const pool = new pg.Pool({
+    connectionString: databaseUrl,
+    allowExitOnIdle: true
+  });
   const db = drizzle(pool);
   const auth = createAuth({ useNextCookies: false });
   const summary = {
@@ -45,7 +51,11 @@ async function main() {
 
   try {
     for (const email of masterEmails) {
-      const [existingUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      const [existingUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
       let user = existingUser;
 
       if (!user) {
@@ -62,7 +72,11 @@ async function main() {
           }
         });
 
-        const [createdUser] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+        const [createdUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, email))
+          .limit(1);
         user = createdUser;
         summary.created += 1;
       }
@@ -98,10 +112,14 @@ async function main() {
   console.log(`Criados: ${summary.created}.`);
   console.log(`Promovidos para admin: ${summary.promoted}.`);
   console.log(`Ja estavam admin: ${summary.unchanged}.`);
-  console.log(`Pendentes por senha local ausente: ${summary.skippedMissingPassword}.`);
+  console.log(
+    `Pendentes por senha local ausente: ${summary.skippedMissingPassword}.`
+  );
 
   if (summary.skippedMissingPassword > 0) {
-    fail("Bootstrap admin pendente: defina DEV_ADMIN_PASSWORD localmente ou cadastre o usuario e rode novamente.");
+    fail(
+      "Bootstrap admin pendente: defina DEV_ADMIN_PASSWORD localmente ou cadastre o usuário e rode novamente."
+    );
   }
 }
 
@@ -151,23 +169,25 @@ function parseList(value: string | undefined) {
 
 function assertNonProductionEnvironment() {
   const resolved =
-    process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production"
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production"
       ? "production"
-      : process.env.VERCEL_ENV === "preview" || process.env.ADMIN_BOOTSTRAP_TARGET === "staging"
+      : process.env.VERCEL_ENV === "preview" ||
+          process.env.ADMIN_BOOTSTRAP_TARGET === "staging"
         ? "staging"
         : process.env.NODE_ENV === "test"
           ? "test"
           : "development";
 
   if (resolved === "production") {
-    fail("Bootstrap admin bloqueado em producao.");
+    fail("Bootstrap admin bloqueado em produção.");
   }
 
   if (
     looksLikeProductionUrl(process.env.DATABASE_URL) ||
     looksLikeProductionUrl(process.env.STAGING_DATABASE_URL)
   ) {
-    fail("Bootstrap admin bloqueado: URL de banco parece producao.");
+    fail("Bootstrap admin bloqueado: URL de banco parece produção.");
   }
 
   return resolved;
@@ -191,7 +211,7 @@ function isStrongEnoughPassword(value: string) {
 
 function stripQuotes(value: string) {
   if (
-    (value.startsWith("\"") && value.endsWith("\"")) ||
+    (value.startsWith('"') && value.endsWith('"')) ||
     (value.startsWith("'") && value.endsWith("'"))
   ) {
     return value.slice(1, -1);

@@ -1,6 +1,14 @@
 import { createCheck } from "./result";
-import { createRemoteSmokeContext, inspectHtml, type StagingSmokeExecutionOptions } from "./storefront-smoke";
-import type { StagingSmokeCheck, StagingSmokeIssue, StagingSmokePreflight } from "./types";
+import {
+  createRemoteSmokeContext,
+  inspectHtml,
+  type StagingSmokeExecutionOptions
+} from "./storefront-smoke";
+import type {
+  StagingSmokeCheck,
+  StagingSmokeIssue,
+  StagingSmokePreflight
+} from "./types";
 
 export async function runAdminSmoke(
   preflight: StagingSmokePreflight,
@@ -25,7 +33,13 @@ export async function runAdminSmoke(
 
   const admin = await context.fetcher(new URL("/admin", context.baseUrl));
   const issues = inspectHtml(admin, {
-    forbidden: ["DATABASE_URL", "STRIPE_SECRET", "BLOB_READ_WRITE_TOKEN", "secret", "token"],
+    forbidden: [
+      "DATABASE_URL",
+      "STRIPE_SECRET",
+      "BLOB_READ_WRITE_TOKEN",
+      "secret",
+      "token"
+    ],
     category: "admin"
   });
 
@@ -39,7 +53,7 @@ export async function runAdminSmoke(
         status: issues.length > 0 ? "failed" : "passed",
         summary:
           issues.length > 0
-            ? "Admin staging expôs conteudo sensivel ou falhou."
+            ? "Admin staging expôs conteúdo sensível ou falhou."
             : "Admin staging respondeu sem exposicao de secrets; auth/redirect protegido e aceitavel.",
         issues
       })

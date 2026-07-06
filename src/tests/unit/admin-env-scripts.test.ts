@@ -21,11 +21,15 @@ describe("admin env ops scripts", () => {
       ].join("\n")
     );
 
-    const result = spawnSync(process.execPath, ["scripts/ops/check-admin-env.mjs"], {
-      cwd,
-      encoding: "utf8",
-      env: buildEnv(envFile)
-    });
+    const result = spawnSync(
+      process.execPath,
+      ["scripts/ops/check-admin-env.mjs"],
+      {
+        cwd,
+        encoding: "utf8",
+        env: buildEnv(envFile)
+      }
+    );
 
     rmSync(tempDir, { recursive: true, force: true });
 
@@ -49,22 +53,30 @@ describe("admin env ops scripts", () => {
       ].join("\n")
     );
 
-    const result = spawnSync(process.execPath, ["scripts/ops/check-admin-env.mjs"], {
-      cwd,
-      encoding: "utf8",
-      env: {
-        ...buildEnv(envFile),
-        NODE_ENV: "production"
+    const result = spawnSync(
+      process.execPath,
+      ["scripts/ops/check-admin-env.mjs"],
+      {
+        cwd,
+        encoding: "utf8",
+        env: {
+          ...buildEnv(envFile),
+          NODE_ENV: "production"
+        }
       }
-    });
+    );
 
     rmSync(tempDir, { recursive: true, force: true });
 
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain("Operacao admin bloqueada em producao.");
-    expect(`${result.stdout}${result.stderr}`).not.toContain("master@example.com");
+    expect(result.stderr).toContain("Operação admin bloqueada em produção.");
+    expect(`${result.stdout}${result.stderr}`).not.toContain(
+      "master@example.com"
+    );
     expect(`${result.stdout}${result.stderr}`).not.toContain("super-secret");
-    expect(`${result.stdout}${result.stderr}`).not.toContain("local-secret-value");
+    expect(`${result.stdout}${result.stderr}`).not.toContain(
+      "local-secret-value"
+    );
   });
 });
 

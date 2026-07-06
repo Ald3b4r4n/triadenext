@@ -1,6 +1,14 @@
 import { createCheck } from "./result";
-import { createRemoteSmokeContext, inspectHtml, type StagingSmokeExecutionOptions } from "./storefront-smoke";
-import type { StagingSmokeCheck, StagingSmokeIssue, StagingSmokePreflight } from "./types";
+import {
+  createRemoteSmokeContext,
+  inspectHtml,
+  type StagingSmokeExecutionOptions
+} from "./storefront-smoke";
+import type {
+  StagingSmokeCheck,
+  StagingSmokeIssue,
+  StagingSmokePreflight
+} from "./types";
 
 export async function runAdminOrdersSmoke(
   preflight: StagingSmokePreflight,
@@ -23,7 +31,9 @@ export async function runAdminOrdersSmoke(
     };
   }
 
-  const orders = await context.fetcher(new URL("/admin/pedidos", context.baseUrl));
+  const orders = await context.fetcher(
+    new URL("/admin/pedidos", context.baseUrl)
+  );
   const issues = inspectHtml(orders, {
     forbidden: ["DATABASE_URL", "STRIPE_SECRET", "BLOB_READ_WRITE_TOKEN"],
     category: "orders"
@@ -37,7 +47,10 @@ export async function runAdminOrdersSmoke(
         label: "Pedidos admin",
         category: "orders",
         status: issues.length > 0 ? "failed" : "passed",
-        summary: issues.length > 0 ? "Pedidos admin falhou ou expos conteudo sensivel." : "Pedidos admin respondeu sem secrets.",
+        summary:
+          issues.length > 0
+            ? "Pedidos admin falhou ou expôs conteúdo sensível."
+            : "Pedidos admin respondeu sem secrets.",
         issues
       })
     ]

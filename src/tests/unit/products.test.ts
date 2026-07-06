@@ -13,7 +13,9 @@ const now = new Date("2026-06-08T12:00:00.000Z");
 
 describe("products domain", () => {
   it("treats published products with past publishedAt and stock as public", () => {
-    const product = devProducts.find((item) => item.id === "prod-example-published");
+    const product = devProducts.find(
+      (item) => item.id === "prod-example-published"
+    );
 
     expect(product).toBeDefined();
     expect(isProductPublic(product!, now)).toBe(true);
@@ -21,14 +23,18 @@ describe("products domain", () => {
   });
 
   it("does not make out-of-stock products available", () => {
-    const product = devProducts.find((item) => item.id === "prod-example-out-of-stock");
+    const product = devProducts.find(
+      (item) => item.id === "prod-example-out-of-stock"
+    );
 
     expect(product).toBeDefined();
     expect(isProductAvailableForPurchase(product!, now)).toBe(false);
   });
 
   it("does not expose future published products", () => {
-    const product = devProducts.find((item) => item.id === "prod-example-future");
+    const product = devProducts.find(
+      (item) => item.id === "prod-example-future"
+    );
 
     expect(product).toBeDefined();
     expect(isProductPublic(product!, now)).toBe(false);
@@ -45,7 +51,9 @@ describe("products domain", () => {
   });
 
   it("does not expose inactive products while validation is pending", () => {
-    const product = devProducts.find((item) => item.id === "prod-example-inactive");
+    const product = devProducts.find(
+      (item) => item.id === "prod-example-inactive"
+    );
 
     expect(product).toBeDefined();
     expect(isProductPublic(product!, now)).toBe(false);
@@ -98,7 +106,7 @@ describe("products domain", () => {
 
   it("rejects invalid published admin data", () => {
     const parsed = productFormSchema.safeParse({
-      name: "Produto publicado invalido",
+      name: "Produto publicado inválido",
       slug: "produto-publicado-invalido",
       shortDescription: "",
       description: "",

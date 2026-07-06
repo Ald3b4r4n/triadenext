@@ -2,11 +2,22 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { issuesToStagingDivergences } from "./divergences";
 import { ensureStagingReportDir, sanitizeReportObject } from "./report-output";
-import type { HumanApprovalSummary, PostImportReport, PreImportReport } from "./report-types";
-import type { StagingImportExecutionResult, StagingPreflightResult } from "./types";
+import type {
+  HumanApprovalSummary,
+  PostImportReport,
+  PreImportReport
+} from "./report-types";
+import type {
+  StagingImportExecutionResult,
+  StagingPreflightResult
+} from "./types";
 
-export function createPreImportReport(preflight: StagingPreflightResult): PreImportReport {
-  const blockers = issuesToStagingDivergences(preflight.issues.filter((issue) => issue.blocksImport));
+export function createPreImportReport(
+  preflight: StagingPreflightResult
+): PreImportReport {
+  const blockers = issuesToStagingDivergences(
+    preflight.issues.filter((issue) => issue.blocksImport)
+  );
 
   return {
     schemaVersion: 1,
@@ -33,7 +44,9 @@ export function createPreImportReport(preflight: StagingPreflightResult): PreImp
       mode: preflight.mode,
       backupConfirmed: preflight.backup.confirmed,
       resetRequested: preflight.mode === "reset-and-upsert",
-      humanApprovalRef: preflight.approval.reference ? "sanitized-reference" : null
+      humanApprovalRef: preflight.approval.reference
+        ? "sanitized-reference"
+        : null
     },
     result: {
       status: preflight.status,
@@ -42,8 +55,12 @@ export function createPreImportReport(preflight: StagingPreflightResult): PreImp
   };
 }
 
-export function createPostImportReport(execution: StagingImportExecutionResult): PostImportReport {
-  const blockers = execution.divergences.filter((divergence) => divergence.blocksNextPhase).length;
+export function createPostImportReport(
+  execution: StagingImportExecutionResult
+): PostImportReport {
+  const blockers = execution.divergences.filter(
+    (divergence) => divergence.blocksNextPhase
+  ).length;
   return {
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
@@ -55,7 +72,10 @@ export function createPostImportReport(execution: StagingImportExecutionResult):
     summary: {
       status: execution.status,
       mode: execution.mode,
-      entitiesWritten: execution.counts.reduce((sum, count) => sum + count.inserted + count.updated, 0),
+      entitiesWritten: execution.counts.reduce(
+        (sum, count) => sum + count.inserted + count.updated,
+        0
+      ),
       blockers,
       warnings: execution.divergences.length - blockers
     },
@@ -65,8 +85,12 @@ export function createPostImportReport(execution: StagingImportExecutionResult):
   };
 }
 
-export function createHumanApprovalSummary(execution: StagingImportExecutionResult): HumanApprovalSummary {
-  const blockers = execution.divergences.filter((divergence) => divergence.blocksNextPhase).length;
+export function createHumanApprovalSummary(
+  execution: StagingImportExecutionResult
+): HumanApprovalSummary {
+  const blockers = execution.divergences.filter(
+    (divergence) => divergence.blocksNextPhase
+  ).length;
   const status =
     execution.status === "imported" && blockers === 0
       ? "pending-human"
@@ -91,26 +115,53 @@ export function createHumanApprovalSummary(execution: StagingImportExecutionResu
   };
 }
 
-export function writePreImportReport(preflight: StagingPreflightResult, options: { cwd?: string; outputDir?: string } = {}) {
+export function writePreImportReport(
+  preflight: StagingPreflightResult,
+  options: { cwd?: string; outputDir?: string } = {}
+) {
   const report = createPreImportReport(preflight);
-  const dir = ensureStagingReportDir(options.cwd ?? process.cwd(), report.result.status, options.outputDir);
+  const dir = ensureStagingReportDir(
+    options.cwd ?? process.cwd(),
+    report.result.status,
+    options.outputDir
+  );
   const jsonPath = join(dir, "pre-import-report.json");
   const markdownPath = join(dir, "pre-import-report.md");
 
-  writeFileSync(jsonPath, `${JSON.stringify(sanitizeReportObject(report), null, 2)}\n`, "utf8");
+  writeFileSync(
+    jsonPath,
+    `${JSON.stringify(sanitizeReportObject(report), null, 2)}\n`,
+    "utf8"
+  );
   writeFileSync(markdownPath, renderPreImportMarkdown(report), "utf8");
   return [jsonPath, markdownPath];
 }
 
-export function writePostImportReports(execution: StagingImportExecutionResult, options: { cwd?: string; outputDir?: string } = {}) {
+export function writePostImportReports(
+  execution: StagingImportExecutionResult,
+  options: { cwd?: string; outputDir?: string } = {}
+) {
   const post = createPostImportReport(execution);
   const approval = createHumanApprovalSummary(execution);
-  const dir = ensureStagingReportDir(options.cwd ?? process.cwd(), execution.status, options.outputDir);
+  const dir = ensureStagingReportDir(
+    options.cwd ?? process.cwd(),
+    execution.status,
+    options.outputDir
+  );
   const files = [
-    [join(dir, "post-import-report.json"), JSON.stringify(sanitizeReportObject(post), null, 2)],
+    [
+      join(dir, "post-import-report.json"),
+      JSON.stringify(sanitizeReportObject(post), null, 2)
+    ],
     [join(dir, "post-import-report.md"), renderPostImportMarkdown(post)],
-    [join(dir, "divergence-report.json"), JSON.stringify(sanitizeReportObject(post.divergences), null, 2)],
-    [join(dir, "human-approval-summary.md"), renderHumanApprovalMarkdown(approval)],
+    [
+      join(dir, "divergence-report.json"),
+      JSON.stringify(sanitizeReportObject(post.divergences), null, 2)
+    ],
+    [
+      join(dir, "human-approval-summary.md"),
+      renderHumanApprovalMarkdown(approval)
+    ],
     [join(dir, "rollback-report.md"), renderRollbackMarkdown(execution)]
   ] as const;
 
@@ -131,10 +182,10 @@ function renderPreImportMarkdown(report: PreImportReport) {
     `Input: ${report.source.inputDir ?? "n/a"}`,
     `Dry-run: ${report.source.dryRunStatus ?? "n/a"}`,
     `Modo: ${report.writePlan.mode}`,
-    `Backup confirmado: ${report.writePlan.backupConfirmed ? "sim" : "nao"}`,
-    `Producao bloqueada: ${report.target.productionBlocked ? "sim" : "nao"}`,
+    `Backup confirmado: ${report.writePlan.backupConfirmed ? "sim" : "não"}`,
+    `Produção bloqueada: ${report.target.productionBlocked ? "sim" : "não"}`,
     "",
-    "Valores sensiveis nao sao impressos neste relatorio."
+    "Valores sensíveis não são impressos neste relatório."
   ].join("\n");
 }
 
@@ -165,8 +216,8 @@ function renderHumanApprovalMarkdown(summary: HumanApprovalSummary) {
     `Target: ${summary.target ?? "n/a"}`,
     `Preflight: ${summary.preflightStatus}`,
     `Importacao: ${summary.importStatus}`,
-    `Backup confirmado: ${summary.backupConfirmed ? "sim" : "nao"}`,
-    `Rollback documentado: ${summary.rollbackDocumented ? "sim" : "nao"}`,
+    `Backup confirmado: ${summary.backupConfirmed ? "sim" : "não"}`,
+    `Rollback documentado: ${summary.rollbackDocumented ? "sim" : "não"}`,
     `Bloqueadores: ${summary.divergences.blockers}`,
     `Avisos: ${summary.divergences.warnings}`,
     "",
@@ -183,7 +234,7 @@ function renderRollbackMarkdown(execution: StagingImportExecutionResult) {
     "",
     `Status da importacao: ${execution.status}`,
     `Target: ${execution.preflight.environment?.target ?? "n/a"}`,
-    "Rollback deve usar snapshot/backup declarado antes da importacao.",
-    "Nenhuma acao de producao, deploy, migration ou Laravel legado faz parte deste relatorio."
+    "Rollback deve usar snapshot/backup declarado antes da importação.",
+    "Nenhuma ação de produção, deploy, migration ou Laravel legado faz parte deste relatório."
   ].join("\n");
 }

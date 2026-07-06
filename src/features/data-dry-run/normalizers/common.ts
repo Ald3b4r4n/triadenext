@@ -12,7 +12,12 @@ export function optionalText(record: ParsedRecord, field: string) {
   return value.length > 0 ? value : null;
 }
 
-export function requiredText(record: ParsedRecord, field: string, entity: DryRunEntity, label: string) {
+export function requiredText(
+  record: ParsedRecord,
+  field: string,
+  entity: DryRunEntity,
+  label: string
+) {
   const value = readText(record, field);
   if (value.length > 0) {
     return { value, issue: null };
@@ -33,7 +38,11 @@ export function requiredText(record: ParsedRecord, field: string, entity: DryRun
   };
 }
 
-export function parseBooleanField(record: ParsedRecord, field: string, defaultValue: boolean) {
+export function parseBooleanField(
+  record: ParsedRecord,
+  field: string,
+  defaultValue: boolean
+) {
   const value = readText(record, field).toLowerCase();
 
   if (!value) {
@@ -81,7 +90,10 @@ export function parseIntegerField(
   }
 
   const value = Number(raw);
-  if (!Number.isInteger(value) || (options.min !== undefined && value < options.min)) {
+  if (
+    !Number.isInteger(value) ||
+    (options.min !== undefined && value < options.min)
+  ) {
     return {
       value: options.defaultValue ?? 0,
       issue: createIssue({
@@ -100,11 +112,19 @@ export function parseIntegerField(
   return { value, issue: null };
 }
 
-export function parseCentsField(record: ParsedRecord, entity: DryRunEntity, centsField: string, decimalField?: string) {
+export function parseCentsField(
+  record: ParsedRecord,
+  entity: DryRunEntity,
+  centsField: string,
+  decimalField?: string
+) {
   const centsRaw = readText(record, centsField);
 
   if (centsRaw) {
-    return parseIntegerField(record, centsField, entity, "Valor em centavos", { required: true, min: 0 });
+    return parseIntegerField(record, centsField, entity, "Valor em centavos", {
+      required: true,
+      min: 0
+    });
   }
 
   if (!decimalField) {
@@ -134,7 +154,7 @@ export function parseCentsField(record: ParsedRecord, entity: DryRunEntity, cent
         entity,
         severity: "HIGH",
         goLiveImpact: "bloqueador",
-        message: "Valor monetario nao pode ser convertido para centavos.",
+        message: "Valor monetário não pode ser convertido para centavos.",
         field: decimalField,
         row: record.lineNumber,
         recommendedAction: "corrigir-origem"
@@ -145,7 +165,11 @@ export function parseCentsField(record: ParsedRecord, entity: DryRunEntity, cent
   return { value: cents, issue: null };
 }
 
-export function parseIsoDate(record: ParsedRecord, field: string, entity: DryRunEntity) {
+export function parseIsoDate(
+  record: ParsedRecord,
+  field: string,
+  entity: DryRunEntity
+) {
   const value = optionalText(record, field);
   if (!value) {
     return { value: null, issue: null };
@@ -177,7 +201,11 @@ export function collectIssue(issues: DryRunIssue[], issue: DryRunIssue | null) {
   }
 }
 
-export function duplicateIssue(entity: DryRunEntity, key: string, entityKey: string) {
+export function duplicateIssue(
+  entity: DryRunEntity,
+  key: string,
+  entityKey: string
+) {
   return createIssue({
     code: "DUPLICATE_KEY",
     entity,

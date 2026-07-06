@@ -8,31 +8,43 @@ import { createCheck } from "./result";
 import { resolveStagingSmokeTarget } from "./smoke-target";
 import { checkStripeTestReadiness } from "./stripe-readiness";
 import { classifyOverallStatus } from "./status-policy";
-import type { StagingSmokeConfig, StagingSmokeEnv, StagingSmokePreflight } from "./types";
+import type {
+  StagingSmokeConfig,
+  StagingSmokeEnv,
+  StagingSmokePreflight
+} from "./types";
 
-export function runStagingSmokePreflight(options: {
-  cwd?: string;
-  env?: StagingSmokeEnv;
-  target?: string;
-  url?: string;
-  inputDir?: string;
-  outputDir?: string;
-  allowNetwork?: boolean;
-  humanApprovalRef?: string;
-  migrationApprovalRef?: string;
-  snapshotRef?: string;
-} = {}): StagingSmokePreflight {
+export function runStagingSmokePreflight(
+  options: {
+    cwd?: string;
+    env?: StagingSmokeEnv;
+    target?: string;
+    url?: string;
+    inputDir?: string;
+    outputDir?: string;
+    allowNetwork?: boolean;
+    humanApprovalRef?: string;
+    migrationApprovalRef?: string;
+    snapshotRef?: string;
+  } = {}
+): StagingSmokePreflight {
   const env = options.env ?? process.env;
   const config = resolveStagingSmokeConfig(options);
   const target = resolveStagingSmokeTarget(config);
   const envChecks = inspectSafeStagingEnv(env);
-  const database = checkStagingDatabaseReadiness({ env, humanApprovalRef: config.humanApprovalRef });
+  const database = checkStagingDatabaseReadiness({
+    env,
+    humanApprovalRef: config.humanApprovalRef
+  });
   const migration = checkStagingMigrationReadiness({
     migrationApprovalRef: config.migrationApprovalRef,
     snapshotRef: config.snapshotRef
   });
   const stripe = checkStripeTestReadiness(env);
-  const approvedInput = inspectApprovedStagingSmokeInput({ cwd: config.cwd, inputDir: config.approvedInputDir });
+  const approvedInput = inspectApprovedStagingSmokeInput({
+    cwd: config.cwd,
+    inputDir: config.approvedInputDir
+  });
   const productionGuard = detectProductionSignals({
     config,
     env,
@@ -46,12 +58,12 @@ export function runStagingSmokePreflight(options: {
   });
   const productionCheck = createCheck({
     id: "production-guard",
-    label: "Bloqueio de producao",
+    label: "Bloqueio de produção",
     category: "security",
     status: productionGuard.allowed ? "passed" : "blocked",
     summary: productionGuard.allowed
-      ? "Nenhum sinal de producao foi aceito para o smoke staging."
-      : "Sinal de producao ou secret bloqueou o smoke antes de qualquer acao externa.",
+      ? "Nenhum sinal de produção foi aceito para o smoke staging."
+      : "Sinal de produção ou secret bloqueou o smoke antes de qualquer ação externa.",
     issues: productionGuard.issues
   });
 
@@ -78,7 +90,10 @@ export function runStagingSmokePreflight(options: {
     schemaVersion: 1,
     generatedAt: new Date().toISOString(),
     feature: "025-fase-17-staging-smoke",
-    status: classifyOverallStatus(checks.map((check) => check.status), issues),
+    status: classifyOverallStatus(
+      checks.map((check) => check.status),
+      issues
+    ),
     target: target.target,
     config: serializeConfig(config),
     checks,
@@ -96,7 +111,9 @@ export function runStagingSmokePreflight(options: {
   };
 }
 
-function serializeConfig(config: StagingSmokeConfig): StagingSmokePreflight["config"] {
+function serializeConfig(
+  config: StagingSmokeConfig
+): StagingSmokePreflight["config"] {
   return {
     cwd: config.cwd,
     target: config.target,

@@ -17,7 +17,11 @@ export const removeCartItemSchema = z.object({
 });
 
 export const applyCouponToCartSchema = z.object({
-  code: z.string().trim().min(1, "Código obrigatório.").max(64, "Código muito longo.")
+  code: z
+    .string()
+    .trim()
+    .min(1, "Código obrigatório.")
+    .max(64, "Código muito longo.")
 });
 
 const postalCodeSchema = z
@@ -32,6 +36,6 @@ export const quoteShippingSchema = z.object({
 
 export const selectShippingOptionSchema = z.object({
   quoteId: z.string().trim().min(1, "Cotação obrigatória."),
-  optionId: z.string().trim().min(1, "Opcao obrigatoria."),
+  optionId: z.string().trim().min(1, "Opção obrigatória."),
   postalCode: postalCodeSchema
 });

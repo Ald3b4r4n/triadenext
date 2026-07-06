@@ -4,10 +4,15 @@ import type { StagingSmokeEnv, StagingSmokeIssue } from "./types";
 export function checkStripeTestReadiness(env: StagingSmokeEnv = process.env) {
   const issues: StagingSmokeIssue[] = [];
   const secretPresent = Boolean(env.STRIPE_SECRET_KEY?.trim());
-  const publishablePresent = Boolean(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim());
+  const publishablePresent = Boolean(
+    env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim()
+  );
   const webhookPresent = Boolean(env.STRIPE_WEBHOOK_SECRET?.trim());
 
-  if (env.STRIPE_SECRET_KEY?.startsWith("sk_live") || env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith("pk_live")) {
+  if (
+    env.STRIPE_SECRET_KEY?.startsWith("sk_live") ||
+    env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.startsWith("pk_live")
+  ) {
     issues.push({
       code: "STRIPE_LIVE_BLOCKED",
       severity: "CRITICAL",
@@ -23,7 +28,8 @@ export function checkStripeTestReadiness(env: StagingSmokeEnv = process.env) {
       pendingConfigIssue({
         code: "STRIPE_TEST_KEYS_PENDING",
         category: "stripe",
-        message: "Chaves Stripe test ausentes; pagamento teste staging fica pendente."
+        message:
+          "Chaves Stripe test ausentes; pagamento teste staging fica pendente."
       })
     );
   }
@@ -33,7 +39,8 @@ export function checkStripeTestReadiness(env: StagingSmokeEnv = process.env) {
       pendingConfigIssue({
         code: "STRIPE_TEST_WEBHOOK_PENDING",
         category: "webhook",
-        message: "Webhook Stripe test ausente; confirmacao real de pagamento fica pending-config."
+        message:
+          "Webhook Stripe test ausente; confirmação real de pagamento fica pending-config."
       })
     );
   }
@@ -48,7 +55,11 @@ export function checkStripeTestReadiness(env: StagingSmokeEnv = process.env) {
       id: "stripe-test",
       label: "Stripe test mode/webhook",
       category: "stripe",
-      status: blocked ? "blocked" : issues.length > 0 ? "pending-config" : "passed",
+      status: blocked
+        ? "blocked"
+        : issues.length > 0
+          ? "pending-config"
+          : "passed",
       summary:
         issues.length > 0
           ? "Stripe test/webhook pendente ou live mode bloqueado; nenhum pagamento real foi executado."

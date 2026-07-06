@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { normalizeProductSlug, parsePriceToCents, productCanBeMarkedPublic } from "./domain";
+import {
+  normalizeProductSlug,
+  parsePriceToCents,
+  productCanBeMarkedPublic
+} from "./domain";
 
 export const productStatusSchema = z.enum(["draft", "published", "inactive"]);
 
@@ -38,7 +42,10 @@ export const productSchema = z.object({
   description: z.string().nullable().optional(),
   brand: z.string().nullable().optional(),
   inspirationName: z.string().nullable().optional(),
-  gender: z.enum(["feminino", "masculino", "unissex", "nao_informado"]).nullable().optional(),
+  gender: z
+    .enum(["feminino", "masculino", "unissex", "nao_informado"])
+    .nullable()
+    .optional(),
   concentration: z.string().nullable().optional(),
   volumeMl: z.number().int().positive().nullable().optional(),
   sku: z.string().min(1),
@@ -94,12 +101,15 @@ export const productFormSchema = z
     description: optionalTextSchema,
     brand: optionalTextSchema,
     inspirationName: optionalTextSchema,
-    gender: z.enum(["feminino", "masculino", "unissex", "nao_informado"]).nullable().optional(),
+    gender: z
+      .enum(["feminino", "masculino", "unissex", "nao_informado"])
+      .nullable()
+      .optional(),
     concentration: optionalTextSchema,
     volumeMl: nullableIntegerFromFormSchema,
     sku: z.string().trim().min(1, "Informe o SKU."),
     price: priceFromFormSchema.refine((value) => value !== null && value > 0, {
-      message: "Informe um preco maior que zero."
+      message: "Informe um preço maior que zero."
     }),
     compareAtPrice: priceFromFormSchema,
     costPrice: priceFromFormSchema,
@@ -147,7 +157,7 @@ export const productFormSchema = z
       context.addIssue({
         code: z.ZodIssueCode.custom,
         message:
-          "Produto publicado exige nome, slug, SKU, preco, estoque positivo e data de publicacao valida.",
+          "Produto publicado exige nome, slug, SKU, preço, estoque positivo e data de publicação válida.",
         path: ["status"]
       });
     }

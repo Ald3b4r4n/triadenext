@@ -1,5 +1,9 @@
 import { createCheck, pendingConfigIssue } from "./result";
-import type { StagingSmokeCheck, StagingSmokeIssue, StagingSmokePreflight } from "./types";
+import type {
+  StagingSmokeCheck,
+  StagingSmokeIssue,
+  StagingSmokePreflight
+} from "./types";
 
 export interface RemotePageResult {
   ok: boolean;
@@ -37,7 +41,11 @@ export async function runStorefrontSmoke(
   const result = await context.fetcher(new URL("/", context.baseUrl));
   const issues = inspectHtml(result, {
     required: ["Triade Essenza Parfum"],
-    forbidden: ["Reconstrucao em andamento", "Placeholder funcional", "Storefront"]
+    forbidden: [
+      "Reconstrucao em andamento",
+      "Placeholder funcional",
+      "Storefront"
+    ]
   });
 
   return {
@@ -48,17 +56,28 @@ export async function runStorefrontSmoke(
         label: "Storefront home",
         category: "storefront",
         status: issues.length > 0 ? "failed" : "passed",
-        summary: issues.length > 0 ? "Home staging falhou nos checks de conteudo." : "Home staging respondeu sem placeholders proibidos.",
+        summary:
+          issues.length > 0
+            ? "Home staging falhou nos checks de conteúdo."
+            : "Home staging respondeu sem placeholders proibidos.",
         issues
       })
     ]
   };
 }
 
-export function createRemoteSmokeContext(preflight: StagingSmokePreflight, fetcher: StagingSmokeFetcher | undefined) {
+export function createRemoteSmokeContext(
+  preflight: StagingSmokePreflight,
+  fetcher: StagingSmokeFetcher | undefined
+) {
   if (preflight.status === "blocked") {
     const issues = preflight.issues.filter((issue) => issue.blocksGoLive);
-    return { ready: false as const, issues, summary: "Smoke remoto bloqueado por guardrail antes de qualquer requisicao." };
+    return {
+      ready: false as const,
+      issues,
+      summary:
+        "Smoke remoto bloqueado por guardrail antes de qualquer requisicao."
+    };
   }
 
   if (!preflight.target) {
@@ -69,7 +88,11 @@ export function createRemoteSmokeContext(preflight: StagingSmokePreflight, fetch
         message: "Smoke remoto exige STAGING_SMOKE_URL aprovada."
       })
     ];
-    return { ready: false as const, issues, summary: "URL staging ausente; smoke remoto pendente." };
+    return {
+      ready: false as const,
+      issues,
+      summary: "URL staging ausente; smoke remoto pendente."
+    };
   }
 
   if (!preflight.config.allowNetwork || !preflight.config.humanApprovalRef) {
@@ -77,10 +100,14 @@ export function createRemoteSmokeContext(preflight: StagingSmokePreflight, fetch
       pendingConfigIssue({
         code: "REMOTE_SMOKE_APPROVAL_PENDING",
         category: "environment",
-        message: "Smoke remoto exige --allow-network e aprovacao humana."
+        message: "Smoke remoto exige --allow-network e aprovação humana."
       })
     ];
-    return { ready: false as const, issues, summary: "Smoke remoto pendente de flag explicita e aprovacao humana." };
+    return {
+      ready: false as const,
+      issues,
+      summary: "Smoke remoto pendente de flag explícita e aprovação humana."
+    };
   }
 
   return {
@@ -111,7 +138,11 @@ export async function fetchRemoteText(url: URL): Promise<RemotePageResult> {
 
 export function inspectHtml(
   result: RemotePageResult,
-  options: { required?: string[]; forbidden?: string[]; category?: StagingSmokeIssue["category"] } = {}
+  options: {
+    required?: string[];
+    forbidden?: string[];
+    category?: StagingSmokeIssue["category"];
+  } = {}
 ): StagingSmokeIssue[] {
   const issues: StagingSmokeIssue[] = [];
   const category = options.category ?? "storefront";
@@ -122,7 +153,7 @@ export function inspectHtml(
       severity: "HIGH",
       origin: "next",
       category,
-      message: `Pagina staging respondeu com HTTP ${result.status}.`,
+      message: `Página staging respondeu com HTTP ${result.status}.`,
       blocksGoLive: true
     });
   }
@@ -134,7 +165,7 @@ export function inspectHtml(
         severity: "MEDIUM",
         origin: "next",
         category,
-        message: "Texto esperado nao foi encontrado na pagina staging.",
+        message: "Texto esperado não foi encontrado na página staging.",
         blocksGoLive: true
       });
     }
@@ -147,7 +178,8 @@ export function inspectHtml(
         severity: "HIGH",
         origin: "next",
         category,
-        message: "Texto placeholder/tecnico proibido foi encontrado na pagina staging.",
+        message:
+          "Texto placeholder/técnico proibido foi encontrado na página staging.",
         blocksGoLive: true
       });
     }

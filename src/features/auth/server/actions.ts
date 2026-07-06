@@ -6,7 +6,10 @@ import { auth } from "./auth";
 import { loginSchema, signupSchema } from "./schemas";
 import { getCurrentSession, validateReturnTo } from "./session";
 import { getRuntimeMode } from "@/lib/runtime-mode";
-import { expireGuestCartToken, getGuestCartTokenForMerge } from "@/features/cart/server/cart-session";
+import {
+  expireGuestCartToken,
+  getGuestCartTokenForMerge
+} from "@/features/cart/server/cart-session";
 import { mergeGuestCartIntoUser } from "@/features/cart/server/cart-service";
 
 export type AuthActionState = {
@@ -30,7 +33,10 @@ export async function loginAction(
   }
 
   if (!getRuntimeMode().isAuthReady) {
-    return { status: "error", message: "Auth real indisponivel neste ambiente." };
+    return {
+      status: "error",
+      message: "Auth real indisponível neste ambiente."
+    };
   }
 
   try {
@@ -50,7 +56,7 @@ export async function loginAction(
   } catch {
     return {
       status: "error",
-      message: "Credenciais invalidas ou auth indisponivel."
+      message: "Credenciais inválidas ou auth indisponível."
     };
   }
 
@@ -74,7 +80,10 @@ export async function signupAction(
   }
 
   if (!getRuntimeMode().isAuthReady) {
-    return { status: "error", message: "Auth real indisponivel neste ambiente." };
+    return {
+      status: "error",
+      message: "Auth real indisponível neste ambiente."
+    };
   }
 
   try {
@@ -89,7 +98,8 @@ export async function signupAction(
   } catch {
     return {
       status: "error",
-      message: "Não foi possível concluir o cadastro. Revise os dados e tente novamente."
+      message:
+        "Não foi possível concluir o cadastro. Revise os dados e tente novamente."
     };
   }
 
@@ -108,7 +118,9 @@ export async function logoutAction() {
   redirect("/login");
 }
 
-function toAuthErrorState(fieldErrors: Record<string, string[] | undefined>): AuthActionState {
+function toAuthErrorState(
+  fieldErrors: Record<string, string[] | undefined>
+): AuthActionState {
   return {
     status: "error",
     message: "Revise os campos destacados antes de continuar.",

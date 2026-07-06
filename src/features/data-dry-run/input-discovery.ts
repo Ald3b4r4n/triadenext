@@ -2,7 +2,14 @@ import { existsSync, mkdirSync, readdirSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { inputFileSpecs, parseInputFile } from "./input-contracts";
 import { createIssue, scanPathForUnsafeValue } from "./safety";
-import type { DryRunEntity, DryRunExpectedFile, DryRunInputStatus, ParsedInputDataset, ParsedRecord, SourceMetadata } from "./types";
+import type {
+  DryRunEntity,
+  DryRunExpectedFile,
+  DryRunInputStatus,
+  ParsedInputDataset,
+  ParsedRecord,
+  SourceMetadata
+} from "./types";
 
 export const DRY_RUN_INPUT_ROOT = "data/dry-run/input";
 export const DRY_RUN_EXAMPLES_DIR = "data/dry-run/input/examples";
@@ -29,10 +36,16 @@ export interface DryRunInputDiscovery {
 export function resolveSafeInputDir(options: DiscoverInputOptions = {}) {
   const cwd = options.cwd ?? process.cwd();
   const requested = options.inputDir ?? defaultInputDir(cwd);
-  const resolved = isAbsolute(requested) ? resolve(requested) : resolve(cwd, requested);
+  const resolved = isAbsolute(requested)
+    ? resolve(requested)
+    : resolve(cwd, requested);
   const allowedRoot = resolve(cwd, DRY_RUN_INPUT_ROOT);
 
-  assertInside(resolved, allowedRoot, "Pasta de entrada precisa ficar dentro de data/dry-run/input/.");
+  assertInside(
+    resolved,
+    allowedRoot,
+    "Pasta de entrada precisa ficar dentro de data/dry-run/input/."
+  );
   return resolved;
 }
 
@@ -40,15 +53,26 @@ export function resolveApprovedDryRunInputDir(cwd = process.cwd()) {
   return resolveSafeInputDir({ cwd, inputDir: APPROVED_DRY_RUN_INPUT_DIR });
 }
 
-export function resolveSafeOutputDir(cwd = process.cwd(), outputDir = DRY_RUN_OUTPUT_ROOT) {
-  const resolved = isAbsolute(outputDir) ? resolve(outputDir) : resolve(cwd, outputDir);
+export function resolveSafeOutputDir(
+  cwd = process.cwd(),
+  outputDir = DRY_RUN_OUTPUT_ROOT
+) {
+  const resolved = isAbsolute(outputDir)
+    ? resolve(outputDir)
+    : resolve(cwd, outputDir);
   const allowedRoot = resolve(cwd, DRY_RUN_OUTPUT_ROOT);
 
-  assertInside(resolved, allowedRoot, "Pasta de saida precisa ficar dentro de data/dry-run/output/.");
+  assertInside(
+    resolved,
+    allowedRoot,
+    "Pasta de saida precisa ficar dentro de data/dry-run/output/."
+  );
   return resolved;
 }
 
-export function loadDryRunInput(options: DiscoverInputOptions = {}): ParsedInputDataset {
+export function loadDryRunInput(
+  options: DiscoverInputOptions = {}
+): ParsedInputDataset {
   const discovery = inspectDryRunInput(options);
   const inputDir = discovery.inputDir;
   const records: Partial<Record<DryRunEntity, ParsedRecord[]>> = {};
@@ -60,7 +84,7 @@ export function loadDryRunInput(options: DiscoverInputOptions = {}): ParsedInput
         code: "INPUT_MISSING",
         severity: "HIGH",
         goLiveImpact: "bloqueador",
-        message: "Pasta de entrada do dry-run nao existe.",
+        message: "Pasta de entrada do dry-run não existe.",
         recommendedAction: "corrigir-origem"
       })
     );
@@ -68,7 +92,9 @@ export function loadDryRunInput(options: DiscoverInputOptions = {}): ParsedInput
     const files = new Set(readdirSync(inputDir));
 
     for (const spec of inputFileSpecs) {
-      const fileName = spec.candidates.find((candidate) => files.has(candidate));
+      const fileName = spec.candidates.find((candidate) =>
+        files.has(candidate)
+      );
 
       if (!fileName) {
         if (spec.required) {
@@ -89,24 +115,40 @@ export function loadDryRunInput(options: DiscoverInputOptions = {}): ParsedInput
 
       const parsed = parseInputFile(spec, join(inputDir, fileName));
       records[spec.entity] = parsed.records;
-      issues.push(...parsed.issues.map((issue) => ({ ...issue, entity: issue.entity ?? spec.entity })));
+      issues.push(
+        ...parsed.issues.map((issue) => ({
+          ...issue,
+          entity: issue.entity ?? spec.entity
+        }))
+      );
     }
   }
 
   return { source: discovery.source, records, issues };
 }
 
-export function inspectDryRunInput(options: DiscoverInputOptions = {}): DryRunInputDiscovery {
+export function inspectDryRunInput(
+  options: DiscoverInputOptions = {}
+): DryRunInputDiscovery {
   const cwd = options.cwd ?? process.cwd();
   const inputDir = resolveSafeInputDir(options);
-  const pathLabel = relative(cwd, inputDir).replace(/\\/g, "/") || DRY_RUN_INPUT_ROOT;
+  const pathLabel =
+    relative(cwd, inputDir).replace(/\\/g, "/") || DRY_RUN_INPUT_ROOT;
   const exists = existsSync(inputDir);
   const files = exists ? new Set(readdirSync(inputDir)) : new Set<string>();
-  const isApproved = normalizePathLabel(pathLabel) === APPROVED_DRY_RUN_INPUT_DIR;
+  const isApproved =
+    normalizePathLabel(pathLabel) === APPROVED_DRY_RUN_INPUT_DIR;
   const expectedFiles = buildExpectedFiles(files, isApproved);
-  const hasAnyExpectedFile = expectedFiles.some((file) => file.status === "present");
-  const requiredMissing = expectedFiles.some((file) => file.required && file.status === "missing");
-  const status: DryRunInputStatus = isApproved && (!exists || !hasAnyExpectedFile || requiredMissing) ? "pending-input" : "ready";
+  const hasAnyExpectedFile = expectedFiles.some(
+    (file) => file.status === "present"
+  );
+  const requiredMissing = expectedFiles.some(
+    (file) => file.required && file.status === "missing"
+  );
+  const status: DryRunInputStatus =
+    isApproved && (!exists || !hasAnyExpectedFile || requiredMissing)
+      ? "pending-input"
+      : "ready";
   const source: SourceMetadata = {
     type: "local-files",
     pathLabel,
@@ -129,10 +171,16 @@ export function inspectDryRunInput(options: DiscoverInputOptions = {}): DryRunIn
   };
 }
 
-function buildExpectedFiles(files: Set<string>, approvedOnly: boolean): DryRunExpectedFile[] {
+function buildExpectedFiles(
+  files: Set<string>,
+  approvedOnly: boolean
+): DryRunExpectedFile[] {
   return inputFileSpecs.map((spec) => {
-    const candidates = approvedOnly ? spec.candidates.filter((candidate) => !candidate.includes(".example.")) : spec.candidates;
-    const matchedFile = candidates.find((candidate) => files.has(candidate)) ?? null;
+    const candidates = approvedOnly
+      ? spec.candidates.filter((candidate) => !candidate.includes(".example."))
+      : spec.candidates;
+    const matchedFile =
+      candidates.find((candidate) => files.has(candidate)) ?? null;
 
     return {
       entity: spec.entity,

@@ -6,11 +6,15 @@ export interface StagingSmokeTarget {
   stripeMode: "test";
 }
 
-export function resolveStagingSmokeTarget(input: { url?: string; env?: StagingEnv } = {}): StagingSmokeTarget {
+export function resolveStagingSmokeTarget(
+  input: { url?: string; env?: StagingEnv } = {}
+): StagingSmokeTarget {
   const rawUrl = input.url ?? input.env?.STAGING_IMPORT_SMOKE_URL;
 
   if (!rawUrl) {
-    throw new Error("STAGING_IMPORT_SMOKE_URL ausente; smoke staging fica pendente.");
+    throw new Error(
+      "STAGING_IMPORT_SMOKE_URL ausente; smoke staging fica pendente."
+    );
   }
 
   const url = new URL(rawUrl);
@@ -20,7 +24,7 @@ export function resolveStagingSmokeTarget(input: { url?: string; env?: StagingEn
   }
 
   if (url.username || url.password) {
-    throw new Error("URL de smoke staging nao pode conter credenciais.");
+    throw new Error("URL de smoke staging não pode conter credenciais.");
   }
 
   const guard = detectProductionSignals({
@@ -33,7 +37,7 @@ export function resolveStagingSmokeTarget(input: { url?: string; env?: StagingEn
   });
 
   if (!guard.allowed) {
-    throw new Error("Smoke staging bloqueado por sinal de producao ou secret.");
+    throw new Error("Smoke staging bloqueado por sinal de produção ou secret.");
   }
 
   if ((input.env?.STRIPE_MODE ?? "test") !== "test") {

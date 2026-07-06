@@ -1,6 +1,14 @@
 import { createCheck } from "./result";
-import { createRemoteSmokeContext, inspectHtml, type StagingSmokeExecutionOptions } from "./storefront-smoke";
-import type { StagingSmokeCheck, StagingSmokeIssue, StagingSmokePreflight } from "./types";
+import {
+  createRemoteSmokeContext,
+  inspectHtml,
+  type StagingSmokeExecutionOptions
+} from "./storefront-smoke";
+import type {
+  StagingSmokeCheck,
+  StagingSmokeIssue,
+  StagingSmokePreflight
+} from "./types";
 
 export async function runCartCheckoutSmoke(
   preflight: StagingSmokePreflight,
@@ -26,8 +34,16 @@ export async function runCartCheckoutSmoke(
   const cart = await context.fetcher(new URL("/carrinho", context.baseUrl));
   const checkout = await context.fetcher(new URL("/checkout", context.baseUrl));
   const issues = [
-    ...inspectHtml(cart, { required: ["Carrinho"], forbidden: ["DATABASE_URL", "STRIPE_SECRET"], category: "cart" }),
-    ...inspectHtml(checkout, { required: ["Revisao do pedido"], forbidden: ["DATABASE_URL", "STRIPE_SECRET"], category: "checkout" })
+    ...inspectHtml(cart, {
+      required: ["Carrinho"],
+      forbidden: ["DATABASE_URL", "STRIPE_SECRET"],
+      category: "cart"
+    }),
+    ...inspectHtml(checkout, {
+      required: ["Revisao do pedido"],
+      forbidden: ["DATABASE_URL", "STRIPE_SECRET"],
+      category: "checkout"
+    })
   ];
 
   return {
@@ -40,8 +56,8 @@ export async function runCartCheckoutSmoke(
         status: issues.length > 0 ? "failed" : "passed",
         summary:
           issues.length > 0
-            ? "Carrinho ou checkout staging falhou nos checks basicos."
-            : "Carrinho e checkout staging responderam sem texto sensivel.",
+            ? "Carrinho ou checkout staging falhou nos checks básicos."
+            : "Carrinho e checkout staging responderam sem texto sensível.",
         issues
       })
     ]

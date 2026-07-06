@@ -1,7 +1,15 @@
-import type { HumanApprovalDecision, StagingImportExecutionResult } from "./types";
+import type {
+  HumanApprovalDecision,
+  StagingImportExecutionResult
+} from "./types";
 
-export function resolveHumanApprovalDecision(execution: StagingImportExecutionResult): HumanApprovalDecision {
-  if (execution.status === "rollback-required" || execution.status === "rolled-back") {
+export function resolveHumanApprovalDecision(
+  execution: StagingImportExecutionResult
+): HumanApprovalDecision {
+  if (
+    execution.status === "rollback-required" ||
+    execution.status === "rolled-back"
+  ) {
     return "rollback";
   }
 
@@ -16,18 +24,20 @@ export function resolveHumanApprovalDecision(execution: StagingImportExecutionRe
   return "approved";
 }
 
-export function buildHumanApprovalChecklist(execution: StagingImportExecutionResult) {
+export function buildHumanApprovalChecklist(
+  execution: StagingImportExecutionResult
+) {
   return {
     environment: execution.preflight.environment?.target ?? "pending",
     importStatus: execution.status,
     decision: resolveHumanApprovalDecision(execution),
     requiredChecks: [
-      "ambiente nao produtivo confirmado",
+      "ambiente não produtivo confirmado",
       "backup/snapshot confirmado",
       "rollback documentado",
-      "relatorios antes/depois revisados",
+      "relatórios antes/depois revisados",
       "divergencias classificadas",
-      "smoke pos-importacao aprovado"
+      "smoke pós-importação aprovado"
     ]
   };
 }

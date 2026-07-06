@@ -1,6 +1,14 @@
 import { createCheck } from "./result";
-import { createRemoteSmokeContext, inspectHtml, type StagingSmokeExecutionOptions } from "./storefront-smoke";
-import type { StagingSmokeCheck, StagingSmokeIssue, StagingSmokePreflight } from "./types";
+import {
+  createRemoteSmokeContext,
+  inspectHtml,
+  type StagingSmokeExecutionOptions
+} from "./storefront-smoke";
+import type {
+  StagingSmokeCheck,
+  StagingSmokeIssue,
+  StagingSmokePreflight
+} from "./types";
 
 export async function runCatalogSmoke(
   preflight: StagingSmokePreflight,
@@ -13,7 +21,7 @@ export async function runCatalogSmoke(
       checks: [
         createCheck({
           id: "catalog-product",
-          label: "Catalogo e produto",
+          label: "Catálogo e produto",
           category: "catalog",
           status: "pending-config",
           summary: context.summary,
@@ -35,10 +43,13 @@ export async function runCatalogSmoke(
     checks: [
       createCheck({
         id: "catalog-product",
-        label: "Catalogo e produto",
+        label: "Catálogo e produto",
         category: "catalog",
         status: issues.length > 0 ? "failed" : "passed",
-        summary: issues.length > 0 ? "Catalogo staging falhou nos checks basicos." : "Catalogo staging respondeu com texto esperado.",
+        summary:
+          issues.length > 0
+            ? "Catálogo staging falhou nos checks básicos."
+            : "Catálogo staging respondeu com texto esperado.",
         issues
       })
     ]

@@ -7,15 +7,21 @@ const tsxCli = join(cwd, "node_modules", "tsx", "dist", "cli.mjs");
 const cliEntry = join(cwd, "src", "features", "staging-smoke", "cli.ts");
 
 if (!existsSync(tsxCli)) {
-  console.error("tsx local nao encontrado. Rode pnpm install antes do staging smoke.");
+  console.error(
+    "tsx local não encontrado. Rode pnpm install antes do staging smoke."
+  );
   process.exitCode = 1;
 } else {
-  const result = spawnSync(process.execPath, [tsxCli, cliEntry, ...process.argv.slice(2)], {
-    cwd,
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-    shell: false
-  });
+  const result = spawnSync(
+    process.execPath,
+    [tsxCli, cliEntry, ...process.argv.slice(2)],
+    {
+      cwd,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+      shell: false
+    }
+  );
 
   if (result.error) {
     console.error(result.error.message);

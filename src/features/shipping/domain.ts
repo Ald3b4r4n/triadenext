@@ -1,4 +1,9 @@
-import type { ShippingManualRule, ShippingOption, ShippingQuote, ShippingSelection } from "./types";
+import type {
+  ShippingManualRule,
+  ShippingOption,
+  ShippingQuote,
+  ShippingSelection
+} from "./types";
 
 const DEFAULT_EXPIRES_MINUTES = 30;
 
@@ -31,7 +36,10 @@ export function normalizeUf(input: string | null | undefined) {
   return uf.length === 2 ? uf : null;
 }
 
-export function isRuleApplicable(rule: ShippingManualRule, destination: { postalCode: string; state?: string | null }) {
+export function isRuleApplicable(
+  rule: ShippingManualRule,
+  destination: { postalCode: string; state?: string | null }
+) {
   if (!rule.isActive || rule.provider !== "manual") {
     return false;
   }
@@ -44,18 +52,30 @@ export function isRuleApplicable(rule: ShippingManualRule, destination: { postal
     return false;
   }
 
-  return destination.postalCode >= rule.postalCodeStart && destination.postalCode <= rule.postalCodeEnd;
+  return (
+    destination.postalCode >= rule.postalCodeStart &&
+    destination.postalCode <= rule.postalCodeEnd
+  );
 }
 
-export function sortApplicableRules(a: ShippingManualRule, b: ShippingManualRule) {
-  return b.priority - a.priority || a.priceCents - b.priceCents || a.name.localeCompare(b.name);
+export function sortApplicableRules(
+  a: ShippingManualRule,
+  b: ShippingManualRule
+) {
+  return (
+    b.priority - a.priority ||
+    a.priceCents - b.priceCents ||
+    a.name.localeCompare(b.name)
+  );
 }
 
 export function buildManualShippingOptions(
   rules: ShippingManualRule[],
   destination: { postalCode: string; state?: string | null }
 ) {
-  const applicable = rules.filter((rule) => isRuleApplicable(rule, destination)).sort(sortApplicableRules);
+  const applicable = rules
+    .filter((rule) => isRuleApplicable(rule, destination))
+    .sort(sortApplicableRules);
 
   return applicable.map<ShippingOption>((rule) => ({
     id: `shipping-option-${rule.id}`,
@@ -93,9 +113,12 @@ export function createShippingQuote(input: {
   };
 }
 
-export function selectShippingOption(quote: ShippingQuote, optionId: string): ShippingSelection {
+export function selectShippingOption(
+  quote: ShippingQuote,
+  optionId: string
+): ShippingSelection {
   if (!quote.options.some((option) => option.id === optionId)) {
-    throw new Error("Opcao de frete invalida.");
+    throw new Error("Opção de frete inválida.");
   }
 
   return {
@@ -106,11 +129,17 @@ export function selectShippingOption(quote: ShippingQuote, optionId: string): Sh
   };
 }
 
-export function isQuoteExpired(quote: Pick<ShippingQuote, "expiresAt">, now = new Date()) {
+export function isQuoteExpired(
+  quote: Pick<ShippingQuote, "expiresAt">,
+  now = new Date()
+) {
   return quote.expiresAt.getTime() <= now.getTime();
 }
 
-export function calculateShippingAmountCents(quote: ShippingQuote, selection: ShippingSelection | null) {
+export function calculateShippingAmountCents(
+  quote: ShippingQuote,
+  selection: ShippingSelection | null
+) {
   if (!selection) {
     return 0;
   }

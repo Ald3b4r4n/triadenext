@@ -30,7 +30,7 @@ const envSpecs = [
     name: "STRIPE_WEBHOOK_SECRET",
     aliases: [],
     category: "webhook" as const,
-    requiredFor: "confirmacao webhook teste"
+    requiredFor: "confirmação webhook teste"
   }
 ];
 
@@ -73,7 +73,7 @@ export function inspectSafeStagingEnv(env: StagingSmokeEnv = process.env) {
     issues,
     check: createCheck({
       id: "env-safe",
-      label: "Validacao segura de envs",
+      label: "Validação segura de envs",
       category: "environment",
       status: issues.length > 0 ? "pending-config" : "passed",
       summary:

@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 
-export function loadLocalEnv(envFile = process.env.ADMIN_ENV_FILE || ".env.local") {
+export function loadLocalEnv(
+  envFile = process.env.ADMIN_ENV_FILE || ".env.local"
+) {
   const absolutePath = path.resolve(process.cwd(), envFile);
 
   if (!fs.existsSync(absolutePath)) {
@@ -55,7 +57,10 @@ export function resolveAppEnvironment(env = process.env) {
     return "production";
   }
 
-  if (env.VERCEL_ENV === "preview" || env.ADMIN_BOOTSTRAP_TARGET === "staging") {
+  if (
+    env.VERCEL_ENV === "preview" ||
+    env.ADMIN_BOOTSTRAP_TARGET === "staging"
+  ) {
     return "staging";
   }
 
@@ -70,14 +75,17 @@ export function assertNonProductionEnvironment(env = process.env) {
   const environment = resolveAppEnvironment(env);
 
   if (environment === "production") {
-    throw new Error("Operacao admin bloqueada em producao.");
+    throw new Error("Operação admin bloqueada em produção.");
   }
 
   const databaseUrl = env.DATABASE_URL ?? "";
   const stagingDatabaseUrl = env.STAGING_DATABASE_URL ?? "";
 
-  if (looksLikeProductionUrl(databaseUrl) || looksLikeProductionUrl(stagingDatabaseUrl)) {
-    throw new Error("Operacao admin bloqueada: URL de banco parece producao.");
+  if (
+    looksLikeProductionUrl(databaseUrl) ||
+    looksLikeProductionUrl(stagingDatabaseUrl)
+  ) {
+    throw new Error("Operação admin bloqueada: URL de banco parece produção.");
   }
 
   return environment;
@@ -96,7 +104,8 @@ export function looksLikeProductionUrl(value) {
 
   try {
     const url = new URL(value);
-    const combined = `${url.hostname} ${url.pathname} ${url.search}`.toLowerCase();
+    const combined =
+      `${url.hostname} ${url.pathname} ${url.search}`.toLowerCase();
     return /(^|[-_.:/])prod(uction)?($|[-_.:/?&=])/.test(combined);
   } catch {
     return false;
@@ -122,7 +131,7 @@ export function fail(message) {
 
 function stripQuotes(value) {
   if (
-    (value.startsWith("\"") && value.endsWith("\"")) ||
+    (value.startsWith('"') && value.endsWith('"')) ||
     (value.startsWith("'") && value.endsWith("'"))
   ) {
     return value.slice(1, -1);

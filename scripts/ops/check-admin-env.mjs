@@ -1,6 +1,13 @@
 import { drizzle as drizzleNodePostgres } from "drizzle-orm/node-postgres";
 import { inArray } from "drizzle-orm";
-import { boolean, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid
+} from "drizzle-orm/pg-core";
 import pg from "pg";
 import {
   assertNonProductionEnvironment,
@@ -47,10 +54,14 @@ async function run() {
     return;
   }
 
-  console.log(`ADMIN_MASTER_EMAILS: ${masterEmails.length} email(s) configurado(s).`);
+  console.log(
+    `ADMIN_MASTER_EMAILS: ${masterEmails.length} email(s) configurado(s).`
+  );
 
   if (!hasValue("DATABASE_URL")) {
-    console.log("Status: pending-config. Configure DATABASE_URL local antes de validar usuarios.");
+    console.log(
+      "Status: pending-config. Configure DATABASE_URL local antes de validar usuários."
+    );
     return;
   }
 
@@ -68,13 +79,17 @@ async function run() {
   const managers = rows.filter((row) => row.role === "manager").length;
   const customers = rows.filter((row) => row.role === "customer").length;
 
-  console.log(`Usuarios master encontrados: ${rows.length}/${masterEmails.length}.`);
-  console.log(`Usuarios master como admin: ${admins}/${masterEmails.length}.`);
-  console.log(`Usuarios master como manager: ${managers}.`);
-  console.log(`Usuarios master como cliente: ${customers}.`);
+  console.log(
+    `Usuários master encontrados: ${rows.length}/${masterEmails.length}.`
+  );
+  console.log(`Usuários master como admin: ${admins}/${masterEmails.length}.`);
+  console.log(`Usuários master como manager: ${managers}.`);
+  console.log(`Usuários master como cliente: ${customers}.`);
 
   if (admins < masterEmails.length) {
-    console.log("Status: pending-admin-bootstrap. Rode pnpm ops:bootstrap-admin quando aprovado.");
+    console.log(
+      "Status: pending-admin-bootstrap. Rode pnpm ops:bootstrap-admin quando aprovado."
+    );
     return;
   }
 
@@ -83,7 +98,7 @@ async function run() {
 
 run().catch((error) => {
   const message = error instanceof Error ? error.message : "";
-  if (message.startsWith("Operacao admin bloqueada")) {
+  if (message.startsWith("Operação admin bloqueada")) {
     fail(message);
     return;
   }

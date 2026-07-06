@@ -1,34 +1,90 @@
 import { normalizePostalCode, normalizeUf } from "@/features/shipping/domain";
-import { collectIssue, duplicateIssue, parseBooleanField, parseIntegerField, requiredText } from "./common";
+import {
+  collectIssue,
+  duplicateIssue,
+  parseBooleanField,
+  parseIntegerField,
+  requiredText
+} from "./common";
 import { createIssue } from "../safety";
-import type { NormalizationResult, NormalizedShippingRule, ParsedRecord } from "../types";
+import type {
+  NormalizationResult,
+  NormalizedShippingRule,
+  ParsedRecord
+} from "../types";
 
-export function normalizeShippingRules(records: ParsedRecord[]): NormalizationResult<NormalizedShippingRule> {
+export function normalizeShippingRules(
+  records: ParsedRecord[]
+): NormalizationResult<NormalizedShippingRule> {
   const normalized: NormalizedShippingRule[] = [];
   const issues: NormalizationResult<NormalizedShippingRule>["issues"] = [];
   const seen = new Set<string>();
 
   for (const record of records) {
-    const ruleCode = requiredText(record, "rule_code", "shippingRules", "Codigo da regra de frete");
-    const name = requiredText(record, "name", "shippingRules", "Nome da regra de frete");
-    const price = parseIntegerField(record, "price_cents", "shippingRules", "Preco de frete em centavos", {
-      required: true,
-      min: 0
-    });
-    const days = parseIntegerField(record, "estimated_days", "shippingRules", "Prazo estimado", {
-      required: true,
-      min: 1
-    });
-    const priority = parseIntegerField(record, "priority", "shippingRules", "Prioridade", { defaultValue: 0 });
+    const ruleCode = requiredText(
+      record,
+      "rule_code",
+      "shippingRules",
+      "Codigo da regra de frete"
+    );
+    const name = requiredText(
+      record,
+      "name",
+      "shippingRules",
+      "Nome da regra de frete"
+    );
+    const price = parseIntegerField(
+      record,
+      "price_cents",
+      "shippingRules",
+      "Preço de frete em centavos",
+      {
+        required: true,
+        min: 0
+      }
+    );
+    const days = parseIntegerField(
+      record,
+      "estimated_days",
+      "shippingRules",
+      "Prazo estimado",
+      {
+        required: true,
+        min: 1
+      }
+    );
+    const priority = parseIntegerField(
+      record,
+      "priority",
+      "shippingRules",
+      "Prioridade",
+      { defaultValue: 0 }
+    );
 
-    for (const issue of [ruleCode.issue, name.issue, price.issue, days.issue, priority.issue]) {
+    for (const issue of [
+      ruleCode.issue,
+      name.issue,
+      price.issue,
+      days.issue,
+      priority.issue
+    ]) {
       collectIssue(issues, issue);
     }
 
     const isActive = parseBooleanField(record, "is_active", true);
     const uf = normalizeUf(String(record.values.uf ?? ""));
-    const postalCodeStart = normalizePostalRange(record, "postal_code_start", ruleCode.value, issues);
-    const postalCodeEnd = normalizePostalRange(record, "postal_code_end", ruleCode.value, issues);
+    const postalCodeStart = normalizePostalRange(
+      record,
+      "postal_code_start",
+      ruleCode.value,
+      issues
+    );
+    const postalCodeEnd = normalizePostalRange(
+      record,
+      "postal_code_end",
+      ruleCode.value,
+      issues
+    );
 
     if (ruleCode.value && seen.has(ruleCode.value)) {
       issues.push(duplicateIssue("shippingRules", "rule_code", ruleCode.value));
@@ -42,7 +98,8 @@ export function normalizeShippingRules(records: ParsedRecord[]): NormalizationRe
           entity: "shippingRules",
           severity: "HIGH",
           goLiveImpact: "bloqueador",
-          message: "Regra de frete ativa precisa de UF ou faixa de CEP completa.",
+          message:
+            "Regra de frete ativa precisa de UF ou faixa de CEP completa.",
           field: "uf",
           row: record.lineNumber,
           entityKey: ruleCode.value,
@@ -58,7 +115,7 @@ export function normalizeShippingRules(records: ParsedRecord[]): NormalizationRe
           entity: "shippingRules",
           severity: "HIGH",
           goLiveImpact: "bloqueador",
-          message: "Regra de frete ativa precisa ter preco positivo.",
+          message: "Regra de frete ativa precisa ter preço positivo.",
           field: "price_cents",
           row: record.lineNumber,
           entityKey: ruleCode.value,

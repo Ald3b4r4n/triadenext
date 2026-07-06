@@ -25,7 +25,9 @@ export function hasSensitiveValue(value: unknown) {
 }
 
 export function redactSensitiveValue(value: string) {
-  return hasSensitiveName(value) || hasSensitiveValue(value) ? "[REDACTED]" : value;
+  return hasSensitiveName(value) || hasSensitiveValue(value)
+    ? "[REDACTED]"
+    : value;
 }
 
 export function sanitizeForStagingSmokeReport<T>(value: T): T {
@@ -35,12 +37,17 @@ export function sanitizeForStagingSmokeReport<T>(value: T): T {
         return "[REDACTED]";
       }
 
-      return typeof current === "string" ? redactSensitiveValue(current) : current;
+      return typeof current === "string"
+        ? redactSensitiveValue(current)
+        : current;
     })
   ) as T;
 }
 
-export function createSecurityIssue(input: Pick<StagingSmokeIssue, "code" | "message"> & Partial<StagingSmokeIssue>): StagingSmokeIssue {
+export function createSecurityIssue(
+  input: Pick<StagingSmokeIssue, "code" | "message"> &
+    Partial<StagingSmokeIssue>
+): StagingSmokeIssue {
   return {
     severity: "CRITICAL",
     origin: "humana",
@@ -60,7 +67,8 @@ export function findSecretLikeOutput(value: unknown): StagingSmokeIssue[] {
   return [
     createSecurityIssue({
       code: "SECRET_REDACTED",
-      message: "Conteudo operacional contem valor com aparencia de secret e precisa ser redigido."
+      message:
+        "Conteúdo operacional contém valor com aparência de secret e precisa ser redigido."
     })
   ];
 }

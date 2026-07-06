@@ -14,7 +14,8 @@ export function checkStagingDatabaseReadiness(input: {
       pendingConfigIssue({
         code: "STAGING_DATABASE_URL_PENDING",
         category: "database",
-        message: "STAGING_DATABASE_URL ausente; nenhuma conexao remota sera tentada."
+        message:
+          "STAGING_DATABASE_URL ausente; nenhuma conexão remota será tentada."
       })
     );
   }
@@ -24,7 +25,8 @@ export function checkStagingDatabaseReadiness(input: {
       pendingConfigIssue({
         code: "DATABASE_APPROVAL_PENDING",
         category: "database",
-        message: "Aprovacao humana para validar banco staging ainda nao foi informada."
+        message:
+          "Aprovação humana para validar banco staging ainda não foi informada."
       })
     );
   }
@@ -40,8 +42,8 @@ export function checkStagingDatabaseReadiness(input: {
       status: issues.length > 0 ? "pending-config" : "passed",
       summary:
         issues.length > 0
-          ? "Banco staging/dev pendente de configuracao ou aprovacao; nenhuma conexao foi aberta."
-          : "Banco staging/dev possui precondicoes declaradas; conexao real continua fora do check local.",
+          ? "Banco staging/dev pendente de configuração ou aprovação; nenhuma conexão foi aberta."
+          : "Banco staging/dev possui pré-condições declaradas; conexão real continua fora do check local.",
       issues
     })
   };

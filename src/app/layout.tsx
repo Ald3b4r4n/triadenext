@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel_Decorative, Great_Vibes } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,7 +27,14 @@ const signature = Great_Vibes({
 
 export const metadata: Metadata = {
   title: "Tríade Essenza Parfum",
-  description: "Loja online de perfumes, fragrâncias marcantes e design sofisticado."
+  description:
+    "Loja online de perfumes, fragrâncias marcantes e design sofisticado."
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover"
 };
 
 export default async function RootLayout({
@@ -37,10 +44,14 @@ export default async function RootLayout({
 }>) {
   const session = await getCurrentSession();
   const canSeeAdmin =
-    session.status === "authenticated" && (session.role === "admin" || session.role === "manager");
+    session.status === "authenticated" &&
+    (session.role === "admin" || session.role === "manager");
 
   return (
-    <html lang="pt-BR" className={`${cinzelDecorative.variable} ${signature.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${cinzelDecorative.variable} ${signature.variable}`}
+    >
       <body>
         <header className="site-header">
           <div className="identity-topbar" aria-label="Diferenciais da loja">
@@ -60,7 +71,11 @@ export default async function RootLayout({
             </div>
           </div>
           <div className="page-shell site-header__content">
-            <Link className="site-brand" href="/" aria-label="Tríade Essenza Parfum">
+            <Link
+              className="site-brand"
+              href="/"
+              aria-label="Tríade Essenza Parfum"
+            >
               <Image
                 src="/brand/triade-logo-horizontal-transparent.png"
                 alt=""
@@ -71,12 +86,11 @@ export default async function RootLayout({
               <span className="sr-only">Tríade Essenza Parfum</span>
             </Link>
             <nav className="site-category-nav" aria-label="Categorias">
-              <Link href="/" aria-current="page">
-                Início
-              </Link>
+              <Link href="/">Início</Link>
+              <Link href="/quem-somos">Quem somos</Link>
               <Link href="/produtos">Masculinos</Link>
               <Link href="/produtos">Femininos</Link>
-              <Link href="/produtos">Nichos</Link>
+              <Link href="/produtos">Marcas Parceiras</Link>
               <Link href="/produtos">Kit&apos;s</Link>
               <Link href="/produtos">Promoções</Link>
             </nav>
@@ -90,15 +104,28 @@ export default async function RootLayout({
                 <label className="sr-only" htmlFor="site-search">
                   Buscar produtos
                 </label>
-                <input id="site-search" name="q" type="search" placeholder="Buscar" />
+                <input
+                  id="site-search"
+                  name="q"
+                  type="search"
+                  placeholder="Buscar"
+                />
                 <button type="submit" aria-label="Buscar">
                   <Search aria-hidden="true" size={18} />
                 </button>
               </form>
-              <Link className="site-action-icon" href="/minha-conta" aria-label="Minha conta">
+              <Link
+                className="site-action-icon"
+                href="/minha-conta"
+                aria-label="Minha conta"
+              >
                 <UserRound aria-hidden="true" size={18} />
               </Link>
-              <Link className="site-action-icon site-actions__cart" href="/carrinho" aria-label="Carrinho">
+              <Link
+                className="site-action-icon site-actions__cart"
+                href="/carrinho"
+                aria-label="Carrinho"
+              >
                 <ShoppingBag aria-hidden="true" size={18} />
               </Link>
             </nav>
@@ -118,6 +145,7 @@ export default async function RootLayout({
             <nav className="site-footer__nav" aria-label="Menu do rodapé">
               <h2>Menu</h2>
               <Link href="/">Início</Link>
+              <Link href="/quem-somos">Quem somos</Link>
               <Link href="/produtos">Catálogo</Link>
               <Link href="/carrinho">Carrinho</Link>
               <Link href="/minha-conta">Minha conta</Link>
@@ -125,7 +153,10 @@ export default async function RootLayout({
             </nav>
             <div className="site-footer__column">
               <h2>Pagamento</h2>
-              <ul className="payment-list" aria-label="Formas de pagamento aceitas">
+              <ul
+                className="payment-list"
+                aria-label="Formas de pagamento aceitas"
+              >
                 <li>Cartões de crédito</li>
                 <li>Cartões de débito</li>
                 <li>Pix</li>
@@ -136,7 +167,11 @@ export default async function RootLayout({
               <h2>Desenvolvimento</h2>
               <p>
                 Desenvolvido por{" "}
-                <a href="https://www.arsoftwaredevelopment.com.br/" rel="noreferrer" target="_blank">
+                <a
+                  href="https://www.arsoftwaredevelopment.com.br/"
+                  rel="noreferrer"
+                  target="_blank"
+                >
                   AR Software Development
                 </a>
               </p>

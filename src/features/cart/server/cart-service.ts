@@ -3,14 +3,26 @@ import "server-only";
 import { runtimeMessages } from "@/lib/runtime-mode";
 import { isProductAvailableForPurchase } from "@/features/products/domain";
 import { createProductRepository } from "@/features/products/server/product-repository";
-import { calculateAppliedCoupon, findCouponById, validateCouponForCart } from "@/features/coupons/server/coupon-service";
+import {
+  calculateAppliedCoupon,
+  findCouponById,
+  validateCouponForCart
+} from "@/features/coupons/server/coupon-service";
 import { calculateCouponDiscountCents } from "@/features/coupons/domain";
 import type { CartActionResult, CartActor, CartItem, CartView } from "../types";
-import { calculateCartSubtotalCents, validatePurchasableProduct, validateQuantityForStock } from "../domain";
+import {
+  calculateCartSubtotalCents,
+  validatePurchasableProduct,
+  validateQuantityForStock
+} from "../domain";
 import { createCartRepository } from "./cart-repository";
 import { resolveCartActor } from "./cart-session";
 import { createShippingRepository } from "@/features/shipping/server/shipping-repository";
-import { createShippingQuote, buildManualShippingOptions, validatePostalCode } from "@/features/shipping/domain";
+import {
+  createShippingQuote,
+  buildManualShippingOptions,
+  validatePostalCode
+} from "@/features/shipping/domain";
 import { devShippingRules } from "@/features/shipping/server/shipping-fixtures";
 import { selectShippingQuoteOption } from "@/features/shipping/server/shipping-service";
 
@@ -24,10 +36,18 @@ export async function getActiveCart(): Promise<CartActionResult> {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
   }
 
-  return toResult(await recalculateCartForActor(actor, await cartRepository.getActiveCart(actor)));
+  return toResult(
+    await recalculateCartForActor(
+      actor,
+      await cartRepository.getActiveCart(actor)
+    )
+  );
 }
 
-export async function addItemToCart(input: { productId: string; quantity: number }): Promise<CartActionResult> {
+export async function addItemToCart(input: {
+  productId: string;
+  quantity: number;
+}): Promise<CartActionResult> {
   const actor = await resolveCartActor({ createGuestToken: true });
   if (actor.kind === "unavailable") {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
@@ -36,11 +56,16 @@ export async function addItemToCart(input: { productId: string; quantity: number
   const product = await productRepository.findProductById(input.productId);
   const productValidation = validatePurchasableProduct(product);
   if (productValidation.status !== "available") {
-    return { status: "product_unavailable", message: runtimeMessages.cartProductUnavailable };
+    return {
+      status: "product_unavailable",
+      message: runtimeMessages.cartProductUnavailable
+    };
   }
 
   const currentCart = await cartRepository.getActiveCart(actor);
-  const currentQuantity = currentCart.items.find((item) => item.productId === input.productId)?.quantity ?? 0;
+  const currentQuantity =
+    currentCart.items.find((item) => item.productId === input.productId)
+      ?.quantity ?? 0;
   const quantityValidation = validateQuantityForStock(
     currentQuantity + input.quantity,
     productValidation.product.stockQuantity
@@ -71,7 +96,10 @@ export async function addItemToCart(input: { productId: string; quantity: number
   );
 }
 
-export async function updateCartItemQuantity(input: { itemId: string; quantity: number }): Promise<CartActionResult> {
+export async function updateCartItemQuantity(input: {
+  itemId: string;
+  quantity: number;
+}): Promise<CartActionResult> {
   const actor = await resolveCartActor();
   if (actor.kind === "unavailable") {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
@@ -86,10 +114,16 @@ export async function updateCartItemQuantity(input: { itemId: string; quantity: 
   const product = await productRepository.findProductById(item.productId);
   const productValidation = validatePurchasableProduct(product);
   if (productValidation.status !== "available") {
-    return { status: "product_unavailable", message: runtimeMessages.cartProductUnavailable };
+    return {
+      status: "product_unavailable",
+      message: runtimeMessages.cartProductUnavailable
+    };
   }
 
-  const quantityValidation = validateQuantityForStock(input.quantity, productValidation.product.stockQuantity);
+  const quantityValidation = validateQuantityForStock(
+    input.quantity,
+    productValidation.product.stockQuantity
+  );
   if (quantityValidation.status === "invalid") {
     return { status: "validation_error", message: "Quantidade inválida." };
   }
@@ -102,7 +136,11 @@ export async function updateCartItemQuantity(input: { itemId: string; quantity: 
     };
   }
 
-  const updated = await cartRepository.updateItemQuantity(actor, input.itemId, input.quantity);
+  const updated = await cartRepository.updateItemQuantity(
+    actor,
+    input.itemId,
+    input.quantity
+  );
   if (updated === null) {
     return { status: "forbidden", message: runtimeMessages.cartForbidden };
   }
@@ -110,13 +148,20 @@ export async function updateCartItemQuantity(input: { itemId: string; quantity: 
   return toResult(await recalculateCartForActor(actor, updated));
 }
 
-export async function removeCartItem(itemId: string): Promise<CartActionResult> {
+export async function removeCartItem(
+  itemId: string
+): Promise<CartActionResult> {
   const actor = await resolveCartActor();
   if (actor.kind === "unavailable") {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
   }
 
-  return toResult(await recalculateCartForActor(actor, await cartRepository.removeItem(actor, itemId)));
+  return toResult(
+    await recalculateCartForActor(
+      actor,
+      await cartRepository.removeItem(actor, itemId)
+    )
+  );
 }
 
 export async function clearActiveCart(): Promise<CartActionResult> {
@@ -125,23 +170,53 @@ export async function clearActiveCart(): Promise<CartActionResult> {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
   }
 
-  return toResult(await recalculateCartForActor(actor, await cartRepository.clearCart(actor)));
+  return toResult(
+    await recalculateCartForActor(actor, await cartRepository.clearCart(actor))
+  );
 }
 
-export async function applyCouponToActiveCart(code: string): Promise<CartActionResult> {
+export async function applyCouponToActiveCart(
+  code: string
+): Promise<CartActionResult> {
   const actor = await resolveCartActor({ createGuestToken: true });
   if (actor.kind === "unavailable") {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
   }
 
-  const cart = await recalculateCartView(await cartRepository.getOrCreateActiveCart(actor));
-  const validation = await validateCouponForCart({ code, subtotalCents: cart.subtotalCents });
+  const cart = await recalculateCartView(
+    await cartRepository.getOrCreateActiveCart(actor)
+  );
+  const validation = await validateCouponForCart({
+    code,
+    subtotalCents: cart.subtotalCents
+  });
   if (validation.status !== "valid") {
     return { status: "coupon_invalid", message: validation.message, cart };
   }
 
-  const updated = await cartRepository.setAppliedCoupon(actor, validation.coupon.id);
+  const updated = await setAppliedCouponSafely(
+    actor,
+    cart,
+    validation.coupon.id
+  );
   return toResult(await recalculateCartForActor(actor, updated));
+}
+
+async function setAppliedCouponSafely(
+  actor: Exclude<CartActor, { kind: "unavailable" }>,
+  cart: CartView,
+  couponId: string
+) {
+  try {
+    return await cartRepository.setAppliedCoupon(actor, couponId);
+  } catch {
+    return {
+      ...cart,
+      appliedCouponId: couponId,
+      persistence: "dev_fallback" as const,
+      messages: [...cart.messages, "Cupom aplicado em modo seguro local."]
+    };
+  }
 }
 
 export async function removeCouponFromActiveCart(): Promise<CartActionResult> {
@@ -154,7 +229,9 @@ export async function removeCouponFromActiveCart(): Promise<CartActionResult> {
   return toResult(await recalculateCartForActor(actor, updated));
 }
 
-export async function quoteShippingForActiveCart(input: { postalCode: string }): Promise<CartActionResult> {
+export async function quoteShippingForActiveCart(input: {
+  postalCode: string;
+}): Promise<CartActionResult> {
   const actor = await resolveCartActor({ createGuestToken: true });
   if (actor.kind === "unavailable") {
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
@@ -168,9 +245,14 @@ export async function quoteShippingForActiveCart(input: { postalCode: string }):
 
   const manualRules = await shippingRepository.listManualRules();
   const rules = manualRules.length > 0 ? manualRules : devShippingRules;
-  const options = buildManualShippingOptions(rules, { postalCode: validation.postalCode });
+  const options = buildManualShippingOptions(rules, {
+    postalCode: validation.postalCode
+  });
   if (options.length === 0) {
-    return { status: "validation_error", message: "Não há cobertura manual para este CEP." };
+    return {
+      status: "validation_error",
+      message: "Não há cobertura manual para este CEP."
+    };
   }
 
   const quote = await shippingRepository.createQuote(
@@ -184,14 +266,45 @@ export async function quoteShippingForActiveCart(input: { postalCode: string }):
   );
 
   const selected = quote.options[0]!;
-  const updated = await cartRepository.setShippingSelection(actor, {
-    postalCode: quote.postalCode,
-    quoteId: quote.id,
+  const updated = await setShippingSelectionSafely(
+    actor,
+    cart,
     quote,
-    option: selected
-  });
+    selected
+  );
 
   return toResult(await recalculateCartForActor(actor, updated));
+}
+
+async function setShippingSelectionSafely(
+  actor: Exclude<CartActor, { kind: "unavailable" }>,
+  cart: CartView,
+  quote: NonNullable<CartView["shippingQuote"]>,
+  option: NonNullable<CartView["shippingQuote"]>["options"][number]
+) {
+  try {
+    return await cartRepository.setShippingSelection(actor, {
+      postalCode: quote.postalCode,
+      quoteId: quote.id,
+      quote,
+      option
+    });
+  } catch {
+    return {
+      ...cart,
+      shippingPostalCode: quote.postalCode,
+      shippingQuoteId: quote.id,
+      shippingQuote: quote,
+      shippingOptions: quote.options,
+      shippingAmountCents: option.priceCents,
+      partialTotalWithShippingCents: cart.partialTotalCents + option.priceCents,
+      persistence: "dev_fallback" as const,
+      messages: [
+        ...cart.messages,
+        "Cotação de frete calculada em modo seguro local."
+      ]
+    };
+  }
 }
 
 export async function selectShippingOptionForActiveCart(input: {
@@ -218,7 +331,10 @@ export async function selectShippingOptionForActiveCart(input: {
     return { status: "validation_error", message: selection.message };
   }
 
-  const option = selection.quote.options.find((item) => item.id === selection.quote.selectedOptionId) ?? selection.quote.options[0]!;
+  const option =
+    selection.quote.options.find(
+      (item) => item.id === selection.quote.selectedOptionId
+    ) ?? selection.quote.options[0]!;
   const updated = await cartRepository.setShippingSelection(actor, {
     postalCode: selection.quote.postalCode,
     quoteId: selection.quote.id,
@@ -235,20 +351,37 @@ export async function removeShippingSelectionFromActiveCart(): Promise<CartActio
     return { status: "unavailable", message: runtimeMessages.cartUnavailable };
   }
 
-  return toResult(await recalculateCartForActor(actor, await cartRepository.clearShippingSelection(actor)));
+  return toResult(
+    await recalculateCartForActor(
+      actor,
+      await cartRepository.clearShippingSelection(actor)
+    )
+  );
 }
 
-export async function mergeGuestCartIntoUser(input: { userId: string; guestToken: string | null }): Promise<CartActionResult> {
+export async function mergeGuestCartIntoUser(input: {
+  userId: string;
+  guestToken: string | null;
+}): Promise<CartActionResult> {
   if (!input.guestToken) {
     return getActiveCart();
   }
 
   const guestActor: CartActor = { kind: "guest", guestToken: input.guestToken };
-  const userActor: CartActor = { kind: "authenticated", userId: input.userId, role: "customer" };
+  const userActor: CartActor = {
+    kind: "authenticated",
+    userId: input.userId,
+    role: "customer"
+  };
   const guestCart = await cartRepository.getActiveCart(guestActor);
   const guestCouponId = guestCart.appliedCouponId;
   if (guestCart.id === null || guestCart.items.length === 0) {
-    return toResult(await recalculateCartForActor(userActor, await cartRepository.getOrCreateActiveCart(userActor)));
+    return toResult(
+      await recalculateCartForActor(
+        userActor,
+        await cartRepository.getOrCreateActiveCart(userActor)
+      )
+    );
   }
 
   await cartRepository.getOrCreateActiveCart(userActor);
@@ -257,20 +390,29 @@ export async function mergeGuestCartIntoUser(input: { userId: string; guestToken
   for (const item of guestCart.items) {
     const product = await productRepository.findProductById(item.productId);
     if (!product || !isProductAvailableForPurchase(product)) {
-      warnings.push(`Item indisponível removido da sua conta: ${item.productNameSnapshot}.`);
+      warnings.push(
+        `Item indisponível removido da sua conta: ${item.productNameSnapshot}.`
+      );
       continue;
     }
 
     const userCart = await cartRepository.getActiveCart(userActor);
-    const existingQuantity = userCart.items.find((userItem) => userItem.productId === item.productId)?.quantity ?? 0;
-    const allowedQuantity = Math.min(item.quantity, Math.max(product.stockQuantity - existingQuantity, 0));
+    const existingQuantity =
+      userCart.items.find((userItem) => userItem.productId === item.productId)
+        ?.quantity ?? 0;
+    const allowedQuantity = Math.min(
+      item.quantity,
+      Math.max(product.stockQuantity - existingQuantity, 0)
+    );
     if (allowedQuantity <= 0) {
       warnings.push(`Estoque indisponível para ${item.productNameSnapshot}.`);
       continue;
     }
 
     if (allowedQuantity < item.quantity) {
-      warnings.push(`Quantidade de ${item.productNameSnapshot} limitada ao estoque disponível.`);
+      warnings.push(
+        `Quantidade de ${item.productNameSnapshot} limitada ao estoque disponível.`
+      );
     }
 
     await cartRepository.addItem(userActor, {
@@ -291,7 +433,10 @@ export async function mergeGuestCartIntoUser(input: { userId: string; guestToken
   }
 
   const recalculated = await recalculateCartForActor(userActor, merged);
-  return toResult({ ...recalculated, messages: [...recalculated.messages, ...warnings] });
+  return toResult({
+    ...recalculated,
+    messages: [...recalculated.messages, ...warnings]
+  });
 }
 
 export async function recalculateCartView(cart: CartView): Promise<CartView> {
@@ -301,7 +446,9 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
   for (const item of cart.items) {
     const product = await productRepository.findProductById(item.productId);
     if (!product || !isProductAvailableForPurchase(product)) {
-      messages.push(`${item.productNameSnapshot} não está disponível para compra.`);
+      messages.push(
+        `${item.productNameSnapshot} não está disponível para compra.`
+      );
       continue;
     }
 
@@ -319,15 +466,23 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
   }
 
   const subtotalCents = calculateCartSubtotalCents(items);
-  const coupon = cart.appliedCouponId ? await findCouponById(cart.appliedCouponId) : null;
-  const discountCents = coupon ? calculateCouponDiscountCents(coupon, subtotalCents) : 0;
+  const coupon = cart.appliedCouponId
+    ? await findCouponById(cart.appliedCouponId)
+    : null;
+  const discountCents = coupon
+    ? calculateCouponDiscountCents(coupon, subtotalCents)
+    : 0;
   const shippingAmountCents = cart.shippingAmountCents;
-  const freeShipping = coupon?.type === "free_shipping" && shippingAmountCents > 0;
+  const freeShipping =
+    coupon?.type === "free_shipping" && shippingAmountCents > 0;
   const effectiveShippingAmountCents = freeShipping ? 0 : shippingAmountCents;
   const partialTotalCents = subtotalCents - discountCents;
 
   const couponCalculation = cart.appliedCouponId
-    ? await calculateAppliedCoupon({ couponId: cart.appliedCouponId, subtotalCents })
+    ? await calculateAppliedCoupon({
+        couponId: cart.appliedCouponId,
+        subtotalCents
+      })
     : null;
 
   return {
@@ -338,18 +493,25 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
     discountCents: couponCalculation?.discountCents ?? discountCents,
     shippingAmountCents: effectiveShippingAmountCents,
     partialTotalCents,
-    partialTotalWithShippingCents: partialTotalCents + effectiveShippingAmountCents,
+    partialTotalWithShippingCents:
+      partialTotalCents + effectiveShippingAmountCents,
     messages: [
       ...messages,
       ...(couponCalculation?.messages ?? []),
-      ...(freeShipping ? ["Cupom de frete grátis zerou o frete manual elegível."] : [])
+      ...(freeShipping
+        ? ["Cupom de frete grátis zerou o frete manual elegível."]
+        : [])
     ]
   };
 }
 
-async function recalculateCartForActor(actor: Exclude<CartActor, { kind: "unavailable" }>, cart: CartView) {
+async function recalculateCartForActor(
+  actor: Exclude<CartActor, { kind: "unavailable" }>,
+  cart: CartView
+) {
   const recalculated = await recalculateCartView(cart);
-  const hasInvalidAppliedCoupon = cart.appliedCouponId !== null && recalculated.coupon === null;
+  const hasInvalidAppliedCoupon =
+    cart.appliedCouponId !== null && recalculated.coupon === null;
 
   if (hasInvalidAppliedCoupon) {
     const cleared = await cartRepository.clearAppliedCoupon(actor);
@@ -364,7 +526,11 @@ async function recalculateCartForActor(actor: Exclude<CartActor, { kind: "unavai
 
 function toResult(cart: CartView): CartActionResult {
   if (cart.persistence === "dev_fallback") {
-    return { status: "fallback", cart, message: runtimeMessages.cartFallbackNotPersisted };
+    return {
+      status: "fallback",
+      cart,
+      message: runtimeMessages.cartFallbackNotPersisted
+    };
   }
 
   return { status: "success", cart, message: runtimeMessages.cartUpdated };

@@ -4,7 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { runStagingSmokeReadiness } from "@/features/staging-smoke/report-orchestrator";
-import { createGoLiveChecklist, createStagingSmokeReport, writeStagingSmokeReports } from "@/features/staging-smoke/report-writer";
+import {
+  createGoLiveChecklist,
+  createStagingSmokeReport,
+  writeStagingSmokeReports
+} from "@/features/staging-smoke/report-writer";
 
 function createTempCwd() {
   return mkdtempSync(join(tmpdir(), "triade-staging-smoke-report-"));
@@ -24,7 +28,9 @@ describe("staging smoke reports", () => {
     expect(result.preflight.config.importSmokeUrlPresent).toBe(false);
     expect(result.safety.databaseUrlPrinted).toBe(false);
     expect(result.safety.realMigration).toBe(false);
-    expect(result.checks.some((check) => check.id === "neon-staging")).toBe(true);
+    expect(result.checks.some((check) => check.id === "neon-staging")).toBe(
+      true
+    );
   });
 
   it("writes sanitized reports into data/dry-run/output", async () => {
@@ -51,7 +57,9 @@ describe("staging smoke reports", () => {
     });
     const checklist = createGoLiveChecklist(createStagingSmokeReport(result));
 
-    expect(checklist.requiredBeforeGoLive.join(" ")).toContain("Aprovacao humana");
+    expect(checklist.requiredBeforeGoLive.join(" ")).toContain(
+      "Aprovação humana"
+    );
     expect(checklist.abortCriteria.join(" ")).toContain("Stripe live mode");
   });
 });

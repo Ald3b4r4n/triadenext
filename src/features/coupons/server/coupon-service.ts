@@ -23,7 +23,9 @@ export async function findCouponByCode(code: string): Promise<Coupon | null> {
   return couponRepository.findCouponByNormalizedCode(normalizeCouponCode(code));
 }
 
-export async function findCouponById(id: string | null): Promise<Coupon | null> {
+export async function findCouponById(
+  id: string | null
+): Promise<Coupon | null> {
   if (!id) {
     return null;
   }
@@ -40,7 +42,7 @@ export async function validateCouponForCart(input: {
     return {
       status: "invalid",
       code: "database_unavailable",
-      message: "Cupom indisponivel neste ambiente sem banco."
+      message: "Cupom indisponível neste ambiente sem banco."
     };
   }
 
@@ -62,7 +64,9 @@ export async function listAdminCoupons(): Promise<CouponView[]> {
   return coupons.map((coupon) => toCouponView(coupon));
 }
 
-export async function createAdminCoupon(input: CouponAdminInput): Promise<CouponMutationResult> {
+export async function createAdminCoupon(
+  input: CouponAdminInput
+): Promise<CouponMutationResult> {
   return couponRepository.createCoupon(input);
 }
 
@@ -75,5 +79,7 @@ export async function updateAdminCoupon(
 
 function isDevOrTest() {
   const mode = getRuntimeMode();
-  return mode.appEnvironment === "development" || mode.appEnvironment === "test";
+  return (
+    mode.appEnvironment === "development" || mode.appEnvironment === "test"
+  );
 }

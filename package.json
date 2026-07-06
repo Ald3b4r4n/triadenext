@@ -19,6 +19,7 @@
     "ops:import-staging": "node scripts/ops/import-staging.mjs",
     "ops:check-staging-import-smoke": "node scripts/ops/check-staging-import-smoke.mjs",
     "ops:check-staging-smoke": "node scripts/ops/check-staging-smoke.mjs",
+    "ops:check-ptbr-copy": "node scripts/ops/check-ptbr-copy.mjs",
     "ops:check-admin-env": "node scripts/ops/check-admin-env.mjs",
     "ops:bootstrap-admin": "tsx scripts/ops/bootstrap-admin.ts",
     "db:generate": "drizzle-kit generate",

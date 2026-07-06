@@ -9,7 +9,11 @@ import {
   requiredText
 } from "./common";
 import { createIssue } from "../safety";
-import type { NormalizationResult, NormalizedProduct, ParsedRecord } from "../types";
+import type {
+  NormalizationResult,
+  NormalizedProduct,
+  ParsedRecord
+} from "../types";
 
 const productStatuses = new Set(["draft", "published", "inactive"]);
 
@@ -33,12 +37,23 @@ export function normalizeProducts(
     const sku = requiredText(record, "sku", "products", "SKU do produto");
     const slugRaw = requiredText(record, "slug", "products", "Slug do produto");
     const name = requiredText(record, "name", "products", "Nome do produto");
-    const categorySlug = requiredText(record, "category_slug", "products", "Slug da categoria");
+    const categorySlug = requiredText(
+      record,
+      "category_slug",
+      "products",
+      "Slug da categoria"
+    );
     const price = parseCentsField(record, "products", "price_cents", "price");
-    const stock = parseIntegerField(record, "stock_quantity", "products", "Estoque", {
-      required: requireStockQuantity,
-      min: 0
-    });
+    const stock = parseIntegerField(
+      record,
+      "stock_quantity",
+      "products",
+      "Estoque",
+      {
+        required: requireStockQuantity,
+        min: 0
+      }
+    );
     const publishedAt = parseIsoDate(record, "published_at", "products");
 
     for (const issue of [
@@ -61,7 +76,8 @@ export function normalizeProducts(
           entity: "products",
           severity: "HIGH",
           goLiveImpact: "bloqueador",
-          message: "Status de produto nao mapeia para draft, published ou inactive.",
+          message:
+            "Status de produto não mapeia para draft, published ou inactive.",
           field: "status",
           row: record.lineNumber,
           entityKey: sku.value,
@@ -82,17 +98,40 @@ export function normalizeProducts(
 
     if (status === "published") {
       if (price.value <= 0) {
-        issues.push(blockingProductIssue("Preco de produto publicado precisa ser positivo.", "price_cents", record.lineNumber, sku.value));
+        issues.push(
+          blockingProductIssue(
+            "Preço de produto publicado precisa ser positivo.",
+            "price_cents",
+            record.lineNumber,
+            sku.value
+          )
+        );
       }
       if (validatePublishedStock && stock.value <= 0) {
-        issues.push(blockingProductIssue("Produto publicado precisa ter estoque positivo.", "stock_quantity", record.lineNumber, sku.value));
+        issues.push(
+          blockingProductIssue(
+            "Produto publicado precisa ter estoque positivo.",
+            "stock_quantity",
+            record.lineNumber,
+            sku.value
+          )
+        );
       }
       if (!publishedAt.value) {
-        issues.push(blockingProductIssue("Produto publicado precisa de published_at valido.", "published_at", record.lineNumber, sku.value));
+        issues.push(
+          blockingProductIssue(
+            "Produto publicado precisa de published_at válido.",
+            "published_at",
+            record.lineNumber,
+            sku.value
+          )
+        );
       }
     }
 
-    const normalizedStatus: NormalizedProduct["status"] = productStatuses.has(status)
+    const normalizedStatus: NormalizedProduct["status"] = productStatuses.has(
+      status
+    )
       ? (status as NormalizedProduct["status"])
       : "draft";
 
@@ -113,11 +152,20 @@ export function normalizeProducts(
   return { records: normalized, issues };
 }
 
-function normalizeStatus(record: ParsedRecord): NormalizedProduct["status"] | string {
-  return String(record.values.status ?? "").trim().toLowerCase();
+function normalizeStatus(
+  record: ParsedRecord
+): NormalizedProduct["status"] | string {
+  return String(record.values.status ?? "")
+    .trim()
+    .toLowerCase();
 }
 
-function blockingProductIssue(message: string, field: string, row: number, sku: string) {
+function blockingProductIssue(
+  message: string,
+  field: string,
+  row: number,
+  sku: string
+) {
   return createIssue({
     code: "INVALID_VALUE",
     entity: "products",

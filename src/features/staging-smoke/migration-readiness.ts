@@ -12,7 +12,8 @@ export function checkStagingMigrationReadiness(input: {
       pendingConfigIssue({
         code: "MIGRATION_APPROVAL_PENDING",
         category: "migration",
-        message: "Migration staging/dev exige aprovacao humana explicita; nenhuma migration foi executada."
+        message:
+          "Migration staging/dev exige aprovação humana explícita; nenhuma migration foi executada."
       })
     );
   }
@@ -22,7 +23,7 @@ export function checkStagingMigrationReadiness(input: {
       pendingConfigIssue({
         code: "SNAPSHOT_PENDING",
         category: "migration",
-        message: "Snapshot/rollback staging ainda nao foi declarado."
+        message: "Snapshot/rollback staging ainda não foi declarado."
       })
     );
   }
@@ -36,8 +37,8 @@ export function checkStagingMigrationReadiness(input: {
       status: issues.length > 0 ? "pending-config" : "passed",
       summary:
         issues.length > 0
-          ? "Migrations ficam pendentes ate aprovacao humana e snapshot; nenhuma migration foi executada."
-          : "Checklist de migration staging/dev possui aprovacao e snapshot declarados; execucao real segue manual.",
+          ? "Migrations ficam pendentes até aprovação humana e snapshot; nenhuma migration foi executada."
+          : "Checklist de migration staging/dev possui aprovação e snapshot declarados; execução real segue manual.",
       issues
     })
   };

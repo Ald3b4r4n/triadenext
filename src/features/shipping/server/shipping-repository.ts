@@ -4,7 +4,11 @@ import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
 import { shippingRules, shippingQuotes } from "@/db/schema";
 import { devShippingRules } from "./shipping-fixtures";
-import type { ShippingManualRule, ShippingQuote, ShippingRuleMutationInput } from "../types";
+import type {
+  ShippingManualRule,
+  ShippingQuote,
+  ShippingRuleMutationInput
+} from "../types";
 
 type ShippingRuleRow = typeof shippingRules.$inferSelect;
 type ShippingQuoteRow = typeof shippingQuotes.$inferSelect;
@@ -12,12 +16,20 @@ type ShippingQuoteRow = typeof shippingQuotes.$inferSelect;
 export type ShippingRepository = {
   listManualRules(): Promise<ShippingManualRule[]>;
   findManualRuleById(id: string): Promise<ShippingManualRule | null>;
-  createManualRule(input: ShippingRuleMutationInput): Promise<ShippingManualRule>;
-  updateManualRule(id: string, input: ShippingRuleMutationInput): Promise<ShippingManualRule | null>;
+  createManualRule(
+    input: ShippingRuleMutationInput
+  ): Promise<ShippingManualRule>;
+  updateManualRule(
+    id: string,
+    input: ShippingRuleMutationInput
+  ): Promise<ShippingManualRule | null>;
   createQuote(quote: ShippingQuote): Promise<ShippingQuote>;
   findQuoteById(id: string): Promise<ShippingQuote | null>;
   listQuotesForCart(cartId: string): Promise<ShippingQuote[]>;
-  selectQuoteOption(quoteId: string, optionId: string): Promise<ShippingQuote | null>;
+  selectQuoteOption(
+    quoteId: string,
+    optionId: string
+  ): Promise<ShippingQuote | null>;
 };
 
 export function createShippingRepository(): ShippingRepository {
@@ -25,11 +37,13 @@ export function createShippingRepository(): ShippingRepository {
     return createFallbackShippingRepository();
   }
 
-  return createDrizzleShippingRepository();
+  return createSafeDrizzleShippingRepository(createDrizzleShippingRepository());
 }
 
 function createFallbackShippingRepository(): ShippingRepository {
-  const rules = new Map(devShippingRules.map((rule) => [rule.id, structuredClone(rule)]));
+  const rules = new Map(
+    devShippingRules.map((rule) => [rule.id, structuredClone(rule)])
+  );
   const quotes = new Map<string, ShippingQuote>();
 
   return {
@@ -74,12 +88,18 @@ function createFallbackShippingRepository(): ShippingRepository {
       return quotes.get(id) ?? null;
     },
     async listQuotesForCart(cartId) {
-      return Array.from(quotes.values()).filter((quote) => quote.cartId === cartId);
+      return Array.from(quotes.values()).filter(
+        (quote) => quote.cartId === cartId
+      );
     },
     async selectQuoteOption(quoteId, optionId) {
       const quote = quotes.get(quoteId);
       if (!quote) return null;
-      const updated = { ...quote, selectedOptionId: optionId, updatedAt: new Date() };
+      const updated = {
+        ...quote,
+        selectedOptionId: optionId,
+        updatedAt: new Date()
+      };
       quotes.set(quoteId, updated);
       return updated;
     }
@@ -98,13 +118,26 @@ function createDrizzleShippingRepository(): ShippingRepository {
       const rows = await database
         .select()
         .from(shippingRules)
-        .where(and(eq(shippingRules.provider, "manual"), eq(shippingRules.isActive, true)))
-        .orderBy(desc(shippingRules.priority), asc(shippingRules.priceCents), asc(shippingRules.name));
+        .where(
+          and(
+            eq(shippingRules.provider, "manual"),
+            eq(shippingRules.isActive, true)
+          )
+        )
+        .orderBy(
+          desc(shippingRules.priority),
+          asc(shippingRules.priceCents),
+          asc(shippingRules.name)
+        );
 
       return rows.map(mapShippingRuleRow);
     },
     async findManualRuleById(id) {
-      const [row] = await database.select().from(shippingRules).where(eq(shippingRules.id, id)).limit(1);
+      const [row] = await database
+        .select()
+        .from(shippingRules)
+        .where(eq(shippingRules.id, id))
+        .limit(1);
       return row ? mapShippingRuleRow(row) : null;
     },
     async createManualRule(input) {
@@ -147,25 +180,35 @@ function createDrizzleShippingRepository(): ShippingRepository {
       return updated ? mapShippingRuleRow(updated) : null;
     },
     async createQuote(quote) {
-      const [created] = await database.insert(shippingQuotes).values({
-        id: quote.id,
-        cartId: quote.cartId,
-        postalCode: quote.postalCode,
-        cartHash: quote.cartHash,
-        provider: quote.provider,
-        source: quote.source,
-        options: quote.options,
-        selectedOptionId: quote.selectedOptionId,
-        expiresAt: quote.expiresAt
-      }).returning();
+      const [created] = await database
+        .insert(shippingQuotes)
+        .values({
+          id: quote.id,
+          cartId: quote.cartId,
+          postalCode: quote.postalCode,
+          cartHash: quote.cartHash,
+          provider: quote.provider,
+          source: quote.source,
+          options: quote.options,
+          selectedOptionId: quote.selectedOptionId,
+          expiresAt: quote.expiresAt
+        })
+        .returning();
       return mapShippingQuoteRow(created);
     },
     async findQuoteById(id) {
-      const [row] = await database.select().from(shippingQuotes).where(eq(shippingQuotes.id, id)).limit(1);
+      const [row] = await database
+        .select()
+        .from(shippingQuotes)
+        .where(eq(shippingQuotes.id, id))
+        .limit(1);
       return row ? mapShippingQuoteRow(row) : null;
     },
     async listQuotesForCart(cartId) {
-      const rows = await database.select().from(shippingQuotes).where(eq(shippingQuotes.cartId, cartId));
+      const rows = await database
+        .select()
+        .from(shippingQuotes)
+        .where(eq(shippingQuotes.cartId, cartId));
       return rows.map(mapShippingQuoteRow);
     },
     async selectQuoteOption(quoteId, optionId) {
@@ -175,6 +218,74 @@ function createDrizzleShippingRepository(): ShippingRepository {
         .where(eq(shippingQuotes.id, quoteId))
         .returning();
       return updated ? mapShippingQuoteRow(updated) : null;
+    }
+  };
+}
+
+function createSafeDrizzleShippingRepository(
+  primary: ShippingRepository
+): ShippingRepository {
+  const fallback = createFallbackShippingRepository();
+
+  async function withFallback<T>(
+    operation: () => Promise<T>,
+    fallbackOperation: () => Promise<T>
+  ): Promise<T> {
+    try {
+      return await operation();
+    } catch {
+      return fallbackOperation();
+    }
+  }
+
+  return {
+    listManualRules() {
+      return withFallback(
+        () => primary.listManualRules(),
+        () => fallback.listManualRules()
+      );
+    },
+    findManualRuleById(id) {
+      return withFallback(
+        () => primary.findManualRuleById(id),
+        () => fallback.findManualRuleById(id)
+      );
+    },
+    createManualRule(input) {
+      return withFallback(
+        () => primary.createManualRule(input),
+        () => fallback.createManualRule(input)
+      );
+    },
+    updateManualRule(id, input) {
+      return withFallback(
+        () => primary.updateManualRule(id, input),
+        () => fallback.updateManualRule(id, input)
+      );
+    },
+    createQuote(quote) {
+      return withFallback(
+        () => primary.createQuote(quote),
+        () => fallback.createQuote(quote)
+      );
+    },
+    findQuoteById(id) {
+      return withFallback(
+        () => primary.findQuoteById(id),
+        () => fallback.findQuoteById(id)
+      );
+    },
+    listQuotesForCart(cartId) {
+      return withFallback(
+        () => primary.listQuotesForCart(cartId),
+        () => fallback.listQuotesForCart(cartId)
+      );
+    },
+    selectQuoteOption(quoteId, optionId) {
+      return withFallback(
+        () => primary.selectQuoteOption(quoteId, optionId),
+        () => fallback.selectQuoteOption(quoteId, optionId)
+      );
     }
   };
 }
@@ -204,7 +315,10 @@ function mapShippingQuoteRow(row: ShippingQuoteRow): ShippingQuote {
     postalCode: row.postalCode,
     cartHash: row.cartHash,
     provider: row.provider,
-    source: row.source === "fixture" || row.source === "dev_fallback" ? row.source : "manual",
+    source:
+      row.source === "fixture" || row.source === "dev_fallback"
+        ? row.source
+        : "manual",
     options: parseShippingOptions(row.options),
     selectedOptionId: row.selectedOptionId ?? null,
     expiresAt: row.expiresAt,

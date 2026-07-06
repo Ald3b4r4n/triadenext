@@ -20,11 +20,18 @@ export interface ProductionGuardResult {
   issues: StagingImportIssue[];
 }
 
-export function detectProductionSignals(input: ProductionGuardInput): ProductionGuardResult {
+export function detectProductionSignals(
+  input: ProductionGuardInput
+): ProductionGuardResult {
   const issues: StagingImportIssue[] = [];
 
   if (input.target && !isNonProductionTarget(input.target)) {
-    issues.push(productionIssue("PRODUCTION_BLOCKED", "Alvo informado nao e staging, preview ou remote-dev."));
+    issues.push(
+      productionIssue(
+        "PRODUCTION_BLOCKED",
+        "Alvo informado não é staging, preview ou remote-dev."
+      )
+    );
   }
 
   for (const [label, value] of Object.entries(input.labels ?? {})) {
@@ -32,11 +39,15 @@ export function detectProductionSignals(input: ProductionGuardInput): Production
       continue;
     }
 
-    if (hasProductionWord(label) || hasProductionWord(value) || hasProductionHost(value)) {
+    if (
+      hasProductionWord(label) ||
+      hasProductionWord(value) ||
+      hasProductionHost(value)
+    ) {
       issues.push(
         productionIssue(
           "PRODUCTION_BLOCKED",
-          `Sinal de producao detectado em ${label}. O valor foi omitido por seguranca.`
+          `Sinal de produção detectado em ${label}. O valor foi omitido por segurança.`
         )
       );
     }
@@ -45,7 +56,7 @@ export function detectProductionSignals(input: ProductionGuardInput): Production
       issues.push(
         productionIssue(
           "SECRET_REDACTED",
-          `Valor sensivel detectado em ${label}. O valor foi omitido por seguranca.`
+          `Valor sensível detectado em ${label}. O valor foi omitido por segurança.`
         )
       );
     }
@@ -56,14 +67,16 @@ export function detectProductionSignals(input: ProductionGuardInput): Production
     issues.push(
       productionIssue(
         "PRODUCTION_BLOCKED",
-        "Ambiente runtime indica producao. Importacao staging abortada antes de conectar."
+        "Ambiente runtime indica produção. Importação staging abortada antes de conectar."
       )
     );
   }
 
   return {
     allowed: issues.length === 0,
-    productionBlocked: issues.some((issue) => issue.code === "PRODUCTION_BLOCKED"),
+    productionBlocked: issues.some(
+      (issue) => issue.code === "PRODUCTION_BLOCKED"
+    ),
     issues
   };
 }
@@ -74,19 +87,31 @@ export function isNonProductionTarget(value: string): value is StagingTarget {
 
 function hasProductionWord(value: string) {
   const normalized = value.toLowerCase();
-  return productionWords.some((word) => normalized === word || normalized.includes(`-${word}`) || normalized.includes(`${word}-`));
+  return productionWords.some(
+    (word) =>
+      normalized === word ||
+      normalized.includes(`-${word}`) ||
+      normalized.includes(`${word}-`)
+  );
 }
 
 function hasProductionHost(value: string) {
   try {
     const url = new URL(value);
-    return productionHostFragments.some((fragment) => url.hostname.toLowerCase() === fragment);
+    return productionHostFragments.some(
+      (fragment) => url.hostname.toLowerCase() === fragment
+    );
   } catch {
-    return productionHostFragments.some((fragment) => value.toLowerCase().includes(fragment));
+    return productionHostFragments.some((fragment) =>
+      value.toLowerCase().includes(fragment)
+    );
   }
 }
 
-function productionIssue(code: "PRODUCTION_BLOCKED" | "SECRET_REDACTED", message: string): StagingImportIssue {
+function productionIssue(
+  code: "PRODUCTION_BLOCKED" | "SECRET_REDACTED",
+  message: string
+): StagingImportIssue {
   return {
     code,
     severity: "CRITICAL",

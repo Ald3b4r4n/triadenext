@@ -6,7 +6,9 @@ export default async function AdminPedidosPage() {
   const result = await listAdminPendingOrdersAction();
   const notificationResult =
     result.status === "success"
-      ? await listAdminNotificationDeliveriesAction(result.orders.map((order) => order.id))
+      ? await listAdminNotificationDeliveriesAction(
+          result.orders.map((order) => order.id)
+        )
       : null;
 
   return (
@@ -14,7 +16,10 @@ export default async function AdminPedidosPage() {
       <section className="page-intro">
         <p className="muted">Admin</p>
         <h1>Pedidos</h1>
-        <p>Visualizacao financeira minima. Sem marcar como pago ou editar valores.</p>
+        <p>
+          Visualização financeira mínima. Sem marcar como pago ou editar
+          valores.
+        </p>
       </section>
       {result.status === "success" ? (
         <OrderList
@@ -29,7 +34,7 @@ export default async function AdminPedidosPage() {
       ) : (
         <div className="placeholder-panel">
           <p className="muted">Pedidos bloqueados</p>
-          <h2>Acesso ou ambiente indisponivel</h2>
+          <h2>Acesso ou ambiente indisponível</h2>
           <p>{result.message}</p>
         </div>
       )}

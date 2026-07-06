@@ -23,7 +23,8 @@ export function getNotificationRuntimeConfig(): NotificationRuntimeConfig {
       provider: "mock",
       adminRecipients,
       from,
-      message: "E-mail mock ativo em dev/test; nenhuma mensagem real sera enviada."
+      message:
+        "E-mail mock ativo em dev/test; nenhuma mensagem real sera enviada."
     };
   }
 
@@ -31,6 +32,7 @@ export function getNotificationRuntimeConfig(): NotificationRuntimeConfig {
     provider: "unavailable",
     adminRecipients,
     from,
-    message: "Provider de e-mail real indisponivel; entrega registrada como falha segura."
+    message:
+      "Provider de e-mail real indisponível; entrega registrada como falha segura."
   };
 }

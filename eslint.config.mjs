@@ -5,7 +5,20 @@ const eslintConfig = [
   ...nextVitals,
   ...nextTs,
   {
-    ignores: [".next/**", "node_modules/**", "drizzle/**", "playwright-report/**"]
+    ignores: [
+      ".agents/**",
+      ".amazonq/**",
+      ".claude/**",
+      ".codex/**",
+      ".github/hooks/**",
+      ".github/skills/**",
+      ".kiro/**",
+      ".next/**",
+      "drizzle/**",
+      "node_modules/**",
+      "playwright-report/**",
+      "test-results/**"
+    ]
   }
 ];
 

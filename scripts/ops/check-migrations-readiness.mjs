@@ -2,7 +2,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const drizzleDir = join(process.cwd(), "drizzle");
-const destructivePattern = /\b(TRUNCATE|DELETE\s+FROM|ALTER\s+TABLE\s+[^;]+DROP|DROP\s+(TABLE|TYPE|INDEX|SCHEMA|DATABASE))\b/i;
+const destructivePattern =
+  /\b(TRUNCATE|DELETE\s+FROM|ALTER\s+TABLE\s+[^;]+DROP|DROP\s+(TABLE|TYPE|INDEX|SCHEMA|DATABASE))\b/i;
 
 function listMigrationFiles() {
   if (!existsSync(drizzleDir)) {
@@ -33,7 +34,7 @@ function run() {
   const files = listMigrationFiles();
 
   console.log("Readiness de migrations Drizzle");
-  console.log("Este script nao conecta banco e nao executa migration real.");
+  console.log("Este script não conecta banco e não executa migration real.");
 
   if (files.length === 0) {
     console.error("Nenhuma migration Drizzle versionada foi encontrada.");
@@ -46,15 +47,19 @@ function run() {
   for (const file of files) {
     const result = analyzeMigration(file);
     hasDestructive ||= result.destructive;
-    const risk = result.destructive ? "revisar-operacao-destrutiva" : "sem-operacao-destrutiva";
+    const risk = result.destructive
+      ? "revisar-operacao-destrutiva"
+      : "sem-operacao-destrutiva";
     console.log(`${result.file}: ${result.statements} statements (${risk})`);
   }
 
   console.log(`Total de migrations: ${files.length}`);
-  console.log("DATABASE_URL: nao lida, nao exigida e nao impressa.");
+  console.log("DATABASE_URL: não lida, não exigida e não impressa.");
 
   if (hasDestructive) {
-    console.error("Operacao destrutiva detectada. Revisao humana obrigatoria antes de qualquer alvo real.");
+    console.error(
+      "Operação destrutiva detectada. Revisão humana obrigatória antes de qualquer alvo real."
+    );
     process.exitCode = 1;
   }
 }

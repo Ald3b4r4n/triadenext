@@ -14,10 +14,18 @@ interface CliArgs {
   writeReport: boolean;
 }
 
-export async function runStagingSmokeCli(argv = process.argv.slice(2), env = process.env) {
+export async function runStagingSmokeCli(
+  argv = process.argv.slice(2),
+  env = process.env
+) {
   const args = parseArgs(argv);
   const result = await runStagingSmokeReadiness({ ...args, env });
-  const files = args.writeReport ? writeStagingSmokeReports(result, { cwd: args.cwd, outputDir: args.outputDir }) : [];
+  const files = args.writeReport
+    ? writeStagingSmokeReports(result, {
+        cwd: args.cwd,
+        outputDir: args.outputDir
+      })
+    : [];
 
   printSummary(result.status, result.goNoGo, files);
   return result.status === "blocked" || result.status === "failed" ? 1 : 0;
@@ -112,9 +120,15 @@ export function parseArgs(argv: string[]): CliArgs {
 function printSummary(status: string, goNoGo: string, files: string[]) {
   console.log(`Staging smoke readiness: ${status}`);
   console.log(`Go/no-go: ${goNoGo}`);
-  console.log("Nenhum deploy, migration, conexao com producao, Stripe live mode ou envio real foi executado.");
-  console.log("Nenhum valor de secret, DATABASE_URL, token ou credencial foi impresso.");
-  console.log(`Relatorios: ${files.map((file) => file.replace(/\\/g, "/")).join(", ") || "desativados"}`);
+  console.log(
+    "Nenhum deploy, migration, conexão com produção, Stripe live mode ou envio real foi executado."
+  );
+  console.log(
+    "Nenhum valor de secret, DATABASE_URL, token ou credencial foi impresso."
+  );
+  console.log(
+    `Relatórios: ${files.map((file) => file.replace(/\\/g, "/")).join(", ") || "desativados"}`
+  );
 }
 
 if (process.argv[1]?.endsWith("cli.ts")) {
@@ -123,7 +137,11 @@ if (process.argv[1]?.endsWith("cli.ts")) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(error instanceof Error ? error.message : "Falha desconhecida no staging smoke.");
+      console.error(
+        error instanceof Error
+          ? error.message
+          : "Falha desconhecida no staging smoke."
+      );
       process.exitCode = 1;
     });
 }

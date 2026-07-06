@@ -18,15 +18,32 @@ export const inputFileSpecs: InputFileSpec[] = [
     label: "Categorias",
     required: true,
     requiredForApprovedInput: true,
-    candidates: ["categories.csv", "categories.json", "categories.example.csv", "categories.example.json"],
-    fields: ["name", "slug", "parent_slug", "description", "is_active", "sort_order"]
+    candidates: [
+      "categories.csv",
+      "categories.json",
+      "categories.example.csv",
+      "categories.example.json"
+    ],
+    fields: [
+      "name",
+      "slug",
+      "parent_slug",
+      "description",
+      "is_active",
+      "sort_order"
+    ]
   },
   {
     entity: "products",
     label: "Produtos",
     required: true,
     requiredForApprovedInput: true,
-    candidates: ["products.csv", "products.json", "products.example.csv", "products.example.json"],
+    candidates: [
+      "products.csv",
+      "products.json",
+      "products.example.csv",
+      "products.example.json"
+    ],
     fields: [
       "sku",
       "slug",
@@ -54,7 +71,14 @@ export const inputFileSpecs: InputFileSpec[] = [
       "product-images.example.csv",
       "product-images.example.json"
     ],
-    fields: ["product_sku", "reference", "alt_text", "sort_order", "is_cover", "fallback_approved"]
+    fields: [
+      "product_sku",
+      "reference",
+      "alt_text",
+      "sort_order",
+      "is_cover",
+      "fallback_approved"
+    ]
   },
   {
     entity: "inventory",
@@ -62,14 +86,26 @@ export const inputFileSpecs: InputFileSpec[] = [
     required: false,
     requiredForApprovedInput: true,
     candidates: ["inventory.csv", "inventory.json"],
-    fields: ["product_sku", "sku", "stock_quantity", "reserved_quantity", "is_available", "updated_at"]
+    fields: [
+      "product_sku",
+      "sku",
+      "stock_quantity",
+      "reserved_quantity",
+      "is_available",
+      "updated_at"
+    ]
   },
   {
     entity: "coupons",
     label: "Cupons",
     required: false,
     requiredForApprovedInput: false,
-    candidates: ["coupons.csv", "coupons.json", "coupons.example.csv", "coupons.example.json"],
+    candidates: [
+      "coupons.csv",
+      "coupons.json",
+      "coupons.example.csv",
+      "coupons.example.json"
+    ],
     fields: [
       "code",
       "type",
@@ -126,7 +162,7 @@ export function parseInputFile(spec: InputFileSpec, filePath: string) {
                 entity: spec.entity,
                 severity: "HIGH",
                 goLiveImpact: "bloqueador",
-                message: `Extensao nao suportada para ${spec.label}.`,
+                message: `Extensão não suportada para ${spec.label}.`,
                 recommendedAction: "corrigir-origem"
               })
             ]
@@ -141,7 +177,10 @@ export function parseInputFile(spec: InputFileSpec, filePath: string) {
   };
 }
 
-function parseJsonRecords(content: string, file: string): { records: ParsedRecord[]; issues: DryRunIssue[] } {
+function parseJsonRecords(
+  content: string,
+  file: string
+): { records: ParsedRecord[]; issues: DryRunIssue[] } {
   try {
     const parsed = JSON.parse(content) as unknown;
 
@@ -175,7 +214,7 @@ function parseJsonRecords(content: string, file: string): { records: ParsedRecor
           code: "INVALID_JSON",
           severity: "HIGH",
           goLiveImpact: "bloqueador",
-          message: "Arquivo JSON nao pode ser interpretado.",
+          message: "Arquivo JSON não pode ser interpretado.",
           recommendedAction: "corrigir-origem"
         })
       ]
@@ -183,7 +222,10 @@ function parseJsonRecords(content: string, file: string): { records: ParsedRecor
   }
 }
 
-function parseCsvRecords(content: string, file: string): { records: ParsedRecord[]; issues: DryRunIssue[] } {
+function parseCsvRecords(
+  content: string,
+  file: string
+): { records: ParsedRecord[]; issues: DryRunIssue[] } {
   const lines = content
     .replace(/^\uFEFF/, "")
     .split(/\r?\n/)
@@ -217,7 +259,8 @@ function parseCsvRecords(content: string, file: string): { records: ParsedRecord
           code: "INVALID_ROW",
           severity: "HIGH",
           goLiveImpact: "bloqueador",
-          message: "Linha CSV tem quantidade de colunas diferente do cabecalho.",
+          message:
+            "Linha CSV tem quantidade de colunas diferente do cabecalho.",
           row: index + 1,
           recommendedAction: "corrigir-origem"
         })
@@ -228,7 +271,12 @@ function parseCsvRecords(content: string, file: string): { records: ParsedRecord
     records.push({
       file,
       lineNumber: index + 1,
-      values: Object.fromEntries(headers.map((header, headerIndex) => [header, values[headerIndex]?.trim() ?? ""]))
+      values: Object.fromEntries(
+        headers.map((header, headerIndex) => [
+          header,
+          values[headerIndex]?.trim() ?? ""
+        ])
+      )
     });
   }
 
@@ -284,7 +332,7 @@ function validateFields(spec: InputFileSpec, records: ParsedRecord[]) {
           entity: spec.entity,
           severity: "HIGH",
           goLiveImpact: "bloqueador",
-          message: `Campo nao previsto no contrato de ${spec.label}.`,
+          message: `Campo não previsto no contrato de ${spec.label}.`,
           field,
           row: record.lineNumber,
           recommendedAction: "corrigir-origem"

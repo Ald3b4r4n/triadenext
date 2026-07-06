@@ -5,25 +5,50 @@ import { runStagingImportPreflight } from "./preflight";
 import { writePostImportReports, writePreImportReport } from "./report-writer";
 import { parseBooleanFlag, resolveStagingProvider } from "./environment";
 import type { ReportFormat } from "@/features/data-dry-run/types";
-import type { StagingEnv, StagingImportCliOptions, StagingWriteMode } from "./types";
+import type {
+  StagingEnv,
+  StagingImportCliOptions,
+  StagingWriteMode
+} from "./types";
 
-export async function runStagingImportCli(argv = process.argv.slice(2), env: StagingEnv = process.env) {
+export async function runStagingImportCli(
+  argv = process.argv.slice(2),
+  env: StagingEnv = process.env
+) {
   const options = parseArgs(argv);
   const preflight = runStagingImportPreflight({ ...options, env });
-  const preFiles = writePreImportReport(preflight, { cwd: options.cwd, outputDir: options.outputDir });
+  const preFiles = writePreImportReport(preflight, {
+    cwd: options.cwd,
+    outputDir: options.outputDir
+  });
 
   if (preflight.status !== "planned" || options.mode === "check") {
     printSummary(preflight.status, [...preFiles]);
     return preflight.status === "blocked" ? 1 : 0;
   }
 
-  const plan = buildStagingImportPlan({ cwd: options.cwd, inputDir: options.inputDir });
+  const plan = buildStagingImportPlan({
+    cwd: options.cwd,
+    inputDir: options.inputDir
+  });
   const store = connectApprovedStagingDatabase({ preflight, env });
-  const execution = await executeStagingImport({ preflight, plan, store, options });
-  const postFiles = writePostImportReports(execution, { cwd: options.cwd, outputDir: options.outputDir });
+  const execution = await executeStagingImport({
+    preflight,
+    plan,
+    store,
+    options
+  });
+  const postFiles = writePostImportReports(execution, {
+    cwd: options.cwd,
+    outputDir: options.outputDir
+  });
 
   printSummary(execution.status, [...preFiles, ...postFiles]);
-  return execution.status === "blocked" || execution.status === "no-go" || execution.status === "rollback-required" ? 1 : 0;
+  return execution.status === "blocked" ||
+    execution.status === "no-go" ||
+    execution.status === "rollback-required"
+    ? 1
+    : 0;
 }
 
 export function parseArgs(args: string[]): StagingImportCliOptions {
@@ -114,7 +139,9 @@ export function parseArgs(args: string[]): StagingImportCliOptions {
     }
 
     if (arg.startsWith("--backup-confirmed=")) {
-      parsed.backupConfirmed = parseBooleanFlag(arg.slice("--backup-confirmed=".length));
+      parsed.backupConfirmed = parseBooleanFlag(
+        arg.slice("--backup-confirmed=".length)
+      );
       continue;
     }
 
@@ -137,20 +164,24 @@ function parseMode(value: string | undefined): StagingWriteMode {
   if (value === "check" || value === "upsert" || value === "reset-and-upsert") {
     return value;
   }
-  throw new Error("Modo invalido. Use check, upsert ou reset-and-upsert.");
+  throw new Error("Modo inválido. Use check, upsert ou reset-and-upsert.");
 }
 
 function parseFormat(value: string | undefined): ReportFormat {
   if (value === "json" || value === "markdown" || value === "both") {
     return value;
   }
-  throw new Error("Formato invalido. Use json, markdown ou both.");
+  throw new Error("Formato inválido. Use json, markdown ou both.");
 }
 
 function printSummary(status: string, files: string[]) {
   console.log(`Approved staging import: ${status}`);
-  console.log("Nenhum valor de secret, DATABASE_URL, token ou credencial foi impresso.");
-  console.log(`Relatorios: ${files.map((file) => file.replace(/\\/g, "/")).join(", ") || "nenhum"}`);
+  console.log(
+    "Nenhum valor de secret, DATABASE_URL, token ou credencial foi impresso."
+  );
+  console.log(
+    `Relatórios: ${files.map((file) => file.replace(/\\/g, "/")).join(", ") || "nenhum"}`
+  );
 }
 
 if (process.argv[1]?.endsWith("cli.ts")) {
@@ -159,7 +190,11 @@ if (process.argv[1]?.endsWith("cli.ts")) {
       process.exitCode = code;
     })
     .catch((error) => {
-      console.error(error instanceof Error ? error.message : "Falha desconhecida na importacao staging.");
+      console.error(
+        error instanceof Error
+          ? error.message
+          : "Falha desconhecida na importação staging."
+      );
       process.exitCode = 1;
     });
 }

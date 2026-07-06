@@ -4,7 +4,11 @@ if (appEnvironment !== "development") {
   fail("Seed admin dev bloqueado fora de development/local-dev.");
 }
 
-const required = ["DATABASE_URL", "DEV_ADMIN_EMAIL", "DEV_ADMIN_PASSWORD"] as const;
+const required = [
+  "DATABASE_URL",
+  "DEV_ADMIN_EMAIL",
+  "DEV_ADMIN_PASSWORD"
+] as const;
 const missing = required.filter((name) => !process.env[name]);
 
 if (missing.length > 0) {
@@ -19,7 +23,9 @@ if (!email || !password) {
 }
 
 if (!isStrongEnough(password)) {
-  fail("Seed admin dev bloqueado: DEV_ADMIN_PASSWORD nao atende a politica minima.");
+  fail(
+    "Seed admin dev bloqueado: DEV_ADMIN_PASSWORD não atende à política mínima."
+  );
 }
 
 const adminEmail = email;
@@ -30,13 +36,14 @@ main().catch(() => {
 });
 
 async function main() {
-  const [{ default: pg }, { drizzle }, { eq }, { createAuth }, { users }] = await Promise.all([
-    import("pg"),
-    import("drizzle-orm/node-postgres"),
-    import("drizzle-orm"),
-    import("../../src/features/auth/server/create-auth"),
-    import("../../src/db/schema")
-  ]);
+  const [{ default: pg }, { drizzle }, { eq }, { createAuth }, { users }] =
+    await Promise.all([
+      import("pg"),
+      import("drizzle-orm/node-postgres"),
+      import("drizzle-orm"),
+      import("../../src/features/auth/server/create-auth"),
+      import("../../src/db/schema")
+    ]);
 
   const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL as string,
@@ -46,7 +53,11 @@ async function main() {
   const auth = createAuth({ useNextCookies: false });
 
   try {
-    const [existingUser] = await db.select().from(users).where(eq(users.email, adminEmail)).limit(1);
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, adminEmail))
+      .limit(1);
 
     if (!existingUser) {
       await auth.api.signUpEmail({
@@ -58,10 +69,14 @@ async function main() {
       });
     }
 
-    const [adminUser] = await db.select().from(users).where(eq(users.email, adminEmail)).limit(1);
+    const [adminUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, adminEmail))
+      .limit(1);
 
     if (!adminUser) {
-      fail("Seed admin dev nao confirmou usuario criado.");
+      fail("Seed admin dev não confirmou usuário criado.");
     }
 
     await db
@@ -75,11 +90,14 @@ async function main() {
     await pool.end();
   }
 
-  console.log("Seed admin dev concluido com usuario administrativo local.");
+  console.log("Seed admin dev concluído com usuário administrativo local.");
 }
 
 function resolveAppEnvironment() {
-  if (process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production") {
+  if (
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production"
+  ) {
     return "production";
   }
 

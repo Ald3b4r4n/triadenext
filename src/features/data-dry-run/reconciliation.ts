@@ -11,7 +11,10 @@ import type {
   SourceMetadata
 } from "./types";
 
-const countEntities: Array<{ entity: DryRunEntity; label: keyof NormalizedDryRunData }> = [
+const countEntities: Array<{
+  entity: DryRunEntity;
+  label: keyof NormalizedDryRunData;
+}> = [
   { entity: "categories", label: "categories" },
   { entity: "products", label: "products" },
   { entity: "productImages", label: "productImages" },
@@ -20,7 +23,10 @@ const countEntities: Array<{ entity: DryRunEntity; label: keyof NormalizedDryRun
   { entity: "shippingRules", label: "shippingRules" }
 ];
 
-export function reconcileDryRunData(dataset: ParsedInputDataset, data: NormalizedDryRunData): ReconciliationReport {
+export function reconcileDryRunData(
+  dataset: ParsedInputDataset,
+  data: NormalizedDryRunData
+): ReconciliationReport {
   const issues = [
     ...data.issues,
     ...catalogRelationshipIssues(data),
@@ -32,7 +38,9 @@ export function reconcileDryRunData(dataset: ParsedInputDataset, data: Normalize
   const divergences = issuesToDivergences(issues);
   const blockers = divergences.filter(isBlockingDivergence).length;
   const warnings = divergences.length - blockers;
-  const sourceRecords = Object.values(dataset.records).flatMap((records) => records ?? []);
+  const sourceRecords = Object.values(dataset.records).flatMap(
+    (records) => records ?? []
+  );
 
   return {
     schemaVersion: 1,
@@ -52,7 +60,10 @@ export function reconcileDryRunData(dataset: ParsedInputDataset, data: Normalize
         source,
         normalized,
         difference: normalized - source,
-        note: normalized === source ? "contagem reconciliada" : "diferenca exige revisao"
+        note:
+          normalized === source
+            ? "contagem reconciliada"
+            : "diferenca exige revisao"
       };
     }),
     keys: buildKeyChecks(data),
@@ -67,19 +78,29 @@ export function reconcileDryRunData(dataset: ParsedInputDataset, data: Normalize
         domain: "coupons" as const,
         entityKey: coupon.code,
         amountCents: coupon.value,
-        status: coupon.isActive && coupon.type !== "free_shipping" && coupon.value <= 0 ? ("invalid" as const) : ("ok" as const)
+        status:
+          coupon.isActive &&
+          coupon.type !== "free_shipping" &&
+          coupon.value <= 0
+            ? ("invalid" as const)
+            : ("ok" as const)
       })),
       ...data.shippingRules.map((rule) => ({
         domain: "shipping" as const,
         entityKey: rule.ruleCode,
         amountCents: rule.priceCents,
-        status: rule.isActive && rule.priceCents <= 0 ? ("invalid" as const) : ("ok" as const)
+        status:
+          rule.isActive && rule.priceCents <= 0
+            ? ("invalid" as const)
+            : ("ok" as const)
       }))
     ],
     assets: buildAssetChecks(data),
     shipping: data.shippingRules.map((rule) => ({
       ruleCode: rule.ruleCode,
-      coverage: rule.uf ?? `${rule.postalCodeStart ?? "?"}-${rule.postalCodeEnd ?? "?"}`,
+      coverage:
+        rule.uf ??
+        `${rule.postalCodeStart ?? "?"}-${rule.postalCodeEnd ?? "?"}`,
       priceCents: rule.priceCents,
       status: rule.isActive && rule.priceCents > 0 ? "ok" : "invalid"
     })),
@@ -87,7 +108,10 @@ export function reconcileDryRunData(dataset: ParsedInputDataset, data: Normalize
       code: coupon.code,
       type: coupon.type,
       isActive: coupon.isActive,
-      status: coupon.isActive && coupon.type !== "free_shipping" && coupon.value <= 0 ? "invalid" : "ok"
+      status:
+        coupon.isActive && coupon.type !== "free_shipping" && coupon.value <= 0
+          ? "invalid"
+          : "ok"
     })),
     divergences,
     privacy: {
@@ -97,7 +121,10 @@ export function reconcileDryRunData(dataset: ParsedInputDataset, data: Normalize
   };
 }
 
-export function createPendingInputReport(source: SourceMetadata, expectedFiles: DryRunExpectedFile[]): ReconciliationReport {
+export function createPendingInputReport(
+  source: SourceMetadata,
+  expectedFiles: DryRunExpectedFile[]
+): ReconciliationReport {
   const issues = expectedFiles
     .filter((file) => file.required && file.status === "missing")
     .map((file) =>
@@ -145,7 +172,9 @@ export function createPendingInputReport(source: SourceMetadata, expectedFiles: 
 
 function catalogRelationshipIssues(data: NormalizedDryRunData) {
   const issues = [];
-  const categorySlugs = new Set(data.categories.map((category) => category.slug));
+  const categorySlugs = new Set(
+    data.categories.map((category) => category.slug)
+  );
 
   for (const product of data.products) {
     if (!categorySlugs.has(product.categorySlug)) {
@@ -170,7 +199,9 @@ function catalogRelationshipIssues(data: NormalizedDryRunData) {
 function assetIssues(data: NormalizedDryRunData) {
   const issues = [];
   const productSkus = new Set(data.products.map((product) => product.sku));
-  const publishedProducts = data.products.filter((product) => product.status === "published");
+  const publishedProducts = data.products.filter(
+    (product) => product.status === "published"
+  );
   const imagesByProduct = groupImages(data);
 
   for (const image of data.productImages) {
@@ -244,14 +275,17 @@ function inventoryPublicationIssues(data: NormalizedDryRunData) {
   }
 
   return data.products
-    .filter((product) => product.status === "published" && product.stockQuantity <= 0)
+    .filter(
+      (product) => product.status === "published" && product.stockQuantity <= 0
+    )
     .map((product) =>
       createIssue({
         code: "INVALID_VALUE",
         entity: "inventory",
         severity: "HIGH",
         goLiveImpact: "bloqueador",
-        message: "Produto publicado precisa reconciliar estoque positivo no inventario.",
+        message:
+          "Produto publicado precisa reconciliar estoque positivo no inventário.",
         field: "stock_quantity",
         entityKey: product.sku,
         recommendedAction: "corrigir-origem"
@@ -270,7 +304,8 @@ function shippingCoverageIssues(data: NormalizedDryRunData) {
       entity: "shippingRules",
       severity: "HIGH",
       goLiveImpact: "bloqueador",
-      message: "Frete minimo precisa ter pelo menos uma regra ativa com preco positivo.",
+      message:
+        "Frete mínimo precisa ter pelo menos uma regra ativa com preço positivo.",
       field: "shipping_rules",
       recommendedAction: "corrigir-origem"
     })
@@ -279,14 +314,30 @@ function shippingCoverageIssues(data: NormalizedDryRunData) {
 
 function buildKeyChecks(data: NormalizedDryRunData) {
   return [
-    ...data.categories.map((category) => ({ domain: "categories", key: category.slug, status: "ok" as const })),
+    ...data.categories.map((category) => ({
+      domain: "categories",
+      key: category.slug,
+      status: "ok" as const
+    })),
     ...data.products.flatMap((product) => [
       { domain: "products", key: product.sku, status: "ok" as const },
       { domain: "products", key: product.slug, status: "ok" as const }
     ]),
-    ...data.inventory.map((item) => ({ domain: "inventory", key: item.productSku, status: "ok" as const })),
-    ...data.coupons.map((coupon) => ({ domain: "coupons", key: coupon.code, status: "ok" as const })),
-    ...data.shippingRules.map((rule) => ({ domain: "shipping", key: rule.ruleCode, status: "ok" as const }))
+    ...data.inventory.map((item) => ({
+      domain: "inventory",
+      key: item.productSku,
+      status: "ok" as const
+    })),
+    ...data.coupons.map((coupon) => ({
+      domain: "coupons",
+      key: coupon.code,
+      status: "ok" as const
+    })),
+    ...data.shippingRules.map((rule) => ({
+      domain: "shipping",
+      key: rule.ruleCode,
+      status: "ok" as const
+    }))
   ];
 }
 
@@ -300,7 +351,9 @@ function summarizeDivergenceOrigins(divergences: ReconciliationDivergence[]) {
   );
 }
 
-function buildAssetChecks(data: NormalizedDryRunData): ReconciliationAssetCheck[] {
+function buildAssetChecks(
+  data: NormalizedDryRunData
+): ReconciliationAssetCheck[] {
   const imagesByProduct = groupImages(data);
   const productSkus = new Set(data.products.map((product) => product.sku));
 
@@ -316,7 +369,10 @@ function buildAssetChecks(data: NormalizedDryRunData): ReconciliationAssetCheck[
           imageReferences: images.length,
           hasCover,
           fallbackApproved,
-          status: images.length > 0 && (hasCover || fallbackApproved) ? ("ok" as const) : ("missing" as const)
+          status:
+            images.length > 0 && (hasCover || fallbackApproved)
+              ? ("ok" as const)
+              : ("missing" as const)
         };
       }),
     ...data.productImages

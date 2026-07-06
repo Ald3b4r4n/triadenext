@@ -1,11 +1,23 @@
 import { APPROVED_DRY_RUN_INPUT_DIR } from "@/features/data-dry-run/input-discovery";
-import { createStagingEnvironment, requiresRemoteWrite, resolveStagingProvider, resolveStagingTarget } from "./environment";
+import {
+  createStagingEnvironment,
+  requiresRemoteWrite,
+  resolveStagingProvider,
+  resolveStagingTarget
+} from "./environment";
 import { evaluateDryRunGate } from "./dry-run-gate";
 import { inspectApprovedStagingInput } from "./input";
 import { detectProductionSignals } from "./production-guard";
-import type { StagingEnv, StagingImportCliOptions, StagingImportIssue, StagingPreflightResult } from "./types";
+import type {
+  StagingEnv,
+  StagingImportCliOptions,
+  StagingImportIssue,
+  StagingPreflightResult
+} from "./types";
 
-export function runStagingImportPreflight(options: Partial<StagingImportCliOptions> & { env?: StagingEnv } = {}): StagingPreflightResult {
+export function runStagingImportPreflight(
+  options: Partial<StagingImportCliOptions> & { env?: StagingEnv } = {}
+): StagingPreflightResult {
   const cwd = options.cwd ?? process.cwd();
   const mode = options.mode ?? "check";
   const env = options.env ?? process.env;
@@ -35,7 +47,9 @@ export function runStagingImportPreflight(options: Partial<StagingImportCliOptio
     });
   }
 
-  const environment = target ? createStagingEnvironment(target, provider) : null;
+  const environment = target
+    ? createStagingEnvironment(target, provider)
+    : null;
   const guard = detectProductionSignals({
     target: options.target,
     labels: {
@@ -61,7 +75,8 @@ export function runStagingImportPreflight(options: Partial<StagingImportCliOptio
       severity: "LOW",
       origin: "humana",
       entity: "environment",
-      message: "Arquivos aprovados ausentes ou incompletos em data/dry-run/input/primeira-execucao/.",
+      message:
+        "Arquivos aprovados ausentes ou incompletos em data/dry-run/input/primeira-execucao/.",
       recommendedAction: "nova-fase",
       blocksImport: false
     });
@@ -74,7 +89,8 @@ export function runStagingImportPreflight(options: Partial<StagingImportCliOptio
         severity: "HIGH",
         origin: "humana",
         entity: "database",
-        message: "Variavel STAGING_DATABASE_URL ausente; escrita remota bloqueada sem imprimir valor.",
+        message:
+          "Variavel STAGING_DATABASE_URL ausente; escrita remota bloqueada sem imprimir valor.",
         recommendedAction: "nova-fase",
         blocksImport: true
       });
@@ -98,7 +114,7 @@ export function runStagingImportPreflight(options: Partial<StagingImportCliOptio
         severity: "HIGH",
         origin: "humana",
         entity: "environment",
-        message: "Escrita staging exige referencia de aprovacao humana.",
+        message: "Escrita staging exige referência de aprovação humana.",
         recommendedAction: "nova-fase",
         blocksImport: true
       });
@@ -123,7 +139,8 @@ export function runStagingImportPreflight(options: Partial<StagingImportCliOptio
       severity: "CRITICAL",
       origin: "humana",
       entity: "database",
-      message: "Reset exige --allow-reset alem de backup, aprovacao e alvo nao produtivo.",
+      message:
+        "Reset exige --allow-reset além de backup, aprovação e alvo não produtivo.",
       recommendedAction: "nova-fase",
       blocksImport: true
     });
@@ -143,7 +160,11 @@ export function runStagingImportPreflight(options: Partial<StagingImportCliOptio
   }
 
   const hasBlockingIssue = issues.some((issue) => issue.blocksImport);
-  const status = hasBlockingIssue ? "blocked" : inputInspection.discovery.status === "pending-input" ? "pending-input" : "planned";
+  const status = hasBlockingIssue
+    ? "blocked"
+    : inputInspection.discovery.status === "pending-input"
+      ? "pending-input"
+      : "planned";
 
   return {
     schemaVersion: 1,

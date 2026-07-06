@@ -1,6 +1,7 @@
 import type { StagingImportIssue } from "./types";
 
-const sensitiveNamePattern = /\b(database_url|secret|token|private_key|password|stripe_secret|webhook_secret|blob_read_write_token)\b/i;
+const sensitiveNamePattern =
+  /\b(database_url|secret|token|private_key|password|stripe_secret|webhook_secret|blob_read_write_token)\b/i;
 const sensitiveValuePatterns = [
   /\b(postgres|postgresql|mysql|mongodb|redis):\/\//i,
   /\bDATABASE_URL\b/i,
@@ -37,12 +38,17 @@ export function sanitizeForReport<T>(value: T): T {
         return "[REDACTED]";
       }
 
-      return typeof current === "string" ? redactSensitiveValue(current) : current;
+      return typeof current === "string"
+        ? redactSensitiveValue(current)
+        : current;
     })
   ) as T;
 }
 
-export function createSecurityIssue(input: Pick<StagingImportIssue, "code" | "message"> & Partial<StagingImportIssue>): StagingImportIssue {
+export function createSecurityIssue(
+  input: Pick<StagingImportIssue, "code" | "message"> &
+    Partial<StagingImportIssue>
+): StagingImportIssue {
   return {
     severity: "CRITICAL",
     origin: "humana",
@@ -63,7 +69,8 @@ export function findSecretLikeOutput(value: unknown): StagingImportIssue[] {
   return [
     createSecurityIssue({
       code: "SECRET_REDACTED",
-      message: "Conteudo operacional contem valor com aparencia de secret e precisa ser redigido."
+      message:
+        "Conteúdo operacional contém valor com aparência de secret e precisa ser redigido."
     })
   ];
 }
