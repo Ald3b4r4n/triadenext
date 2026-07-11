@@ -1,5 +1,16 @@
 # Go-live readiness posterior
 
+## Gate da Fase 18
+
+- [ ] `ops:check-staging-environment` produz relatório `go` sanitizado.
+- [ ] Nenhum item Must permanece `pending-config`, `pending-input`, `blocked`, `failed` ou skip não autorizado.
+- [ ] Rollback Vercel e rollback Neon estão documentados separadamente.
+- [ ] Migration staging, bootstrap master e smoke real possuem aprovações distintas.
+- [ ] Stripe test/webhook está verde e live mode continua bloqueado.
+- [ ] Nova aprovação humana foi registrada para a próxima fase.
+
+O relatório da Fase 18 não autoriza produção, domínio definitivo ou Stripe live.
+
 Este checklist e preparatorio. A Fase 17 nao executa go-live, dominio real, deploy final, migration em producao ou Stripe live mode.
 
 ## Decisao humana
