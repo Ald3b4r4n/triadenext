@@ -47,13 +47,15 @@
     "reextracao_pos_fase_16",
     "fase_17",
     "identidade_visual_triade",
-    "reextracao_pos_fase_17"
+    "reextracao_pos_fase_17",
+    "fase_18",
+    "reextracao_pos_fase_18"
   ],
   "pending": [
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "reextraction_after_phase_17_2026_07_03",
+  "last_checkpoint": "reextraction_after_phase_18_2026_07_11",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -1680,9 +1682,96 @@
         "notes": "Pending-config, pending-input, bloqueio de producao/Stripe live e identidade visual publica registrados sem alterar codigo funcional."
       },
       "next_command": "push dos artefatos Reversa pos-Fase 17; proxima decisao pode tratar staging real configurado ou go-live readiness final"
+    },
+    "reextraction_after_phase_18_2026_07_11": {
+      "completed_at": "2026-07-11T00:00:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD após a Fase 18 de provider readiness e gates protegidos de staging.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "commits_confirmed": [
+          {
+            "short": "03f2130",
+            "message": "feat: implement provider readiness gates"
+          }
+        ],
+        "worktree_before_reextraction": "clean"
+      },
+      "files": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/deployment.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/adrs/013-provider-readiness-gates.md",
+        "_reversa_forward/026-fase-18-staging-environment/regression-watch.md"
+      ],
+      "phase18_summary": {
+        "module": "src/features/staging-environment/",
+        "scripts": [
+          "pnpm ops:check-staging-environment",
+          "pnpm ops:migrate-staging",
+          "pnpm ops:bootstrap-admin-staging"
+        ],
+        "statuses": [
+          "passed",
+          "pending-config",
+          "pending-input",
+          "blocked",
+          "failed",
+          "skipped"
+        ],
+        "production_blocked": true,
+        "stripe_live_mode_blocked": true,
+        "remote_execution_default": "blocked/check-only",
+        "migration_requires": [
+          "non-production target",
+          "explicit flag",
+          "human approval",
+          "migrations reviewed",
+          "snapshot"
+        ],
+        "bootstrap_requires": [
+          "non-production target",
+          "explicit flag",
+          "human approval",
+          "master allowlist"
+        ],
+        "reports_sanitized": true,
+        "local_builds_require_real_credentials": false
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 54 files / 160 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 37 passed / 3 skipped expected",
+        "safe ops scripts": "passed without remote connection",
+        "secret scan": "no secret found in the new content"
+      },
+      "guardrails": {
+        "functional_code_changed_during_reextraction": false,
+        "deploy": false,
+        "remote_migration": false,
+        "remote_database_connection": false,
+        "secrets_exposed": false,
+        "legacy_laravel_changed": false
+      },
+      "regression_watch": {
+        "features_checked": [
+          "_reversa_forward/026-fase-18-staging-environment"
+        ],
+        "green": 7,
+        "yellow": 0,
+        "red": 0,
+        "notes": "Readiness offline, bloqueios de produção/Stripe live, wrappers protegidos e relatórios sanitizados preservados no SDD."
+      },
+      "next_command": "commit documental e push dos commits da Fase 18; próxima decisão depende da configuração externa aprovada de staging"
     }
   },
-  "next_reversa_command": "push_concluido_pos_fase_17_planejar_staging_real_ou_go_live_readiness_final",
+  "next_reversa_command": "push_concluido_pos_fase_18_configurar_staging_externo_com_aprovacao_humana",
   "engines": [
     "claude-code",
     "codex",

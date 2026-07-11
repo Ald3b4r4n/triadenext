@@ -114,3 +114,19 @@ Guardrail: staging import e etapa controlada antes de go-live. Qualquer permissa
 | `public/brand/*` | Baixo | Baixo | Baixo | Baixo | Alto | Baixo |
 
 Guardrail: Fase 17 nao autoriza go-live definitivo. `pending-config` e `pending-input` sao estados seguros, nao falhas a esconder. Qualquer exposicao de admin para usuario comum, retorno a placeholder, permissao de Stripe live ou tentativa de producao deve ser tratada como regressao critica.
+
+## Impactos de Provider Readiness Pós-Fase 18
+
+| Artefato | Pending Config | Produção Guard | Secrets | Migration | Bootstrap | Smoke/Go-No-Go |
+| --- | --- | --- | --- | --- | --- | --- |
+| `src/features/staging-environment/provider-readiness.ts` | Crítico | Alto | Alto | Médio | Médio | Alto |
+| `src/features/staging-environment/production-guard.ts` | Médio | Crítico | Alto | Crítico | Crítico | Crítico |
+| `src/features/staging-environment/execution-gates.ts` | Alto | Crítico | Alto | Crítico | Crítico | Alto |
+| `src/features/staging-environment/migration-gate.ts` | Alto | Crítico | Alto | Crítico | Baixo | Médio |
+| `src/features/staging-environment/admin-bootstrap-gate.ts` | Alto | Crítico | Alto | Baixo | Crítico | Médio |
+| `src/features/staging-environment/report.ts` | Alto | Alto | Crítico | Médio | Médio | Crítico |
+| `scripts/ops/migrate-staging.mjs` | Alto | Crítico | Crítico | Crítico | Baixo | Baixo |
+| `scripts/ops/bootstrap-admin-staging.ts` | Alto | Crítico | Crítico | Baixo | Crítico | Baixo |
+| `scripts/ops/check-staging-environment.mjs` | Crítico | Crítico | Crítico | Alto | Alto | Crítico |
+
+Guardrail: a Fase 18 prepara providers e staging, mas não autoriza produção nem execução remota automática. `pending-config`, `pending-input` ou skip obrigatório nunca podem produzir decisão `go`; valores sensíveis jamais podem aparecer em relatórios ou logs.

@@ -164,6 +164,18 @@ Total observado nesse recorte: 324 arquivos, excluindo `.gitkeep`.
 - Validacoes reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (50 arquivos / 144 testes), `pnpm build` e `pnpm test:e2e` (36 passed / 2 skipped esperados para checks dependentes de URL staging).
 - Nenhum codigo funcional foi alterado nesta re-extracao; nenhum deploy, migration real, banco real, segredo exposto ou alteracao no Laravel legado foi executado.
 
+## Estado pós-Fase 18
+
+- Commit funcional de referência: `03f2130 feat: implement provider readiness gates`.
+- A Fase 18 adicionou `src/features/staging-environment/` para readiness offline de Vercel, Neon, Stripe test, autenticação, admin e staging.
+- Estados operacionais canônicos: `passed`, `pending-config`, `pending-input`, `blocked`, `failed` e `skipped`; pendências obrigatórias resultam em `no-go`.
+- Scripts adicionados: `pnpm ops:check-staging-environment`, `pnpm ops:migrate-staging` e `pnpm ops:bootstrap-admin-staging`.
+- Migration e bootstrap permanecem wrappers em modo check por padrão e exigem flags, ambiente permitido e aprovação humana para qualquer execução.
+- O smoke controlado cobre storefront, checkout, admin e notificações/outbox; nenhuma URL externa é necessária para validações locais.
+- Relatórios são sanitizados e não imprimem URL, `DATABASE_URL`, chaves Stripe, tokens ou webhook secrets.
+- Validações reportadas: `pnpm lint`, `pnpm typecheck`, `pnpm test` (54 arquivos / 160 testes), `pnpm build`, `pnpm test:e2e` (37 passed / 3 skipped esperados) e scripts `ops:*` seguros.
+- A varredura do conteúdo novo não encontrou secrets. Nenhum deploy, migration remota, banco remoto, push ou alteração no Laravel legado ocorreu durante a implementação ou esta re-extração.
+
 ## Organizacao sugerida
 
 Sugestao do Scout: `hybrid`.

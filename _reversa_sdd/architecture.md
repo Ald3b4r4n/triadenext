@@ -147,6 +147,26 @@ Regras arquiteturais da Fase 17:
 - 🟢 Identidade visual nao altera regras de catalogo, carrinho, cupom, frete, checkout, pedido, pagamento ou notificacao.
 - 🟢 Navegacao publica nao deve expor painel admin a usuarios comuns.
 
+## Provider Readiness Gates Pós-Fase 18
+
+| Camada | Arquivo/artefato | Responsabilidade |
+| --- | --- | --- |
+| Orquestração | `src/features/staging-environment/` | Consolidar readiness offline, estados operacionais, gates, smoke e decisão go/no-go |
+| Readiness de providers | `provider-readiness.ts`, `vercel-readiness.ts`, `neon-readiness.ts`, `stripe-test-readiness.ts` | Validar somente presença/ausência, sem descobrir infraestrutura nem imprimir valores |
+| Segurança | `production-guard.ts`, `human-approval.ts`, `execution-gates.ts` | Bloquear produção e Stripe live antes de qualquer efeito externo |
+| Migration protegida | `pnpm ops:migrate-staging` | Permanecer em modo check por padrão; exigir alvo, flags, aprovações, revisão e snapshot para execução |
+| Bootstrap protegido | `pnpm ops:bootstrap-admin-staging` | Permanecer em modo check por padrão; exigir staging, aprovação e master na allowlist |
+| Readiness operacional | `pnpm ops:check-staging-environment` | Gerar resultado sanitizado e `no-go` seguro quando faltar configuração |
+| Smoke e relatório | `smoke-orchestrator.ts`, `report.ts`, `go-no-go.ts` | Cobrir storefront, checkout, admin e notificações sem transformar skip em aprovação |
+
+Regras arquiteturais da Fase 18:
+
+- 🟢 `pending-config` e `pending-input` são estados seguros e sempre impedem decisão `go`.
+- 🟢 Produção, Stripe live e execução remota sem aprovação são bloqueados antes do carregamento de drivers.
+- 🟢 Relatórios registram nomes e estados, nunca URL, connection string, chave, token ou segredo.
+- 🟢 Migration e bootstrap são wrappers opt-in; build, testes e deploy não os executam automaticamente.
+- 🟢 Validações locais permanecem independentes de Vercel, Neon, Stripe ou URL externa.
+
 ## Dados
 
 Os agregados críticos são:
@@ -182,3 +202,4 @@ Os agregados críticos são:
 - 🟢 Dry-run controlado da Fase 14 processa arquivos locais em memoria e nao executa importacao real, upload real, migration real, banco real ou deploy.
 - 🟢 Dry-run aprovado da Fase 15 preserva `pending-input` como estado seguro quando faltam arquivos reais e continua sem importacao real, upload real, migration real, banco real ou deploy.
 - 🟢 Importacao staging da Fase 16 bloqueia producao, exige aprovacao humana e backup para operacoes destrutivas, nao imprime `DATABASE_URL` e nao executa deploy ou migration real.
+- 🟢 Provider readiness da Fase 18 mantém Vercel, Neon, Stripe test, migration, bootstrap e smoke remoto atrás de gates explícitos e relatórios sanitizados.

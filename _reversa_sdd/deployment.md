@@ -61,6 +61,9 @@ flowchart TB
 | `pnpm ops:import-staging` | Prepara/executa importacao staging/dev remoto aprovada | Bloqueia producao, exige preflight verde, aprovacao humana e nao imprime URL/secret |
 | `pnpm ops:check-staging-import-smoke` | Smoke pos-importacao em URL staging aprovada | Sem URL retorna skipped esperado; nao faz deploy, migration ou import |
 | `pnpm ops:check-staging-smoke` | Smoke real de staging/preview e go-live readiness | Sem URL/env/webhook retorna `pending-config`; bloqueia producao e Stripe live mode |
+| `pnpm ops:check-staging-environment` | Readiness offline consolidado de Vercel, Neon, Stripe test, auth e staging | Sem configuração retorna `pending-config`/`no-go`; não conecta nem imprime valores |
+| `pnpm ops:migrate-staging` | Wrapper protegido para migration em staging/dev remoto | Modo check por padrão; execução exige flags, aprovação, revisão e snapshot |
+| `pnpm ops:bootstrap-admin-staging` | Wrapper protegido para bootstrap do master em staging | Modo check por padrão; exige alvo permitido, aprovação e allowlist |
 
 ## Guardrails Operacionais
 
@@ -128,3 +131,15 @@ flowchart TB
 - O storefront publico foi alinhado ao manual Triade com paleta verde profundo/dourado, logo horizontal, hero com frasco premium, rodape institucional e vitrine de tres perfumes sinteticos.
 - Validacoes reportadas apos identidade visual: `pnpm lint`, `pnpm typecheck`, `pnpm test` (50 arquivos / 144 testes), `pnpm build` e `pnpm test:e2e` (36 passed / 2 skipped esperados).
 - Nenhum deploy, migration real, banco real, segredo, push automatico ou alteracao no Laravel legado foi executado nesta re-extracao.
+
+## Estado Pós-Fase 18
+
+- Commit funcional de referência: `03f2130 feat: implement provider readiness gates`.
+- O readiness de providers é offline por padrão e não tenta descobrir projeto Vercel, banco Neon, webhook Stripe ou URL externa.
+- Sem infraestrutura configurada, o resultado correto é `pending-config` com decisão `no-go`; sem entrada aprovada, `pending-input`.
+- Produção e Stripe live são bloqueados antes de qualquer efeito externo.
+- Migration staging exige ambiente permitido, flag explícita, aprovação humana, revisão das migrations e snapshot; não roda em build ou deploy.
+- Bootstrap master exige staging aprovado, flag explícita, aprovação humana e e-mail na allowlist; não promove usuário fora do contrato.
+- Smoke remoto e login admin dependem de configuração externa e aprovação humana; localmente, os checks permanecem sanitizados e sem rede.
+- Validações reportadas: lint, typecheck, 160 testes unitários em 54 arquivos, build e E2E com 37 passed / 3 skipped esperados.
+- Nenhum deploy, migration remota, conexão com banco remoto, segredo ou alteração no Laravel legado foi executado.

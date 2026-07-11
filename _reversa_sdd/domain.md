@@ -165,6 +165,17 @@ Nível: detalhado
 - 🟢 Painel admin deve ficar fora da navegacao publica para visitantes e clientes comuns, aparecendo apenas a contas admin/manager autenticadas.
 - 🟢 Rodape publico deve conter central de atendimento por e-mail, menu, formas de pagamento aceitas e credito de desenvolvimento da AR Software Development.
 
+### Readiness de Providers e Ambiente Staging
+
+- 🟢 A ausência de Vercel Preview, Neon staging/dev, Stripe test webhook ou URL aprovada retorna `pending-config` e decisão `no-go`, sem conexão remota.
+- 🟢 A ausência dos arquivos aprovados permanece `pending-input`; o status nunca equivale a autorização de importação ou go-live.
+- 🟢 Produção, domínio definitivo e Stripe live devem ser bloqueados antes de qualquer driver, conexão, request ou efeito externo.
+- 🟢 `pnpm ops:migrate-staging` opera em modo check por padrão; execução exige alvo não produtivo, flag explícita, aprovação humana, migrations revisadas e snapshot.
+- 🟢 `pnpm ops:bootstrap-admin-staging` opera em modo check por padrão; execução exige staging aprovado e e-mail master presente na allowlist.
+- 🟢 `pnpm ops:check-staging-environment` reporta somente presença/ausência e estados sanitizados, sem imprimir URL ou segredo.
+- 🟢 O smoke controlado cobre storefront, checkout, admin e notificações/outbox apenas quando configuração externa e aprovação humana estiverem disponíveis.
+- 🟢 O relatório só retorna `go` quando todos os critérios obrigatórios estão verdes e existe aprovação humana final.
+
 ## Decisões Implícitas Extraídas do Git
 
 - 🟢 A migração avançou em fases verticais: persistência, auth, carrinho, cupons, frete, checkout, pagamento, notificações e storefront.
@@ -174,6 +185,7 @@ Nível: detalhado
 - 🟢 A Fase 15 consolidou a primeira execucao aprovada e o estado `pending-input` para nao mascarar ausencia de dados reais como sucesso.
 - 🟢 A Fase 16 consolidou a ponte entre dry-run local e staging/dev remoto, mantendo producao bloqueada e operacoes destrutivas atras de backup, flag e aprovacao humana.
 - 🟢 A Fase 17 consolidou smoke staging real opt-in e identidade visual publica sem mudar regras de negocio.
+- 🟢 A Fase 18 consolidou readiness offline e gates de providers sem autorizar execução remota automática.
 - 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
 - 🟢 O sistema prefere fallback explícito a falha silenciosa.
 - 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.
@@ -192,3 +204,4 @@ Nível: detalhado
 - 🔴 Catalogo real, imagens, precos, estoque, cupons ativos e frete minimo ainda nao estao provados contra dados legados reais.
 - 🔴 A pasta `data/dry-run/input/primeira-execucao/` ainda precisa receber arquivos reais/exportados aprovados para sair de `pending-input`.
 - 🔴 Importacao staging real ainda depende de ambiente staging/dev remoto aprovado, `STAGING_DATABASE_URL` configurada fora do Git, backup/snapshot e dry-run `go`.
+- 🔴 Vercel Preview, Neon staging/dev e Stripe test webhook ainda precisam ser configurados e aprovados externamente para sair de `pending-config`.

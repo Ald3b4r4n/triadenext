@@ -5,19 +5,20 @@
     "isLegacyLaravel": false,
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
-  "updatedAt": "2026-07-03T00:00:00-03:00",
-  "scope": "Re-extracao Reversa pos-Fase 17 e identidade visual concluida",
+  "updatedAt": "2026-07-11T00:00:00-03:00",
+  "scope": "Re-extração Reversa pós-Fase 18 concluída",
   "git": {
     "branch": "main",
-    "statusBeforeReextraction": "main...origin/main",
+    "statusBeforeReextraction": "main...origin/main [ahead 1]",
     "latestCommit": {
-      "short": "547146a",
-      "hash": "547146ae2f2c5a8ad2bbaba20210487e619de5f2",
-      "message": "feat: apply triade visual identity"
+      "short": "03f2130",
+      "hash": "03f2130d58752fc48e098c0a5d48b0826c0bf360",
+      "message": "feat: implement provider readiness gates"
     },
     "phase15CommitPushed": true,
     "phase16CommitPushed": true,
     "phase17AndVisualIdentityCommitsPushed": true,
+    "phase18FunctionalCommitPushed": false,
     "workingTreeBeforeReextraction": "clean",
     "localUntrackedHandling": [
       ".codex-remote-attachments/ excluded via .git/info/exclude",
@@ -116,6 +117,12 @@
       "status": "completed",
       "summary": "Staging smoke readiness, pending-config/pending-input guards and go-live checklist",
       "commit": "c8b752f"
+    },
+    {
+      "phase": 18,
+      "status": "completed",
+      "summary": "Provider readiness offline, gates protegidos, wrappers de staging e relatório go/no-go sanitizado",
+      "commit": "03f2130"
     }
   ],
   "currentCapabilities": {
@@ -132,6 +139,7 @@
     "approvedDataDryRun": "Primeira execucao aprovada em data/dry-run/input/primeira-execucao com pending-input seguro, inventario em memoria e divergencias por origem.",
     "approvedStagingImport": "Importacao staging/dev remoto preparada com bloqueio de producao, preflight, upsert seguro, reset protegido, relatorios e smoke pos-importacao.",
     "stagingSmokeReadiness": "Smoke real de staging/preview preparado com pending-config para URL/env/webhook ausentes, pending-input para arquivos aprovados ausentes, bloqueio de producao e Stripe live mode.",
+    "providerReadiness": "Readiness offline de Vercel, Neon, Stripe test, autenticação e staging, com wrappers check-only, gates humanos e relatórios sanitizados.",
     "visualIdentity": "Storefront publico alinhado a identidade Triade: logo horizontal, paleta verde profundo/dourado, hero com frasco premium, vitrine Essenza Gold/Amber Imperial/Noir Absolu e admin oculto para usuarios comuns."
   },
   "currentLegacyParity": {
@@ -341,16 +349,18 @@
       "_reversa_sdd/migration/cutover_plan.md",
       "_reversa_sdd/adrs/010-primeira-execucao-pending-input.md",
       "_reversa_sdd/adrs/011-importacao-staging-controlada.md",
-      "_reversa_sdd/adrs/012-staging-smoke-e-identidade-visual.md"
+      "_reversa_sdd/adrs/012-staging-smoke-e-identidade-visual.md",
+      "_reversa_sdd/adrs/013-provider-readiness-gates.md"
     ],
-    "forwardFeature": "_reversa_forward/025-fase-17-staging-smoke",
+    "forwardFeature": "_reversa_forward/026-fase-18-staging-environment",
     "regressionWatchUpdated": [
-      "_reversa_forward/025-fase-17-staging-smoke/regression-watch.md"
+      "_reversa_forward/025-fase-17-staging-smoke/regression-watch.md",
+      "_reversa_forward/026-fase-18-staging-environment/regression-watch.md"
     ]
   },
   "nextStep": {
-    "recommendedCommand": "push documental pos-Fase 17; depois decidir configuracao externa para smoke staging real ou preparar go-live final",
-    "reason": "Conhecimento de staging smoke, pending-config, pending-input, bloqueio de producao/Stripe live e identidade visual Triade registrado sem alterar codigo funcional"
+    "recommendedCommand": "commit documental e push pós-Fase 18; depois configurar staging externo somente com aprovação humana",
+    "reason": "Readiness de providers, gates protegidos, wrappers check-only e decisão go/no-go foram registrados sem alterar código funcional"
   },
   "stagingImport": {
     "module": "src/features/staging-import",
@@ -440,5 +450,32 @@
       "Detalhes que permanecem",
       "textos tecnicos ou provisorios ao usuario final"
     ]
+  },
+  "stagingEnvironment": {
+    "module": "src/features/staging-environment",
+    "scripts": [
+      "pnpm ops:check-staging-environment",
+      "pnpm ops:migrate-staging",
+      "pnpm ops:bootstrap-admin-staging"
+    ],
+    "statuses": [
+      "passed",
+      "pending-config",
+      "pending-input",
+      "blocked",
+      "failed",
+      "skipped"
+    ],
+    "missingInfrastructureStatus": "pending-config/no-go",
+    "productionBlocked": true,
+    "stripeLiveModeBlocked": true,
+    "wrappersDefault": "check-only",
+    "requiresHumanApprovalForRemoteExecution": true,
+    "requiresSnapshotForMigration": true,
+    "reportsSanitized": true,
+    "unitTests": "160 tests / 54 files",
+    "e2e": "37 passed / 3 skipped expected",
+    "noRemoteConnectionDuringImplementation": true,
+    "noSecretsFound": true
   }
 }

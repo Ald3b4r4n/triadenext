@@ -14,7 +14,17 @@
 
 ## Histórico de re-extrações
 
-Nenhuma re-extração registrada ainda.
+### Re-extração 2026-07-11 00:00
+
+| ID | Veredito | Observação |
+| --- | --- | --- |
+| W001 | 🟢 verde | `pending-config` permanece estado offline, sem rede/banco e com decisão `no-go`, registrado em `_reversa_sdd/domain.md`. |
+| W002 | 🟢 verde | Produção e Stripe live permanecem bloqueados antes de efeitos externos em `_reversa_sdd/architecture.md` e no ADR 013. |
+| W003 | 🟢 verde | Migration staging continua condicionada a alvo, flags, aprovações, revisão e snapshot em `_reversa_sdd/deployment.md`. |
+| W004 | 🟢 verde | Bootstrap master permanece staging-only, allowlisted e protegido em `_reversa_sdd/domain.md` e `_reversa_sdd/deployment.md`. |
+| W005 | 🟢 verde | Outputs sanitizados continuam proibidos de incluir URLs, connection strings ou secrets, conforme ADR 013. |
+| W006 | 🟢 verde | Decisão `go` continua restrita a critérios obrigatórios verdes e aprovação humana final. |
+| W007 | 🟢 verde | Validações locais permanecem independentes de infraestrutura externa, com 160 testes e E2E opt-in. |
 
 ## Arquivadas
 
