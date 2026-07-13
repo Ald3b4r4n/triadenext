@@ -5,20 +5,21 @@
     "isLegacyLaravel": false,
     "legacyPath": "D:\\Projetos\\triadeessenzaparfum.com.br"
   },
-  "updatedAt": "2026-07-11T00:00:00-03:00",
-  "scope": "Re-extração Reversa pós-Fase 18 concluída",
+  "updatedAt": "2026-07-13T00:00:00-03:00",
+  "scope": "Re-extração Reversa pós-Fase 19 concluída",
   "git": {
     "branch": "main",
     "statusBeforeReextraction": "main...origin/main [ahead 1]",
     "latestCommit": {
-      "short": "03f2130",
-      "hash": "03f2130d58752fc48e098c0a5d48b0826c0bf360",
-      "message": "feat: implement provider readiness gates"
+      "short": "3751080",
+      "hash": "3751080791d42748abb43aea21dd9dbb42587e57",
+      "message": "feat: implement controlled staging diagnostics"
     },
     "phase15CommitPushed": true,
     "phase16CommitPushed": true,
     "phase17AndVisualIdentityCommitsPushed": true,
-    "phase18FunctionalCommitPushed": false,
+    "phase18FunctionalCommitPushed": true,
+    "phase19FunctionalCommitPushed": false,
     "workingTreeBeforeReextraction": "clean",
     "localUntrackedHandling": [
       ".codex-remote-attachments/ excluded via .git/info/exclude",
@@ -123,6 +124,12 @@
       "status": "completed",
       "summary": "Provider readiness offline, gates protegidos, wrappers de staging e relatório go/no-go sanitizado",
       "commit": "03f2130"
+    },
+    {
+      "phase": 19,
+      "status": "completed",
+      "summary": "Diagnóstico controlado de staging, matriz operacional, decisão NO-GO e checklist humano",
+      "commit": "3751080"
     }
   ],
   "currentCapabilities": {
@@ -140,6 +147,7 @@
     "approvedStagingImport": "Importacao staging/dev remoto preparada com bloqueio de producao, preflight, upsert seguro, reset protegido, relatorios e smoke pos-importacao.",
     "stagingSmokeReadiness": "Smoke real de staging/preview preparado com pending-config para URL/env/webhook ausentes, pending-input para arquivos aprovados ausentes, bloqueio de producao e Stripe live mode.",
     "providerReadiness": "Readiness offline de Vercel, Neon, Stripe test, autenticação e staging, com wrappers check-only, gates humanos e relatórios sanitizados.",
+    "controlledStagingDiagnostics": "Diagnóstico seguro dos providers e scripts operacionais, com estados consolidados, decisão NO-GO e checklist humano sem execução remota.",
     "visualIdentity": "Storefront publico alinhado a identidade Triade: logo horizontal, paleta verde profundo/dourado, hero com frasco premium, vitrine Essenza Gold/Amber Imperial/Noir Absolu e admin oculto para usuarios comuns."
   },
   "currentLegacyParity": {
@@ -350,17 +358,19 @@
       "_reversa_sdd/adrs/010-primeira-execucao-pending-input.md",
       "_reversa_sdd/adrs/011-importacao-staging-controlada.md",
       "_reversa_sdd/adrs/012-staging-smoke-e-identidade-visual.md",
-      "_reversa_sdd/adrs/013-provider-readiness-gates.md"
+      "_reversa_sdd/adrs/013-provider-readiness-gates.md",
+      "_reversa_sdd/adrs/014-controlled-staging-diagnostics.md"
     ],
-    "forwardFeature": "_reversa_forward/026-fase-18-staging-environment",
+    "forwardFeature": "_reversa_forward/027-fase-19-controlled-staging",
     "regressionWatchUpdated": [
       "_reversa_forward/025-fase-17-staging-smoke/regression-watch.md",
-      "_reversa_forward/026-fase-18-staging-environment/regression-watch.md"
+      "_reversa_forward/026-fase-18-staging-environment/regression-watch.md",
+      "_reversa_forward/027-fase-19-controlled-staging/regression-watch.md"
     ]
   },
   "nextStep": {
-    "recommendedCommand": "commit documental e push pós-Fase 18; depois configurar staging externo somente com aprovação humana",
-    "reason": "Readiness de providers, gates protegidos, wrappers check-only e decisão go/no-go foram registrados sem alterar código funcional"
+    "recommendedCommand": "commit documental e push pós-Fase 19; depois executar o checklist humano fora do Git antes de qualquer staging real",
+    "reason": "O diagnóstico confirmou NO-GO por configuração e input pendentes, preservando os gates e sem executar operação remota"
   },
   "stagingImport": {
     "module": "src/features/staging-import",
@@ -477,5 +487,54 @@
     "e2e": "37 passed / 3 skipped expected",
     "noRemoteConnectionDuringImplementation": true,
     "noSecretsFound": true
+  },
+  "controlledStagingDiagnostics": {
+    "mode": "offline-safe-default",
+    "scriptsChecked": [
+      "pnpm ops:check-staging-environment",
+      "pnpm ops:check-staging-smoke",
+      "pnpm ops:check-staging-import-smoke",
+      "pnpm ops:check-data-dry-run",
+      "pnpm ops:import-staging",
+      "pnpm ops:migrate-staging",
+      "pnpm ops:bootstrap-admin-staging"
+    ],
+    "providerStatus": {
+      "vercel": "pending-config",
+      "neon": "pending-config",
+      "stripeTest": "pending-config",
+      "stripeWebhookTest": "pending-config",
+      "authAdmin": "pending-config",
+      "approvedInput": "pending-input",
+      "stagingImport": "blocked",
+      "migration": "pending-config/check-only",
+      "bootstrap": "pending-config/check-only",
+      "syntheticDryRun": "passed"
+    },
+    "statusCounts": {
+      "passed": 2,
+      "pending-config": 9,
+      "pending-input": 2,
+      "blocked": 1,
+      "skipped": 1,
+      "failed": 0
+    },
+    "finalDecision": "NO-GO",
+    "reports": [
+      "operational-status-matrix.md",
+      "operational-go-no-go.md",
+      "human-staging-checklist.md"
+    ],
+    "regressionWatches": "6 green / 0 yellow / 0 red",
+    "outputSanitized": true,
+    "urlValuesRecorded": false,
+    "secretValuesRecorded": false,
+    "remoteConnectionExecuted": false,
+    "migrationExecuted": false,
+    "importExecuted": false,
+    "bootstrapExecuted": false,
+    "deployExecuted": false,
+    "unitTests": "161 tests / 55 files",
+    "e2e": "37 passed / 3 skipped expected"
   }
 }

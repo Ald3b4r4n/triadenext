@@ -16,7 +16,16 @@
 
 ## Histórico de re-extrações
 
-Nenhuma re-extração registrada nesta feature.
+### Re-extração 2026-07-13 00:00
+
+| ID | Veredito | Observação |
+| --- | --- | --- |
+| W001 | 🟢 verde | A confirmação sanitizada do alvo permanece sem URL, host, caminho ou credencial, registrada em `_reversa_sdd/architecture.md` e no ADR 014. |
+| W002 | 🟢 verde | Checks sem configuração preservam `pending-config`/`pending-input`, sem rede, conforme `_reversa_sdd/domain.md`. |
+| W003 | 🟢 verde | Produção e Stripe live continuam bloqueados antes de qualquer efeito externo em `_reversa_sdd/architecture.md` e no ADR 014. |
+| W004 | 🟢 verde | Relatórios versionáveis permanecem sanitizados e sem valores sensíveis, conforme `_reversa_sdd/deployment.md` e o ADR 014. |
+| W005 | 🟢 verde | Migration e bootstrap permanecem em modo check por padrão em `_reversa_sdd/domain.md` e `_reversa_sdd/deployment.md`. |
+| W006 | 🟢 verde | Ausência dos arquivos aprovados continua `pending-input`; dry-run sintético não autoriza staging em `_reversa_sdd/domain.md`. |
 
 ## Arquivadas
 

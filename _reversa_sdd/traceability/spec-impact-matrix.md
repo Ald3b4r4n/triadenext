@@ -130,3 +130,15 @@ Guardrail: Fase 17 nao autoriza go-live definitivo. `pending-config` e `pending-
 | `scripts/ops/check-staging-environment.mjs` | Crítico | Crítico | Crítico | Alto | Alto | Crítico |
 
 Guardrail: a Fase 18 prepara providers e staging, mas não autoriza produção nem execução remota automática. `pending-config`, `pending-input` ou skip obrigatório nunca podem produzir decisão `go`; valores sensíveis jamais podem aparecer em relatórios ou logs.
+
+## Impactos do Diagnóstico Controlado de Staging Pós-Fase 19
+
+| Artefato | Sanitização | Status Operacional | Importação | Migration | Bootstrap | Go/No-Go |
+| --- | --- | --- | --- | --- | --- | --- |
+| `scripts/ops/check-staging-import-smoke.mjs` | Crítico | Médio | Médio | Baixo | Baixo | Médio |
+| `_reversa_forward/027-fase-19-controlled-staging/operational-status-matrix.md` | Crítico | Crítico | Alto | Alto | Alto | Crítico |
+| `_reversa_forward/027-fase-19-controlled-staging/operational-go-no-go.md` | Crítico | Crítico | Crítico | Crítico | Crítico | Crítico |
+| `_reversa_forward/027-fase-19-controlled-staging/human-staging-checklist.md` | Alto | Alto | Crítico | Crítico | Crítico | Crítico |
+| `_reversa_forward/027-fase-19-controlled-staging/regression-watch.md` | Crítico | Alto | Alto | Alto | Alto | Alto |
+
+Guardrail: a Fase 19 apenas diagnostica os modos seguros existentes. `passed` do dry-run sintético não aprova input real; `pending-config`, `pending-input`, `blocked` ou smoke obrigatório `skipped` mantêm a decisão `NO-GO`. URL, host, caminho e valores sensíveis não podem ser registrados.

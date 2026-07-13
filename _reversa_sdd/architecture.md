@@ -167,6 +167,25 @@ Regras arquiteturais da Fase 18:
 - 🟢 Migration e bootstrap são wrappers opt-in; build, testes e deploy não os executam automaticamente.
 - 🟢 Validações locais permanecem independentes de Vercel, Neon, Stripe ou URL externa.
 
+## Diagnóstico Controlado de Staging Pós-Fase 19
+
+| Camada | Arquivo/artefato | Responsabilidade |
+| --- | --- | --- |
+| Sequência diagnóstica | `_reversa_forward/027-fase-19-controlled-staging/interfaces/controlled-staging-diagnostic-sequence.md` | Ordenar os sete checks locais sem flags remotas ou destrutivas |
+| Consolidação | `operational-status-matrix.md` | Normalizar `passed`, `pending-config`, `pending-input`, `blocked`, `skipped` e `failed` |
+| Decisão operacional | `operational-go-no-go.md` | Produzir decisão `NO-GO` enquanto existir pendência obrigatória, bloqueio ou skip de smoke |
+| Ações humanas | `human-staging-checklist.md` | Converter pendências em configuração externa, evidência e aprovação explícita |
+| Segurança de saída | `scripts/ops/check-staging-import-smoke.mjs` | Confirmar alvo aprovado sem imprimir URL, host, caminho ou credencial |
+
+Regras arquiteturais da Fase 19:
+
+- 🟢 Os scripts operacionais podem ser invocados sem flags apenas quando o modo padrão estiver comprovadamente restrito a check ou precheck.
+- 🟢 `ops:import-staging` deve encerrar no precheck antes de carregar banco quando alvo, input ou aprovação estiverem ausentes.
+- 🟢 `ops:migrate-staging` e `ops:bootstrap-admin-staging` permanecem check-only no modo padrão.
+- 🟢 Fixtures sintéticas validam somente o harness local e não aprovam input real nem importação staging.
+- 🟢 Relatórios versionáveis contêm status, categoria e evidência sanitizada, nunca URL completa, connection string ou secret.
+- 🟢 O diagnóstico atual é `NO-GO`: configuração externa e arquivos aprovados continuam pendentes.
+
 ## Dados
 
 Os agregados críticos são:
@@ -203,3 +222,4 @@ Os agregados críticos são:
 - 🟢 Dry-run aprovado da Fase 15 preserva `pending-input` como estado seguro quando faltam arquivos reais e continua sem importacao real, upload real, migration real, banco real ou deploy.
 - 🟢 Importacao staging da Fase 16 bloqueia producao, exige aprovacao humana e backup para operacoes destrutivas, nao imprime `DATABASE_URL` e nao executa deploy ou migration real.
 - 🟢 Provider readiness da Fase 18 mantém Vercel, Neon, Stripe test, migration, bootstrap e smoke remoto atrás de gates explícitos e relatórios sanitizados.
+- 🟢 O diagnóstico da Fase 19 confirmou os gates em modo local: nenhum provider, banco, migration, bootstrap, importação ou deploy foi acionado.

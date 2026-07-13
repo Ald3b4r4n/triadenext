@@ -176,6 +176,17 @@ Nível: detalhado
 - 🟢 O smoke controlado cobre storefront, checkout, admin e notificações/outbox apenas quando configuração externa e aprovação humana estiverem disponíveis.
 - 🟢 O relatório só retorna `go` quando todos os critérios obrigatórios estão verdes e existe aprovação humana final.
 
+### Diagnóstico Controlado de Staging
+
+- 🟢 A execução diagnóstica sem flags pode registrar somente status, exit code, categoria e evidência sanitizada.
+- 🟢 Vercel, Neon, Stripe test, webhook test e autenticação/admin ausentes permanecem `pending-config`; esse estado conclui o diagnóstico, mas obriga decisão `no-go`.
+- 🟢 Arquivos aprovados ausentes permanecem `pending-input`; fixtures sintéticas não substituem reconciliação real nem autorizam staging.
+- 🟢 O precheck de importação deve retornar `blocked` antes de carregar banco quando alvo, input ou aprovação estiverem ausentes.
+- 🟢 Migration e bootstrap sem flags permanecem em modo check; aprovação de uma operação nunca vale implicitamente para outra.
+- 🟢 Smoke remoto obrigatório não executado permanece `skipped` e impede decisão `go`.
+- 🟢 A decisão operacional pós-Fase 19 é `NO-GO` até que o checklist humano tenha evidências completas e aprovações específicas.
+- 🟢 Nenhum relatório versionável pode conter URL completa, host, caminho, connection string, chave, token, cookie, senha ou valor de variável sensível.
+
 ## Decisões Implícitas Extraídas do Git
 
 - 🟢 A migração avançou em fases verticais: persistência, auth, carrinho, cupons, frete, checkout, pagamento, notificações e storefront.
@@ -186,6 +197,7 @@ Nível: detalhado
 - 🟢 A Fase 16 consolidou a ponte entre dry-run local e staging/dev remoto, mantendo producao bloqueada e operacoes destrutivas atras de backup, flag e aprovacao humana.
 - 🟢 A Fase 17 consolidou smoke staging real opt-in e identidade visual publica sem mudar regras de negocio.
 - 🟢 A Fase 18 consolidou readiness offline e gates de providers sem autorizar execução remota automática.
+- 🟢 A Fase 19 executou somente os modos diagnósticos seguros e converteu pendências reais em matriz, decisão `NO-GO` e checklist humano.
 - 🟢 Cada fase veio com artefatos `_reversa_forward`, validações e regressão.
 - 🟢 O sistema prefere fallback explícito a falha silenciosa.
 - 🟢 Integrações externas reais só entram atrás de adapters, mocks e guardrails.

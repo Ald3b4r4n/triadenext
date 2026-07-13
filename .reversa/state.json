@@ -49,13 +49,15 @@
     "identidade_visual_triade",
     "reextracao_pos_fase_17",
     "fase_18",
-    "reextracao_pos_fase_18"
+    "reextracao_pos_fase_18",
+    "fase_19",
+    "reextracao_pos_fase_19"
   ],
   "pending": [
     "writer_reversa_rerun",
     "reviewer_reversa_rerun"
   ],
-  "last_checkpoint": "reextraction_after_phase_18_2026_07_11",
+  "last_checkpoint": "reextraction_after_phase_19_2026_07_13",
   "checkpoints": {
     "scout_rerun_2026_06_11": {
       "completed_at": "2026-06-11T00:00:00-03:00",
@@ -1769,9 +1771,99 @@
         "notes": "Readiness offline, bloqueios de produção/Stripe live, wrappers protegidos e relatórios sanitizados preservados no SDD."
       },
       "next_command": "commit documental e push dos commits da Fase 18; próxima decisão depende da configuração externa aprovada de staging"
+    },
+    "reextraction_after_phase_19_2026_07_13": {
+      "completed_at": "2026-07-13T00:00:00-03:00",
+      "purpose": "Atualizar artefatos Reversa/SDD após a Fase 19 de diagnóstico controlado de staging.",
+      "git": {
+        "branch": "main",
+        "status_before_reextraction": "main...origin/main [ahead 1]",
+        "commits_confirmed": [
+          {
+            "short": "3751080",
+            "message": "feat: implement controlled staging diagnostics"
+          }
+        ],
+        "worktree_before_reextraction": "clean"
+      },
+      "files": [
+        ".reversa/state.json",
+        ".reversa/context/current-state.json",
+        "_reversa_sdd/inventory.md",
+        "_reversa_sdd/architecture.md",
+        "_reversa_sdd/domain.md",
+        "_reversa_sdd/deployment.md",
+        "_reversa_sdd/traceability/spec-impact-matrix.md",
+        "_reversa_sdd/adrs/014-controlled-staging-diagnostics.md",
+        "_reversa_forward/027-fase-19-controlled-staging/regression-watch.md"
+      ],
+      "phase19_summary": {
+        "mode": "offline-safe-default",
+        "scripts_checked": [
+          "pnpm ops:check-staging-environment",
+          "pnpm ops:check-staging-smoke",
+          "pnpm ops:check-staging-import-smoke",
+          "pnpm ops:check-data-dry-run",
+          "pnpm ops:import-staging",
+          "pnpm ops:migrate-staging",
+          "pnpm ops:bootstrap-admin-staging"
+        ],
+        "provider_status": {
+          "vercel": "pending-config",
+          "neon": "pending-config",
+          "stripe_test": "pending-config",
+          "stripe_webhook_test": "pending-config",
+          "auth_admin": "pending-config",
+          "approved_input": "pending-input",
+          "staging_import": "blocked",
+          "migration": "pending-config/check-only",
+          "bootstrap": "pending-config/check-only",
+          "synthetic_dry_run": "passed"
+        },
+        "status_counts": {
+          "passed": 2,
+          "pending-config": 9,
+          "pending-input": 2,
+          "blocked": 1,
+          "skipped": 1,
+          "failed": 0
+        },
+        "final_decision": "NO-GO",
+        "reports_sanitized": true,
+        "url_or_secret_values_recorded": false
+      },
+      "validations_reported": {
+        "pnpm lint": "passed",
+        "pnpm typecheck": "passed",
+        "pnpm test": "passed - 55 files / 161 tests",
+        "pnpm build": "passed",
+        "pnpm test:e2e": "passed - 37 passed / 3 skipped expected",
+        "safe ops scripts": "diagnostic defaults executed without remote effects",
+        "secret scan": "no URL or secret value found in versionable reports"
+      },
+      "guardrails": {
+        "functional_code_changed_during_reextraction": false,
+        "deploy": false,
+        "remote_migration": false,
+        "remote_database_connection": false,
+        "remote_import": false,
+        "remote_bootstrap": false,
+        "secrets_exposed": false,
+        "legacy_laravel_changed": false
+      },
+      "regression_watch": {
+        "features_checked": [
+          "_reversa_forward/027-fase-19-controlled-staging"
+        ],
+        "green": 6,
+        "yellow": 0,
+        "red": 0,
+        "notes": "Saída sanitizada, estados seguros, bloqueios de produção e wrappers check-only preservados no SDD."
+      },
+      "next_command": "commit documental e push dos commits da Fase 19; depois cumprir checklist humano fora do Git antes de qualquer staging real"
     }
   },
-  "next_reversa_command": "push_concluido_pos_fase_18_configurar_staging_externo_com_aprovacao_humana",
+  "next_reversa_command": "push_concluido_pos_fase_19_cumprir_checklist_humano_para_staging_real",
   "engines": [
     "claude-code",
     "codex",
