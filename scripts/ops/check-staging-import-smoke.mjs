@@ -46,9 +46,7 @@ function run(args = process.argv.slice(2)) {
   }
 
   assertSafeUrl(url);
-  console.log(
-    `Alvo aprovado: ${url.origin}${url.pathname === "/" ? "" : url.pathname}`
-  );
+  console.log("Alvo staging aprovado; URL mantida em sigilo.");
   console.log(
     "Use pnpm test:e2e com STAGING_IMPORT_SMOKE_URL para executar a suite quando o ambiente estiver aprovado."
   );

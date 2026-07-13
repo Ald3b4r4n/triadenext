@@ -1,13 +1,12 @@
 {
   "schema-version": 1,
-  "feature-dir": "_reversa_forward/026-fase-18-staging-environment",
-  "feature-id": "026",
-  "short-name": "fase-18-staging-environment",
-  "started-at": "2026-07-09T23:44:47-03:00",
+  "feature-dir": "_reversa_forward/027-fase-19-controlled-staging",
+  "feature-id": "027",
+  "short-name": "fase-19-controlled-staging",
+  "started-at": "2026-07-11T20:22:01-03:00",
   "current-stage": "coding",
   "stages-completed": [
     "requirements",
-    "clarify",
     "plan",
     "to-do",
     "audit",
