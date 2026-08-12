@@ -151,7 +151,9 @@ export async function updateCartItemQuantity(input: {
     return { status: "forbidden", message: runtimeMessages.cartForbidden };
   }
 
-  return toResult(await recalculateCartForActor(actor, updated));
+  return toResult(
+    await recalculateCartForActor(actor, updated, new Map([[productValidation.product.id, productValidation.product]]))
+  );
 }
 
 export async function removeCartItem(
@@ -479,12 +481,15 @@ export async function mergeGuestCartIntoUser(input: {
   });
 }
 
-export async function recalculateCartView(cart: CartView): Promise<CartView> {
+export async function recalculateCartView(
+  cart: CartView,
+  knownProducts: ReadonlyMap<string, NonNullable<Awaited<ReturnType<typeof productRepository.findProductById>>>> = new Map()
+): Promise<CartView> {
   const items: CartItem[] = [];
   const messages = [...cart.messages];
 
   const products = await Promise.all(
-    cart.items.map((item) => productRepository.findProductById(item.productId))
+    cart.items.map((item) => knownProducts.get(item.productId) ?? productRepository.findProductById(item.productId))
   );
 
   for (const [index, item] of cart.items.entries()) {
@@ -560,9 +565,10 @@ function getProductImageView(product: NonNullable<Awaited<ReturnType<typeof prod
 
 async function recalculateCartForActor(
   actor: Exclude<CartActor, { kind: "unavailable" }>,
-  cart: CartView
+  cart: CartView,
+  knownProducts?: ReadonlyMap<string, NonNullable<Awaited<ReturnType<typeof productRepository.findProductById>>>>
 ) {
-  const recalculated = await recalculateCartView(cart);
+  const recalculated = await recalculateCartView(cart, knownProducts);
   const hasInvalidAppliedCoupon =
     cart.appliedCouponId !== null && recalculated.coupon === null;
 

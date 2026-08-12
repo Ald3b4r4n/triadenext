@@ -82,7 +82,6 @@ export async function updateCartItemQuantityAction(formData: FormData): Promise<
   }
 
   const result = await updateCartItemQuantity(parsed.data);
-  revalidateCartPaths();
   return result;
 }
 
