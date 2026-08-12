@@ -22,7 +22,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn()
 }));
 
-import { addCartItemAction, applyCouponAction } from "@/features/cart/server/cart-actions";
+import {
+  addCartItemAction,
+  addCartItemStateAction,
+  applyCouponAction
+} from "@/features/cart/server/cart-actions";
 
 describe("cart actions", () => {
   it("validates inputs before calling the service", async () => {
@@ -44,6 +48,47 @@ describe("cart actions", () => {
     expect(addItemToCartMock).toHaveBeenCalledWith({
       productId: "prod-example-published",
       quantity: 1
+    });
+  });
+
+  it("returns visible success state after adding an item", async () => {
+    const formData = new FormData();
+    formData.set("productId", "prod-example-published");
+    formData.set("quantity", "1");
+    addItemToCartMock.mockResolvedValueOnce({
+      status: "success",
+      cart: {},
+      message: "ok"
+    });
+
+    const result = await addCartItemStateAction(
+      { status: "idle", message: "" },
+      formData
+    );
+
+    expect(result).toEqual({
+      status: "success",
+      message: "Produto adicionado ao carrinho."
+    });
+  });
+
+  it("returns the service error for visible feedback", async () => {
+    const formData = new FormData();
+    formData.set("productId", "prod-example-published");
+    formData.set("quantity", "1");
+    addItemToCartMock.mockResolvedValueOnce({
+      status: "product_unavailable",
+      message: "Produto indisponível."
+    });
+
+    const result = await addCartItemStateAction(
+      { status: "idle", message: "" },
+      formData
+    );
+
+    expect(result).toEqual({
+      status: "error",
+      message: "Produto indisponível."
     });
   });
 

@@ -30,6 +30,8 @@ export type CartCouponActionState = {
 
 export type CartShippingActionState = CartCouponActionState;
 
+export type AddCartItemActionState = CartCouponActionState;
+
 export async function getActiveCartAction() {
   return getActiveCart();
 }
@@ -51,6 +53,22 @@ export async function addCartItemAction(formData: FormData): Promise<CartActionR
 
 export async function addCartItemFormAction(formData: FormData): Promise<void> {
   await addCartItemAction(formData);
+}
+
+export async function addCartItemStateAction(
+  _previousState: AddCartItemActionState,
+  formData: FormData
+): Promise<AddCartItemActionState> {
+  const result = await addCartItemAction(formData);
+
+  if (result.status === "success" || result.status === "fallback") {
+    return {
+      status: "success",
+      message: "Produto adicionado ao carrinho."
+    };
+  }
+
+  return { status: "error", message: result.message };
 }
 
 export async function updateCartItemQuantityAction(formData: FormData): Promise<CartActionResult> {
@@ -243,5 +261,4 @@ export async function removeShippingSelectionStateAction(
 
 function revalidateCartPaths() {
   revalidatePath("/carrinho");
-  revalidatePath("/produtos");
 }

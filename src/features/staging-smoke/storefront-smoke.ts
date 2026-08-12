@@ -40,7 +40,7 @@ export async function runStorefrontSmoke(
 
   const result = await context.fetcher(new URL("/", context.baseUrl));
   const issues = inspectHtml(result, {
-    required: ["Triade Essenza Parfum"],
+    required: ["Tríade Essenza Parfum"],
     forbidden: [
       "Reconstrucao em andamento",
       "Placeholder funcional",

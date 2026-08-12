@@ -5,11 +5,11 @@ export default async function CustomerPedidosPage() {
   const result = await listCustomerPendingOrdersAction();
 
   return (
-    <main className="page-shell">
-      <section className="page-intro">
+    <main className="page-shell customer-orders-page">
+      <section className="page-intro customer-orders-page__intro">
         <p className="muted">Área do cliente</p>
         <h1>Meus pedidos</h1>
-        <p>Acompanhe pedidos pendentes e pagos. A confirmação final acontece no servidor.</p>
+        <p>Consulte pagamentos, preparação e entrega em um só lugar.</p>
       </section>
       {result.status === "success" ? (
         <OrderList orders={result.orders} audience="customer" />

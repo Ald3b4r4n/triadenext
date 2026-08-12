@@ -17,6 +17,8 @@ export type CartItem = {
   unitPriceSnapshotCents: number;
   quantity: number;
   itemSubtotalCents: number;
+  productImageUrl?: string | null;
+  productImageAlt?: string | null;
 };
 
 export type CartView = {

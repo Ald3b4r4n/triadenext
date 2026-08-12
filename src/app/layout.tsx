@@ -2,8 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Cinzel_Decorative, Great_Vibes } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   LockKeyhole,
+  LogOut,
   Search,
   ShieldCheck,
   ShoppingBag,
@@ -11,6 +13,9 @@ import {
   UserRound
 } from "lucide-react";
 import { getCurrentSession } from "@/features/auth/server/session";
+import { logoutAction } from "@/features/auth/server/actions";
+import { getActiveCartForRender } from "@/features/cart/server/cart-service";
+import { CartCountBadge } from "@/features/cart/components/cart-count-badge";
 import "./globals.css";
 
 const cinzelDecorative = Cinzel_Decorative({
@@ -37,16 +42,11 @@ export const viewport: Viewport = {
   viewportFit: "cover"
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getCurrentSession();
-  const canSeeAdmin =
-    session.status === "authenticated" &&
-    (session.role === "admin" || session.role === "manager");
-
   return (
     <html
       lang="pt-BR"
@@ -95,11 +95,9 @@ export default async function RootLayout({
               <Link href="/produtos">Promoções</Link>
             </nav>
             <nav className="site-actions" aria-label="Navegação principal">
-              {canSeeAdmin ? (
-                <Link className="site-action-text" href="/admin">
-                  Admin
-                </Link>
-              ) : null}
+              <Suspense fallback={null}>
+                <HeaderAdminLink />
+              </Suspense>
               <form className="site-search" action="/produtos" role="search">
                 <label className="sr-only" htmlFor="site-search">
                   Buscar produtos
@@ -114,20 +112,12 @@ export default async function RootLayout({
                   <Search aria-hidden="true" size={18} />
                 </button>
               </form>
-              <Link
-                className="site-action-icon"
-                href="/minha-conta"
-                aria-label="Minha conta"
-              >
-                <UserRound aria-hidden="true" size={18} />
-              </Link>
-              <Link
-                className="site-action-icon site-actions__cart"
-                href="/carrinho"
-                aria-label="Carrinho"
-              >
-                <ShoppingBag aria-hidden="true" size={18} />
-              </Link>
+              <Suspense fallback={<AccountLinkFallback />}>
+                <HeaderAccount />
+              </Suspense>
+              <Suspense fallback={<CartLink count={0} />}>
+                <HeaderCart />
+              </Suspense>
             </nav>
           </div>
         </header>
@@ -148,8 +138,9 @@ export default async function RootLayout({
               <Link href="/quem-somos">Quem somos</Link>
               <Link href="/produtos">Catálogo</Link>
               <Link href="/carrinho">Carrinho</Link>
-              <Link href="/minha-conta">Minha conta</Link>
-              <Link href="/login">Entrar</Link>
+              <Suspense fallback={<Link href="/login">Entrar</Link>}>
+                <FooterAccountLinks />
+              </Suspense>
             </nav>
             <div className="site-footer__column">
               <h2>Pagamento</h2>
@@ -180,5 +171,71 @@ export default async function RootLayout({
         </footer>
       </body>
     </html>
+  );
+}
+
+async function HeaderAdminLink() {
+  const session = await getCurrentSession();
+  return session.status === "authenticated" && (session.role === "admin" || session.role === "manager") ? (
+    <Link className="site-action-text" href="/admin">Admin</Link>
+  ) : null;
+}
+
+async function HeaderAccount() {
+  const session = await getCurrentSession();
+  if (session.status !== "authenticated") return <AccountLinkFallback />;
+
+  return (
+    <details className="site-account-menu">
+      <summary aria-label={`Abrir menu da conta, ${session.email}`}>
+        <UserRound aria-hidden="true" size={18} />
+      </summary>
+      <div className="site-account-popover">
+        <small>Conta conectada</small>
+        <strong>{session.name?.trim() || "Cliente"}</strong>
+        <span>{session.email}</span>
+        <Link href="/minha-conta"><UserRound aria-hidden="true" size={16} /> Minha conta</Link>
+        <form action={logoutAction}>
+          <button type="submit"><LogOut aria-hidden="true" size={17} /> Sair da conta</button>
+        </form>
+      </div>
+    </details>
+  );
+}
+
+function AccountLinkFallback() {
+  return <Link className="site-account-link" href="/login"><UserRound aria-hidden="true" size={18} /><span>Entrar</span></Link>;
+}
+
+async function HeaderCart() {
+  const result = await getActiveCartForRender().catch(() => null);
+  const count = result && (result.status === "success" || result.status === "fallback")
+    ? result.cart.items.reduce((total, item) => total + item.quantity, 0)
+    : 0;
+  return <CartLink count={count} />;
+}
+
+function CartLink({ count }: { count: number }) {
+  return (
+    <Link
+      className="site-action-icon site-actions__cart"
+      href="/carrinho"
+      aria-label={count > 0 ? `Carrinho com ${count} ${count === 1 ? "item" : "itens"}` : "Carrinho vazio"}
+    >
+      <ShoppingBag aria-hidden="true" size={18} />
+      <CartCountBadge initialCount={count} />
+    </Link>
+  );
+}
+
+async function FooterAccountLinks() {
+  const session = await getCurrentSession();
+  return session.status === "authenticated" ? (
+    <>
+      <Link href="/minha-conta">Minha conta</Link>
+      <form action={logoutAction}><button className="site-footer__auth-action" type="submit">Sair da conta</button></form>
+    </>
+  ) : (
+    <><Link href="/login">Entrar</Link><Link href="/cadastro">Criar conta</Link></>
   );
 }

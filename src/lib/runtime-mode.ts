@@ -42,6 +42,7 @@ export type RuntimeMode = {
   hasBlobToken: boolean;
   appEnvironment: "development" | "test" | "preview" | "production";
   canMutateRealData: boolean;
+  isDedicatedStagingTarget: boolean;
   hasAuthSecret: boolean;
   isAuthReady: boolean;
   isFallbackMode: boolean;
@@ -51,12 +52,15 @@ export type RuntimeMode = {
 
 export function getRuntimeMode(): RuntimeMode {
   const appEnvironment = resolveAppEnvironment();
+  const isDedicatedStagingTarget = resolveDedicatedStagingTarget();
   const isAuthReady =
     sensitiveRuntimeEnv.hasDatabaseUrl &&
     sensitiveRuntimeEnv.hasBetterAuthSecret;
   const canMutateRealData =
     isAuthReady &&
-    (appEnvironment === "development" || appEnvironment === "test");
+    (appEnvironment === "development" ||
+      appEnvironment === "test" ||
+      isDedicatedStagingTarget);
 
   return {
     hasDatabase: sensitiveRuntimeEnv.hasDatabaseUrl,
@@ -65,6 +69,7 @@ export function getRuntimeMode(): RuntimeMode {
     isAuthReady,
     appEnvironment,
     canMutateRealData,
+    isDedicatedStagingTarget,
     isFallbackMode: !sensitiveRuntimeEnv.hasDatabaseUrl,
     databaseNotice: sensitiveRuntimeEnv.hasDatabaseUrl
       ? null
@@ -73,6 +78,15 @@ export function getRuntimeMode(): RuntimeMode {
       ? runtimeMessages.adminWithoutAuth
       : runtimeMessages.authNotReady
   };
+}
+
+export function resolveDedicatedStagingTarget(
+  runtimeEnv: Record<string, string | undefined> = process.env
+) {
+  const target = runtimeEnv.STAGING_TARGET?.trim().toLowerCase();
+  const stagingDatabaseUrl = runtimeEnv.STAGING_DATABASE_URL?.trim();
+
+  return Boolean(target === "staging" && stagingDatabaseUrl);
 }
 
 export function assertCanMutateRealData() {
@@ -92,15 +106,15 @@ export function assertCanMutateRealData() {
 }
 
 function resolveAppEnvironment(): RuntimeMode["appEnvironment"] {
+  if (process.env.VERCEL_ENV === "preview") {
+    return "preview";
+  }
+
   if (
     process.env.VERCEL_ENV === "production" ||
     process.env.NODE_ENV === "production"
   ) {
     return "production";
-  }
-
-  if (process.env.VERCEL_ENV === "preview") {
-    return "preview";
   }
 
   if (process.env.NODE_ENV === "test") {

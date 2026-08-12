@@ -1,8 +1,12 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
+  AlertTriangle,
+  ArrowUpRight,
   BadgePercent,
   Boxes,
+  Clock3,
+  ImageOff,
   Package,
   ShoppingCart,
   Truck,
@@ -10,10 +14,12 @@ import {
 } from "lucide-react";
 import { listCouponsAction } from "@/features/coupons/server/admin-coupon-actions";
 import { listAdminPendingOrdersAction } from "@/features/orders/server/order-actions";
+import type { OrderStatus, PendingOrder } from "@/features/orders/types";
 import {
   listAdminProducts,
   listProductCategories
 } from "@/features/products/server/product-service";
+import { getRuntimeMode } from "@/lib/runtime-mode";
 
 type MetricCard = {
   title: string;
@@ -21,7 +27,6 @@ type MetricCard = {
   detail: string;
   icon: LucideIcon;
   tone: "gold" | "green" | "blue" | "amber";
-  values: number[];
 };
 
 type OperationLink = {
@@ -30,10 +35,6 @@ type OperationLink = {
   href: string;
   icon: LucideIcon;
 };
-
-const chartValues = [
-  0.16, 0.28, 0.22, 0.36, 0.31, 0.48, 0.42, 0.57, 0.52, 0.66, 0.72, 0.69
-];
 
 const operationLinks: OperationLink[] = [
   {
@@ -56,208 +57,193 @@ const operationLinks: OperationLink[] = [
   },
   {
     title: "Frete",
-    description: "Manter regras manuais por UF ou faixa de CEP.",
+    description: "Manter regras de envio e faixas de atendimento.",
     href: "/admin/frete",
     icon: Truck
   }
 ];
 
+const confirmedRevenueStatuses: OrderStatus[] = [
+  "pago",
+  "em_preparacao",
+  "enviado",
+  "entregue"
+];
+
 export default async function AdminPage() {
-  const [products, categories, couponsResult, ordersResult] = await Promise.all(
-    [
-      listAdminProducts(),
-      listProductCategories(),
-      listCouponsAction(),
-      listAdminPendingOrdersAction()
-    ]
-  );
+  const [products, categories, couponsResult, ordersResult] = await Promise.all([
+    listAdminProducts(),
+    listProductCategories(),
+    listCouponsAction(),
+    listAdminPendingOrdersAction()
+  ]);
 
   const coupons =
     couponsResult.status === "success" && couponsResult.coupons
       ? couponsResult.coupons
       : [];
   const orders = ordersResult.status === "success" ? ordersResult.orders : [];
+  const recentOrders = [...orders]
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 5);
   const activeProducts = products.filter(
     (product) => product.status === "published"
+  ).length;
+  const draftProducts = products.filter(
+    (product) => product.status !== "published"
   ).length;
   const activeCoupons = coupons.filter(
     (coupon) => coupon.status === "active"
   ).length;
-  const revenueCents = orders.reduce(
+  const confirmedOrders = orders.filter((order) =>
+    confirmedRevenueStatuses.includes(order.status)
+  );
+  const revenueCents = confirmedOrders.reduce(
     (total, order) => total + order.grandTotalCents,
     0
   );
   const pendingOrders = orders.filter(
     (order) => order.status === "aguardando_pagamento"
   ).length;
-  const paidOrders = orders.filter((order) => order.status === "pago").length;
-  const cancelledOrders = orders.filter(
-    (order) => order.status === "cancelado"
+  const cancelledOrders = orders.filter((order) =>
+    ["cancelado", "expirado", "reembolsado"].includes(order.status)
   ).length;
+  const lowStockProducts = products.filter(
+    (product) => product.stockQuantity <= product.lowStockThreshold
+  );
+  const productsWithoutImage = products.filter(
+    (product) => product.images.length === 0
+  );
+  const runtime = getRuntimeMode();
 
   const metrics: MetricCard[] = [
     {
-      title: "Receita total",
+      title: "Receita confirmada",
       value: formatCurrency(revenueCents),
-      detail: `${formatCurrency(averageOrderTicket(revenueCents, orders.length))} ticket médio`,
+      detail:
+        confirmedOrders.length === 0
+          ? "Nenhum pagamento confirmado"
+          : `${formatCurrency(averageOrderTicket(revenueCents, confirmedOrders.length))} de ticket médio`,
       icon: WalletCards,
-      tone: "gold",
-      values: [0.18, 0.24, 0.2, 0.32, 0.28, 0.4, 0.36, 0.48]
+      tone: "gold"
     },
     {
       title: "Pedidos",
       value: String(orders.length),
-      detail: `${paidOrders} pagos · ${pendingOrders} pendentes`,
+      detail: `${confirmedOrders.length} confirmados · ${pendingOrders} aguardando`,
       icon: ShoppingCart,
-      tone: "blue",
-      values: [0.1, 0.16, 0.14, 0.22, 0.2, 0.31, 0.26, 0.37]
+      tone: "blue"
     },
     {
-      title: "Produtos ativos",
+      title: "Produtos publicados",
       value: String(activeProducts),
-      detail: `${products.length} itens no catálogo`,
+      detail: `${products.length} produtos · ${draftProducts} fora da vitrine`,
       icon: Package,
-      tone: "green",
-      values: [0.34, 0.36, 0.38, 0.43, 0.46, 0.51, 0.53, 0.58]
+      tone: "green"
     },
     {
-      title: "Cupons ativos",
-      value: String(activeCoupons),
-      detail: `${coupons.length} campanhas cadastradas`,
-      icon: BadgePercent,
-      tone: "amber",
-      values: [0.12, 0.1, 0.18, 0.16, 0.22, 0.24, 0.23, 0.29]
+      title: "Estoque em atenção",
+      value: String(lowStockProducts.length),
+      detail:
+        lowStockProducts.length === 0
+          ? "Nenhum item no limite mínimo"
+          : "Produtos no limite ou sem estoque",
+      icon: AlertTriangle,
+      tone: "amber"
     }
   ];
 
-  const maxProductsGoal = Math.max(12, products.length);
-  const productProgress = percentage(activeProducts, maxProductsGoal);
-  const categoryProgress = percentage(
-    categories.filter((category) => category.isActive).length,
-    Math.max(6, categories.length)
-  );
-  const couponProgress = percentage(activeCoupons, Math.max(4, coupons.length));
+  const statusRows = [
+    { label: "Aguardando pagamento", value: pendingOrders, tone: "pending" },
+    {
+      label: "Confirmados",
+      value: confirmedOrders.length,
+      tone: "confirmed"
+    },
+    { label: "Cancelados ou expirados", value: cancelledOrders, tone: "cancelled" }
+  ];
 
   return (
     <main className="admin-dashboard-page">
       <section className="admin-dashboard-heading">
         <div>
           <p>Painel administrativo</p>
-          <h1>Dashboard</h1>
+          <h1>Visão operacional</h1>
           <span>
-            Bem-vindo de volta. Aqui está o panorama operacional da loja.
+            Dados atuais de pedidos, catálogo e infraestrutura do staging.
           </span>
         </div>
-        <form
-          className="admin-dashboard-filters"
-          action="/admin"
-          aria-label="Filtros do painel"
-        >
-          <select aria-label="Período" name="period">
-            <option>Últimos 30 dias</option>
-            <option>Últimos 7 dias</option>
-            <option>Este mês</option>
-          </select>
-          <input
-            aria-label="Data inicial"
-            name="start"
-            placeholder="dd/mm/aaaa"
-            type="text"
-          />
-          <input
-            aria-label="Data final"
-            name="end"
-            placeholder="dd/mm/aaaa"
-            type="text"
-          />
-          <button type="submit">Filtrar</button>
-        </form>
+        <Link className="admin-dashboard-primary-action" href="/admin/pedidos">
+          Ver todos os pedidos
+          <ArrowUpRight aria-hidden="true" size={17} />
+        </Link>
       </section>
 
-      <section
-        className="admin-metric-grid"
-        aria-label="Indicadores principais"
-      >
+      <section className="admin-metric-grid" aria-label="Indicadores principais">
         {metrics.map((metric) => (
           <MetricCard key={metric.title} metric={metric} />
         ))}
       </section>
 
       <section className="admin-dashboard-grid">
-        <article className="admin-panel admin-panel--wide">
+        <article className="admin-panel admin-recent-orders">
           <div className="admin-panel__header">
             <div>
-              <h2>Visão geral</h2>
-              <p>Movimento do período filtrado e saúde básica da operação.</p>
+              <h2>Pedidos recentes</h2>
+              <p>Últimos registros recebidos, sem projeções ou dados simulados.</p>
             </div>
-            <div
-              className="admin-segmented-control"
-              aria-label="Métrica do gráfico"
-            >
-              <button type="button" aria-pressed="true">
-                Receita
-              </button>
-              <button type="button">Pedidos</button>
-              <button type="button">Catálogo</button>
-            </div>
+            <Link href="/admin/pedidos">Abrir pedidos</Link>
           </div>
-          <DashboardChart values={chartValues} />
+          <RecentOrders orders={recentOrders} />
         </article>
 
         <aside className="admin-dashboard-side">
           <article className="admin-panel admin-status-panel">
             <div className="admin-panel__header">
               <div>
-                <h2>Pedidos por status</h2>
-                <p>Distribuição dos pedidos acompanhados no admin.</p>
+                <h2>Distribuição dos pedidos</h2>
+                <p>Participação real de cada grupo no total atual.</p>
               </div>
+              <strong className="admin-panel__total">{orders.length}</strong>
             </div>
-            <div className="admin-status-donut" aria-label="Pedidos pendentes">
-              <span>{orders.length}</span>
-              <small>Pedidos</small>
+            <div className="admin-status-bars">
+              {statusRows.map((row) => (
+                <StatusBar
+                  key={row.label}
+                  {...row}
+                  total={orders.length}
+                />
+              ))}
             </div>
-            <ul className="admin-status-list">
-              <li>
-                <span>Pendente</span>
-                <strong>{pendingOrders}</strong>
-              </li>
-              <li>
-                <span>Pago</span>
-                <strong>{paidOrders}</strong>
-              </li>
-              <li>
-                <span>Cancelado</span>
-                <strong>{cancelledOrders}</strong>
-              </li>
-            </ul>
           </article>
 
-          <article className="admin-panel admin-goals-panel">
+          <article className="admin-panel admin-attention-panel">
             <div className="admin-panel__header">
               <div>
-                <h2>Metas operacionais</h2>
-                <p>Indicadores para deixar a loja pronta para venda.</p>
+                <h2>Atenção operacional</h2>
+                <p>Pendências que podem exigir uma ação administrativa.</p>
               </div>
-              <Link href="/admin/produtos">Editar</Link>
             </div>
-            <GoalBar
-              label="Produtos publicados"
-              value={activeProducts}
-              target={maxProductsGoal}
-              progress={productProgress}
-            />
-            <GoalBar
-              label="Categorias ativas"
-              value={categories.filter((category) => category.isActive).length}
-              target={Math.max(6, categories.length)}
-              progress={categoryProgress}
-            />
-            <GoalBar
-              label="Cupons ativos"
-              value={activeCoupons}
-              target={Math.max(4, coupons.length)}
-              progress={couponProgress}
-            />
+            <ul>
+              <AttentionItem
+                href="/admin/pedidos"
+                icon={Clock3}
+                label="Aguardando pagamento"
+                value={pendingOrders}
+              />
+              <AttentionItem
+                href="/admin/produtos"
+                icon={AlertTriangle}
+                label="Estoque baixo ou zerado"
+                value={lowStockProducts.length}
+              />
+              <AttentionItem
+                href="/admin/produtos"
+                icon={ImageOff}
+                label="Produtos sem imagem"
+                value={productsWithoutImage.length}
+              />
+            </ul>
           </article>
         </aside>
       </section>
@@ -272,11 +258,7 @@ export default async function AdminPage() {
           </div>
           <div className="admin-quick-grid">
             {operationLinks.map((item) => (
-              <Link
-                className="admin-quick-link"
-                href={item.href}
-                key={item.title}
-              >
+              <Link className="admin-quick-link" href={item.href} key={item.title}>
                 <item.icon aria-hidden="true" size={18} />
                 <span>{item.title}</span>
                 <small>{item.description}</small>
@@ -288,22 +270,22 @@ export default async function AdminPage() {
         <article className="admin-panel admin-readiness-panel">
           <div className="admin-panel__header">
             <div>
-              <h2>Readiness</h2>
-              <p>Controles que seguem separados de produção.</p>
+              <h2>Ambiente</h2>
+              <p>Controles efetivos do projeto dedicado de staging.</p>
             </div>
           </div>
           <ul>
             <li>
-              <span>Staging smoke</span>
-              <strong>Seguro</strong>
+              <span>Banco exclusivo</span>
+              <strong>{runtime.isDedicatedStagingTarget ? "Conectado" : "Bloqueado"}</strong>
             </li>
             <li>
-              <span>Importação controlada</span>
-              <strong>Protegida</strong>
+              <span>Upload de imagens</span>
+              <strong>{runtime.hasBlobToken ? "Ativo" : "Indisponível"}</strong>
             </li>
             <li>
-              <span>Produção</span>
-              <strong>Bloqueada</strong>
+              <span>Produção real</span>
+              <strong>Não conectada</strong>
             </li>
           </ul>
         </article>
@@ -312,22 +294,22 @@ export default async function AdminPage() {
           <div className="admin-panel__header">
             <div>
               <h2>Catálogo</h2>
-              <p>Base atual disponível para revisão.</p>
+              <p>Base disponível para operação e revisão.</p>
             </div>
             <Boxes aria-hidden="true" size={22} />
           </div>
           <dl>
             <div>
-              <dt>Total de produtos</dt>
+              <dt>Produtos</dt>
               <dd>{products.length}</dd>
             </div>
             <div>
-              <dt>Categorias</dt>
-              <dd>{categories.length}</dd>
+              <dt>Categorias ativas</dt>
+              <dd>{categories.filter((category) => category.isActive).length}</dd>
             </div>
             <div>
-              <dt>Cupons</dt>
-              <dd>{coupons.length}</dd>
+              <dt>Cupons ativos</dt>
+              <dd>{activeCoupons}</dd>
             </div>
           </dl>
         </article>
@@ -343,98 +325,131 @@ function MetricCard({ metric }: { metric: MetricCard }) {
         <div>
           <p>{metric.title}</p>
           <strong>{metric.value}</strong>
-          <span>{metric.detail}</span>
         </div>
         <metric.icon aria-hidden="true" size={22} />
       </div>
-      <Sparkline values={metric.values} />
+      <span className="admin-metric-card__detail">{metric.detail}</span>
     </article>
   );
 }
 
-function Sparkline({ values }: { values: number[] }) {
-  const points = values
-    .map(
-      (value, index) =>
-        `${(index / (values.length - 1)) * 100},${34 - value * 28}`
-    )
-    .join(" ");
-
-  return (
-    <svg
-      className="admin-sparkline"
-      viewBox="0 0 100 36"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <polyline points={points} />
-    </svg>
-  );
-}
-
-function DashboardChart({ values }: { values: number[] }) {
-  const points = values
-    .map(
-      (value, index) =>
-        `${(index / (values.length - 1)) * 100},${88 - value * 70}`
-    )
-    .join(" ");
-
-  return (
-    <div className="admin-chart" aria-label="Gráfico de visão geral">
-      <div className="admin-chart__axis" aria-hidden="true">
-        {["1,0", "0,8", "0,6", "0,4", "0,2", "0"].map((tick) => (
-          <span key={tick}>{tick}</span>
-        ))}
+function RecentOrders({ orders }: { orders: PendingOrder[] }) {
+  if (orders.length === 0) {
+    return (
+      <div className="admin-dashboard-empty">
+        <ShoppingCart aria-hidden="true" size={24} />
+        <strong>Nenhum pedido recebido</strong>
+        <span>Os pedidos aparecerão aqui após a conclusão do checkout.</span>
       </div>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <polyline points={points} />
-      </svg>
+    );
+  }
+
+  return (
+    <div className="admin-recent-orders__table">
+      <div className="admin-recent-orders__head" aria-hidden="true">
+        <span>Pedido</span>
+        <span>Cliente</span>
+        <span>Status</span>
+        <span>Total</span>
+      </div>
+      {orders.map((order) => (
+        <div className="admin-recent-orders__row" key={order.id}>
+          <div>
+            <strong>{order.number}</strong>
+            <small>{formatDate(order.createdAt)}</small>
+          </div>
+          <span>{order.customerSnapshot.fullName}</span>
+          <span className={`order-status order-status--${order.status}`}>
+            {statusLabel(order.status)}
+          </span>
+          <strong>{formatCurrency(order.grandTotalCents)}</strong>
+        </div>
+      ))}
     </div>
   );
 }
 
-function GoalBar({
+function StatusBar({
   label,
   value,
-  target,
-  progress
+  total,
+  tone
 }: {
   label: string;
   value: number;
-  target: number;
-  progress: number;
+  total: number;
+  tone: string;
 }) {
+  const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+
   return (
-    <div className="admin-goal">
+    <div className="admin-status-bar">
       <div>
         <span>{label}</span>
-        <strong>{progress}%</strong>
+        <strong>{value}</strong>
       </div>
-      <div className="admin-goal__track">
-        <span style={{ width: `${progress}%` }} />
+      <div
+        className="admin-status-bar__track"
+        role="progressbar"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={percentage}
+      >
+        <span className={`admin-status-bar__fill admin-status-bar__fill--${tone}`} style={{ width: `${percentage}%` }} />
       </div>
-      <p>
-        {value} de {target}
-      </p>
+      <small>{percentage}% do total</small>
     </div>
   );
 }
 
-function averageOrderTicket(totalCents: number, ordersCount: number) {
-  if (ordersCount === 0) {
-    return 0;
-  }
-
-  return Math.round(totalCents / ordersCount);
+function AttentionItem({
+  href,
+  icon: Icon,
+  label,
+  value
+}: {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  value: number;
+}) {
+  return (
+    <li>
+      <Link href={href}>
+        <Icon aria-hidden="true" size={17} />
+        <span>{label}</span>
+        <strong>{value}</strong>
+        <ArrowUpRight aria-hidden="true" size={15} />
+      </Link>
+    </li>
+  );
 }
 
-function percentage(value: number, target: number) {
-  if (target <= 0) {
-    return 0;
-  }
+function statusLabel(status: OrderStatus) {
+  const labels: Record<OrderStatus, string> = {
+    aguardando_pagamento: "Aguardando",
+    pago: "Pago",
+    em_preparacao: "Em preparação",
+    enviado: "Enviado",
+    entregue: "Entregue",
+    cancelado: "Cancelado",
+    expirado: "Expirado",
+    reembolsado: "Reembolsado"
+  };
 
-  return Math.min(100, Math.round((value / target) * 100));
+  return labels[status];
+}
+
+function formatDate(value: Date) {
+  return value.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short"
+  });
+}
+
+function averageOrderTicket(totalCents: number, ordersCount: number) {
+  return ordersCount === 0 ? 0 : Math.round(totalCents / ordersCount);
 }
 
 function formatCurrency(valueInCents: number) {

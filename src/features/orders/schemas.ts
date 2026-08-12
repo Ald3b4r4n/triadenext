@@ -1,9 +1,15 @@
 import { z } from "zod";
+import { normalizeBrazilPhone } from "@/features/checkout/phone";
+
+const brazilPhoneSchema = z
+  .string()
+  .transform(normalizeBrazilPhone)
+  .refine((value) => /^\d{10,11}$/.test(value), "Informe um telefone válido com DDD.");
 
 export const orderCustomerSnapshotSchema = z.object({
   fullName: z.string().trim().min(3, "Informe o nome completo."),
   email: z.string().trim().email("E-mail inválido."),
-  phone: z.string().trim().min(8, "Informe um telefone válido.")
+  phone: brazilPhoneSchema
 });
 
 export const orderAddressSnapshotSchema = z.object({

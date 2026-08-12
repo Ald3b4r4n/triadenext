@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { runtimeMessages } from "@/lib/runtime-mode";
 import { isProductAvailableForPurchase } from "@/features/products/domain";
 import { createProductRepository } from "@/features/products/server/product-repository";
@@ -25,6 +26,7 @@ import {
 } from "@/features/shipping/domain";
 import { devShippingRules } from "@/features/shipping/server/shipping-fixtures";
 import { selectShippingQuoteOption } from "@/features/shipping/server/shipping-service";
+import { quoteWithMelhorEnvio } from "@/features/shipping/server/melhor-envio-client";
 
 const cartRepository = createCartRepository();
 const productRepository = createProductRepository();
@@ -43,6 +45,9 @@ export async function getActiveCart(): Promise<CartActionResult> {
     )
   );
 }
+
+/** Deduplicates layout/page reads during the same React server render. */
+export const getActiveCartForRender = cache(getActiveCart);
 
 export async function addItemToCart(input: {
   productId: string;
@@ -139,7 +144,8 @@ export async function updateCartItemQuantity(input: {
   const updated = await cartRepository.updateItemQuantity(
     actor,
     input.itemId,
-    input.quantity
+    input.quantity,
+    cart
   );
   if (updated === null) {
     return { status: "forbidden", message: runtimeMessages.cartForbidden };
@@ -243,17 +249,34 @@ export async function quoteShippingForActiveCart(input: {
     return { status: "validation_error", message: validation.message };
   }
 
+  const products = (
+    await Promise.all(
+      cart.items.map((item) => productRepository.findProductById(item.productId))
+    )
+  ).filter((product) => product !== null);
+  const melhorEnvio = await quoteWithMelhorEnvio({
+    cart,
+    products,
+    destinationPostalCode: validation.postalCode
+  });
+
   const manualRules = await shippingRepository.listManualRules();
   const rules = manualRules.length > 0 ? manualRules : devShippingRules;
-  const options = buildManualShippingOptions(rules, {
+  const manualOptions = buildManualShippingOptions(rules, {
     postalCode: validation.postalCode
   });
+  const options = melhorEnvio.status === "success" ? melhorEnvio.options : manualOptions;
   if (options.length === 0) {
     return {
       status: "validation_error",
-      message: "Não há cobertura manual para este CEP."
+      message:
+        melhorEnvio.status === "unavailable"
+          ? melhorEnvio.message
+          : "Não há cobertura de frete para este CEP."
     };
   }
+
+  const usesMelhorEnvio = melhorEnvio.status === "success";
 
   const quote = await shippingRepository.createQuote(
     createShippingQuote({
@@ -261,7 +284,12 @@ export async function quoteShippingForActiveCart(input: {
       cartHash: buildCartHash(cart),
       postalCode: validation.postalCode,
       options,
-      source: rules === devShippingRules ? "fixture" : "manual"
+      provider: usesMelhorEnvio ? "melhor_envio" : "manual",
+      source: usesMelhorEnvio
+        ? "melhor_envio"
+        : rules === devShippingRules
+          ? "fixture"
+          : "manual"
     })
   );
 
@@ -273,7 +301,19 @@ export async function quoteShippingForActiveCart(input: {
     selected
   );
 
-  return toResult(await recalculateCartForActor(actor, updated));
+  const fallbackMessage =
+    melhorEnvio.status === "unavailable"
+      ? "O Melhor Envio está temporariamente indisponível. Foi aplicada uma opção manual de contingência."
+      : null;
+
+  return toResult(
+    await recalculateCartForActor(
+      actor,
+      fallbackMessage
+        ? { ...updated, messages: [...updated.messages, fallbackMessage] }
+        : updated
+    )
+  );
 }
 
 async function setShippingSelectionSafely(
@@ -443,8 +483,12 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
   const items: CartItem[] = [];
   const messages = [...cart.messages];
 
-  for (const item of cart.items) {
-    const product = await productRepository.findProductById(item.productId);
+  const products = await Promise.all(
+    cart.items.map((item) => productRepository.findProductById(item.productId))
+  );
+
+  for (const [index, item] of cart.items.entries()) {
+    const product = products[index];
     if (!product || !isProductAvailableForPurchase(product)) {
       messages.push(
         `${item.productNameSnapshot} não está disponível para compra.`
@@ -456,13 +500,14 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
       messages.push(`${item.productNameSnapshot} excede o estoque disponível.`);
       items.push({
         ...item,
+        ...getProductImageView(product),
         quantity: product.stockQuantity,
         itemSubtotalCents: item.unitPriceSnapshotCents * product.stockQuantity
       });
       continue;
     }
 
-    items.push(item);
+    items.push({ ...item, ...getProductImageView(product) });
   }
 
   const subtotalCents = calculateCartSubtotalCents(items);
@@ -499,9 +544,17 @@ export async function recalculateCartView(cart: CartView): Promise<CartView> {
       ...messages,
       ...(couponCalculation?.messages ?? []),
       ...(freeShipping
-        ? ["Cupom de frete grátis zerou o frete manual elegível."]
+        ? ["Cupom de frete grátis aplicado à entrega selecionada."]
         : [])
     ]
+  };
+}
+
+function getProductImageView(product: NonNullable<Awaited<ReturnType<typeof productRepository.findProductById>>>) {
+  const image = product.images.find((candidate) => candidate.isCover) ?? product.images[0] ?? null;
+  return {
+    productImageUrl: image?.blobUrl ?? null,
+    productImageAlt: image?.altText ?? product.name
   };
 }
 

@@ -13,6 +13,7 @@ export type ProductRepository = {
   findProductBySlug(slug: string): Promise<Product | null>;
   listProductImages(productId: string): Promise<ProductImage[]>;
   saveProductImageMetadata(input: ProductImageMetadataInput): Promise<ProductImageMetadataResult>;
+  setProductCoverImage(productId: string, imageId: string): Promise<ProductImageMetadataResult>;
   createProduct(input: ProductMutationInput): Promise<ProductMutationPersistenceResult>;
   updateProduct(id: string, input: ProductMutationInput): Promise<ProductMutationPersistenceResult>;
   decrementStock(productId: string, quantity: number): Promise<boolean>;
@@ -98,6 +99,13 @@ function createFixtureProductRepository(): ProductRepository {
         imageId: null,
         message:
           "Imagem validada em modo demonstrativo seguro. A gravação definitiva depende da configuração de produção."
+      };
+    },
+    async setProductCoverImage() {
+      return {
+        status: "dev_fallback",
+        imageId: null,
+        message: "Capa validada em modo demonstrativo seguro."
       };
     },
     async createProduct(input: ProductMutationInput) {
@@ -201,6 +209,46 @@ function createDrizzleProductRepository(): ProductRepository {
         status: "persisted",
         imageId: createdImage.id,
         message: runtimeMessages.imageMetadataPersisted
+      };
+    },
+    async setProductCoverImage(productId: string, imageId: string) {
+      const guardrail = assertCanMutateRealData();
+
+      if (!guardrail.allowed) {
+        return {
+          status: "blocked",
+          imageId: null,
+          message: guardrail.message
+        };
+      }
+
+      const updatedImageId = await database.transaction(async (tx) => {
+        await tx
+          .update(productImages)
+          .set({ isCover: false })
+          .where(eq(productImages.productId, productId));
+
+        const [updatedImage] = await tx
+          .update(productImages)
+          .set({ isCover: true })
+          .where(and(eq(productImages.id, imageId), eq(productImages.productId, productId)))
+          .returning({ id: productImages.id });
+
+        return updatedImage?.id ?? null;
+      });
+
+      if (!updatedImageId) {
+        return {
+          status: "blocked",
+          imageId: null,
+          message: "Imagem não encontrada para este produto."
+        };
+      }
+
+      return {
+        status: "persisted",
+        imageId: updatedImageId,
+        message: "Imagem definida como capa do produto."
       };
     },
     async createProduct(input: ProductMutationInput) {

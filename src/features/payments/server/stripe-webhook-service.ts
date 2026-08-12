@@ -25,7 +25,11 @@ export async function processStripeWebhook(input: {
   }
 
   const stripeIntent = event.data.object;
-  const internal = await paymentRepository.findByProviderReference(stripeIntent.id);
+  const internal =
+    await paymentRepository.findByProviderReference(stripeIntent.id) ??
+    (stripeIntent.metadata?.internalPaymentIntentId
+      ? await paymentRepository.findById(stripeIntent.metadata.internalPaymentIntentId)
+      : null);
   const recorded = await paymentRepository.createEventIfNew({
     eventId: event.id,
     eventType: event.type,
@@ -48,7 +52,11 @@ export async function processStripeWebhook(input: {
     return { status: "failed", message: "Pagamento interno não encontrado." };
   }
 
-  if (event.type === "payment_intent.succeeded") {
+  if (
+    event.type === "payment_intent.succeeded" ||
+    event.type === "checkout.session.completed" ||
+    event.type === "checkout.session.async_payment_succeeded"
+  ) {
     return settleSucceededPayment({
       eventId: event.id,
       paymentIntent: internal,
@@ -58,11 +66,13 @@ export async function processStripeWebhook(input: {
 
   if (
     event.type === "payment_intent.payment_failed" ||
-    event.type === "payment_intent.canceled"
+    event.type === "payment_intent.canceled" ||
+    event.type === "checkout.session.async_payment_failed" ||
+    event.type === "checkout.session.expired"
   ) {
     await paymentRepository.updateStatus({
       id: internal.id,
-      status: event.type === "payment_intent.canceled" ? "cancelado" : "falhou",
+      status: event.type === "payment_intent.canceled" || event.type === "checkout.session.expired" ? "cancelado" : "falhou",
       failureReason: `Provedor informou ${event.type}.`
     });
     await paymentRepository.finishEvent({

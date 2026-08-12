@@ -26,8 +26,8 @@ export type ShippingOption = {
   label: string;
   priceCents: number;
   estimatedDays: number | null;
-  provider: "manual";
-  source: "manual" | "fixture" | "dev_fallback";
+  provider: "manual" | "melhor_envio";
+  source: "manual" | "melhor_envio" | "fixture" | "dev_fallback";
   ruleId: string | null;
 };
 
@@ -37,7 +37,7 @@ export type ShippingQuote = {
   postalCode: string;
   cartHash: string;
   provider: ShippingProvider;
-  source: "manual" | "fixture" | "dev_fallback";
+  source: "manual" | "melhor_envio" | "fixture" | "dev_fallback";
   options: ShippingOption[];
   selectedOptionId: string | null;
   expiresAt: Date;

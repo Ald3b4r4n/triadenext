@@ -31,7 +31,8 @@ export type CartRepository = {
   updateItemQuantity(
     actor: Exclude<CartActor, { kind: "unavailable" }>,
     itemId: string,
-    quantity: number
+    quantity: number,
+    currentCart?: CartView
   ): Promise<CartView | null>;
   removeItem(actor: Exclude<CartActor, { kind: "unavailable" }>, itemId: string): Promise<CartView>;
   clearCart(actor: Exclude<CartActor, { kind: "unavailable" }>): Promise<CartView>;
@@ -89,8 +90,8 @@ function createFallbackCartRepository(): CartRepository {
       clearShippingSelectionState(cart);
       return recalculateFallbackCart(cart);
     },
-    async updateItemQuantity(actor, itemId, quantity) {
-      const cart = getFallbackCart(actor, fallbackCarts);
+    async updateItemQuantity(actor, itemId, quantity, currentCart) {
+      const cart = currentCart ?? getFallbackCart(actor, fallbackCarts);
       if (!cart) {
         return null;
       }
@@ -227,25 +228,38 @@ function createDrizzleCartRepository(): CartRepository {
       await touchCart(cart.id);
       return this.getActiveCart(actor);
     },
-    async updateItemQuantity(actor, itemId, quantity) {
-      const cart = await findActiveCart(actor);
-      if (!cart) {
+    async updateItemQuantity(actor, itemId, quantity, currentCart) {
+      const cartView = currentCart ?? await this.getActiveCart(actor);
+      if (cartView.id === null) {
         return null;
       }
 
       const [updated] = await database
         .update(cartItems)
         .set({ quantity, updatedAt: new Date() })
-        .where(and(eq(cartItems.cartId, cart.id), eq(cartItems.id, itemId)))
+        .where(and(eq(cartItems.cartId, cartView.id), eq(cartItems.id, itemId)))
         .returning({ id: cartItems.id });
 
       if (!updated) {
         return null;
       }
 
-      await clearShippingSelectionInDb(cart.id);
-      await touchCart(cart.id);
-      return this.getActiveCart(actor);
+      await clearShippingSelectionInDb(cartView.id);
+      const items = cartView.items.map((item) =>
+        item.id === itemId
+          ? { ...item, quantity, itemSubtotalCents: item.unitPriceSnapshotCents * quantity }
+          : item
+      );
+      return {
+        ...cartView,
+        items,
+        subtotalCents: calculateCartSubtotalCents(items),
+        shippingPostalCode: null,
+        shippingQuoteId: null,
+        shippingQuote: null,
+        shippingOptions: [],
+        shippingAmountCents: 0
+      };
     },
     async removeItem(actor, itemId) {
       const cart = await this.getOrCreateActiveCart(actor);

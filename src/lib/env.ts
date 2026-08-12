@@ -14,6 +14,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().optional().or(z.literal("")).default(""),
   NEXT_PUBLIC_SITE_NAME: z.string().optional().default("Triade Essenza Parfum"),
   STAGING_DATABASE_URL: z.string().optional().default(""),
+  STAGING_TARGET: z.string().optional().default(""),
   STAGING_SMOKE_URL: z.string().url().optional().or(z.literal("")).default(""),
   STAGING_IMPORT_APPROVED: z.string().optional().default(""),
   RESEND_API_KEY: z.string().optional().default(""),
@@ -43,6 +44,7 @@ export const env = envSchema.parse({
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   NEXT_PUBLIC_SITE_NAME: process.env.NEXT_PUBLIC_SITE_NAME,
   STAGING_DATABASE_URL: process.env.STAGING_DATABASE_URL,
+  STAGING_TARGET: process.env.STAGING_TARGET,
   STAGING_SMOKE_URL: process.env.STAGING_SMOKE_URL,
   STAGING_IMPORT_APPROVED: process.env.STAGING_IMPORT_APPROVED,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
@@ -58,8 +60,18 @@ export const env = envSchema.parse({
   SENTRY_DSN: process.env.SENTRY_DSN
 });
 
+export function resolveActiveDatabaseUrl(
+  runtimeEnv: Record<string, string | undefined> = process.env
+) {
+  return runtimeEnv.STAGING_TARGET?.trim().toLowerCase() === "staging"
+    ? runtimeEnv.STAGING_DATABASE_URL?.trim() ?? ""
+    : runtimeEnv.DATABASE_URL?.trim() ?? "";
+}
+
+export const activeDatabaseUrl = resolveActiveDatabaseUrl();
+
 export const sensitiveRuntimeEnv = {
-  hasDatabaseUrl: env.DATABASE_URL.length > 0,
+  hasDatabaseUrl: activeDatabaseUrl.length > 0,
   hasBetterAuthSecret: env.BETTER_AUTH_SECRET.length > 0,
   hasBetterAuthUrl: env.BETTER_AUTH_URL.length > 0,
   hasDevAdminEmail: env.DEV_ADMIN_EMAIL.length > 0,

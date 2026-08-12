@@ -1,7 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState, useState } from "react";
 import { formatMoney } from "@/lib/money";
 import {
   quoteShippingStateAction,
@@ -10,6 +9,7 @@ import {
   type CartShippingActionState
 } from "@/features/cart/server/cart-actions";
 import type { ShippingQuote } from "../types";
+import { Check, Truck } from "lucide-react";
 
 type Props = {
   quote?: ShippingQuote | null;
@@ -24,7 +24,8 @@ const initialState: CartShippingActionState = {
 };
 
 export function ShippingQuotePanel({ quote, cartId, cartHash, destinationPostalCode }: Props) {
-  const router = useRouter();
+  const [postalCode, setPostalCode] = useState(() => formatPostalCodeInput(destinationPostalCode ?? ""));
+  const [pendingSelectionId, setPendingSelectionId] = useState<string | null>(null);
   const [quoteState, quoteAction, quotePending] = useActionState(quoteShippingStateAction, initialState);
   const [selectState, selectAction, selectPending] = useActionState(selectShippingOptionStateAction, initialState);
   const [removeState, removeAction, removePending] = useActionState(removeShippingSelectionStateAction, initialState);
@@ -32,47 +33,71 @@ export function ShippingQuotePanel({ quote, cartId, cartHash, destinationPostalC
   const message = removeState.message || selectState.message || quoteState.message;
   const messageStatus = removeState.message ? removeState.status : selectState.message ? selectState.status : quoteState.status;
 
-  useEffect(() => {
-    if (quoteState.status === "success" || selectState.status === "success" || removeState.status === "success") {
-      router.refresh();
-    }
-  }, [quoteState.status, selectState.status, removeState.status, router]);
+  const selectedOptionId = selectPending && pendingSelectionId
+    ? pendingSelectionId
+    : quote?.selectedOptionId ?? null;
 
   return (
     <section className="shipping-panel" aria-label="Frete">
-      <h3>Frete manual</h3>
+      <div className="cart-tool-heading">
+        <Truck aria-hidden="true" size={20} />
+        <div>
+          <h3>Entrega</h3>
+          <p>Consulte prazos e valores para o seu CEP.</p>
+        </div>
+      </div>
       <form action={quoteAction} className="shipping-form">
         <input type="hidden" name="cartId" value={cartId ?? ""} />
         <input type="hidden" name="cartHash" value={cartHash} />
-        <label className="form-field">
-          <span>CEP</span>
-          <input name="postalCode" defaultValue={destinationPostalCode ?? ""} placeholder="00000-000" />
-        </label>
-        <button type="submit" disabled={quotePending}>Cotar</button>
+        <label htmlFor="cart-shipping-postal-code">CEP</label>
+        <div className="cart-inline-control">
+          <input
+            id="cart-shipping-postal-code"
+            name="postalCode"
+            value={postalCode}
+            onChange={(event) => setPostalCode(formatPostalCodeInput(event.target.value))}
+            placeholder="00000-000"
+            inputMode="numeric"
+            autoComplete="postal-code"
+            maxLength={9}
+          />
+          <button type="submit" disabled={quotePending}>
+            {quotePending ? "Cotando..." : "Cotar"}
+          </button>
+        </div>
       </form>
 
       {options.length > 0 ? (
         <div className="shipping-options">
           {options.map((option) => (
-            <div className="shipping-option" key={option.id}>
+            <div
+              className={`shipping-option ${selectedOptionId === option.id ? "shipping-option--selected" : ""} ${selectPending && selectedOptionId === option.id ? "shipping-option--updating" : ""}`}
+              key={option.id}
+            >
               <div>
                 <strong>{option.label}</strong>
                 <p className="muted">{option.estimatedDays ? `${option.estimatedDays} dias` : "Prazo a confirmar"}</p>
               </div>
               <div>
                 <p>{formatMoney(option.priceCents)}</p>
-                <form action={selectAction}>
+                <form action={selectAction} onSubmit={() => setPendingSelectionId(option.id)}>
                   <input type="hidden" name="quoteId" value={quote?.id ?? ""} />
                   <input type="hidden" name="optionId" value={option.id} />
                   <input type="hidden" name="postalCode" value={quote?.postalCode ?? ""} />
-                  <button type="submit" disabled={selectPending}>Selecionar</button>
+                  <button type="submit" disabled={selectPending || selectedOptionId === option.id}>
+                    {selectedOptionId === option.id ? (
+                      <><Check aria-hidden="true" size={15} /> {selectPending ? "Atualizando" : "Selecionado"}</>
+                    ) : "Selecionar"}
+                  </button>
                 </form>
               </div>
             </div>
           ))}
-          <form action={removeAction}>
+          <form action={removeAction} className="shipping-options__remove">
             <input type="hidden" name="quoteId" value={quote?.id ?? ""} />
-            <button type="submit" disabled={removePending}>Remover frete</button>
+            <button className="text-action" type="submit" disabled={removePending}>
+              {removePending ? "Removendo..." : "Remover seleção de frete"}
+            </button>
           </form>
         </div>
       ) : (
@@ -86,4 +111,9 @@ export function ShippingQuotePanel({ quote, cartId, cartHash, destinationPostalC
       ) : null}
     </section>
   );
+}
+
+function formatPostalCodeInput(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
 }

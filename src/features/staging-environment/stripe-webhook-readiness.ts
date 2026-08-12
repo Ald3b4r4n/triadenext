@@ -4,9 +4,10 @@ import { createPendingProviderResult } from "./pending-status";
 import type { StagingEnvironmentEnv } from "./types";
 
 export const REQUIRED_STRIPE_TEST_EVENTS = [
-  "payment_intent.succeeded",
-  "payment_intent.payment_failed",
-  "payment_intent.canceled"
+  "checkout.session.completed",
+  "checkout.session.async_payment_succeeded",
+  "checkout.session.async_payment_failed",
+  "checkout.session.expired"
 ] as const;
 
 export function checkStripeTestWebhook(

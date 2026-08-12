@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildManualShippingOptions,
+  createShippingQuote,
   formatPostalCode,
   normalizePostalCode,
   validatePostalCode
@@ -8,6 +9,19 @@ import {
 import type { ShippingManualRule } from "@/features/shipping/types";
 
 describe("shipping domain", () => {
+  it("creates a database-compatible UUID for shipping quotes", () => {
+    const quote = createShippingQuote({
+      cartId: null,
+      cartHash: "cart-hash",
+      postalCode: "01001000",
+      options: [],
+      source: "manual"
+    });
+
+    expect(quote.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    );
+  });
   it("normalizes and validates Brazilian postal codes", () => {
     expect(normalizePostalCode("01001-000")).toBe("01001000");
     expect(formatPostalCode("01001000")).toBe("01001-000");

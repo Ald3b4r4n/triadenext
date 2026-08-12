@@ -14,6 +14,9 @@ export type StripePaymentAdapter = {
     internalPaymentIntentId: string;
     amountCents: number;
     currency: string;
+    orderNumber: string;
+    customerEmail: string;
+    returnUrl: string;
   }): Promise<{ intent: StripeIntentPayload; clientSecret: string }>;
   retrievePaymentIntent(providerReference: string): Promise<{
     intent: StripeIntentPayload;
@@ -37,15 +40,31 @@ export function createStripePaymentAdapter(): StripePaymentAdapter | null {
     mode: "real",
     publishableKey: config.publishableKey,
     async createPaymentIntent(input) {
-      const intent = await stripe.paymentIntents.create(
+      const session = await stripe.checkout.sessions.create(
         {
-          amount: input.amountCents,
-          currency: input.currency.toLowerCase(),
-          automatic_payment_methods: { enabled: true },
+          mode: "payment",
+          ui_mode: "elements",
+          customer_email: input.customerEmail,
+          return_url: input.returnUrl,
+          line_items: [{
+            quantity: 1,
+            price_data: {
+              currency: input.currency.toLowerCase(),
+              unit_amount: input.amountCents,
+              product_data: { name: `Pedido ${input.orderNumber}` }
+            }
+          }],
           metadata: {
             orderId: input.orderId,
             userId: input.userId,
             internalPaymentIntentId: input.internalPaymentIntentId
+          },
+          payment_intent_data: {
+            metadata: {
+              orderId: input.orderId,
+              userId: input.userId,
+              internalPaymentIntentId: input.internalPaymentIntentId
+            }
           }
         },
         {
@@ -56,31 +75,32 @@ export function createStripePaymentAdapter(): StripePaymentAdapter | null {
         }
       );
 
-      if (!intent.client_secret) {
+      if (!session.client_secret) {
         throw new Error("Provedor não retornou confirmação segura para o pagamento.");
       }
 
       return {
-        intent: toStripeIntentPayload(intent),
-        clientSecret: intent.client_secret
+        intent: toStripeSessionPayload(session),
+        clientSecret: session.client_secret
       };
     },
     async retrievePaymentIntent(providerReference) {
-      const intent = await stripe.paymentIntents.retrieve(providerReference);
-      if (!intent.client_secret) {
+      const session = await stripe.checkout.sessions.retrieve(providerReference);
+      if (!session.client_secret) {
         throw new Error("Provedor não retornou confirmação segura para o pagamento.");
       }
-      return { intent: toStripeIntentPayload(intent), clientSecret: intent.client_secret };
+      return { intent: toStripeSessionPayload(session), clientSecret: session.client_secret };
     },
     constructWebhookEvent(rawBody, signature) {
       if (!signature) {
         throw new Error("Assinatura Stripe ausente.");
       }
-      return stripe.webhooks.constructEvent(
+      const event = stripe.webhooks.constructEvent(
         rawBody,
         signature,
         config.webhookSecret
-      ) as unknown as StripeWebhookEvent;
+      );
+      return normalizeStripeWebhookEvent(event);
     }
   };
 }
@@ -143,6 +163,36 @@ function toStripeIntentPayload(intent: Stripe.PaymentIntent): StripeIntentPayloa
       userId: intent.metadata.userId,
       internalPaymentIntentId: intent.metadata.internalPaymentIntentId
     }
+  };
+}
+
+function toStripeSessionPayload(session: Stripe.Checkout.Session): StripeIntentPayload {
+  return {
+    id: session.id,
+    amount: session.amount_total ?? 0,
+    currency: session.currency ?? "brl",
+    status: session.payment_status,
+    client_secret: session.client_secret,
+    metadata: {
+      orderId: session.metadata?.orderId,
+      userId: session.metadata?.userId,
+      internalPaymentIntentId: session.metadata?.internalPaymentIntentId
+    }
+  };
+}
+
+function normalizeStripeWebhookEvent(event: Stripe.Event): StripeWebhookEvent {
+  if (event.type.startsWith("checkout.session.")) {
+    return {
+      id: event.id,
+      type: event.type,
+      data: { object: toStripeSessionPayload(event.data.object as Stripe.Checkout.Session) }
+    };
+  }
+  return {
+    id: event.id,
+    type: event.type,
+    data: { object: toStripeIntentPayload(event.data.object as Stripe.PaymentIntent) }
   };
 }
 

@@ -15,8 +15,8 @@ export type FutureProviderQuoteResponse = {
   estimatedDays: number | null;
 };
 
-export const futureShippingProviders: Record<FutureProviderName, { active: false; name: FutureProviderName }> = {
+export const futureShippingProviders: Record<FutureProviderName, { active: boolean; name: FutureProviderName }> = {
   correios: { active: false, name: "correios" },
   jadlog: { active: false, name: "jadlog" },
-  melhor_envio: { active: false, name: "melhor_envio" }
+  melhor_envio: { active: true, name: "melhor_envio" }
 };

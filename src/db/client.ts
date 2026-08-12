@@ -1,13 +1,13 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
+import { Pool as NeonPool } from "@neondatabase/serverless";
+import { drizzle as drizzleNeon } from "drizzle-orm/neon-serverless";
 import { drizzle as drizzleNodePostgres } from "drizzle-orm/node-postgres";
 import pg from "pg";
-import { env } from "@/lib/env";
+import { activeDatabaseUrl } from "@/lib/env";
 import * as schema from "./schema";
 
 type AppDatabase = ReturnType<typeof drizzleNeon<typeof schema>>;
 
-const connectionString = env.DATABASE_URL;
+const connectionString = activeDatabaseUrl;
 export const hasDatabaseConnection = connectionString.length > 0;
 
 const localPool =
@@ -15,10 +15,15 @@ const localPool =
     ? new pg.Pool({ connectionString, allowExitOnIdle: true })
     : null;
 
+const neonPool =
+  hasDatabaseConnection && !localPool
+    ? new NeonPool({ connectionString })
+    : null;
+
 export const db: AppDatabase | null = hasDatabaseConnection
   ? localPool
     ? (drizzleNodePostgres(localPool, { schema }) as unknown as AppDatabase)
-    : drizzleNeon(neon(connectionString), { schema })
+    : drizzleNeon(neonPool!, { schema })
   : null;
 
 function isLocalPostgresUrl(value: string) {

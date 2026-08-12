@@ -40,7 +40,7 @@ export async function runCartCheckoutSmoke(
       category: "cart"
     }),
     ...inspectHtml(checkout, {
-      required: ["Revisao do pedido"],
+      required: ["Checkout"],
       forbidden: ["DATABASE_URL", "STRIPE_SECRET"],
       category: "checkout"
     })

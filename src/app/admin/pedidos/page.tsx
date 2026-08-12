@@ -1,4 +1,4 @@
-import { OrderList } from "@/features/orders/components/order-list";
+import { AdminOrderList } from "@/features/orders/components/admin-order-list";
 import { listAdminPendingOrdersAction } from "@/features/orders/server/order-actions";
 import { listAdminNotificationDeliveriesAction } from "@/features/notifications/server/notification-actions";
 
@@ -12,19 +12,14 @@ export default async function AdminPedidosPage() {
       : null;
 
   return (
-    <main className="page-shell">
-      <section className="page-intro">
-        <p className="muted">Admin</p>
+    <main className="page-shell admin-orders-page">
+      <section className="page-intro admin-orders-page__intro">
         <h1>Pedidos</h1>
-        <p>
-          Visualização financeira mínima. Sem marcar como pago ou editar
-          valores.
-        </p>
+        <p>Gerencie o ciclo financeiro, a separação dos produtos e a expedição dos pedidos.</p>
       </section>
       {result.status === "success" ? (
-        <OrderList
+        <AdminOrderList
           orders={result.orders}
-          audience="admin"
           notificationsByOrder={
             notificationResult?.status === "success"
               ? notificationResult.deliveriesByOrder

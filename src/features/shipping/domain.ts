@@ -99,7 +99,9 @@ export function createShippingQuote(input: {
 }): ShippingQuote {
   const now = new Date();
   return {
-    id: `quote-${input.cartHash}-${input.postalCode}`,
+    // shipping_quotes.id is a UUID column. A semantic string here makes the
+    // database insert fail and leaves the cart with a non-persisted quote.
+    id: crypto.randomUUID(),
     cartId: input.cartId,
     postalCode: input.postalCode,
     cartHash: input.cartHash,

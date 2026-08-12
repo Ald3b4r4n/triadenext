@@ -316,7 +316,7 @@ function mapShippingQuoteRow(row: ShippingQuoteRow): ShippingQuote {
     cartHash: row.cartHash,
     provider: row.provider,
     source:
-      row.source === "fixture" || row.source === "dev_fallback"
+      row.source === "fixture" || row.source === "dev_fallback" || row.source === "melhor_envio"
         ? row.source
         : "manual",
     options: parseShippingOptions(row.options),

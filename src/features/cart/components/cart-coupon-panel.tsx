@@ -1,8 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Tag } from "lucide-react";
 import type { CouponView } from "@/features/coupons/types";
 import {
   applyCouponStateAction,
@@ -20,7 +19,6 @@ const initialState: CartCouponActionState = {
 };
 
 export function CartCouponPanel({ coupon }: CartCouponPanelProps) {
-  const router = useRouter();
   const [applyState, applyAction, applyPending] = useActionState(
     applyCouponStateAction,
     initialState
@@ -32,15 +30,15 @@ export function CartCouponPanel({ coupon }: CartCouponPanelProps) {
   const message = removeState.message || applyState.message;
   const messageStatus = removeState.message ? removeState.status : applyState.status;
 
-  useEffect(() => {
-    if (applyState.status === "success" || removeState.status === "success") {
-      router.refresh();
-    }
-  }, [applyState.status, removeState.status, router]);
-
   return (
     <div className="coupon-panel">
-      <h3>Cupom</h3>
+      <div className="cart-tool-heading">
+        <Tag aria-hidden="true" size={20} />
+        <div>
+          <h3>Cupom de desconto</h3>
+          <p>Tem um código? Aplique antes de finalizar.</p>
+        </div>
+      </div>
       {coupon ? (
         <div className="coupon-applied">
           <div>
@@ -55,13 +53,13 @@ export function CartCouponPanel({ coupon }: CartCouponPanelProps) {
         </div>
       ) : (
         <form action={applyAction} className="coupon-form">
-          <label className="form-field">
-            <span>Código</span>
-            <input name="code" placeholder="PROMO10" />
-          </label>
-          <button type="submit" disabled={applyPending}>
-            Aplicar
-          </button>
+          <label htmlFor="cart-coupon-code">Código</label>
+          <div className="cart-inline-control">
+            <input id="cart-coupon-code" name="code" placeholder="PROMO10" />
+            <button type="submit" disabled={applyPending}>
+              {applyPending ? "Aplicando..." : "Aplicar"}
+            </button>
+          </div>
         </form>
       )}
       {message ? (
@@ -74,9 +72,7 @@ export function CartCouponPanel({ coupon }: CartCouponPanelProps) {
           {message}
         </p>
       ) : null}
-      <p className="muted">
-        Frete grátis pode zerar apenas o frete manual elegível.
-      </p>
+      <p className="cart-tool-note">Cupons de frete grátis zeram a opção de entrega elegível.</p>
     </div>
   );
 }

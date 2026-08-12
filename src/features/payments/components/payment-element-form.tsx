@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from "react";
 import {
-  Elements,
+  CheckoutElementsProvider,
   PaymentElement,
-  useElements,
-  useStripe
-} from "@stripe/react-stripe-js";
+  useCheckoutElements
+} from "@stripe/react-stripe-js/checkout";
 import { loadStripe } from "@stripe/stripe-js";
+import { useRouter } from "next/navigation";
+import { Check, LoaderCircle } from "lucide-react";
 import {
   confirmMockPaymentAction,
   getOrderPaymentStatusAction,
@@ -22,14 +23,20 @@ export function PaymentElementForm({ orderId }: { orderId: string }) {
 
   async function start() {
     setBusy(true);
-    const result = await startOrderPaymentAction(orderId);
-    setBusy(false);
-    if (result.status !== "success") {
+    setMessage("");
+    try {
+      const result = await startOrderPaymentAction(orderId);
+      if (result.status !== "success") {
+        setMessage(toSafePaymentMessage(result.message));
+        return;
+      }
+      setStarted(result);
       setMessage(toSafePaymentMessage(result.message));
-      return;
+    } catch {
+      setMessage("Não foi possível iniciar o pagamento. Tente novamente em instantes.");
+    } finally {
+      setBusy(false);
     }
-    setStarted(result);
-    setMessage(toSafePaymentMessage(result.message));
   }
 
   if (!started) {
@@ -41,7 +48,7 @@ export function PaymentElementForm({ orderId }: { orderId: string }) {
         <button className="primary-action" disabled={busy} onClick={start} type="button">
           {busy ? "Preparando pagamento..." : "Iniciar pagamento"}
         </button>
-        {message ? <p role="status">{message}</p> : null}
+        {message ? <p className="form-message form-message--error" role="alert">{message}</p> : null}
       </section>
     );
   }
@@ -76,60 +83,87 @@ function RealStripeElements({
   );
 
   return (
-    <Elements
+    <CheckoutElementsProvider
       stripe={stripePromise}
       options={{
         clientSecret: payment.clientSecret,
-        appearance: { theme: "stripe" }
+        elementsOptions: { appearance: { theme: "stripe" } }
       }}
     >
       <StripePaymentContent orderId={orderId} />
-    </Elements>
+    </CheckoutElementsProvider>
   );
 }
 
 function StripePaymentContent({ orderId }: { orderId: string }) {
-  const stripe = useStripe();
-  const elements = useElements();
+  const checkoutState = useCheckoutElements();
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!stripe || !elements) {
+    if (checkoutState.type !== "success") {
       return;
     }
     setBusy(true);
-    const result = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/pedidos/${orderId}/pagamento`
-      },
-      redirect: "if_required"
-    });
-    setBusy(false);
-    if (result.error) {
-      setMessage(result.error.message ?? "Pagamento não foi concluído.");
-      return;
+    setMessage("Validando seus dados com segurança...");
+    try {
+      const result = await checkoutState.checkout.confirm({
+        redirect: "if_required"
+      });
+      if (result.type === "error") {
+        setBusy(false);
+        setMessage(result.error.message ?? "Pagamento não foi concluído.");
+        return;
+      }
+      setMessage("Pagamento enviado. Aguardando confirmação do servidor...");
+      const confirmed = await waitForPaymentConfirmation(orderId);
+      if (confirmed) {
+        router.refresh();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      setBusy(false);
+      setMessage("Pagamento enviado. A confirmação pode levar alguns segundos; atualize a página para acompanhar.");
+    } catch {
+      setBusy(false);
+      setMessage("Não foi possível concluir o pagamento. Confira os dados e tente novamente.");
     }
-    const status = await getOrderPaymentStatusAction(orderId);
-    setMessage(
-      status.status === "success" && status.order.status === "pago"
-        ? "Pagamento confirmado pelo servidor."
-        : "Pagamento enviado. Aguardando confirmação segura do servidor."
-    );
   }
 
   return (
     <form className="checkout-form" onSubmit={submit}>
       <h2>Pagamento seguro</h2>
       <PaymentElement />
-      <button className="primary-action" disabled={!stripe || busy} type="submit">
-        {busy ? "Processando..." : "Pagar pedido"}
+      <button className="primary-action payment-submit" disabled={checkoutState.type !== "success" || busy} type="submit">
+        {busy ? <><LoaderCircle className="payment-submit__spinner" aria-hidden="true" size={18} /> Processando pagamento</> : "Pagar pedido"}
       </button>
-      {message ? <p role="status">{message}</p> : null}
+      {busy ? (
+        <div className="payment-progress" role="status" aria-live="polite">
+          <div className="payment-progress__track"><span /></div>
+          <ol>
+            <li className="is-complete"><Check aria-hidden="true" size={13} /> Dados protegidos</li>
+            <li className="is-active"><LoaderCircle aria-hidden="true" size={13} /> Autorizando</li>
+            <li>Confirmando pedido</li>
+          </ol>
+          <p>{message}</p>
+        </div>
+      ) : message ? <p role="status">{message}</p> : null}
     </form>
   );
+}
+
+async function waitForPaymentConfirmation(orderId: string) {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const status = await getOrderPaymentStatusAction(orderId);
+    if (status.status === "success" && status.order.status === "pago") {
+      return true;
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 1_000));
+  }
+  return false;
 }
 
 function MockPaymentForm({

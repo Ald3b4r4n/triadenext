@@ -219,7 +219,7 @@ export function ProductForm({
         </label>
       </section>
 
-      <ProductImageManager images={product?.images ?? []} />
+      <ProductImageManager productId={product?.id} images={product?.images ?? []} />
 
       <div className="form-actions">
         <button type="submit" disabled={isPending}>

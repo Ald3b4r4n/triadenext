@@ -19,6 +19,7 @@ export type PaymentRepository = {
     currency: "BRL";
   }): Promise<PaymentIntentRecord>;
   findLatestForOrder(orderId: string): Promise<PaymentIntentRecord | null>;
+  findById(id: string): Promise<PaymentIntentRecord | null>;
   findByProviderReference(providerReference: string): Promise<PaymentIntentRecord | null>;
   setProviderIntent(input: {
     id: string;
@@ -80,6 +81,9 @@ function createFallbackPaymentRepository(): PaymentRepository {
           .filter((record) => record.orderId === orderId)
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0] ?? null
       );
+    },
+    async findById(id) {
+      return store.get(id) ?? null;
     },
     async findByProviderReference(providerReference) {
       return (
@@ -179,6 +183,14 @@ function createDrizzlePaymentRepository(): PaymentRepository {
         .from(paymentIntents)
         .where(eq(paymentIntents.orderId, orderId))
         .orderBy(desc(paymentIntents.createdAt))
+        .limit(1);
+      return row ? toPaymentIntent(row) : null;
+    },
+    async findById(id) {
+      const [row] = await database
+        .select()
+        .from(paymentIntents)
+        .where(eq(paymentIntents.id, id))
         .limit(1);
       return row ? toPaymentIntent(row) : null;
     },

@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { ArrowRight, Check, CreditCard, ShoppingBag } from "lucide-react";
 import { formatMoney } from "@/lib/money";
-import { createPendingOrderAndRedirect, reviewPendingCheckoutAction } from "@/features/checkout/server/checkout-actions";
+import { reviewPendingCheckoutAction } from "@/features/checkout/server/checkout-actions";
+import { CheckoutAddressForm } from "@/features/checkout/components/checkout-address-form";
 import { getCustomerPendingOrderAction } from "@/features/orders/server/order-actions";
 import { OrderItemsSummary, OrderSummary } from "@/features/orders/components/order-summary";
 
@@ -15,14 +17,38 @@ export default async function CheckoutPage({
     const orderResult = await getCustomerPendingOrderAction(params.pedido);
     if (orderResult.status === "success") {
       return (
-        <main className="page-shell">
-          <section className="page-intro">
-            <p className="muted">Checkout pendente</p>
-            <h1>Pedido criado</h1>
-            <p>Pedido aguardando pagamento. Continue pela área de pedidos para seguir com a etapa de pagamento.</p>
+        <main className="page-shell checkout-page checkout-created-page">
+          <ol className="checkout-steps" aria-label="Etapas da compra">
+            <li className="checkout-step checkout-step--complete"><Check aria-hidden="true" size={15} /> Carrinho</li>
+            <li className="checkout-step checkout-step--complete"><Check aria-hidden="true" size={15} /> Identificação</li>
+            <li className="checkout-step checkout-step--current"><CreditCard aria-hidden="true" size={15} /> Pagamento</li>
+          </ol>
+          <section className="checkout-created-hero">
+            <div className="checkout-created-hero__icon"><ShoppingBag aria-hidden="true" size={26} /></div>
+            <div>
+              <span>Pedido registrado</span>
+              <h1>Falta apenas o pagamento</h1>
+              <p>Seus itens estão reservados. Conclua o pagamento para confirmar a compra.</p>
+            </div>
+            <Link className="primary-action" href={`/pedidos/${orderResult.order.id}/pagamento`}>
+              Pagar agora <ArrowRight aria-hidden="true" size={17} />
+            </Link>
           </section>
-          <OrderSummary order={orderResult.order} />
-          <OrderItemsSummary order={orderResult.order} />
+          <section className="checkout-created-grid">
+            <div>
+              <OrderSummary order={orderResult.order} />
+              <OrderItemsSummary order={orderResult.order} />
+            </div>
+            <aside className="checkout-next-steps">
+              <h2>Próximos passos</h2>
+              <ol>
+                <li><span>1</span><div><strong>Conclua o pagamento</strong><p>Use o formulário seguro do provedor.</p></div></li>
+                <li><span>2</span><div><strong>Aguarde a confirmação</strong><p>O status é atualizado automaticamente.</p></div></li>
+                <li><span>3</span><div><strong>Acompanhe o pedido</strong><p>Consulte andamento e entrega em sua conta.</p></div></li>
+              </ol>
+              <Link className="secondary-action" href="/pedidos">Ver meus pedidos</Link>
+            </aside>
+          </section>
         </main>
       );
     }
@@ -68,14 +94,20 @@ export default async function CheckoutPage({
   const { cart } = review;
 
   return (
-    <main className="page-shell">
+    <main className="page-shell checkout-page">
       <section className="page-intro">
-        <p className="muted">Checkout pendente</p>
-        <h1>Revisao do pedido</h1>
-        <p>Confira itens, frete, cupom e endereço. O pagamento será iniciado depois que o pedido for criado.</p>
+        <p className="muted">Finalizar compra</p>
+        <h1>Revise e informe a entrega</h1>
+        <p>Confira o resumo e complete o endereço. Na próxima etapa você fará o pagamento seguro.</p>
       </section>
 
-      <section className="cart-layout" aria-label="Revisao de checkout">
+      <ol className="checkout-steps" aria-label="Etapas da compra">
+        <li className="checkout-step checkout-step--complete"><Check aria-hidden="true" size={15} /> Carrinho</li>
+        <li className="checkout-step checkout-step--current">2 Identificação</li>
+        <li className="checkout-step">3 Pagamento</li>
+      </ol>
+
+      <section className="cart-layout checkout-review-layout" aria-label="Revisão de checkout">
         <div className="cart-main">
           <div className="cart-items">
             {cart.items.map((item) => (
@@ -83,64 +115,17 @@ export default async function CheckoutPage({
                 <div>
                   <h2>{item.productNameSnapshot}</h2>
                   <p className="muted">Quantidade: {item.quantity}</p>
-                  <p>Unitario: {formatMoney(item.unitPriceSnapshotCents)}</p>
+                  <p>Unitário: {formatMoney(item.unitPriceSnapshotCents)}</p>
                 </div>
                 <strong>{formatMoney(item.itemSubtotalCents)}</strong>
               </article>
             ))}
           </div>
 
-          <form action={createPendingOrderAndRedirect} className="checkout-form">
-            <h2>Cliente e entrega</h2>
-            <p className="muted">E-mail da conta: {review.email}</p>
-            <label>
-              <span>Nome completo</span>
-              <input name="fullName" required minLength={3} />
-            </label>
-            <label>
-              <span>Telefone</span>
-              <input name="phone" required minLength={8} />
-            </label>
-            <label>
-              <span>Destinatario, se diferente</span>
-              <input name="recipient" />
-            </label>
-            <div className="form-grid">
-              <label>
-                <span>CEP</span>
-                <input name="postalCode" required defaultValue={cart.shippingPostalCode ?? ""} />
-              </label>
-              <label>
-                <span>UF</span>
-                <input name="state" required maxLength={2} />
-              </label>
-            </div>
-            <label>
-              <span>Cidade</span>
-              <input name="city" required />
-            </label>
-            <label>
-              <span>Bairro</span>
-              <input name="district" required />
-            </label>
-            <label>
-              <span>Logradouro</span>
-              <input name="street" required />
-            </label>
-            <div className="form-grid">
-              <label>
-                <span>Numero</span>
-                <input name="number" required />
-              </label>
-              <label>
-                <span>Complemento</span>
-                <input name="complement" />
-              </label>
-            </div>
-            <button className="primary-action" type="submit">
-              Criar pedido pendente
-            </button>
-          </form>
+          <CheckoutAddressForm
+            email={review.email}
+            initialPostalCode={cart.shippingPostalCode ?? ""}
+          />
         </div>
 
         <aside className="cart-summary" aria-label="Resumo do pedido">
@@ -166,8 +151,8 @@ export default async function CheckoutPage({
             {cart.shippingQuote?.options.find((option) => option.id === cart.shippingQuote?.selectedOptionId)?.label ??
               "selecionado"}
           </p>
-          <p className="muted">Pedido expira 60 minutos após a criação.</p>
-          <p className="muted">Dados de cartão não são coletados neste formulário.</p>
+          <p className="muted">A reserva dos itens dura 60 minutos após avançar.</p>
+          <p className="muted">O cartão será informado somente na próxima etapa segura.</p>
         </aside>
       </section>
     </main>

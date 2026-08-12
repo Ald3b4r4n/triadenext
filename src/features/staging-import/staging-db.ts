@@ -1,6 +1,6 @@
-import { neon } from "@neondatabase/serverless";
 import { and, eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
 import * as schema from "@/db/schema";
 import {
   categories,
@@ -30,7 +30,13 @@ import type {
 } from "@/features/data-dry-run/types";
 
 function createDrizzleClient(connectionString: string) {
-  return drizzle(neon(connectionString), { schema });
+  const pool = new pg.Pool({
+    connectionString,
+    max: 1,
+    allowExitOnIdle: true,
+    idleTimeoutMillis: 1_000
+  });
+  return drizzle(pool, { schema });
 }
 
 type StagingDrizzleClient = ReturnType<typeof createDrizzleClient>;

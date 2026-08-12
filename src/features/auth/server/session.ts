@@ -1,5 +1,6 @@
 import "server-only";
 
+import { cache } from "react";
 import { headers } from "next/headers";
 import { auth } from "./auth";
 import { getRuntimeMode } from "@/lib/runtime-mode";
@@ -10,6 +11,7 @@ export type AppSession =
   | {
       status: "authenticated";
       userId: string;
+      name?: string;
       email: string;
       role: AuthRole;
     }
@@ -18,7 +20,7 @@ export type AppSession =
       reason: "missing" | "expired" | "invalid" | "timeout" | "unavailable";
     };
 
-export async function getCurrentSession(): Promise<AppSession> {
+export const getCurrentSession = cache(async function getCurrentSession(): Promise<AppSession> {
   const mode = getRuntimeMode();
 
   if (!mode.isAuthReady) {
@@ -46,6 +48,7 @@ export async function getCurrentSession(): Promise<AppSession> {
     return {
       status: "authenticated",
       userId: session.user.id,
+      name: typeof session.user.name === "string" ? session.user.name : undefined,
       email: session.user.email,
       role
     };
@@ -56,7 +59,7 @@ export async function getCurrentSession(): Promise<AppSession> {
 
     return { status: "unauthenticated", reason: "invalid" };
   }
-}
+});
 
 export function normalizeRole(value: unknown): AuthRole | null {
   return value === "customer" || value === "admin" || value === "manager" ? value : null;

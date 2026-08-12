@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "./auth";
 import { loginSchema, signupSchema } from "./schemas";
-import { getCurrentSession, validateReturnTo } from "./session";
+import { validateReturnTo } from "./session";
 import { getRuntimeMode } from "@/lib/runtime-mode";
 import {
   expireGuestCartToken,
@@ -41,16 +41,15 @@ export async function loginAction(
 
   try {
     const guestToken = await getGuestCartTokenForMerge();
-    await auth.api.signInEmail({
+    const signedIn = await auth.api.signInEmail({
       body: {
         email: parsed.data.email,
         password: parsed.data.password
       },
       headers: await headers()
     });
-    const session = await getCurrentSession();
-    if (session.status === "authenticated" && guestToken) {
-      await mergeGuestCartIntoUser({ userId: session.userId, guestToken });
+    if (signedIn.user.id && guestToken) {
+      await mergeGuestCartIntoUser({ userId: signedIn.user.id, guestToken });
       await expireGuestCartToken();
     }
   } catch {

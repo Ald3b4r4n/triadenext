@@ -7,6 +7,9 @@ const environment = assertNonProductionEnvironment();
 const masterEmails = parseList(process.env.ADMIN_MASTER_EMAILS);
 const databaseUrl = process.env.DATABASE_URL?.trim() ?? "";
 const password = process.env.DEV_ADMIN_PASSWORD?.trim() ?? "";
+const syncPassword = /^(1|true|yes|sim)$/i.test(
+  process.env.ADMIN_BOOTSTRAP_SYNC_PASSWORD?.trim() ?? ""
+);
 
 if (masterEmails.length === 0) {
   fail("Bootstrap admin bloqueado: ADMIN_MASTER_EMAILS ausente.");
@@ -27,11 +30,19 @@ main().catch(() => {
 });
 
 async function main() {
-  const [{ default: pg }, { drizzle }, { eq }, { createAuth }, { users }] =
+  const [
+    { default: pg },
+    { drizzle },
+    { and, eq },
+    { hashPassword },
+    { createAuth },
+    { accounts, users }
+  ] =
     await Promise.all([
       import("pg"),
       import("drizzle-orm/node-postgres"),
       import("drizzle-orm"),
+      import("better-auth/crypto"),
       import("../../src/features/auth/server/create-auth"),
       import("../../src/db/schema")
     ]);
@@ -46,6 +57,8 @@ async function main() {
     created: 0,
     promoted: 0,
     unchanged: 0,
+    passwordsSynced: 0,
+    skippedMissingCredential: 0,
     skippedMissingPassword: 0
   };
 
@@ -86,20 +99,31 @@ async function main() {
         continue;
       }
 
-      if (user.role === "admin") {
-        summary.unchanged += 1;
-        continue;
+      if (user.role === "admin") summary.unchanged += 1;
+      else {
+        await db
+          .update(users)
+          .set({ role: "admin", updatedAt: new Date() })
+          .where(eq(users.id, user.id));
+        summary.promoted += 1;
       }
 
-      await db
-        .update(users)
-        .set({
-          role: "admin",
-          updatedAt: new Date()
-        })
-        .where(eq(users.id, user.id));
+      if (syncPassword && password && existingUser) {
+        const hashedPassword = await hashPassword(password);
+        const updated = await db
+          .update(accounts)
+          .set({ password: hashedPassword, updatedAt: new Date() })
+          .where(
+            and(
+              eq(accounts.userId, user.id),
+              eq(accounts.providerId, "credential")
+            )
+          )
+          .returning({ id: accounts.id });
 
-      summary.promoted += 1;
+        if (updated.length > 0) summary.passwordsSynced += 1;
+        else summary.skippedMissingCredential += 1;
+      }
     }
   } finally {
     await pool.end();
@@ -112,13 +136,17 @@ async function main() {
   console.log(`Criados: ${summary.created}.`);
   console.log(`Promovidos para admin: ${summary.promoted}.`);
   console.log(`Ja estavam admin: ${summary.unchanged}.`);
+  console.log(`Senhas sincronizadas explicitamente: ${summary.passwordsSynced}.`);
+  console.log(
+    `Pendentes sem conta de credencial: ${summary.skippedMissingCredential}.`
+  );
   console.log(
     `Pendentes por senha local ausente: ${summary.skippedMissingPassword}.`
   );
 
-  if (summary.skippedMissingPassword > 0) {
+  if (summary.skippedMissingPassword > 0 || summary.skippedMissingCredential > 0) {
     fail(
-      "Bootstrap admin pendente: defina DEV_ADMIN_PASSWORD localmente ou cadastre o usuário e rode novamente."
+      "Bootstrap admin pendente: revise a senha local ou a conta de credencial do usuário."
     );
   }
 }

@@ -25,3 +25,5 @@ data/dry-run/input/*
 !data/dry-run/input/examples/
 !data/dry-run/input/examples/**
 data/dry-run/output/
+.vercel
+.env*.local

@@ -5,6 +5,7 @@ import { sanitizePaymentFailureReason, validatePayableOrder } from "../domain";
 import { createPaymentRepository } from "./payment-repository";
 import { getPaymentRuntimeConfig } from "./payment-config";
 import { createStripePaymentAdapter, paymentRecordCanBeReused } from "./stripe-adapter";
+import { env } from "@/lib/env";
 import type { PaymentStatusResult, StartPaymentResult } from "../types";
 
 const orderRepository = createOrderRepository();
@@ -34,7 +35,8 @@ export async function startOrderPayment(input: {
       paymentRecordCanBeReused(existing) &&
       existing.amountCents === payableOrder.grandTotalCents &&
       existing.currency === payableOrder.currency &&
-      existing.providerReference
+      existing.providerReference &&
+      (adapter.mode === "mock" || existing.providerReference.startsWith("cs_"))
     ) {
       const retrieved = await adapter.retrievePaymentIntent(existing.providerReference);
       return {
@@ -58,7 +60,10 @@ export async function startOrderPayment(input: {
       userId: input.userId,
       internalPaymentIntentId: internal.id,
       amountCents: payableOrder.grandTotalCents,
-      currency: payableOrder.currency
+      currency: payableOrder.currency,
+      orderNumber: payableOrder.number,
+      customerEmail: payableOrder.customerSnapshot.email,
+      returnUrl: `${env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/pedidos/${payableOrder.id}/pagamento`
     });
     const paymentIntent = await paymentRepository.setProviderIntent({
       id: internal.id,

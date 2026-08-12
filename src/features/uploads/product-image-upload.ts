@@ -1,7 +1,7 @@
 import { put } from "@vercel/blob";
 import { policyMessage, requireAdminLike } from "@/features/auth/server/policies";
 import { env } from "@/lib/env";
-import { runtimeMessages } from "@/lib/runtime-mode";
+import { assertCanMutateRealData, runtimeMessages } from "@/lib/runtime-mode";
 import { createProductRepository } from "@/features/products/server/product-repository";
 import { productImageUploadSchema } from "./schemas";
 
@@ -50,6 +50,10 @@ export type ProductImageUploadResult =
           };
     };
 
+export type ProductImageCoverResult =
+  | { status: "updated"; imageId: string; message: string }
+  | { status: "blocked"; message: string };
+
 export async function uploadProductImage(input: ProductImageUploadInput): Promise<ProductImageUploadResult> {
   const policy = await requireAdminLike();
 
@@ -81,6 +85,16 @@ export async function uploadProductImage(input: ProductImageUploadInput): Promis
       status: "blocked",
       reason: "missing_blob_token",
       message: runtimeMessages.blobMissing
+    };
+  }
+
+  const mutationGuardrail = assertCanMutateRealData();
+
+  if (!mutationGuardrail.allowed) {
+    return {
+      status: "blocked",
+      reason: "environment_guardrail",
+      message: mutationGuardrail.message
     };
   }
 
@@ -116,5 +130,35 @@ export async function uploadProductImage(input: ProductImageUploadInput): Promis
     contentType: file.type,
     sizeBytes: file.size,
     metadata
+  };
+}
+
+export async function setProductCoverImage(input: {
+  productId: string;
+  imageId: string;
+}): Promise<ProductImageCoverResult> {
+  const policy = await requireAdminLike();
+
+  if (policy.status !== "allowed") {
+    return { status: "blocked", message: policyMessage(policy) };
+  }
+
+  if (!input.productId.trim() || !input.imageId.trim()) {
+    return { status: "blocked", message: "Imagem ou produto inválido." };
+  }
+
+  const result = await createProductRepository().setProductCoverImage(
+    input.productId,
+    input.imageId
+  );
+
+  if (result.status !== "persisted") {
+    return { status: "blocked", message: result.message };
+  }
+
+  return {
+    status: "updated",
+    imageId: result.imageId,
+    message: result.message
   };
 }

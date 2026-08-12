@@ -1,8 +1,8 @@
 import { CartView } from "@/features/cart/components/cart-view";
-import { getActiveCartAction } from "@/features/cart/server/cart-actions";
+import { getActiveCartForRender } from "@/features/cart/server/cart-service";
 
 export default async function CarrinhoPage() {
-  const result = await getActiveCartAction();
+  const result = await getActiveCartForRender();
   const cart =
     result.status === "success" || result.status === "fallback"
       ? result.cart
@@ -28,12 +28,16 @@ export default async function CarrinhoPage() {
         };
 
   return (
-    <main className="page-shell">
-      <section className="page-intro">
+    <main className="page-shell cart-page">
+      <section className="page-intro cart-page__intro">
         <p className="muted">Sessão de compra</p>
         <h1>Carrinho</h1>
+        <p>Revise seus itens, escolha a entrega e avance com segurança.</p>
       </section>
-      <CartView cart={cart} />
+      <CartView
+        key={`${cart.items.map((item) => `${item.id}:${item.quantity}`).join("|")}:${cart.appliedCouponId ?? ""}:${cart.shippingQuoteId ?? ""}`}
+        cart={cart}
+      />
     </main>
   );
 }
