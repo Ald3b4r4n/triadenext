@@ -27,6 +27,10 @@ export async function listProductCategories() {
   return repository.listCategories();
 }
 
+export async function createProductCategory(input: Parameters<typeof repository.createCategory>[0]) {
+  return repository.createCategory(input);
+}
+
 export async function getAdminProductById(id: string) {
   return repository.findProductById(id);
 }

@@ -15,7 +15,6 @@ import {
   ShoppingBag,
   Store,
   Tags,
-  Truck,
   Users
 } from "lucide-react";
 
@@ -81,11 +80,6 @@ const navSections: AdminNavSection[] = [
         href: "/admin/cupons",
         label: "Cupons",
         icon: BadgePercent
-      },
-      {
-        href: "/admin/frete",
-        label: "Frete",
-        icon: Truck
       }
     ]
   },

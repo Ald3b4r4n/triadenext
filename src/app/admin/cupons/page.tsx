@@ -11,7 +11,7 @@ export default async function AdminCuponsPage() {
         <p className="muted">Admin</p>
         <h1>Cupons</h1>
         <p>
-          Cupons globais para carrinho, sem campanhas avançadas, relatórios ou frete externo.
+          Um cupom por compra. O mesmo cliente pode utilizá-lo novamente em um novo pedido, enquanto estiver ativo e dentro do limite global.
         </p>
         <Link className="primary-action" href="/admin/cupons/novo">
           Novo cupom

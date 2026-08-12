@@ -12,11 +12,14 @@ import { logoutAction } from "@/features/auth/server/actions";
 import { getCurrentSession } from "@/features/auth/server/session";
 import { listCustomerPendingOrdersAction } from "@/features/orders/server/order-actions";
 import { formatMoney } from "@/lib/money";
+import { getCurrentCustomerAccount } from "@/features/account/server/account-actions";
+import { CustomerAccountForm } from "@/features/account/components/customer-account-form";
 
 export default async function MinhaContaPage() {
-  const [session, orderResult] = await Promise.all([
+  const [session, orderResult, accountData] = await Promise.all([
     getCurrentSession(),
-    listCustomerPendingOrdersAction()
+    listCustomerPendingOrdersAction(),
+    getCurrentCustomerAccount()
   ]);
   const orders = orderResult.status === "success" ? orderResult.orders : [];
   const recentOrders = [...orders]
@@ -116,6 +119,7 @@ export default async function MinhaContaPage() {
           </nav>
         </aside>
       </div>
+      <CustomerAccountForm data={accountData} />
     </main>
   );
 }

@@ -28,7 +28,7 @@ export function CouponForm({ action, coupon }: CouponFormProps) {
               <option value="fixed_amount">Valor fixo em centavos</option>
               <option value="free_shipping">Frete grátis preparado</option>
             </select>
-            <small>Frete grátis não calcula nem zera frete real nesta fase.</small>
+            <small>Frete grátis zera a opção real selecionada do Melhor Envio.</small>
           </label>
           <label className="form-field">
             <span>Valor</span>

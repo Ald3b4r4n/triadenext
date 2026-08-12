@@ -4,6 +4,7 @@ import { policyMessage, requireAdminLike, requireCustomer } from "@/features/aut
 import { runtimeMessages } from "@/lib/runtime-mode";
 import { createOrderRepository } from "./order-repository";
 import type { OrderDetailResult, OrderReadResult } from "../types";
+import { revalidatePath } from "next/cache";
 
 const orderRepository = createOrderRepository();
 
@@ -81,4 +82,15 @@ export async function getAdminPendingOrderAction(orderId: string): Promise<Order
   }
 
   return { status: "success", order };
+}
+
+export async function deleteExpiredOrderAction(formData: FormData): Promise<void> {
+  const policy = await requireAdminLike();
+  if (policy.status !== "allowed") throw new Error(policyMessage(policy));
+  const orderId = String(formData.get("orderId") ?? "");
+  if (!orderId) throw new Error("Pedido inválido.");
+  const deleted = await orderRepository.deleteExpiredOrder(orderId);
+  if (!deleted) throw new Error("Somente pedidos expirados podem ser excluídos.");
+  revalidatePath("/admin/pedidos");
+  revalidatePath("/admin");
 }

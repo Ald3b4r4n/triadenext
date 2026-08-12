@@ -15,6 +15,14 @@ export type Category = {
   updatedAt: Date;
 };
 
+export type CategoryMutationInput = {
+  name: string;
+  slug: string;
+  description?: string | null;
+  sortOrder: number;
+  isActive: boolean;
+};
+
 export type ProductImage = {
   id: string;
   productId: string;

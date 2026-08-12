@@ -10,6 +10,8 @@ import {
   ShoppingBag,
   Truck
 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { deleteExpiredOrderAction } from "../server/order-actions";
 import { NotificationStatus } from "@/features/notifications/components/notification-status";
 import type { NotificationDelivery } from "@/features/notifications/types";
 import { formatMoney } from "@/lib/money";
@@ -29,10 +31,12 @@ export function AdminOrderList({ orders, notificationsByOrder }: {
     );
   }
 
-  const paidOrders = orders.filter((order) => order.status === "pago");
+  const confirmedStatuses: OrderStatus[] = ["pago", "em_preparacao", "enviado", "entregue"];
+  const paidOrders = orders.filter((order) => confirmedStatuses.includes(order.status));
   const pendingOrders = orders.filter((order) => order.status === "aguardando_pagamento");
   const readyToShip = orders.filter((order) => order.status === "pago" || order.status === "em_preparacao");
   const receivedCents = paidOrders.reduce((total, order) => total + order.grandTotalCents, 0);
+  const monthlyHistory = buildMonthlyHistory(paidOrders);
 
   return (
     <>
@@ -41,6 +45,11 @@ export function AdminOrderList({ orders, notificationsByOrder }: {
         <div><Clock3 aria-hidden="true" size={20} /><span>Aguardando</span><strong>{pendingOrders.length}</strong></div>
         <div><Truck aria-hidden="true" size={20} /><span>Para expedir</span><strong>{readyToShip.length}</strong></div>
         <div><PackageCheck aria-hidden="true" size={20} /><span>Recebido</span><strong>{formatMoney(receivedCents)}</strong></div>
+      </section>
+
+      <section className="admin-order-monthly" aria-labelledby="monthly-orders-title">
+        <header><div><p className="muted">Histórico preservado</p><h2 id="monthly-orders-title">Pedidos aprovados por mês</h2></div><span>Registros pagos não podem ser excluídos.</span></header>
+        <div>{monthlyHistory.map((month) => <article key={month.key}><span>{month.label}</span><strong>{formatMoney(month.totalCents)}</strong><small>{month.orders} {month.orders === 1 ? "pedido" : "pedidos"}</small></article>)}</div>
       </section>
 
       <section className="admin-order-list" aria-label="Pedidos">
@@ -116,6 +125,12 @@ export function AdminOrderList({ orders, notificationsByOrder }: {
                   <h3><Bell aria-hidden="true" size={17} /> Comunicação</h3>
                   <NotificationStatus deliveries={notificationsByOrder[order.id] ?? []} />
                 </section>
+                {canDeleteExpiredOrder(order) ? (
+                  <section className="admin-order-card__danger">
+                    <div><h3>Pedido expirado</h3><p>Exclua este registro sem afetar o histórico de pedidos aprovados.</p></div>
+                    <form action={deleteExpiredOrderAction}><input type="hidden" name="orderId" value={order.id} /><button type="submit"><Trash2 aria-hidden="true" size={16} /> Excluir pedido</button></form>
+                  </section>
+                ) : null}
               </div>
             </details>
           ))}
@@ -123,6 +138,23 @@ export function AdminOrderList({ orders, notificationsByOrder }: {
       </section>
     </>
   );
+}
+
+function canDeleteExpiredOrder(order: PendingOrder) {
+  return order.status === "expirado" || (order.status === "aguardando_pagamento" && order.expiresAt.getTime() <= Date.now());
+}
+
+function buildMonthlyHistory(orders: PendingOrder[]) {
+  const months = new Map<string, { key: string; label: string; orders: number; totalCents: number }>();
+  for (const order of orders) {
+    const date = order.paidAt ?? order.createdAt;
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const current = months.get(key) ?? { key, label: date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" }), orders: 0, totalCents: 0 };
+    current.orders += 1;
+    current.totalCents += order.grandTotalCents;
+    months.set(key, current);
+  }
+  return [...months.values()].sort((a, b) => b.key.localeCompare(a.key));
 }
 
 function formatAddress(order: PendingOrder) {

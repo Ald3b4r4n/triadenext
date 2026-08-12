@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Check, LoaderCircle, MapPin } from "lucide-react";
 import { createPendingOrderAndRedirect } from "../server/checkout-actions";
 import { formatBrazilPhone } from "../phone";
+import type { CustomerAccountData } from "@/features/account/server/account-repository";
 
 type Address = {
   state: string;
@@ -17,17 +18,19 @@ type LookupStatus = "idle" | "loading" | "success" | "error";
 export function CheckoutAddressForm({
   email,
   initialPostalCode
+  ,initialData
 }: {
   email: string;
   initialPostalCode: string;
+  initialData: CustomerAccountData | null;
 }) {
   const [postalCode, setPostalCode] = useState(formatPostalCode(initialPostalCode));
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(formatBrazilPhone(initialData?.phone ?? ""));
   const [address, setAddress] = useState<Address>({
-    state: "",
-    city: "",
-    district: "",
-    street: ""
+    state: initialData?.state ?? "",
+    city: initialData?.city ?? "",
+    district: initialData?.district ?? "",
+    street: initialData?.street ?? ""
   });
   const [lookupStatus, setLookupStatus] = useState<LookupStatus>("idle");
   const numberRef = useRef<HTMLInputElement>(null);
@@ -89,7 +92,7 @@ export function CheckoutAddressForm({
 
       <label>
         <span>Nome completo</span>
-        <input name="fullName" required minLength={3} autoComplete="name" />
+        <input name="fullName" required minLength={3} defaultValue={initialData?.fullName} autoComplete="name" />
       </label>
       <label>
         <span>Telefone</span>
@@ -108,7 +111,7 @@ export function CheckoutAddressForm({
       </label>
       <label>
         <span>Destinatário, se diferente</span>
-        <input name="recipient" autoComplete="shipping name" />
+        <input name="recipient" defaultValue={initialData?.recipient} autoComplete="shipping name" />
       </label>
 
       <div className="form-grid">
@@ -164,11 +167,11 @@ export function CheckoutAddressForm({
       <div className="form-grid">
         <label>
           <span>Número</span>
-          <input ref={numberRef} name="number" required autoComplete="shipping address-line2" />
+          <input ref={numberRef} name="number" required defaultValue={initialData?.number} autoComplete="shipping address-line2" />
         </label>
         <label>
           <span>Complemento <small>(opcional)</small></span>
-          <input name="complement" autoComplete="shipping address-line3" />
+          <input name="complement" defaultValue={initialData?.complement} autoComplete="shipping address-line3" />
         </label>
       </div>
       <button className="primary-action" type="submit">

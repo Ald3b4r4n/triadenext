@@ -40,7 +40,7 @@ export function CouponAdminTable({ coupons }: CouponAdminTableProps) {
           <div>
             {coupon.valueLabel}
             {coupon.isPreparedBenefit ? (
-              <small>Preparado: não aplica frete real nesta fase.</small>
+              <small>Zera o valor da opção calculada pelo Melhor Envio.</small>
             ) : null}
           </div>
           <span className="status-badge status-badge--draft">{coupon.status}</span>

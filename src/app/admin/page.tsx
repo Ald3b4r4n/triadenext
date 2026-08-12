@@ -9,7 +9,6 @@ import {
   ImageOff,
   Package,
   ShoppingCart,
-  Truck,
   WalletCards
 } from "lucide-react";
 import { listCouponsAction } from "@/features/coupons/server/admin-coupon-actions";
@@ -54,12 +53,6 @@ const operationLinks: OperationLink[] = [
     description: "Controlar descontos elegíveis no carrinho.",
     href: "/admin/cupons",
     icon: BadgePercent
-  },
-  {
-    title: "Frete",
-    description: "Manter regras de envio e faixas de atendimento.",
-    href: "/admin/frete",
-    icon: Truck
   }
 ];
 

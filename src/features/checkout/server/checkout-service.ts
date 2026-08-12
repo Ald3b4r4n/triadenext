@@ -21,13 +21,14 @@ import { checkoutFormSchema } from "@/features/orders/schemas";
 import { createOrderRepository } from "@/features/orders/server/order-repository";
 import type { CheckoutFormInput } from "@/features/orders/schemas";
 import type { PendingOrder } from "@/features/orders/types";
+import { getCustomerAccountData, saveCustomerAccountData } from "@/features/account/server/account-repository";
 
 const cartRepository = createCartRepository();
 const orderRepository = createOrderRepository();
 const productRepository = createProductRepository();
 
 export type CheckoutReviewResult =
-  | { status: "success"; cart: Awaited<ReturnType<typeof recalculateCartView>>; email: string; message?: string }
+  | { status: "success"; cart: Awaited<ReturnType<typeof recalculateCartView>>; email: string; account: Awaited<ReturnType<typeof getCustomerAccountData>>; message?: string }
   | { status: "unauthenticated"; message: string }
   | { status: "validation_error"; message: string }
   | { status: "unavailable"; message: string };
@@ -53,7 +54,12 @@ export async function reviewPendingCheckout(): Promise<CheckoutReviewResult> {
     return { status: "validation_error", message: validation.message };
   }
 
-  return { status: "success", cart, email: session.email };
+  const account = await getCustomerAccountData(session.userId);
+  if (getRuntimeMode().hasDatabase && !isAccountComplete(account)) {
+    return { status: "validation_error", message: "Complete seus dados pessoais, fiscais e o endereço principal em Minha conta antes de finalizar a compra." };
+  }
+
+  return { status: "success", cart, email: session.email, account };
 }
 
 export async function createPendingCheckoutOrder(input: CheckoutFormInput): Promise<CheckoutCreateResult> {
@@ -85,6 +91,26 @@ export async function createPendingCheckoutOrder(input: CheckoutFormInput): Prom
     ...parsed.data,
     fullName: parsed.data.fullName
   });
+
+  const existingAccount = await getCustomerAccountData(session.userId);
+  if (getRuntimeMode().hasDatabase && !isAccountComplete(existingAccount)) {
+    return { status: "validation_error", message: "Complete seus dados pessoais e fiscais em Minha conta antes de criar o pedido." };
+  }
+  if (existingAccount) {
+    await saveCustomerAccountData(session.userId, {
+      ...existingAccount,
+      fullName: parsed.data.fullName,
+      phone: parsed.data.phone,
+      recipient: parsed.data.recipient?.trim() || parsed.data.fullName,
+      postalCode: address.postalCode,
+      state: address.state,
+      city: address.city,
+      district: address.district,
+      street: address.street,
+      number: address.number,
+      complement: address.complement
+    });
+  }
 
   if (cart.shippingPostalCode && normalizePostalCode(cart.shippingPostalCode) !== address.postalCode) {
     return {
@@ -126,6 +152,10 @@ export async function createPendingCheckoutOrder(input: CheckoutFormInput): Prom
   return result.status === "dev_fallback"
     ? { status: "fallback", order: result.order, message: result.message }
     : { status: "success", order: result.order, message: result.message };
+}
+
+function isAccountComplete(account: Awaited<ReturnType<typeof getCustomerAccountData>>) {
+  return Boolean(account?.fullName && account.phone && account.documentNumber && account.recipient && account.postalCode && account.state && account.city && account.district && account.street && account.number);
 }
 
 async function validateCartForCheckout(cart: Awaited<ReturnType<typeof recalculateCartView>>) {

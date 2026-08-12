@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import { runtimeMessages } from "@/lib/runtime-mode";
+import { getRuntimeMode, runtimeMessages } from "@/lib/runtime-mode";
 import { isProductAvailableForPurchase } from "@/features/products/domain";
 import { createProductRepository } from "@/features/products/server/product-repository";
 import {
@@ -262,23 +262,21 @@ export async function quoteShippingForActiveCart(input: {
     destinationPostalCode: validation.postalCode
   });
 
-  const manualRules = await shippingRepository.listManualRules();
-  const rules = manualRules.length > 0 ? manualRules : devShippingRules;
-  const manualOptions = buildManualShippingOptions(rules, {
-    postalCode: validation.postalCode
-  });
-  const options = melhorEnvio.status === "success" ? melhorEnvio.options : manualOptions;
-  if (options.length === 0) {
+  const fixtureOptions = isLocalTestRuntime()
+    ? buildManualShippingOptions(devShippingRules, { postalCode: validation.postalCode })
+    : [];
+  if ((melhorEnvio.status !== "success" || melhorEnvio.options.length === 0) && fixtureOptions.length === 0) {
     return {
       status: "validation_error",
-      message:
-        melhorEnvio.status === "unavailable"
-          ? melhorEnvio.message
-          : "Não há cobertura de frete para este CEP."
+      message: melhorEnvio.status === "unavailable"
+        ? melhorEnvio.message
+        : melhorEnvio.status === "not_configured"
+          ? "A cotação do Melhor Envio ainda não está configurada."
+          : "O Melhor Envio não encontrou opções para este CEP."
     };
   }
-
-  const usesMelhorEnvio = melhorEnvio.status === "success";
+  const usesMelhorEnvio = melhorEnvio.status === "success" && melhorEnvio.options.length > 0;
+  const options = usesMelhorEnvio ? melhorEnvio.options : fixtureOptions;
 
   const quote = await shippingRepository.createQuote(
     createShippingQuote({
@@ -287,11 +285,7 @@ export async function quoteShippingForActiveCart(input: {
       postalCode: validation.postalCode,
       options,
       provider: usesMelhorEnvio ? "melhor_envio" : "manual",
-      source: usesMelhorEnvio
-        ? "melhor_envio"
-        : rules === devShippingRules
-          ? "fixture"
-          : "manual"
+      source: usesMelhorEnvio ? "melhor_envio" : "fixture"
     })
   );
 
@@ -303,19 +297,14 @@ export async function quoteShippingForActiveCart(input: {
     selected
   );
 
-  const fallbackMessage =
-    melhorEnvio.status === "unavailable"
-      ? "O Melhor Envio está temporariamente indisponível. Foi aplicada uma opção manual de contingência."
-      : null;
-
   return toResult(
-    await recalculateCartForActor(
-      actor,
-      fallbackMessage
-        ? { ...updated, messages: [...updated.messages, fallbackMessage] }
-        : updated
-    )
+    await recalculateCartForActor(actor, updated)
   );
+}
+
+function isLocalTestRuntime() {
+  const mode = getRuntimeMode();
+  return mode.appEnvironment === "test" || (mode.appEnvironment === "development" && !mode.hasDatabase);
 }
 
 async function setShippingSelectionSafely(

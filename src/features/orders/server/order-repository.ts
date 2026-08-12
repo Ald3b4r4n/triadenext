@@ -1,9 +1,10 @@
 import "server-only";
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, lte, or } from "drizzle-orm";
 import { db } from "@/db/client";
 import { carts, orderItems, orders } from "@/db/schema";
 import { getRuntimeMode, runtimeMessages } from "@/lib/runtime-mode";
+import { assertCanMutateRealData } from "@/lib/runtime-mode";
 import { centsToDecimal, createOrderNumber, createPublicToken } from "../domain";
 import type { PendingOrder, PendingOrderDraft, PendingOrderItem } from "../types";
 
@@ -14,6 +15,7 @@ export type OrderRepository = {
   listAdminPendingOrders(): Promise<PendingOrder[]>;
   getAdminOrder(orderId: string): Promise<PendingOrder | null>;
   markOrderPaid(orderId: string, paidAt: Date): Promise<PendingOrder | null>;
+  deleteExpiredOrder(orderId: string, now?: Date): Promise<boolean>;
 };
 
 export type OrderPersistenceResult =
@@ -81,6 +83,11 @@ function createFallbackOrderRepository(): OrderRepository {
       };
       store.set(orderId, paidOrder);
       return paidOrder;
+    },
+    async deleteExpiredOrder(orderId, now = new Date()) {
+      const order = store.get(orderId);
+      if (!order || !(order.status === "expirado" || (order.status === "aguardando_pagamento" && order.expiresAt <= now))) return false;
+      return store.delete(orderId);
     }
   };
 }
@@ -205,6 +212,15 @@ function createDrizzleOrderRepository(): OrderRepository {
         .where(eq(orders.id, orderId))
         .returning();
       return updated ? findById(updated.id) : null;
+    },
+    async deleteExpiredOrder(orderId, now = new Date()) {
+      const guardrail = assertCanMutateRealData();
+      if (!guardrail.allowed) return false;
+      const [deleted] = await database
+        .delete(orders)
+        .where(and(eq(orders.id, orderId), or(eq(orders.status, "expirado"), and(eq(orders.status, "aguardando_pagamento"), lte(orders.expiresAt, now)))))
+        .returning({ id: orders.id });
+      return Boolean(deleted);
     }
   };
 

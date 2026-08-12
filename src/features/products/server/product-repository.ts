@@ -4,11 +4,12 @@ import { assertCanMutateRealData, runtimeMessages } from "@/lib/runtime-mode";
 import { and, asc, eq, gte, inArray, sql } from "drizzle-orm";
 import { sortProductImages } from "../domain";
 import { devCategories, devProducts } from "../dev/fixtures";
-import type { Category, Product, ProductGender, ProductImage, ProductMutationInput } from "../types";
+import type { Category, CategoryMutationInput, Product, ProductGender, ProductImage, ProductMutationInput } from "../types";
 
 export type ProductRepository = {
   listProducts(): Promise<Product[]>;
   listCategories(): Promise<Category[]>;
+  createCategory(input: CategoryMutationInput): Promise<CategoryMutationPersistenceResult>;
   findProductById(id: string): Promise<Product | null>;
   findProductBySlug(slug: string): Promise<Product | null>;
   listProductImages(productId: string): Promise<ProductImage[]>;
@@ -18,6 +19,11 @@ export type ProductRepository = {
   updateProduct(id: string, input: ProductMutationInput): Promise<ProductMutationPersistenceResult>;
   decrementStock(productId: string, quantity: number): Promise<boolean>;
 };
+
+export type CategoryMutationPersistenceResult =
+  | { status: "persisted"; category: Category; message: string }
+  | { status: "dev_fallback"; category: Category; message: string }
+  | { status: "blocked"; category: null; message: string };
 
 export type ProductImageMetadataInput = {
   productId: string;
@@ -81,6 +87,17 @@ function createFixtureProductRepository(): ProductRepository {
     },
     async listCategories() {
       return devCategories;
+    },
+    async createCategory(input) {
+      const category: Category = {
+        id: `category-dev-${input.slug}`,
+        ...input,
+        description: input.description ?? null,
+        parentId: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      return { status: "dev_fallback", category, message: "Categoria validada em modo demonstrativo seguro." };
     },
     async findProductById(id: string) {
       return devProducts.find((product) => product.id === id) ?? null;
@@ -148,6 +165,25 @@ function createDrizzleProductRepository(): ProductRepository {
     async listCategories() {
       const rows = await database.select().from(categories).orderBy(asc(categories.sortOrder), asc(categories.name));
       return rows.map(toCategory);
+    },
+    async createCategory(input) {
+      const guardrail = assertCanMutateRealData();
+      if (!guardrail.allowed) {
+        return { status: "blocked", category: null, message: guardrail.message };
+      }
+
+      const [created] = await database
+        .insert(categories)
+        .values({
+          name: input.name,
+          slug: input.slug,
+          description: input.description ?? null,
+          sortOrder: input.sortOrder,
+          isActive: input.isActive,
+          type: "catalog"
+        })
+        .returning();
+      return { status: "persisted", category: toCategory(created), message: "Categoria criada com sucesso." };
     },
     async findProductById(id: string) {
       const [productRow] = await database.select().from(products).where(eq(products.id, id)).limit(1);
