@@ -42,6 +42,9 @@ export const viewport: Viewport = {
   viewportFit: "cover"
 };
 
+// Sessão, estoque, carrinho e pedidos são dados de requisição. O build nunca deve consultar o banco.
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children
 }: Readonly<{

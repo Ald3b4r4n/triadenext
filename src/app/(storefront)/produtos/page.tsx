@@ -1,6 +1,9 @@
 import { ProductGrid } from "@/features/products/components/product-grid";
 import { listPublicProducts } from "@/features/products/server/product-service";
 
+// O catálogo depende do estoque atual e nunca deve consultar o banco durante o build.
+export const dynamic = "force-dynamic";
+
 export default async function ProdutosPage() {
   const products = await listPublicProducts();
 
