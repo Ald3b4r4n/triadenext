@@ -234,17 +234,20 @@ function createDrizzleCartRepository(): CartRepository {
         return null;
       }
 
-      const [updated] = await database
-        .update(cartItems)
-        .set({ quantity, updatedAt: new Date() })
-        .where(and(eq(cartItems.cartId, cartView.id), eq(cartItems.id, itemId)))
-        .returning({ id: cartItems.id });
+      const [updatedRows] = await Promise.all([
+        database
+          .update(cartItems)
+          .set({ quantity, updatedAt: new Date() })
+          .where(and(eq(cartItems.cartId, cartView.id), eq(cartItems.id, itemId)))
+          .returning({ id: cartItems.id }),
+        clearShippingSelectionInDb(cartView.id)
+      ]);
+      const [updated] = updatedRows;
 
       if (!updated) {
         return null;
       }
 
-      await clearShippingSelectionInDb(cartView.id);
       const items = cartView.items.map((item) =>
         item.id === itemId
           ? { ...item, quantity, itemSubtotalCents: item.unitPriceSnapshotCents * quantity }
