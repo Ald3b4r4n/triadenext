@@ -7,7 +7,7 @@ O wrapper `pnpm ops:migrate-staging` inicia em modo check e não abre conexão.
 - Target `staging`, `preview` ou `remote-dev`.
 - Flag explícita de execução e confirmação staging.
 - Referência geral e referência específica de aprovação humana.
-- Migrations `0000` a `0007` revisadas.
+- Migrations `0000` a `0008` revisadas.
 - Snapshot/restore confirmado.
 - `STAGING_DATABASE_URL` presente fora do Git.
 - Nenhum sinal de produção.

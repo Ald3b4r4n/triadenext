@@ -18,7 +18,7 @@ autoriza conexao real, migration real ou seed sem aprovacao humana explicita.
 - [ ] Confirmar role/usuario com menor permissao suficiente.
 - [ ] Confirmar backup, restore window ou branch de rollback.
 - [ ] Rodar `pnpm ops:check-migrations` localmente.
-- [ ] Revisar migrations `0000` a `0007`.
+- [ ] Revisar migrations `0000` a `0008`.
 - [ ] Obter aprovacao humana antes de `pnpm db:migrate`.
 - [ ] Registrar resultado sem imprimir URL.
 

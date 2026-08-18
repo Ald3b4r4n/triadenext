@@ -59,7 +59,7 @@ export function evaluateStagingMigrationGate(input: {
         code: "MIGRATIONS_REVIEW_REQUIRED",
         category: "migration",
         severity: "HIGH",
-        message: "Migrations `0000` a `0007` precisam de revisão explícita."
+        message: "Migrations `0000` a `0008` precisam de revisão explícita."
       })
     );
   const allowed = baseGate.allowed && issues.length === 0;

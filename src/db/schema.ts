@@ -89,6 +89,7 @@ export const users = pgTable(
     phone: text("phone"),
     passwordHash: text("password_hash"),
     role: userRole("role").notNull().default("customer"),
+    twoFactorEnabled: boolean("two_factor_enabled").notNull().default(false),
     mustChangePassword: boolean("must_change_password").notNull().default(false),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     createdAt: createdAtColumn(),
@@ -97,6 +98,23 @@ export const users = pgTable(
   (table) => ({
     emailUnique: uniqueIndex("users_email_unique").on(table.email),
     roleIdx: index("users_role_idx").on(table.role)
+  })
+);
+
+export const twoFactors = pgTable(
+  "two_factors",
+  {
+    id: idColumn(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    secret: text("secret").notNull(),
+    backupCodes: text("backup_codes").notNull(),
+    verified: boolean("verified").notNull().default(false)
+  },
+  (table) => ({
+    userUnique: uniqueIndex("two_factors_user_id_unique").on(table.userId),
+    secretIdx: index("two_factors_secret_idx").on(table.secret)
   })
 );
 

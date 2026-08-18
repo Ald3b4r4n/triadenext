@@ -53,7 +53,7 @@ Opcionais ou condicionais:
 
 ## 3. Neon e migrations
 
-- [ ] Migrations `0000` a `0007` revisadas.
+- [ ] Migrations `0000` a `0008` revisadas.
 - [ ] `pnpm ops:check-migrations` executado localmente.
 - [ ] Projeto/branch Neon de staging identificado sem string de conexao em logs.
 - [ ] Backup/restore ou branch de rollback confirmado.

@@ -17,8 +17,12 @@ export const signupSchema = z.object({
   name: z.string().trim().min(2, "Informe seu nome.").max(120, "Nome muito longo."),
   email: emailSchema,
   password: passwordSchema,
+  passwordConfirmation: z.string().min(1, "Confirme a senha."),
   role: z.unknown().optional(),
   returnTo: z.string().optional()
+}).refine((data) => data.password === data.passwordConfirmation, {
+  message: "As senhas não coincidem.",
+  path: ["passwordConfirmation"]
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

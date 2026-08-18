@@ -10,7 +10,7 @@ export type PolicyDecision =
       status: "unauthenticated";
       reason: "missing" | "expired" | "invalid" | "timeout" | "unavailable";
     }
-  | { status: "forbidden"; reason: "insufficient_role" | "not_owner" }
+  | { status: "forbidden"; reason: "insufficient_role" | "not_owner" | "two_factor_required" }
   | { status: "blocked"; reason: "missing_database" | "environment_guardrail" | "auth_not_ready" };
 
 export async function requireAuthenticated(session = getCurrentSession()) {
@@ -29,7 +29,8 @@ export async function requireAdminLike(session = getCurrentSession()): Promise<P
     return { status: "blocked", reason: "auth_not_ready" };
   }
 
-  const authenticated = requireAuthenticatedSession(await session);
+  const resolvedSession = await session;
+  const authenticated = requireAuthenticatedSession(resolvedSession);
 
   if (authenticated.status !== "allowed") {
     return authenticated;
@@ -37,6 +38,13 @@ export async function requireAdminLike(session = getCurrentSession()): Promise<P
 
   if (authenticated.role !== "admin" && authenticated.role !== "manager") {
     return { status: "forbidden", reason: "insufficient_role" };
+  }
+
+  if (
+    resolvedSession.status === "authenticated" &&
+    resolvedSession.twoFactorEnabled === false
+  ) {
+    return { status: "forbidden", reason: "two_factor_required" };
   }
 
   return authenticated;
@@ -91,6 +99,9 @@ export function policyMessage(decision: PolicyDecision) {
       }
       return "Operação bloqueada pelo ambiente.";
     case "forbidden":
+      if (decision.reason === "two_factor_required") {
+        return "Ative a autenticação em duas etapas para realizar esta operação administrativa.";
+      }
       return "Acesso negado para esta operação.";
     case "unauthenticated":
       return "Sessão ausente ou expirada. Faça login para continuar.";

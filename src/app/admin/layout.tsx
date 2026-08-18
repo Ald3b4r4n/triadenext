@@ -13,6 +13,13 @@ export default async function AdminLayout({
   children: ReactNode;
 }) {
   const session = await getCurrentSession();
+  if (
+    session.status === "authenticated" &&
+    (session.role === "admin" || session.role === "manager") &&
+    !session.twoFactorEnabled
+  ) {
+    redirect("/seguranca?required=admin&returnTo=/admin");
+  }
   const policy = await requireAdminLike(Promise.resolve(session));
 
   if (policy.status === "unauthenticated") {

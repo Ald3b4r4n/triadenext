@@ -6,7 +6,8 @@ export const STAGING_MIGRATION_CATALOG = [
   ["0004_mute_ghost_rider.sql", "frete", "medio"],
   ["0005_glossy_talisman.sql", "pedidos", "medio"],
   ["0006_soft_mole_man.sql", "pagamentos", "medio"],
-  ["0007_outstanding_midnight.sql", "outbox", "baixo"]
+  ["0007_outstanding_midnight.sql", "outbox", "baixo"],
+  ["0008_typical_red_ghost.sql", "autenticacao-2fa", "baixo"]
 ] as const;
 
 export function listStagingMigrations() {

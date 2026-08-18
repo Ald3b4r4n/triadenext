@@ -11,6 +11,7 @@ import {
   getGuestCartTokenForMerge
 } from "@/features/cart/server/cart-session";
 import { mergeGuestCartIntoUser } from "@/features/cart/server/cart-service";
+import { getCurrentSession } from "./session";
 
 export type AuthActionState = {
   status: "idle" | "error";
@@ -25,6 +26,7 @@ export async function loginAction(
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
+    passwordConfirmation: formData.get("passwordConfirmation"),
     returnTo: validateReturnTo(formData.get("returnTo"))
   });
 
@@ -48,11 +50,20 @@ export async function loginAction(
       },
       headers: await headers()
     });
-    if (signedIn.user.id && guestToken) {
+    if ("twoFactorRedirect" in signedIn && signedIn.twoFactorRedirect) {
+      const returnTo = validateReturnTo(parsed.data.returnTo);
+      redirect(`/verificar-2fa?returnTo=${encodeURIComponent(returnTo)}`);
+    }
+
+    if ("user" in signedIn && signedIn.user.id && guestToken) {
       await mergeGuestCartIntoUser({ userId: signedIn.user.id, guestToken });
       await expireGuestCartToken();
     }
-  } catch {
+  } catch (error) {
+    if (isNextRedirectError(error)) {
+      throw error;
+    }
+
     return {
       status: "error",
       message: "Credenciais inválidas ou auth indisponível."
@@ -60,6 +71,15 @@ export async function loginAction(
   }
 
   redirect(validateReturnTo(parsed.data.returnTo));
+}
+
+function isNextRedirectError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "digest" in error &&
+    String((error as { digest?: unknown }).digest).startsWith("NEXT_REDIRECT")
+  );
 }
 
 export async function signupAction(
@@ -115,6 +135,17 @@ export async function logoutAction() {
   }
 
   redirect("/login");
+}
+
+export async function finalizeTwoFactorLoginAction() {
+  const session = await getCurrentSession();
+  if (session.status !== "authenticated") return { status: "unauthenticated" as const };
+  const guestToken = await getGuestCartTokenForMerge();
+  if (guestToken) {
+    await mergeGuestCartIntoUser({ userId: session.userId, guestToken });
+    await expireGuestCartToken();
+  }
+  return { status: "success" as const };
 }
 
 function toAuthErrorState(

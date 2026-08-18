@@ -27,6 +27,7 @@ confirmado por humano antes de qualquer banco real.
 | `0005_glossy_talisman.sql` | Fase 8 | Pedido pendente, snapshots e totais | Aditiva com unique de `orders.cart_id`. |
 | `0006_soft_mole_man.sql` | Fase 9 | PaymentIntent e eventos Stripe | Indices/idempotencia. |
 | `0007_outstanding_midnight.sql` | Fase 10 | Outbox de notificacoes pos-pagamento | Aditiva. |
+| `0008_typical_red_ghost.sql` | Segurança | TOTP/2FA, códigos de recuperação e indicador no usuário | Aditiva; sem alteração de credenciais existentes. |
 
 ## Checklist antes de migration real
 

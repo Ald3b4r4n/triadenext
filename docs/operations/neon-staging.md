@@ -9,7 +9,7 @@ conexão para descobrir configuração.
 - [ ] Confirmar role com a menor permissão suficiente.
 - [ ] Confirmar janela de restore, snapshot ou branch de rollback.
 - [ ] Rodar `pnpm ops:check-migrations` localmente.
-- [ ] Revisar migrations `0000` a `0007`.
+- [ ] Revisar migrations `0000` a `0008`.
 - [ ] Registrar aprovação humana para alvo, janela e migrations.
 - [ ] Executar migration somente pelo wrapper protegido e em ação separada.
 - [ ] Verificar schema sem imprimir connection string.

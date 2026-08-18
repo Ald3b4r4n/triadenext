@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Package,
   Search,
+  ShieldCheck,
   ShoppingBag,
   Store,
   Tags,
@@ -90,6 +91,12 @@ const navSections: AdminNavSection[] = [
         href: "/admin/usuarios",
         label: "Usuários e permissões",
         icon: Users
+      },
+      {
+        href: "/seguranca",
+        label: "Segurança da conta",
+        icon: ShieldCheck,
+        exact: true
       },
       {
         href: "/admin/documentos-fiscais",

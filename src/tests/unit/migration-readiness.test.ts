@@ -24,7 +24,8 @@ describe("migration readiness script", () => {
     expect(output).toContain("Readiness de migrations Drizzle");
     expect(output).toContain("0000_shallow_shinko_yamashiro.sql");
     expect(output).toContain("0007_outstanding_midnight.sql");
-    expect(output).toContain("Total de migrations: 8");
+    expect(output).toContain("0008_typical_red_ghost.sql");
+    expect(output).toContain("Total de migrations: 9");
     expect(output).toContain("não executa migration real");
     expect(output).not.toContain("postgres://must-not-print");
   });

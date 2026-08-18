@@ -6,7 +6,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db/client";
-import { users } from "@/db/schema";
+import { sessions, twoFactors, users } from "@/db/schema";
+import { auth } from "@/features/auth/server/auth";
 import { policyMessage, requireAdminLike } from "@/features/auth/server/policies";
 import { getCurrentSession } from "@/features/auth/server/session";
 import { env } from "@/lib/env";
@@ -24,6 +25,9 @@ export type AdminUserRow = {
   email: string;
   role: ManagedUserRole;
   emailVerified: boolean;
+  twoFactorEnabled: boolean;
+  lastLoginAt: Date | null;
+  activeSessions: number;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -64,15 +68,27 @@ export async function listAdminUsersAction(): Promise<AdminUsersResult> {
         email: users.email,
         role: users.role,
         emailVerified: users.emailVerified,
+        twoFactorEnabled: users.twoFactorEnabled,
+        lastLoginAt: users.lastLoginAt,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt
       })
       .from(users)
       .orderBy(asc(users.email));
+    const activeSessionRows = await db
+      .select({ userId: sessions.userId })
+      .from(sessions);
+    const sessionCounts = activeSessionRows.reduce((counts, session) => {
+      counts.set(session.userId, (counts.get(session.userId) ?? 0) + 1);
+      return counts;
+    }, new Map<string, number>());
 
     return {
       status: "success",
-      users: rows,
+      users: rows.map((user) => ({
+        ...user,
+        activeSessions: sessionCounts.get(user.id) ?? 0
+      })),
       actorEmail: policy.email,
       masterCount: policy.masterEmails.length,
       message: "Usuários carregados."
@@ -83,6 +99,69 @@ export async function listAdminUsersAction(): Promise<AdminUsersResult> {
       message: "Não foi possível listar usuários com segurança neste ambiente."
     };
   }
+}
+
+export async function createManagedUserAction(formData: FormData): Promise<void> {
+  const policy = await requireMasterAdmin();
+  if (policy.status !== "allowed") redirect(toUsersRoute("error", policy.status));
+  if (!db) redirect(toUsersRoute("error", "missing-db"));
+
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const role = formData.get("role");
+
+  if (
+    name.length < 2 ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+    password.length < 8 ||
+    !/[A-Za-z]/.test(password) ||
+    !/[0-9]/.test(password) ||
+    !isManagedUserRole(role)
+  ) {
+    redirect(toUsersRoute("error", "invalid-user"));
+  }
+
+  try {
+    const created = await auth.api.signUpEmail({ body: { name, email, password } });
+    await Promise.all([
+      db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, created.user.id)),
+      db.delete(sessions).where(eq(sessions.userId, created.user.id))
+    ]);
+  } catch {
+    redirect(toUsersRoute("error", "create-failed"));
+  }
+
+  revalidatePath("/admin/usuarios");
+  redirect(toUsersRoute("status", "user-created"));
+}
+
+export async function revokeManagedUserSessionsAction(formData: FormData): Promise<void> {
+  const policy = await requireMasterAdmin();
+  if (policy.status !== "allowed") redirect(toUsersRoute("error", policy.status));
+  if (!db) redirect(toUsersRoute("error", "missing-db"));
+  const userId = String(formData.get("userId") ?? "");
+  if (!userId || userId === policy.userId) redirect(toUsersRoute("error", "self-session-revoke"));
+
+  await db.delete(sessions).where(eq(sessions.userId, userId));
+  revalidatePath("/admin/usuarios");
+  redirect(toUsersRoute("status", "sessions-revoked"));
+}
+
+export async function resetManagedUserTwoFactorAction(formData: FormData): Promise<void> {
+  const policy = await requireMasterAdmin();
+  if (policy.status !== "allowed") redirect(toUsersRoute("error", policy.status));
+  if (!db) redirect(toUsersRoute("error", "missing-db"));
+  const userId = String(formData.get("userId") ?? "");
+  if (!userId || userId === policy.userId) redirect(toUsersRoute("error", "self-2fa-reset"));
+
+  await db.transaction(async (transaction) => {
+    await transaction.delete(twoFactors).where(eq(twoFactors.userId, userId));
+    await transaction.update(users).set({ twoFactorEnabled: false, updatedAt: new Date() }).where(eq(users.id, userId));
+    await transaction.delete(sessions).where(eq(sessions.userId, userId));
+  });
+  revalidatePath("/admin/usuarios");
+  redirect(toUsersRoute("status", "two-factor-reset"));
 }
 
 export async function updateAdminUserRoleAction(formData: FormData): Promise<void> {

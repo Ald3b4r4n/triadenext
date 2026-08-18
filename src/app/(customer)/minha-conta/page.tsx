@@ -115,6 +115,7 @@ export default async function MinhaContaPage() {
           <nav aria-label="Atalhos da conta">
             <Link href="/pedidos"><span>Meus pedidos</span><ChevronRight aria-hidden="true" size={17} /></Link>
             <Link href="/enderecos"><span>Meus endereços</span><ChevronRight aria-hidden="true" size={17} /></Link>
+            <Link href="/seguranca"><span>Segurança da conta</span><ChevronRight aria-hidden="true" size={17} /></Link>
             <Link href="/carrinho"><span>Meu carrinho</span><ChevronRight aria-hidden="true" size={17} /></Link>
           </nav>
         </aside>

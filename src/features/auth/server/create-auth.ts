@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { twoFactor } from "better-auth/plugins";
 import { db } from "@/db/client";
 import * as schema from "@/db/schema";
 import { env } from "@/lib/env";
@@ -24,7 +25,8 @@ export function createAuth(options: CreateAuthOptions = {}) {
               user: schema.users,
               session: schema.sessions,
               account: schema.accounts,
-              verification: schema.verifications
+              verification: schema.verifications,
+              twoFactors: schema.twoFactors
             }
           })
         }
@@ -58,6 +60,15 @@ export function createAuth(options: CreateAuthOptions = {}) {
     verification: {
       modelName: "verifications"
     },
-    plugins: useNextCookies ? [nextCookies()] : []
+    plugins: [
+      twoFactor({
+        issuer: "Tríade Essenza Parfum",
+        twoFactorTable: "twoFactors",
+        skipVerificationOnEnable: false,
+        twoFactorCookieMaxAge: 600,
+        trustDeviceMaxAge: 2_592_000
+      }),
+      ...(useNextCookies ? [nextCookies()] : [])
+    ]
   });
 }

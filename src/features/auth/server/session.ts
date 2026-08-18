@@ -14,6 +14,7 @@ export type AppSession =
       name?: string;
       email: string;
       role: AuthRole;
+      twoFactorEnabled?: boolean;
     }
   | {
       status: "unauthenticated";
@@ -50,7 +51,10 @@ export const getCurrentSession = cache(async function getCurrentSession(): Promi
       userId: session.user.id,
       name: typeof session.user.name === "string" ? session.user.name : undefined,
       email: session.user.email,
-      role
+      role,
+      twoFactorEnabled: Boolean(
+        (session.user as { twoFactorEnabled?: unknown }).twoFactorEnabled
+      )
     };
   } catch (error) {
     if (error instanceof AuthTimeoutError) {

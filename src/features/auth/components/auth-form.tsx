@@ -50,6 +50,20 @@ export function AuthForm({ mode, action, returnTo }: AuthFormProps) {
           <span className="field-error">{state.fields.password}</span>
         ) : null}
       </label>
+      {isSignup ? (
+        <label className="form-field">
+          Confirmar senha
+          <input
+            name="passwordConfirmation"
+            type="password"
+            autoComplete="new-password"
+            aria-invalid={Boolean(state.fields?.passwordConfirmation)}
+          />
+          {state.fields?.passwordConfirmation ? (
+            <span className="field-error">{state.fields.passwordConfirmation}</span>
+          ) : null}
+        </label>
+      ) : null}
       {state.message ? <p className="form-message form-message--error">{state.message}</p> : null}
       <button className="primary-action" type="submit" disabled={pending}>
         {isSignup ? "Criar conta" : "Entrar"}

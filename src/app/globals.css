@@ -647,10 +647,7 @@ a {
 }
 
 .admin-table__row--users {
-  grid-template-columns: minmax(220px, 1fr) 120px minmax(220px, 1fr) minmax(
-      220px,
-      280px
-    );
+  grid-template-columns: minmax(210px, 1fr) minmax(220px, 1fr) 110px minmax(250px, 1.25fr);
 }
 
 .admin-table__row:first-child {
@@ -1945,6 +1942,313 @@ a {
   .account-empty .primary-action {
     justify-self: start;
   }
+}
+
+/* Segurança da conta e gestão de usuários */
+.security-page {
+  width: min(920px, calc(100% - 32px));
+}
+
+.security-card,
+.admin-user-create {
+  border: 1px solid #dfd1b9;
+  border-radius: 14px;
+  background: #fffdf9;
+  box-shadow: 0 18px 42px rgb(24 47 38 / 8%);
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.security-card--challenge {
+  width: min(560px, 100%);
+  margin: clamp(36px, 8vh, 90px) auto;
+  text-align: center;
+}
+
+.security-card__icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: #173329;
+  color: #e1ba6b;
+}
+
+.security-card h1,
+.security-card h2,
+.admin-user-create h2 {
+  margin: 0;
+  color: #142b22;
+}
+
+.security-card form {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.security-card label,
+.admin-user-create label {
+  display: grid;
+  gap: 7px;
+  text-align: left;
+}
+
+.security-card label > span,
+.admin-user-create label > span {
+  color: #8f652c;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.security-card input,
+.admin-user-create input,
+.admin-user-create select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #d9c9ad;
+  border-radius: 9px;
+  background: #fff;
+  padding: 10px 13px;
+  color: #142b22;
+  font: inherit;
+}
+
+.security-card--challenge input[name="code"] {
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: .18em;
+}
+
+.security-card__check {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 9px !important;
+  cursor: pointer;
+}
+
+.security-card__check input {
+  width: 17px;
+  min-height: 17px;
+}
+
+.security-card__check span {
+  color: #42554d !important;
+  font-size: .9rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+.security-card__alternate {
+  margin-top: 20px;
+  border: 0;
+  background: transparent;
+  color: #72501e;
+  font: inherit;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.security-card__heading,
+.security-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.security-card__heading > svg,
+.security-status > svg {
+  flex: 0 0 auto;
+  color: #b68136;
+}
+
+.security-card__heading p,
+.security-status span {
+  display: block;
+  margin: 5px 0 0;
+  color: #5c6b64;
+}
+
+.security-status--enabled {
+  border-radius: 10px;
+  background: #edf6ef;
+  padding: 16px;
+  color: #17643f;
+}
+
+.security-required {
+  margin: 22px 0 0;
+  border-left: 3px solid #c7964f;
+  background: #fbf3e5;
+  padding: 13px 15px;
+  color: #64471f;
+  font-weight: 700;
+}
+
+.security-enrollment {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 30px;
+  align-items: center;
+  margin: 28px 0;
+}
+
+.security-enrollment img,
+.security-qr-placeholder {
+  width: 240px;
+  height: 240px;
+  border: 1px solid #ded3c1;
+  border-radius: 12px;
+  background: #fff;
+  padding: 8px;
+}
+
+.security-qr-placeholder {
+  display: grid;
+  place-items: center;
+  color: #607068;
+}
+
+.security-enrollment ol {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 22px;
+  padding-left: 22px;
+}
+
+.security-manual-key {
+  display: grid;
+  gap: 8px;
+  border-radius: 10px;
+  background: #f5f1e9;
+  padding: 14px;
+}
+
+.security-manual-key code {
+  overflow-wrap: anywhere;
+  color: #142b22;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.security-manual-key button,
+.security-card__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+}
+
+.security-backup-codes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin: 24px 0;
+}
+
+.security-backup-codes code {
+  border: 1px solid #ded3c1;
+  border-radius: 8px;
+  background: #f8f4ed;
+  padding: 10px;
+  text-align: center;
+  font-weight: 750;
+}
+
+.security-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.security-card__actions p {
+  flex-basis: 100%;
+  margin: 0;
+  color: #5c6b64;
+}
+
+.admin-user-create {
+  margin: 18px 0;
+  padding: 24px;
+}
+
+.admin-user-create > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.admin-user-create > header > p {
+  max-width: 560px;
+  margin: 0;
+  color: #5c6b64;
+}
+
+.admin-user-create form {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr .8fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.admin-user-create small {
+  display: block;
+  margin-top: 12px;
+  color: #68766f;
+}
+
+.admin-user-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+}
+
+.admin-user-actions form {
+  margin: 0;
+}
+
+.admin-user-actions button {
+  min-height: 36px;
+  border: 1px solid #d9c9ad;
+  border-radius: 8px;
+  background: #fff;
+  padding: 7px 10px;
+  color: #263d34;
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.admin-user-actions .danger-link {
+  border-color: #e3b9b2;
+  color: #9e372b;
+}
+
+@media (max-width: 1100px) {
+  .admin-user-create form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-user-create form button { width: fit-content; }
+}
+
+@media (max-width: 720px) {
+  .security-enrollment { grid-template-columns: 1fr; }
+  .security-enrollment img,
+  .security-qr-placeholder { margin-inline: auto; }
+  .security-backup-codes { grid-template-columns: 1fr; }
+  .admin-user-create > header { display: block; }
+  .admin-user-create form { grid-template-columns: 1fr; }
 }
 
 /* Storefront purchase flow */
