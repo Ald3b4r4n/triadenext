@@ -64,6 +64,13 @@
       "when": 1787066115125,
       "tag": "0008_typical_red_ghost",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1787096170612,
+      "tag": "0009_material_loki",
+      "breakpoints": true
     }
   ]
 }

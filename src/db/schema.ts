@@ -142,6 +142,7 @@ export const accounts = pgTable(
   "accounts",
   {
     id: idColumn(),
+    issuer: text("issuer").notNull(),
     accountId: text("account_id").notNull(),
     providerId: text("provider_id").notNull(),
     userId: uuid("user_id")
@@ -159,8 +160,8 @@ export const accounts = pgTable(
   },
   (table) => ({
     userIdx: index("accounts_user_id_idx").on(table.userId),
-    providerAccountUnique: uniqueIndex("accounts_provider_account_unique").on(
-      table.providerId,
+    issuerAccountUnique: uniqueIndex("accounts_issuer_account_unique").on(
+      table.issuer,
       table.accountId
     )
   })

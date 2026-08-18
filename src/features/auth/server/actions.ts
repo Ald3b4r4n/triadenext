@@ -200,6 +200,7 @@ async function recoverLegacyAdminCredential(input: {
   if (!validLegacyPassword) return false;
 
   await db.insert(accounts).values({
+    issuer: "local:credential",
     accountId: user.id,
     providerId: "credential",
     userId: user.id,
