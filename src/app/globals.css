@@ -9354,3 +9354,261 @@ body:has(.admin-app-shell) .site-footer {
     border-bottom: 0;
   }
 }
+
+/* Global navigation helpers and final small-screen overflow hardening */
+.screen-navigation-tools {
+  position: fixed;
+  z-index: 35;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+}
+
+.screen-navigation-tools button {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 1px solid rgb(200 162 102 / 58%);
+  border-radius: 10px;
+  background: #112a20;
+  color: #f5d98c;
+  box-shadow: 0 4px 8px rgb(5 17 13 / 18%);
+  cursor: pointer;
+}
+
+.screen-navigation-tools button:last-child {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.screen-navigation-tools button:last-child.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.screen-navigation-tools button:focus-visible {
+  outline: 3px solid rgb(200 162 102 / 38%);
+  outline-offset: 3px;
+}
+
+.account-profile-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.account-profile-card__actions .primary-action {
+  flex: 0 0 auto;
+}
+
+.account-profile-card__actions .form-message {
+  width: min(100%, 560px);
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .screen-navigation-tools button:last-child {
+    transition: opacity 180ms ease-out, transform 180ms ease-out;
+  }
+}
+
+@media (max-width: 720px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  main,
+  section,
+  article,
+  aside,
+  form,
+  .page-shell,
+  .cart-page,
+  .cart-layout,
+  .cart-main,
+  .cart-tools,
+  .coupon-panel,
+  .shipping-panel,
+  .account-page,
+  .account-layout,
+  .account-profile-card,
+  .admin-workspace,
+  .admin-workspace__content {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .cart-page {
+    width: min(100% - 24px, 430px);
+  }
+
+  .cart-item {
+    position: relative;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .cart-item__identity {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .cart-item__details {
+    grid-column: 2;
+    grid-row: 1;
+    padding-right: 38px;
+    overflow-wrap: anywhere;
+  }
+
+  .cart-item__details h3 {
+    font-size: 18px;
+    line-height: 1.15;
+  }
+
+  .cart-quantity-form,
+  .cart-item__subtotal {
+    grid-column: 1 / -1;
+  }
+
+  .cart-item__subtotal {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .cart-item__remove {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+  }
+
+  .cart-inline-control {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .coupon-form button,
+  .shipping-form button,
+  .account-profile-card__actions .primary-action {
+    width: 100%;
+  }
+
+  .shipping-options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shipping-option > div:last-child {
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .account-profile-card {
+    padding: 18px;
+  }
+
+  .account-profile-card > header,
+  .account-profile-card__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .account-profile-card form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .account-profile-card__wide,
+  .account-profile-card__actions {
+    grid-column: 1;
+  }
+
+  .account-profile-card input,
+  .account-profile-card select {
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .admin-app-shell .page-shell,
+  .admin-dashboard-page {
+    width: 100%;
+    max-width: 100%;
+    padding-inline: 14px;
+  }
+
+  .admin-table__row:not(.admin-table__row--head) > [data-label] {
+    grid-template-columns: minmax(74px, 0.34fr) minmax(0, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 430px) {
+  .identity-topbar__content span {
+    font-size: 8px;
+  }
+
+  .identity-topbar__content span svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .site-header__content {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-inline: 12px;
+  }
+
+  .site-category-nav {
+    width: calc(100% + 24px);
+    margin-inline: -12px;
+    padding-inline: 12px;
+  }
+
+  .site-brand img {
+    width: min(164px, 46vw);
+  }
+
+  .site-actions {
+    gap: 3px;
+  }
+
+  .site-action-text {
+    min-width: 38px;
+    padding-inline: 3px;
+    font-size: 8px;
+  }
+
+  .screen-navigation-tools {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .screen-navigation-tools button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .cart-item,
+  .cart-tools .coupon-panel,
+  .cart-tools .shipping-panel,
+  .cart-summary,
+  .account-profile-card {
+    padding: 14px;
+  }
+
+  .admin-table__row:not(.admin-table__row--head) > [data-label] {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-navigation-tools button:last-child {
+    transition: none;
+  }
+}

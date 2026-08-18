@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Check, LoaderCircle } from "lucide-react";
 import { formatBrazilPhone } from "@/features/checkout/phone";
-import { saveCustomerAccountAction } from "../server/account-actions";
+import {
+  saveCustomerAccountAction,
+  type CustomerAccountActionState
+} from "../server/account-actions";
 import type { CustomerAccountData } from "../server/account-repository";
 
 type DocumentType = "cpf" | "cnpj";
@@ -11,6 +14,11 @@ type Address = Pick<CustomerAccountData, "state" | "city" | "district" | "street
 type LookupStatus = "idle" | "loading" | "success" | "error";
 
 export function CustomerAccountForm({ data }: { data: CustomerAccountData | null }) {
+  const initialActionState: CustomerAccountActionState = { status: "idle", message: "" };
+  const [saveState, saveAction, savePending] = useActionState(
+    saveCustomerAccountAction,
+    initialActionState
+  );
   const [documentType, setDocumentType] = useState<DocumentType>(data?.documentType ?? "cpf");
   const [documentNumber, setDocumentNumber] = useState(() => formatDocument(data?.documentNumber ?? "", data?.documentType ?? "cpf"));
   const [phone, setPhone] = useState(() => formatBrazilPhone(data?.phone ?? ""));
@@ -68,7 +76,7 @@ export function CustomerAccountForm({ data }: { data: CustomerAccountData | null
   return (
     <section className="account-profile-card" aria-labelledby="account-profile-title">
       <header><div><p className="muted">Cadastro para compra</p><h2 id="account-profile-title">Dados pessoais e fiscais</h2></div><p>Usados na entrega e na emissão da nota fiscal.</p></header>
-      <form action={saveCustomerAccountAction}>
+      <form action={saveAction}>
         <label><span>Nome completo</span><input name="fullName" required defaultValue={data?.fullName} autoComplete="name" /></label>
         <label><span>Telefone</span><input name="phone" required value={phone} onChange={(event) => setPhone(formatBrazilPhone(event.target.value))} placeholder="(00) 00000-0000" autoComplete="tel-national" inputMode="tel" maxLength={15} pattern="\(\d{2}\) \d{4,5}-\d{4}" /></label>
         <label><span>Tipo de documento</span><select name="documentType" value={documentType} onChange={(event) => updateDocumentType(event.target.value as DocumentType)}><option value="cpf">CPF</option><option value="cnpj">CNPJ</option></select></label>
@@ -90,7 +98,21 @@ export function CustomerAccountForm({ data }: { data: CustomerAccountData | null
         <label className="account-profile-card__wide"><span>Logradouro</span><input name="street" required value={address.street} onChange={(event) => updateAddress("street", event.target.value)} autoComplete="address-line1" /></label>
         <label><span>Número</span><input ref={numberRef} name="number" required defaultValue={data?.number} autoComplete="address-line2" /></label>
         <label><span>Complemento</span><input name="complement" defaultValue={data?.complement} autoComplete="address-line3" /></label>
-        <button className="primary-action" type="submit">Salvar dados</button>
+        <div className="account-profile-card__actions account-profile-card__wide">
+          <button className="primary-action" type="submit" disabled={savePending}>
+            {savePending ? <LoaderCircle aria-hidden="true" className="postal-code-status__spinner" size={17} /> : null}
+            {savePending ? "Salvando…" : "Salvar dados"}
+          </button>
+          {saveState.message ? (
+            <p
+              className={`form-message ${saveState.status === "success" ? "form-message--success" : "form-message--error"}`}
+              role="status"
+              aria-live="polite"
+            >
+              {saveState.message}
+            </p>
+          ) : null}
+        </div>
       </form>
     </section>
   );

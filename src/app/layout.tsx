@@ -16,6 +16,7 @@ import { logoutAction } from "@/features/auth/server/actions";
 import { getActiveCartForRender } from "@/features/cart/server/cart-service";
 import { CartCountBadge } from "@/features/cart/components/cart-count-badge";
 import { AccountMenu } from "@/features/auth/components/account-menu";
+import { ScreenNavigationTools } from "@/components/layout/screen-navigation-tools";
 import "./globals.css";
 
 const cinzelDecorative = Cinzel_Decorative({
@@ -125,6 +126,7 @@ export default function RootLayout({
           </div>
         </header>
         {children}
+        <ScreenNavigationTools />
         <footer className="site-footer">
           <div className="page-shell site-footer__content">
             <div className="site-footer__column">

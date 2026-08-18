@@ -1,8 +1,19 @@
 import { expect, test } from "@playwright/test";
 import { expectAdminProtected } from "./helpers";
 
-const storefrontRoutes = ["/", "/produtos", "/carrinho", "/login"];
+const storefrontRoutes = [
+  "/",
+  "/produtos",
+  "/carrinho",
+  "/login",
+  "/cadastro",
+  "/quem-somos",
+  "/checkout",
+  "/pedidos",
+  "/minha-conta"
+];
 const breakpoints = [
+  { width: 320, height: 720 },
   { width: 360, height: 800 },
   { width: 430, height: 900 },
   { width: 768, height: 1024 },
@@ -34,18 +45,20 @@ test("storefront routes do not overflow horizontally on required breakpoints", a
   }
 });
 
-test("admin remains protected and stable on desktop width", async ({
+test("admin remains protected and stable across required breakpoints", async ({
   page
 }) => {
-  await page.setViewportSize({ width: 1366, height: 900 });
-  await page.goto("/admin/produtos", { waitUntil: "commit" });
+  for (const viewport of breakpoints) {
+    await page.setViewportSize(viewport);
+    await page.goto("/admin/produtos", { waitUntil: "commit" });
 
-  await expectAdminProtected(page);
+    await expectAdminProtected(page);
 
-  const hasHorizontalOverflow = await page.evaluate(() => {
-    const root = document.documentElement;
-    return root.scrollWidth > root.clientWidth + 1;
-  });
+    const hasHorizontalOverflow = await page.evaluate(() => {
+      const root = document.documentElement;
+      return root.scrollWidth > root.clientWidth + 1;
+    });
 
-  expect(hasHorizontalOverflow).toBe(false);
+    expect(hasHorizontalOverflow, `admin at ${viewport.width}px`).toBe(false);
+  }
 });
