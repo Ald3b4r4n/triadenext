@@ -3,6 +3,7 @@ import "server-only";
 import { getRuntimeMode } from "@/lib/runtime-mode";
 import type { AppSession, AuthRole } from "./session";
 import { getCurrentSession } from "./session";
+import { hasValidAdminStepUp } from "./admin-step-up";
 
 export type PolicyDecision =
   | { status: "allowed"; userId: string; role: AuthRole }
@@ -10,7 +11,10 @@ export type PolicyDecision =
       status: "unauthenticated";
       reason: "missing" | "expired" | "invalid" | "timeout" | "unavailable";
     }
-  | { status: "forbidden"; reason: "insufficient_role" | "not_owner" | "two_factor_required" }
+  | {
+      status: "forbidden";
+      reason: "insufficient_role" | "not_owner" | "two_factor_required" | "admin_step_up_required";
+    }
   | { status: "blocked"; reason: "missing_database" | "environment_guardrail" | "auth_not_ready" };
 
 export async function requireAuthenticated(session = getCurrentSession()) {
@@ -45,6 +49,10 @@ export async function requireAdminLike(session = getCurrentSession()): Promise<P
     resolvedSession.twoFactorEnabled === false
   ) {
     return { status: "forbidden", reason: "two_factor_required" };
+  }
+
+  if (!(await hasValidAdminStepUp(authenticated.userId))) {
+    return { status: "forbidden", reason: "admin_step_up_required" };
   }
 
   return authenticated;
@@ -101,6 +109,9 @@ export function policyMessage(decision: PolicyDecision) {
     case "forbidden":
       if (decision.reason === "two_factor_required") {
         return "Ative a autenticação em duas etapas para realizar esta operação administrativa.";
+      }
+      if (decision.reason === "admin_step_up_required") {
+        return "Confirme o código do autenticador para continuar na área administrativa.";
       }
       return "Acesso negado para esta operação.";
     case "unauthenticated":

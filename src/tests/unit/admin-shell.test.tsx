@@ -3,7 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 import { AdminShell } from "@/app/admin/admin-shell";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/admin/pedidos"
+  usePathname: () => "/admin/pedidos",
+  useRouter: () => ({
+    refresh: vi.fn(),
+    replace: vi.fn()
+  })
 }));
 
 describe("shell administrativo responsivo", () => {

@@ -26,6 +26,10 @@ export default async function AdminLayout({
     redirect("/login?returnTo=/admin");
   }
 
+  if (policy.status === "forbidden" && policy.reason === "admin_step_up_required") {
+    redirect("/verificar-admin?returnTo=/admin");
+  }
+
   if (policy.status !== "allowed") {
     return (
       <main className="page-shell">

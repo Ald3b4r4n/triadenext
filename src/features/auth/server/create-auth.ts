@@ -64,7 +64,9 @@ export function createAuth(options: CreateAuthOptions = {}) {
       }
     },
     session: {
-      modelName: "sessions"
+      modelName: "sessions",
+      expiresIn: 60 * 60 * 24 * 7,
+      updateAge: 60 * 60 * 24
     },
     account: {
       modelName: "accounts"
@@ -78,7 +80,7 @@ export function createAuth(options: CreateAuthOptions = {}) {
         twoFactorTable: "twoFactors",
         skipVerificationOnEnable: false,
         twoFactorCookieMaxAge: 600,
-        trustDeviceMaxAge: 604_800
+        trustDeviceMaxAge: 0
       }),
       ...(useNextCookies ? [nextCookies()] : [])
     ]

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -117,11 +117,46 @@ const navSections: AdminNavSection[] = [
 
 export function AdminShell({ children, userEmail, userRole }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const userName = formatUserName(userEmail);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
+  const steppedAwayRef = useRef(false);
+
+  useEffect(() => {
+    const lockAdminAccess = () => {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon("/api/admin/lock");
+        return;
+      }
+      void fetch("/api/admin/lock", { method: "POST", keepalive: true });
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        steppedAwayRef.current = true;
+        lockAdminAccess();
+        return;
+      }
+
+      if (steppedAwayRef.current) {
+        const returnTo = encodeURIComponent(pathname);
+        router.replace(`/verificar-admin?returnTo=${returnTo}`);
+        router.refresh();
+      }
+    };
+
+    const handlePageHide = () => lockAdminAccess();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [pathname, router]);
 
   useEffect(() => {
     if (!mobileNavOpen) {
@@ -231,7 +266,7 @@ export function AdminShell({ children, userEmail, userRole }: AdminShellProps) {
                   <Link
                     aria-current={active ? "page" : undefined}
                     className="admin-sidebar__link"
-                    href={item.href}
+                    href={toProtectedExitHref(item.href)}
                     key={`${section.label}-${item.label}`}
                     onClick={() => setMobileNavOpen(false)}
                   >
@@ -302,7 +337,11 @@ export function AdminShell({ children, userEmail, userRole }: AdminShellProps) {
             <Link className="admin-topbar__new" href="/admin/produtos/novo">
               Novo produto
             </Link>
-            <Link className="admin-topbar__icon" href="/" aria-label="Ver loja">
+            <Link
+              className="admin-topbar__icon"
+              href={toProtectedExitHref("/")}
+              aria-label="Ver loja"
+            >
               <Home aria-hidden="true" size={17} />
             </Link>
             <Link
@@ -349,4 +388,10 @@ function getInitials(name: string) {
     .join("");
 
   return initials || "AR";
+}
+
+function toProtectedExitHref(href: string) {
+  return href.startsWith("/admin")
+    ? href
+    : `/sair-admin?returnTo=${encodeURIComponent(href)}`;
 }
