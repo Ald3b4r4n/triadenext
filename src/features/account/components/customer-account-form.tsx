@@ -13,7 +13,13 @@ type DocumentType = "cpf" | "cnpj";
 type Address = Pick<CustomerAccountData, "state" | "city" | "district" | "street">;
 type LookupStatus = "idle" | "loading" | "success" | "error";
 
-export function CustomerAccountForm({ data }: { data: CustomerAccountData | null }) {
+export function CustomerAccountForm({
+  data,
+  returnTo
+}: {
+  data: CustomerAccountData | null;
+  returnTo?: string;
+}) {
   const initialActionState: CustomerAccountActionState = { status: "idle", message: "" };
   const [saveState, saveAction, savePending] = useActionState(
     saveCustomerAccountAction,
@@ -77,6 +83,7 @@ export function CustomerAccountForm({ data }: { data: CustomerAccountData | null
     <section className="account-profile-card" aria-labelledby="account-profile-title">
       <header><div><p className="muted">Cadastro para compra</p><h2 id="account-profile-title">Dados pessoais e fiscais</h2></div><p>Usados na entrega e na emissão da nota fiscal.</p></header>
       <form action={saveAction}>
+        {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
         <label><span>Nome completo</span><input name="fullName" required defaultValue={data?.fullName} autoComplete="name" /></label>
         <label><span>Telefone</span><input name="phone" required value={phone} onChange={(event) => setPhone(formatBrazilPhone(event.target.value))} placeholder="(00) 00000-0000" autoComplete="tel-national" inputMode="tel" maxLength={15} pattern="\(\d{2}\) \d{4,5}-\d{4}" /></label>
         <label><span>Tipo de documento</span><select name="documentType" value={documentType} onChange={(event) => updateDocumentType(event.target.value as DocumentType)}><option value="cpf">CPF</option><option value="cnpj">CNPJ</option></select></label>

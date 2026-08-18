@@ -14,8 +14,18 @@ import { listCustomerPendingOrdersAction } from "@/features/orders/server/order-
 import { formatMoney } from "@/lib/money";
 import { getCurrentCustomerAccount } from "@/features/account/server/account-actions";
 import { CustomerAccountForm } from "@/features/account/components/customer-account-form";
+import { validateReturnTo } from "@/features/auth/server/session";
 
-export default async function MinhaContaPage() {
+export default async function MinhaContaPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ returnTo?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const requestedReturnTo = Array.isArray(params?.returnTo)
+    ? params.returnTo[0]
+    : params?.returnTo;
+  const returnTo = requestedReturnTo ? validateReturnTo(requestedReturnTo) : undefined;
   const [session, orderResult, accountData] = await Promise.all([
     getCurrentSession(),
     listCustomerPendingOrdersAction(),
@@ -120,7 +130,7 @@ export default async function MinhaContaPage() {
           </nav>
         </aside>
       </div>
-      <CustomerAccountForm data={accountData} />
+      <CustomerAccountForm data={accountData} returnTo={returnTo} />
     </main>
   );
 }

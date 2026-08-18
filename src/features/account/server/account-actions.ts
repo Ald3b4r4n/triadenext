@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAuthenticated, policyMessage } from "@/features/auth/server/policies";
+import { validateReturnTo } from "@/features/auth/server/session";
 import { customerAccountSchema } from "../schemas";
 import { getCustomerAccountData, saveCustomerAccountData } from "./account-repository";
 
@@ -32,18 +34,26 @@ export async function saveCustomerAccountAction(
     };
   }
 
+  let result: Awaited<ReturnType<typeof saveCustomerAccountData>>;
   try {
-    const result = await saveCustomerAccountData(policy.userId, parsed.data);
+    result = await saveCustomerAccountData(policy.userId, parsed.data);
     if (result.status !== "success") {
       return { status: "error", message: result.message };
     }
-    revalidatePath("/minha-conta");
-    revalidatePath("/checkout");
-    return { status: "success", message: result.message };
   } catch {
     return {
       status: "error",
       message: "Não foi possível salvar seus dados agora. Tente novamente em instantes."
     };
   }
+
+  revalidatePath("/minha-conta");
+  revalidatePath("/checkout");
+
+  const requestedReturnTo = formData.get("returnTo");
+  if (typeof requestedReturnTo === "string" && requestedReturnTo.trim()) {
+    redirect(validateReturnTo(requestedReturnTo));
+  }
+
+  return { status: "success", message: result.message };
 }

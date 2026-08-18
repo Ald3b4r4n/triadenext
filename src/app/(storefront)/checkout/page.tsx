@@ -83,7 +83,7 @@ export default async function CheckoutPage({
           <p className="muted">Checkout pendente</p>
           <h1>Revise o carrinho</h1>
           <p>{review.message}</p>
-          <div className="action-row"><Link className="primary-action" href="/minha-conta#account-profile-title">Completar cadastro</Link><Link className="secondary-action" href="/carrinho">Voltar ao carrinho</Link></div>
+          <div className="action-row"><Link className="primary-action" href="/minha-conta?returnTo=%2Fcheckout#account-profile-title">Completar cadastro</Link><Link className="secondary-action" href="/carrinho">Voltar ao carrinho</Link></div>
         </section>
       </main>
     );

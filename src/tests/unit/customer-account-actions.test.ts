@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { requireAuthenticatedMock, saveCustomerAccountDataMock } = vi.hoisted(() => ({
+const { redirectMock, requireAuthenticatedMock, saveCustomerAccountDataMock } = vi.hoisted(() => ({
+  redirectMock: vi.fn(),
   requireAuthenticatedMock: vi.fn(),
   saveCustomerAccountDataMock: vi.fn()
 }));
@@ -16,6 +17,7 @@ vi.mock("@/features/account/server/account-repository", () => ({
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/navigation", () => ({ redirect: redirectMock }));
 
 import { saveCustomerAccountAction } from "@/features/account/server/account-actions";
 
@@ -53,6 +55,22 @@ describe("ações dos dados cadastrais", () => {
       status: "success",
       message: "Dados cadastrais e endereço principal atualizados."
     });
+  });
+
+  it("retorna ao checkout depois de concluir o cadastro iniciado pela compra", async () => {
+    requireAuthenticatedMock.mockResolvedValue({ status: "allowed", userId: "user-1" });
+    saveCustomerAccountDataMock.mockResolvedValue({
+      status: "success",
+      message: "Dados cadastrais e endereço principal atualizados."
+    });
+    redirectMock.mockImplementation(() => {
+      throw new Error("NEXT_REDIRECT");
+    });
+    const formData = validFormData();
+    formData.set("returnTo", "/checkout");
+
+    await expect(saveCustomerAccountAction(idleState, formData)).rejects.toThrow("NEXT_REDIRECT");
+    expect(redirectMock).toHaveBeenCalledWith("/checkout");
   });
 
   it("retorna erro legível sem expor a falha interna", async () => {
