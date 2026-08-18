@@ -1002,6 +1002,22 @@ a {
   padding: 20px;
 }
 
+.auth-form__alternate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.auth-form__alternate a {
+  color: var(--color-forest);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .form-panel__header {
   margin-bottom: 16px;
 }

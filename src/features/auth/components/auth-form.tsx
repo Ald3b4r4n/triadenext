@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import type { AuthActionState } from "../server/actions";
 
@@ -17,6 +18,9 @@ const initialState: AuthActionState = {
 export function AuthForm({ mode, action, returnTo }: AuthFormProps) {
   const [state, formAction, pending] = useActionState(action, initialState);
   const isSignup = mode === "signup";
+  const alternateHref = isSignup
+    ? `/login${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`
+    : `/cadastro${returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : ""}`;
 
   return (
     <form className="form-panel" action={formAction}>
@@ -68,6 +72,10 @@ export function AuthForm({ mode, action, returnTo }: AuthFormProps) {
       <button className="primary-action" type="submit" disabled={pending}>
         {isSignup ? "Criar conta" : "Entrar"}
       </button>
+      <div className="auth-form__alternate">
+        <span>{isSignup ? "Já possui uma conta?" : "Ainda não possui uma conta?"}</span>
+        <Link href={alternateHref}>{isSignup ? "Entrar" : "Criar conta"}</Link>
+      </div>
     </form>
   );
 }
