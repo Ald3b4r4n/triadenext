@@ -55,7 +55,12 @@ export function CartCouponPanel({ coupon }: CartCouponPanelProps) {
         <form action={applyAction} className="coupon-form">
           <label htmlFor="cart-coupon-code">Código</label>
           <div className="cart-inline-control">
-            <input id="cart-coupon-code" name="code" placeholder="PROMO10" />
+            <input
+              autoComplete="off"
+              id="cart-coupon-code"
+              name="code"
+              aria-label="Código do cupom"
+            />
             <button type="submit" disabled={applyPending}>
               {applyPending ? "Aplicando..." : "Aplicar"}
             </button>
