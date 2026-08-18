@@ -3,20 +3,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   BadgePercent,
   FileText,
   Home,
   LayoutDashboard,
+  Menu,
   Package,
   Search,
   ShieldCheck,
   ShoppingBag,
   Store,
   Tags,
-  Users
+  Users,
+  X
 } from "lucide-react";
 
 type AdminShellProps = {
@@ -116,20 +118,101 @@ const navSections: AdminNavSection[] = [
 export function AdminShell({ children, userEmail, userRole }: AdminShellProps) {
   const pathname = usePathname();
   const userName = formatUserName(userEmail);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!mobileNavOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileNavOpen(false);
+        menuButtonRef.current?.focus();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        const focusableElements = sidebarRef.current?.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements?.[0];
+        const lastElement = focusableElements?.[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault();
+          lastElement?.focus();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+    window.addEventListener("keydown", closeOnEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileNavOpen]);
 
   return (
     <div className="admin-app-shell">
-      <aside className="admin-sidebar" aria-label="Menu administrativo">
-        <Link className="admin-sidebar__brand" href="/admin">
-          <Image
-            src="/brand/triade-logo-horizontal-transparent.png"
-            alt=""
-            width={535}
-            height={134}
-            priority
-          />
-          <span>Painel administrativo</span>
-        </Link>
+      <button
+        aria-hidden={!mobileNavOpen}
+        aria-label="Fechar menu administrativo"
+        className="admin-sidebar-backdrop"
+        data-open={mobileNavOpen ? "true" : "false"}
+        onClick={() => {
+          setMobileNavOpen(false);
+          menuButtonRef.current?.focus();
+        }}
+        tabIndex={mobileNavOpen ? 0 : -1}
+        type="button"
+      />
+
+      <aside
+        aria-label="Menu administrativo"
+        className="admin-sidebar"
+        data-open={mobileNavOpen ? "true" : "false"}
+        id="admin-navigation"
+        ref={sidebarRef}
+      >
+        <div className="admin-sidebar__header">
+          <Link
+            className="admin-sidebar__brand"
+            href="/admin"
+            onClick={() => setMobileNavOpen(false)}
+          >
+            <Image
+              src="/brand/triade-logo-horizontal-transparent.png"
+              alt=""
+              width={535}
+              height={134}
+              priority
+            />
+            <span>Painel administrativo</span>
+          </Link>
+          <button
+            aria-label="Fechar menu administrativo"
+            className="admin-sidebar__close"
+            onClick={() => {
+              setMobileNavOpen(false);
+              menuButtonRef.current?.focus();
+            }}
+            ref={closeButtonRef}
+            type="button"
+          >
+            <X aria-hidden="true" size={21} />
+          </button>
+        </div>
 
         <nav
           className="admin-sidebar__nav"
@@ -150,6 +233,7 @@ export function AdminShell({ children, userEmail, userRole }: AdminShellProps) {
                     className="admin-sidebar__link"
                     href={item.href}
                     key={`${section.label}-${item.label}`}
+                    onClick={() => setMobileNavOpen(false)}
                   >
                     <item.icon aria-hidden="true" size={17} />
                     <span>{item.label}</span>
@@ -170,6 +254,36 @@ export function AdminShell({ children, userEmail, userRole }: AdminShellProps) {
       </aside>
 
       <div className="admin-workspace">
+        <header className="admin-mobilebar">
+          <button
+            aria-controls="admin-navigation"
+            aria-expanded={mobileNavOpen}
+            aria-label="Abrir menu administrativo"
+            className="admin-mobilebar__menu"
+            onClick={() => setMobileNavOpen(true)}
+            ref={menuButtonRef}
+            type="button"
+          >
+            <Menu aria-hidden="true" size={22} />
+          </button>
+          <Link className="admin-mobilebar__brand" href="/admin">
+            <Image
+              src="/brand/triade-logo-horizontal-transparent.png"
+              alt="Tríade Essenza Parfum"
+              width={535}
+              height={134}
+              priority
+            />
+          </Link>
+          <Link
+            className="admin-mobilebar__avatar"
+            href="/admin/usuarios"
+            aria-label="Conta administrativa"
+          >
+            {getInitials(userName)}
+          </Link>
+        </header>
+
         <header className="admin-topbar">
           <form className="admin-search" action="/admin/produtos" role="search">
             <label className="sr-only" htmlFor="admin-search">

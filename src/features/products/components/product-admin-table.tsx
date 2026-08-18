@@ -38,7 +38,7 @@ export function ProductAdminTable({ products }: ProductAdminTableProps) {
         <span role="columnheader">Status</span>
         <span role="columnheader">Estoque</span>
         <span role="columnheader">Preço</span>
-        <span role="columnheader">Acoes</span>
+        <span role="columnheader">Ações</span>
       </div>
       {products.map((product) => (
         <div
@@ -46,16 +46,16 @@ export function ProductAdminTable({ products }: ProductAdminTableProps) {
           role="row"
           key={product.id}
         >
-          <span role="cell">
+          <span data-label="Produto" role="cell">
             <strong>{product.name}</strong>
             <small>{product.sku}</small>
           </span>
-          <span role="cell">
+          <span data-label="Status" role="cell">
             <ProductStatusBadge product={product} />
           </span>
-          <span role="cell">{product.stockQuantity}</span>
-          <span role="cell">{formatProductPrice(product.priceCents)}</span>
-          <span role="cell">
+          <span data-label="Estoque" role="cell">{product.stockQuantity}</span>
+          <span data-label="Preço" role="cell">{formatProductPrice(product.priceCents)}</span>
+          <span data-label="Ações" role="cell">
             <Link
               className="text-action"
               href={`/admin/produtos/${product.id}/editar`}

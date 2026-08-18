@@ -103,16 +103,16 @@ export default async function AdminUsuariosPage({ searchParams }: AdminUsuariosP
             </div>
             {result.users.map((user) => (
               <div className="admin-table__row admin-table__row--users" role="row" key={user.id}>
-                <span role="cell">
+                <span data-label="Usuário" role="cell">
                   <strong>{user.name}</strong>
                   <small>{user.email}</small>
                 </span>
-                <span role="cell">
+                <span data-label="Perfil e segurança" role="cell">
                   <strong>{roleLabels[user.role]}</strong>
                   <small>{user.twoFactorEnabled ? "2FA ativo" : "2FA não configurado"} · {user.emailVerified ? "E-mail verificado" : "E-mail não verificado"}</small>
                 </span>
-                <span role="cell"><strong>{user.activeSessions}</strong><small>{user.activeSessions === 1 ? "sessão ativa" : "sessões ativas"}</small></span>
-                <span role="cell" className="admin-user-actions">
+                <span data-label="Sessões" role="cell"><strong>{user.activeSessions}</strong><small>{user.activeSessions === 1 ? "sessão ativa" : "sessões ativas"}</small></span>
+                <span data-label="Ações" role="cell" className="admin-user-actions">
                   <form className="admin-role-form" action={updateAdminUserRoleAction}>
                     <input type="hidden" name="userId" value={user.id} />
                     <label className="sr-only" htmlFor={`role-${user.id}`}>
