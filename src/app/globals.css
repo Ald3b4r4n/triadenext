@@ -9357,13 +9357,19 @@ body:has(.admin-app-shell) .site-footer {
 
 /* Global navigation helpers and final small-screen overflow hardening */
 .screen-navigation-tools {
+  display: none;
   position: fixed;
   z-index: 35;
   right: max(18px, env(safe-area-inset-right));
   bottom: max(18px, env(safe-area-inset-bottom));
-  display: flex;
   flex-direction: column-reverse;
   gap: 10px;
+}
+
+@media (max-width: 767px) {
+  .screen-navigation-tools {
+    display: flex;
+  }
 }
 
 .screen-navigation-tools button {
