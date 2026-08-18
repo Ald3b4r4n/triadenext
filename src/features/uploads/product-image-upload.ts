@@ -3,7 +3,11 @@ import { policyMessage, requireAdminLike } from "@/features/auth/server/policies
 import { env } from "@/lib/env";
 import { assertCanMutateRealData, runtimeMessages } from "@/lib/runtime-mode";
 import { createProductRepository } from "@/features/products/server/product-repository";
-import { productImageUploadSchema } from "./schemas";
+import {
+  detectProductImageType,
+  productImageUploadSchema,
+  type AllowedProductImageType
+} from "./schemas";
 
 export type ProductImageUploadInput = {
   productId: string;
@@ -80,6 +84,16 @@ export async function uploadProductImage(input: ProductImageUploadInput): Promis
     };
   }
 
+  const detectedContentType = await detectProductImageType(parsed.data.file);
+
+  if (!detectedContentType || detectedContentType !== parsed.data.file.type) {
+    return {
+      status: "rejected",
+      reason: "invalid_file",
+      message: "O conteúdo do arquivo não corresponde a uma imagem JPEG, PNG ou WebP válida."
+    };
+  }
+
   if (env.BLOB_READ_WRITE_TOKEN.length === 0) {
     return {
       status: "blocked",
@@ -99,10 +113,11 @@ export async function uploadProductImage(input: ProductImageUploadInput): Promis
   }
 
   const { file, productId } = parsed.data;
-  const pathname = `products/${productId}/${crypto.randomUUID()}-${file.name}`;
+  const pathname = `products/${productId}/${crypto.randomUUID()}.${extensionForContentType(detectedContentType)}`;
   const blob = await put(pathname, file, {
     access: "public",
-    token: env.BLOB_READ_WRITE_TOKEN
+    token: env.BLOB_READ_WRITE_TOKEN,
+    contentType: detectedContentType
   });
 
   const metadata = await createProductRepository().saveProductImageMetadata({
@@ -114,7 +129,7 @@ export async function uploadProductImage(input: ProductImageUploadInput): Promis
     isCover: parsed.data.isCover,
     width: parsed.data.width,
     height: parsed.data.height,
-    contentType: file.type,
+    contentType: detectedContentType,
     sizeBytes: file.size
   });
 
@@ -127,10 +142,16 @@ export async function uploadProductImage(input: ProductImageUploadInput): Promis
     isCover: parsed.data.isCover,
     width: parsed.data.width,
     height: parsed.data.height,
-    contentType: file.type,
+    contentType: detectedContentType,
     sizeBytes: file.size,
     metadata
   };
+}
+
+function extensionForContentType(contentType: AllowedProductImageType) {
+  if (contentType === "image/jpeg") return "jpg";
+  if (contentType === "image/png") return "png";
+  return "webp";
 }
 
 export async function setProductCoverImage(input: {

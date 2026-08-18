@@ -48,8 +48,12 @@ export function AuthForm({ mode, action, returnTo }: AuthFormProps) {
           name="password"
           type="password"
           autoComplete={isSignup ? "new-password" : "current-password"}
+          minLength={isSignup ? 12 : undefined}
+          maxLength={128}
+          required
           aria-invalid={Boolean(state.fields?.password)}
         />
+        {isSignup ? <small>Use pelo menos 12 caracteres, incluindo letras e números.</small> : null}
         {state.fields?.password ? (
           <span className="field-error">{state.fields.password}</span>
         ) : null}
@@ -61,6 +65,9 @@ export function AuthForm({ mode, action, returnTo }: AuthFormProps) {
             name="passwordConfirmation"
             type="password"
             autoComplete="new-password"
+            minLength={12}
+            maxLength={128}
+            required
             aria-invalid={Boolean(state.fields?.passwordConfirmation)}
           />
           {state.fields?.passwordConfirmation ? (

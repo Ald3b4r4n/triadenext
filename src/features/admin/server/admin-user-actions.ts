@@ -11,6 +11,7 @@ import { auth } from "@/features/auth/server/auth";
 import { policyMessage, requireAdminLike } from "@/features/auth/server/policies";
 import { getCurrentSession } from "@/features/auth/server/session";
 import { env } from "@/lib/env";
+import { recordSecurityAuditEvent } from "@/features/security/server/audit-log";
 import {
   decideRoleChange,
   isManagedUserRole,
@@ -114,7 +115,8 @@ export async function createManagedUserAction(formData: FormData): Promise<void>
   if (
     name.length < 2 ||
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
-    password.length < 8 ||
+    password.length < 12 ||
+    password.length > 128 ||
     !/[A-Za-z]/.test(password) ||
     !/[0-9]/.test(password) ||
     !isManagedUserRole(role)
@@ -128,6 +130,12 @@ export async function createManagedUserAction(formData: FormData): Promise<void>
       db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, created.user.id)),
       db.delete(sessions).where(eq(sessions.userId, created.user.id))
     ]);
+    recordSecurityAuditEvent({
+      action: "admin.user.created",
+      actorUserId: policy.userId,
+      targetUserId: created.user.id,
+      metadata: { role }
+    });
   } catch {
     redirect(toUsersRoute("error", "create-failed"));
   }
@@ -144,6 +152,11 @@ export async function revokeManagedUserSessionsAction(formData: FormData): Promi
   if (!userId || userId === policy.userId) redirect(toUsersRoute("error", "self-session-revoke"));
 
   await db.delete(sessions).where(eq(sessions.userId, userId));
+  recordSecurityAuditEvent({
+    action: "admin.user.sessions_revoked",
+    actorUserId: policy.userId,
+    targetUserId: userId
+  });
   revalidatePath("/admin/usuarios");
   redirect(toUsersRoute("status", "sessions-revoked"));
 }
@@ -159,6 +172,11 @@ export async function resetManagedUserTwoFactorAction(formData: FormData): Promi
     await transaction.delete(twoFactors).where(eq(twoFactors.userId, userId));
     await transaction.update(users).set({ twoFactorEnabled: false, updatedAt: new Date() }).where(eq(users.id, userId));
     await transaction.delete(sessions).where(eq(sessions.userId, userId));
+  });
+  recordSecurityAuditEvent({
+    action: "admin.user.two_factor_reset",
+    actorUserId: policy.userId,
+    targetUserId: userId
   });
   revalidatePath("/admin/usuarios");
   redirect(toUsersRoute("status", "two-factor-reset"));
@@ -219,6 +237,12 @@ export async function updateAdminUserRoleAction(formData: FormData): Promise<voi
         updatedAt: new Date()
       })
       .where(eq(users.id, target.id));
+    recordSecurityAuditEvent({
+      action: "admin.user.role_updated",
+      actorUserId: policy.userId,
+      targetUserId: target.id,
+      metadata: { previousRole: target.role, nextRole }
+    });
   } catch (error) {
     if (isNextRedirectError(error)) {
       throw error;

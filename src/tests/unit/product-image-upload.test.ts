@@ -15,12 +15,28 @@ describe("product image upload", () => {
   it("blocks real upload when BLOB_READ_WRITE_TOKEN is missing", async () => {
     const result = await uploadProductImage({
       productId: "prod-example-published",
-      file: new File(["image"], "image.png", { type: "image/png" })
+      file: new File(
+        [new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])],
+        "image.png",
+        { type: "image/png" }
+      )
     });
 
     expect(result.status).toBe("blocked");
     if (result.status === "blocked") {
       expect(result.reason).toBe("missing_blob_token");
+    }
+  });
+
+  it("rejects a spoofed MIME type when the file signature is invalid", async () => {
+    const result = await uploadProductImage({
+      productId: "prod-example-published",
+      file: new File(["not-an-image"], "image.png", { type: "image/png" })
+    });
+
+    expect(result.status).toBe("rejected");
+    if (result.status === "rejected") {
+      expect(result.message).toMatch(/conteúdo do arquivo/i);
     }
   });
 

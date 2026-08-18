@@ -67,8 +67,8 @@ describe("auth actions", () => {
     const formData = new FormData();
     formData.set("name", "Cliente Teste");
     formData.set("email", "cliente@example.com");
-    formData.set("password", "Senha1234");
-    formData.set("passwordConfirmation", "Senha1234");
+    formData.set("password", "SenhaSegura1234");
+    formData.set("passwordConfirmation", "SenhaSegura1234");
     formData.set("returnTo", "/minha-conta");
 
     await expect(
@@ -80,7 +80,7 @@ describe("auth actions", () => {
         body: {
           name: "Cliente Teste",
           email: "cliente@example.com",
-          password: "Senha1234"
+          password: "SenhaSegura1234"
         }
       })
     );

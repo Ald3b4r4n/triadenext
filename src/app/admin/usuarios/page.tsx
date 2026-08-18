@@ -88,11 +88,11 @@ export default async function AdminUsuariosPage({ searchParams }: AdminUsuariosP
             <form action={createManagedUserAction}>
               <label><span>Nome completo</span><input name="name" autoComplete="off" minLength={2} required /></label>
               <label><span>E-mail</span><input name="email" type="email" autoComplete="off" required /></label>
-              <label><span>Senha inicial</span><input name="password" type="password" autoComplete="new-password" minLength={8} required /></label>
+              <label><span>Senha inicial</span><input name="password" type="password" autoComplete="new-password" minLength={12} maxLength={128} required /></label>
               <label><span>Perfil</span><select name="role" defaultValue="customer"><option value="customer">Cliente</option><option value="manager">Gerente</option><option value="admin">Administrador</option></select></label>
               <button className="primary-action" type="submit">Criar conta</button>
             </form>
-            <small>A senha deve ter pelo menos 8 caracteres, uma letra e um número. Nunca envie senhas por e-mail aberto.</small>
+            <small>A senha deve ter pelo menos 12 caracteres, uma letra e um número. Nunca envie senhas por e-mail aberto.</small>
           </section>
           <section className="admin-table" role="table" aria-label="Usuários administrativos">
             <div className="admin-table__row admin-table__row--head admin-table__row--users" role="row">

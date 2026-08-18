@@ -10,7 +10,7 @@ type VerificationMode = "totp" | "backup";
 export function TwoFactorChallenge({ returnTo }: { returnTo: string }) {
   const [mode, setMode] = useState<VerificationMode>("totp");
   const [code, setCode] = useState("");
-  const [trustDevice, setTrustDevice] = useState(true);
+  const [trustDevice, setTrustDevice] = useState(false);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -73,7 +73,7 @@ export function TwoFactorChallenge({ returnTo }: { returnTo: string }) {
             onChange={(event) => setTrustDevice(event.target.checked)}
             type="checkbox"
           />
-          <span>Confiar neste dispositivo por 30 dias</span>
+          <span>Confiar neste dispositivo por 7 dias</span>
         </label>
         {message ? <p className="form-message form-message--error" role="alert">{message}</p> : null}
         <button className="primary-action" disabled={pending || !code.trim()} type="submit">

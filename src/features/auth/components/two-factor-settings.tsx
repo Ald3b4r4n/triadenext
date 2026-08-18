@@ -52,7 +52,7 @@ export function TwoFactorSettings({
     setMessage("");
     const result = await authClient.twoFactor.enable({ password });
 
-    if (result.error || !result.data) {
+    if (result.error || !result.data || !("totpURI" in result.data)) {
       setMessage("Senha incorreta ou configuração indisponível. Tente novamente.");
       setPending(false);
       return;
@@ -69,7 +69,7 @@ export function TwoFactorSettings({
     setMessage("");
     const result = await authClient.twoFactor.verifyTotp({
       code: code.replace(/\D/g, ""),
-      trustDevice: true
+      trustDevice: false
     });
 
     if (result.error) {
@@ -78,6 +78,9 @@ export function TwoFactorSettings({
       return;
     }
 
+    setSetup((current) => current ? { totpURI: "", backupCodes: current.backupCodes } : current);
+    setQrCode("");
+    setCode("");
     setComplete(true);
     setPending(false);
     router.refresh();

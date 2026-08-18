@@ -97,4 +97,5 @@ export type WebhookProcessingResult = {
   status: "processed" | "duplicate" | "ignored" | "failed";
   message: string;
   orderStatus?: OrderStatus;
+  failureKind?: "invalid_request" | "unavailable" | "processing";
 };

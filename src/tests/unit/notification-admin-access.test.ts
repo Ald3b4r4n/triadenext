@@ -51,4 +51,18 @@ describe("notification admin access", () => {
       deliveriesByOrder: { "order-1": [] }
     });
   });
+
+  it("rejects an oversized order selection before querying the database", async () => {
+    requireAdminLikeMock.mockResolvedValue({
+      status: "allowed",
+      userId: "admin-1",
+      role: "admin"
+    });
+
+    const orderIds = Array.from({ length: 51 }, (_, index) => `order-${index + 1}`);
+    await expect(
+      listAdminNotificationDeliveriesAction(orderIds)
+    ).resolves.toMatchObject({ status: "unavailable" });
+    expect(listForAdminOrderMock).not.toHaveBeenCalled();
+  });
 });

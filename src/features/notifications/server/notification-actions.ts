@@ -5,6 +5,8 @@ import { createNotificationRepository } from "../drizzle-repository";
 import type { NotificationDelivery } from "../types";
 
 const notificationRepository = createNotificationRepository();
+const maxAdminOrderIdsPerRequest = 50;
+const safeOrderIdPattern = /^[A-Za-z0-9-]{1,128}$/;
 
 export type AdminNotificationReadResult =
   | { status: "success"; deliveriesByOrder: Record<string, NotificationDelivery[]> }
@@ -26,8 +28,19 @@ export async function listAdminNotificationDeliveriesAction(
     };
   }
 
+  const uniqueOrderIds = [...new Set(orderIds.map((orderId) => orderId.trim()))];
+  if (
+    uniqueOrderIds.length > maxAdminOrderIdsPerRequest ||
+    uniqueOrderIds.some((orderId) => !safeOrderIdPattern.test(orderId))
+  ) {
+    return {
+      status: "unavailable",
+      message: "A consulta excede o limite seguro de pedidos. Refine a seleção e tente novamente."
+    };
+  }
+
   const deliveriesByOrder: Record<string, NotificationDelivery[]> = {};
-  for (const orderId of [...new Set(orderIds)]) {
+  for (const orderId of uniqueOrderIds) {
     deliveriesByOrder[orderId] =
       await notificationRepository.listForAdminOrder(orderId);
   }

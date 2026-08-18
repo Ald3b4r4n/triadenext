@@ -4,9 +4,39 @@ import {
   setProductCoverImage,
   uploadProductImage
 } from "@/features/uploads/product-image-upload";
+import { requireAdminLike } from "@/features/auth/server/policies";
+
+const maxUploadRequestBytes = 6 * 1024 * 1024;
 
 export async function POST(request: Request) {
-  const formData = await request.formData();
+  const accessResponse = await requireUploadAccess();
+  if (accessResponse) return accessResponse;
+
+  const contentType = request.headers.get("content-type") ?? "";
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+
+  if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
+    return NextResponse.json(
+      { status: "rejected", message: "Envie a imagem como formulário multipart." },
+      { status: 415 }
+    );
+  }
+
+  if (Number.isFinite(contentLength) && contentLength > maxUploadRequestBytes) {
+    return NextResponse.json(
+      { status: "rejected", message: "O envio excede o limite permitido." },
+      { status: 413 }
+    );
+  }
+
+  const formData = await readBoundedFormData(request);
+
+  if (!formData) {
+    return NextResponse.json(
+      { status: "rejected", message: "Não foi possível interpretar o arquivo enviado." },
+      { status: 400 }
+    );
+  }
   const file = formData.get("file");
   const productId = formData.get("productId");
 
@@ -63,7 +93,38 @@ export async function POST(request: Request) {
   );
 }
 
+async function readBoundedFormData(request: Request) {
+  if (!request.body) return null;
+
+  const reader = request.body.getReader();
+  const chunks: ArrayBuffer[] = [];
+  let receivedBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      receivedBytes += value.byteLength;
+      if (receivedBytes > maxUploadRequestBytes) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(Uint8Array.from(value).buffer);
+    }
+
+    const response = new Response(new Blob(chunks), {
+      headers: { "content-type": request.headers.get("content-type") ?? "" }
+    });
+    return await response.formData();
+  } catch {
+    return null;
+  }
+}
+
 export async function PATCH(request: Request) {
+  const accessResponse = await requireUploadAccess();
+  if (accessResponse) return accessResponse;
+
   const body = (await request.json().catch(() => null)) as {
     productId?: unknown;
     imageId?: unknown;
@@ -90,6 +151,17 @@ export async function PATCH(request: Request) {
 
   revalidateProductImagePaths(body.productId);
   return NextResponse.json(result);
+}
+
+async function requireUploadAccess() {
+  const policy = await requireAdminLike();
+  if (policy.status === "allowed") return null;
+
+  const status = policy.status === "unauthenticated" ? 401 : 403;
+  return NextResponse.json(
+    { status: "blocked", message: "Acesso administrativo necessário." },
+    { status }
+  );
 }
 
 function readText(value: FormDataEntryValue | null) {

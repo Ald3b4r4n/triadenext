@@ -34,6 +34,17 @@ export function createAuth(options: CreateAuthOptions = {}) {
     baseURL,
     trustedOrigins: resolveAuthTrustedOrigins(),
     secret: authSecret,
+    rateLimit: {
+      enabled: true,
+      window: 60,
+      max: 60,
+      customRules: {
+        "/sign-in/email": { window: 60, max: 5 },
+        "/sign-up/email": { window: 3600, max: 5 },
+        "/two-factor/verify-totp": { window: 60, max: 5 },
+        "/two-factor/verify-backup-code": { window: 60, max: 5 }
+      }
+    },
     advanced: {
       database: {
         generateId: "uuid"
@@ -67,7 +78,7 @@ export function createAuth(options: CreateAuthOptions = {}) {
         twoFactorTable: "twoFactors",
         skipVerificationOnEnable: false,
         twoFactorCookieMaxAge: 600,
-        trustDeviceMaxAge: 2_592_000
+        trustDeviceMaxAge: 604_800
       }),
       ...(useNextCookies ? [nextCookies()] : [])
     ]

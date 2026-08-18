@@ -14,14 +14,22 @@ export async function processStripeWebhook(input: {
 }): Promise<WebhookProcessingResult> {
   const adapter = createStripePaymentAdapter();
   if (!adapter) {
-    return { status: "failed", message: "Pagamento indisponível neste ambiente." };
+    return {
+      status: "failed",
+      failureKind: "unavailable",
+      message: "Pagamento indisponível neste ambiente."
+    };
   }
 
   let event;
   try {
     event = adapter.constructWebhookEvent(input.rawBody, input.signature);
   } catch (error) {
-    return { status: "failed", message: sanitizePaymentFailureReason(error) };
+    return {
+      status: "failed",
+      failureKind: "invalid_request",
+      message: sanitizePaymentFailureReason(error)
+    };
   }
 
   const stripeIntent = event.data.object;
@@ -49,7 +57,11 @@ export async function processStripeWebhook(input: {
       processingStatus: "failed",
       failureReason: "Pagamento interno não encontrado."
     });
-    return { status: "failed", message: "Pagamento interno não encontrado." };
+    return {
+      status: "failed",
+      failureKind: "processing",
+      message: "Pagamento interno não encontrado."
+    };
   }
 
   if (
