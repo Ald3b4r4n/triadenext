@@ -32,6 +32,7 @@ export function createAuth(options: CreateAuthOptions = {}) {
         }
       : {}),
     baseURL,
+    trustedOrigins: resolveAuthTrustedOrigins(),
     secret: authSecret,
     advanced: {
       database: {
@@ -71,4 +72,49 @@ export function createAuth(options: CreateAuthOptions = {}) {
       ...(useNextCookies ? [nextCookies()] : [])
     ]
   });
+}
+
+export function resolveAuthTrustedOrigins(
+  runtimeEnv: Record<string, string | undefined> = process.env
+) {
+  const candidates = [
+    runtimeEnv.BETTER_AUTH_URL,
+    runtimeEnv.NEXT_PUBLIC_APP_URL,
+    runtimeEnv.STAGING_SMOKE_URL,
+    ...splitOrigins(runtimeEnv.BETTER_AUTH_TRUSTED_ORIGINS),
+    toHttpsUrl(runtimeEnv.VERCEL_BRANCH_URL),
+    toHttpsUrl(runtimeEnv.VERCEL_URL),
+    ...(runtimeEnv.STAGING_TARGET?.trim().toLowerCase() === "staging"
+      ? ["https://triade-essenza-staging.vercel.app"]
+      : [])
+  ];
+
+  return Array.from(
+    new Set(
+      candidates
+        .map(toOrigin)
+        .filter((origin): origin is string => Boolean(origin))
+    )
+  );
+}
+
+function splitOrigins(value: string | undefined) {
+  return value?.split(/[;,\n]/).map((origin) => origin.trim()).filter(Boolean) ?? [];
+}
+
+function toHttpsUrl(value: string | undefined) {
+  const normalized = value?.trim();
+  if (!normalized) return "";
+  return normalized.includes("://") ? normalized : `https://${normalized}`;
+}
+
+function toOrigin(value: string | undefined) {
+  if (!value) return "";
+
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "https:" || url.protocol === "http:" ? url.origin : "";
+  } catch {
+    return "";
+  }
 }

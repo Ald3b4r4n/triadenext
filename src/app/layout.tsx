@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import {
   LockKeyhole,
-  LogOut,
   Search,
   ShieldCheck,
   ShoppingBag,
@@ -16,6 +15,7 @@ import { getCurrentSession } from "@/features/auth/server/session";
 import { logoutAction } from "@/features/auth/server/actions";
 import { getActiveCartForRender } from "@/features/cart/server/cart-service";
 import { CartCountBadge } from "@/features/cart/components/cart-count-badge";
+import { AccountMenu } from "@/features/auth/components/account-menu";
 import "./globals.css";
 
 const cinzelDecorative = Cinzel_Decorative({
@@ -188,22 +188,7 @@ async function HeaderAccount() {
   const session = await getCurrentSession();
   if (session.status !== "authenticated") return <AccountLinkFallback />;
 
-  return (
-    <details className="site-account-menu">
-      <summary aria-label={`Abrir menu da conta, ${session.email}`}>
-        <UserRound aria-hidden="true" size={18} />
-      </summary>
-      <div className="site-account-popover">
-        <small>Conta conectada</small>
-        <strong>{session.name?.trim() || "Cliente"}</strong>
-        <span>{session.email}</span>
-        <Link href="/minha-conta"><UserRound aria-hidden="true" size={16} /> Minha conta</Link>
-        <form action={logoutAction}>
-          <button type="submit"><LogOut aria-hidden="true" size={17} /> Sair da conta</button>
-        </form>
-      </div>
-    </details>
-  );
+  return <AccountMenu email={session.email} name={session.name?.trim() || "Cliente"} />;
 }
 
 function AccountLinkFallback() {
