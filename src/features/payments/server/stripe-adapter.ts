@@ -22,6 +22,7 @@ export type StripePaymentAdapter = {
     intent: StripeIntentPayload;
     clientSecret: string;
   }>;
+  retrievePaymentStatus(providerReference: string): Promise<StripeIntentPayload>;
   constructWebhookEvent(rawBody: string, signature: string | null): StripeWebhookEvent;
 };
 
@@ -91,6 +92,10 @@ export function createStripePaymentAdapter(): StripePaymentAdapter | null {
       }
       return { intent: toStripeSessionPayload(session), clientSecret: session.client_secret };
     },
+    async retrievePaymentStatus(providerReference) {
+      const session = await stripe.checkout.sessions.retrieve(providerReference);
+      return toStripeSessionPayload(session);
+    },
     constructWebhookEvent(rawBody, signature) {
       if (!signature) {
         throw new Error("Assinatura Stripe ausente.");
@@ -133,6 +138,13 @@ function createMockStripeAdapter(publishableKey: string): StripePaymentAdapter {
         throw new Error("Pagamento de teste não encontrado.");
       }
       return { intent, clientSecret: intent.client_secret };
+    },
+    async retrievePaymentStatus(providerReference) {
+      const intent = getMockIntentStore().get(providerReference);
+      if (!intent) {
+        throw new Error("Pagamento de teste não encontrado.");
+      }
+      return intent;
     },
     constructWebhookEvent(rawBody, signature) {
       if (signature !== "triade-mock-signature") {

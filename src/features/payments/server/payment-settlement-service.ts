@@ -50,7 +50,7 @@ export async function settleSucceededPayment(input: {
     return fail(input.eventId, match.message);
   }
 
-  if (order.status === "pago") {
+  if (hasSettledPayment(order.status)) {
     await paymentRepository.finishEvent({
       eventId: input.eventId,
       processingStatus: "duplicate"
@@ -106,15 +106,30 @@ export async function settleSucceededPayment(input: {
     };
   }
 
+  let claimedOrder = false;
   try {
     await db.transaction(async (tx) => {
-      const [orderRow] = await tx.select().from(orders).where(eq(orders.id, order.id)).limit(1);
+      const [orderRow] = await tx
+        .update(orders)
+        .set({ status: "pago", paidAt, updatedAt: paidAt })
+        .where(and(eq(orders.id, order.id), eq(orders.status, "aguardando_pagamento")))
+        .returning();
       if (!orderRow) {
-        throw new Error("Pedido interno não encontrado.");
+        const [currentOrder] = await tx
+          .select({ status: orders.status })
+          .from(orders)
+          .where(eq(orders.id, order.id))
+          .limit(1);
+        if (currentOrder && hasSettledPayment(currentOrder.status)) {
+          await tx
+            .update(paymentEvents)
+            .set({ processingStatus: "duplicate", processedAt: paidAt })
+            .where(eq(paymentEvents.eventId, input.eventId));
+          return;
+        }
+        throw new Error("Pedido não está aguardando pagamento.");
       }
-      if (orderRow.status === "pago") {
-        return;
-      }
+      claimedOrder = true;
 
       const itemRows = await tx
         .select()
@@ -163,14 +178,14 @@ export async function settleSucceededPayment(input: {
         .set({ status: "pago", paidAt, failureReason: null, updatedAt: paidAt })
         .where(eq(paymentIntents.id, input.paymentIntent.id));
       await tx
-        .update(orders)
-        .set({ status: "pago", paidAt, updatedAt: paidAt })
-        .where(eq(orders.id, order.id));
-      await tx
         .update(paymentEvents)
         .set({ processingStatus: "processed", processedAt: paidAt, failureReason: null })
         .where(eq(paymentEvents.eventId, input.eventId));
     });
+
+    if (!claimedOrder) {
+      return { status: "duplicate", message: "Pedido já estava pago.", orderStatus: "pago" };
+    }
 
     await notifyOrderPaidAfterSettlement({
       orderId: order.id,
@@ -188,6 +203,15 @@ export async function settleSucceededPayment(input: {
   } catch (error) {
     return fail(input.eventId, sanitizePaymentFailureReason(error));
   }
+}
+
+function hasSettledPayment(status: string) {
+  return (
+    status === "pago" ||
+    status === "em_preparacao" ||
+    status === "enviado" ||
+    status === "entregue"
+  );
 }
 
 async function fail(eventId: string, message: string): Promise<WebhookProcessingResult> {

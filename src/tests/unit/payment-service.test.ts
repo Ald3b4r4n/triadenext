@@ -22,7 +22,10 @@ import { createPendingCheckoutOrder } from "@/features/checkout/server/checkout-
 import { createCouponRepository } from "@/features/coupons/server/coupon-repository";
 import { createOrderRepository } from "@/features/orders/server/order-repository";
 import { createNotificationRepository } from "@/features/notifications/drizzle-repository";
-import { sanitizePaymentFailureReason } from "@/features/payments/domain";
+import {
+  isStripePaymentSucceeded,
+  sanitizePaymentFailureReason
+} from "@/features/payments/domain";
 import { startOrderPayment } from "@/features/payments/server/payment-service";
 import { processStripeWebhook } from "@/features/payments/server/stripe-webhook-service";
 import { createProductRepository } from "@/features/products/server/product-repository";
@@ -198,6 +201,20 @@ describe("payment service", () => {
     );
 
     expect(message).not.toMatch(/sk_test_secret|whsec_secret|pi_secret|postgres:\/\/secret|smtp_password=secret/);
+  });
+
+  it("recognizes only provider states that confirm settlement", () => {
+    const baseIntent = {
+      id: "cs_test",
+      amount: 100,
+      currency: "brl",
+      metadata: { orderId: "order-test" }
+    };
+
+    expect(isStripePaymentSucceeded({ ...baseIntent, status: "paid" })).toBe(true);
+    expect(isStripePaymentSucceeded({ ...baseIntent, status: "succeeded" })).toBe(true);
+    expect(isStripePaymentSucceeded({ ...baseIntent, status: "unpaid" })).toBe(false);
+    expect(isStripePaymentSucceeded({ ...baseIntent, status: "processing" })).toBe(false);
   });
 });
 

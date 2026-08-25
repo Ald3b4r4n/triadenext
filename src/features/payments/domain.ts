@@ -54,6 +54,10 @@ export function validateStripeIntentMatchesOrder(input: {
   return { status: "valid" as const };
 }
 
+export function isStripePaymentSucceeded(intent: StripeIntentPayload) {
+  return intent.status === "paid" || intent.status === "succeeded";
+}
+
 export function sanitizePaymentFailureReason(value: unknown) {
   const raw = value instanceof Error ? value.message : String(value ?? "Falha de pagamento.");
   return raw

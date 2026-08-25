@@ -26,4 +26,5 @@ data/dry-run/input/*
 !data/dry-run/input/examples/**
 data/dry-run/output/
 .vercel
+.tmp-vercel-*/
 .env*.local
