@@ -40,6 +40,10 @@ export async function requireAdminLike(session = getCurrentSession()): Promise<P
     return authenticated;
   }
 
+  if (resolvedSession.status !== "authenticated") {
+    return { status: "unauthenticated", reason: resolvedSession.reason };
+  }
+
   if (authenticated.role !== "admin" && authenticated.role !== "manager") {
     return { status: "forbidden", reason: "insufficient_role" };
   }
@@ -51,7 +55,7 @@ export async function requireAdminLike(session = getCurrentSession()): Promise<P
     return { status: "forbidden", reason: "two_factor_required" };
   }
 
-  if (!(await hasValidAdminStepUp(authenticated.userId))) {
+  if (!(await hasValidAdminStepUp(authenticated.userId, resolvedSession.sessionId))) {
     return { status: "forbidden", reason: "admin_step_up_required" };
   }
 

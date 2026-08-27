@@ -35,7 +35,7 @@ export async function verifyAdminStepUpAction(
       body: { code: normalizedCode, trustDevice: false },
       headers: await headers()
     });
-    await grantAdminStepUp(session.userId);
+    await grantAdminStepUp(session.userId, session.sessionId);
     return { status: "success", returnTo: validateAdminReturnTo(returnTo) };
   } catch {
     return {

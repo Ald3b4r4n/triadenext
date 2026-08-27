@@ -17,6 +17,7 @@ import {
 } from "@/features/cart/server/cart-session";
 import { mergeGuestCartIntoUser } from "@/features/cart/server/cart-service";
 import { getCurrentSession } from "./session";
+import { revokeAdminStepUp } from "./admin-step-up";
 
 export type AuthActionState = {
   status: "idle" | "error";
@@ -239,13 +240,12 @@ function readErrorText(error: unknown, field: "code" | "message") {
 }
 
 export async function logoutAction() {
+  await revokeAdminStepUp();
   try {
     await auth.api.signOut({
       headers: await headers()
     });
-  } catch {
-    redirect("/login");
-  }
+  } catch {}
 
   redirect("/login");
 }

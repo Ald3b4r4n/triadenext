@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { signInEmail, signUpEmail, signOut } = vi.hoisted(() => ({
+const { revokeAdminStepUp, signInEmail, signUpEmail, signOut } = vi.hoisted(() => ({
+  revokeAdminStepUp: vi.fn(async () => undefined),
   signInEmail: vi.fn(async () => ({ ok: true })),
   signUpEmail: vi.fn(async () => ({ ok: true })),
   signOut: vi.fn(async () => ({ ok: true }))
@@ -36,6 +37,10 @@ vi.mock("@/features/auth/server/auth", () => ({
       signOut
     }
   }
+}));
+
+vi.mock("@/features/auth/server/admin-step-up", () => ({
+  revokeAdminStepUp
 }));
 
 import { loginAction, logoutAction, signupAction } from "@/features/auth/server/actions";
@@ -88,5 +93,7 @@ describe("auth actions", () => {
 
   it("invalidates session on logout", async () => {
     await expect(logoutAction()).rejects.toThrow(/NEXT_REDIRECT/);
+    expect(revokeAdminStepUp).toHaveBeenCalledOnce();
+    expect(signOut).toHaveBeenCalledOnce();
   });
 });

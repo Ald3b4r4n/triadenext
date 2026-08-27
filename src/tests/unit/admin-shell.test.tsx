@@ -64,4 +64,17 @@ describe("shell administrativo responsivo", () => {
       );
     });
   });
+
+  it("mantém a autorização administrativa ao visitar a loja na mesma sessão", () => {
+    render(
+      <AdminShell userEmail="admin@example.com" userRole="admin">
+        <p>Área administrativa</p>
+      </AdminShell>
+    );
+
+    expect(screen.getAllByRole("link", { name: "Ver loja" })[0]).toHaveAttribute(
+      "href",
+      "/"
+    );
+  });
 });

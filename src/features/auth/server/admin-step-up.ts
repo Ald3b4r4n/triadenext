@@ -5,18 +5,15 @@ import { cookies } from "next/headers";
 import { env } from "@/lib/env";
 
 const ADMIN_STEP_UP_COOKIE = "triade_admin_step_up";
-export const ADMIN_STEP_UP_MAX_AGE_SECONDS = 15 * 60;
 
-export async function grantAdminStepUp(userId: string) {
-  const expiresAt = Math.floor(Date.now() / 1000) + ADMIN_STEP_UP_MAX_AGE_SECONDS;
-  const payload = `${userId}.${expiresAt}`;
-  const token = `${payload}.${sign(payload)}`;
+export async function grantAdminStepUp(userId: string, sessionId: string) {
+  const token = createAdminStepUpToken(userId, sessionId);
   const cookieStore = await cookies();
 
   cookieStore.set(ADMIN_STEP_UP_COOKIE, token, {
     httpOnly: true,
-    maxAge: ADMIN_STEP_UP_MAX_AGE_SECONDS,
     path: "/",
+    priority: "high",
     sameSite: "strict",
     secure: process.env.NODE_ENV === "production"
   });
@@ -33,28 +30,55 @@ export async function revokeAdminStepUp() {
   });
 }
 
-export async function hasValidAdminStepUp(userId: string) {
+export async function hasValidAdminStepUp(userId: string, sessionId: string) {
   const token = (await cookies()).get(ADMIN_STEP_UP_COOKIE)?.value;
-  return verifyAdminStepUpToken(token, userId);
+  return verifyAdminStepUpToken(token, userId, sessionId);
 }
 
-export function verifyAdminStepUpToken(token: string | undefined, userId: string, now = Date.now()) {
+export function createAdminStepUpToken(userId: string, sessionId: string) {
+  const payload = Buffer.from(
+    JSON.stringify({ version: 2, userId, sessionId }),
+    "utf8"
+  ).toString("base64url");
+  return `${payload}.${sign(payload)}`;
+}
+
+export function verifyAdminStepUpToken(
+  token: string | undefined,
+  userId: string,
+  sessionId: string
+) {
   if (!token) return false;
 
   const parts = token.split(".");
-  if (parts.length !== 3) return false;
+  if (parts.length !== 2) return false;
 
-  const [tokenUserId, rawExpiresAt, signature] = parts;
-  const expiresAt = Number(rawExpiresAt);
-  if (tokenUserId !== userId || !Number.isSafeInteger(expiresAt)) return false;
-  if (expiresAt <= Math.floor(now / 1000)) return false;
-
-  const payload = `${tokenUserId}.${rawExpiresAt}`;
+  const [payload, signature] = parts;
   const expected = sign(payload);
   const receivedBuffer = Buffer.from(signature, "utf8");
   const expectedBuffer = Buffer.from(expected, "utf8");
 
-  return receivedBuffer.length === expectedBuffer.length && timingSafeEqual(receivedBuffer, expectedBuffer);
+  if (
+    receivedBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(receivedBuffer, expectedBuffer)
+  ) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
+      version?: unknown;
+      userId?: unknown;
+      sessionId?: unknown;
+    };
+    return (
+      parsed.version === 2 &&
+      parsed.userId === userId &&
+      parsed.sessionId === sessionId
+    );
+  } catch {
+    return false;
+  }
 }
 
 export function validateAdminReturnTo(value: unknown) {

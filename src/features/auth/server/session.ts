@@ -10,6 +10,7 @@ export type AuthRole = "customer" | "admin" | "manager";
 export type AppSession =
   | {
       status: "authenticated";
+      sessionId: string;
       userId: string;
       name?: string;
       email: string;
@@ -48,6 +49,7 @@ export const getCurrentSession = cache(async function getCurrentSession(): Promi
 
     return {
       status: "authenticated",
+      sessionId: session.session.id,
       userId: session.user.id,
       name: typeof session.user.name === "string" ? session.user.name : undefined,
       email: session.user.email,

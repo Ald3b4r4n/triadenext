@@ -1,34 +1,56 @@
-import { createHmac } from "node:crypto";
-import { describe, expect, it } from "vitest";
-import { env } from "@/lib/env";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  createAdminStepUpToken,
+  grantAdminStepUp,
   validateAdminReturnTo,
   verifyAdminStepUpToken
 } from "@/features/auth/server/admin-step-up";
 
-function createToken(userId: string, expiresAt: number) {
-  const payload = `${userId}.${expiresAt}`;
-  const signature = createHmac("sha256", env.BETTER_AUTH_SECRET)
-    .update(payload)
-    .digest("base64url");
-  return `${payload}.${signature}`;
-}
+const { setCookie } = vi.hoisted(() => ({
+  setCookie: vi.fn()
+}));
+
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(async () => ({
+    get: vi.fn(),
+    set: setCookie
+  }))
+}));
 
 describe("admin step-up", () => {
-  it("accepts a valid token bound to the admin", () => {
-    const now = Date.UTC(2026, 7, 18, 12, 0, 0);
-    const expiresAt = Math.floor(now / 1000) + 60;
-    expect(verifyAdminStepUpToken(createToken("admin-1", expiresAt), "admin-1", now)).toBe(true);
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("rejects expired, altered and cross-user tokens", () => {
-    const now = Date.UTC(2026, 7, 18, 12, 0, 0);
-    const expiresAt = Math.floor(now / 1000) + 60;
-    const token = createToken("admin-1", expiresAt);
+  it("stores the authorization as a browser-session cookie", async () => {
+    await grantAdminStepUp("admin-1", "session-1");
 
-    expect(verifyAdminStepUpToken(token, "admin-2", now)).toBe(false);
-    expect(verifyAdminStepUpToken(`${token}alterado`, "admin-1", now)).toBe(false);
-    expect(verifyAdminStepUpToken(createToken("admin-1", expiresAt - 61), "admin-1", now)).toBe(false);
+    expect(setCookie).toHaveBeenCalledWith(
+      "triade_admin_step_up",
+      expect.any(String),
+      expect.objectContaining({
+        httpOnly: true,
+        path: "/",
+        priority: "high",
+        sameSite: "strict"
+      })
+    );
+    const options = setCookie.mock.calls[0]?.[2];
+    expect(options).not.toHaveProperty("expires");
+    expect(options).not.toHaveProperty("maxAge");
+  });
+
+  it("accepts a valid token bound to the admin and current browser session", () => {
+    const token = createAdminStepUpToken("admin-1", "session-1");
+    expect(verifyAdminStepUpToken(token, "admin-1", "session-1")).toBe(true);
+  });
+
+  it("rejects altered, cross-user and cross-session tokens", () => {
+    const token = createAdminStepUpToken("admin-1", "session-1");
+
+    expect(verifyAdminStepUpToken(token, "admin-2", "session-1")).toBe(false);
+    expect(verifyAdminStepUpToken(token, "admin-1", "session-2")).toBe(false);
+    expect(verifyAdminStepUpToken(`${token}alterado`, "admin-1", "session-1")).toBe(false);
   });
 
   it("allows only internal admin return paths", () => {

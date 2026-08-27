@@ -55,7 +55,7 @@ export function AdminStepUpChallenge({ returnTo }: { returnTo: string }) {
         </button>
       </form>
       <p className="security-card__note">
-        O painel será bloqueado novamente ao sair desta navegação ou após 15 minutos.
+        Esta confirmação permanece válida até você sair da conta ou encerrar o navegador.
       </p>
     </section>
   );

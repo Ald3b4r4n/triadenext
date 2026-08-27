@@ -6,6 +6,7 @@ describe("auth policies", () => {
     expect(
       requireAuthenticatedSession({
         status: "authenticated",
+        sessionId: "session-user-1",
         userId: "user-1",
         email: "admin@example.com",
         role: "admin"
